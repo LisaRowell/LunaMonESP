@@ -1,0 +1,6 @@
+.pio
+.vscode
+.editorconfig
+sdkconfig
+sdkconfig.old
+build
