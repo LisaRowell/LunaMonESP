@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
+#ifndef ERROR_H
+#define ERROR_H
 
-#include <stdio.h>
+#include <etl/string.h>
 
-extern "C" void app_main(void) {
-    logger << logNotifyMain << "Hello world!\n" << eol;
-}
+extern void fatalError(const char *errorMsg) __attribute__((noreturn));
+extern void fatalError(const etl::istring &errorMsg) __attribute__((noreturn));
+extern void errorExit() __attribute__((noreturn));
+
+#endif

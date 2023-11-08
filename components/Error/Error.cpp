@@ -16,10 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
+#include "Error.h"
 
-#include <stdio.h>
+#include <etl/string.h>
 
-extern "C" void app_main(void) {
-    logger << logNotifyMain << "Hello world!\n" << eol;
+#include "esp_log.h"
+
+void fatalError(const char *errorMsg) {
+    ESP_LOGE("Util", "%s", errorMsg);
+    errorExit();
+}
+
+void fatalError(const etl::istring &errorMsg) {
+    ESP_LOGE("Util", "%s", errorMsg.data());
+    errorExit();
+}
+
+void errorExit() {
+    abort();
 }

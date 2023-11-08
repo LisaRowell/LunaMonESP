@@ -16,10 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
+#ifndef LOGGABLE_ITEM_H
+#define LOGGABLE_ITEM_H
 
-#include <stdio.h>
+class Logger;
 
-extern "C" void app_main(void) {
-    logger << logNotifyMain << "Hello world!\n" << eol;
-}
+class LoggableItem {
+    public:
+        virtual void log(Logger &logger) const = 0;
+};
+
+#endif
