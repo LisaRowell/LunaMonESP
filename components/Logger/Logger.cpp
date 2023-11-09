@@ -228,6 +228,29 @@ Logger & Logger::operator << (int16_t value) {
     return *this;
 }
 
+Logger & Logger::operator << (int32_t value) {
+    if (outputCurrentLine) {
+        switch (base) {
+            case Dec:
+                char decimalStr[16];
+                snprintf(decimalStr, 16, "%ld", value);
+                logString(decimalStr);
+                break;
+
+            case Hex:
+                char hexStr[16];
+                snprintf(hexStr, 16, "0x%0lx", value);
+                logString(hexStr);
+                break;
+
+            default:
+                fatalError("Messed up base in logger");
+        }
+    }
+
+    return *this;
+}
+
 Logger & Logger::operator << (int value) {
     if (outputCurrentLine) {
         switch (base) {
@@ -307,6 +330,10 @@ const char *Logger::moduleName(LoggerModule module) {
             return "WiFi Manager";
         case LOGGER_MODULE_STATS_MANAGER:
             return "Stats Manager";
+        case LOGGER_MODULE_I2C_MASTER:
+            return "I2C Master";
+        case LOGGER_MODULE_BME280_DRIVER:
+            return "BME280 Driver";
         default:
             fatalError("Unhandled LoggerModule in Logger::moduleName");
     }
