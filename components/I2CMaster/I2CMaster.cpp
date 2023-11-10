@@ -28,31 +28,28 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define I2C_MASTER_SCL_IO       GPIO_NUM_22
-#define I2C_MASTER_SDA_IO       GPIO_NUM_23
-#define I2C_MASTER_NUM          I2C_NUM_0
 #define I2C_MASTER_FREQ_HZ      400000
 #define I2C_MASTER_TIMEOUT_MS   1000
 
-I2CMaster::I2CMaster() {
+I2CMaster::I2CMaster(i2c_port_t instance, int sclIOPin, int sdaIOPin) : instance(instance) {
     esp_err_t error;
 
     i2c_config_t i2c_config;
     memset(&i2c_config, 0, sizeof(i2c_config_t));
     i2c_config.mode = I2C_MODE_MASTER;
-    i2c_config.sda_io_num = I2C_MASTER_SDA_IO;
+    i2c_config.sda_io_num = sdaIOPin;
     i2c_config.sda_pullup_en = GPIO_PULLUP_ENABLE;
-    i2c_config.scl_io_num = I2C_MASTER_SCL_IO;
+    i2c_config.scl_io_num = sclIOPin;
     i2c_config.scl_pullup_en = GPIO_PULLUP_ENABLE;
     i2c_config.master.clk_speed = I2C_MASTER_FREQ_HZ;
     i2c_config.clk_flags = 0;
     
-    error = i2c_param_config(I2C_MASTER_NUM, &i2c_config);
+    error = i2c_param_config(instance, &i2c_config);
     if (error != ESP_OK) {
         fatalError("Failed to configure i2c driver");
     }
     
-    error = i2c_driver_install(I2C_MASTER_NUM, I2C_MODE_MASTER, 0, 0, 0);
+    error = i2c_driver_install(instance, I2C_MODE_MASTER, 0, 0, 0);
     if (error != ESP_OK) {
         fatalError("Failed to install i2c driver");
     }
@@ -63,8 +60,8 @@ I2CMaster::I2CMaster() {
 uint8_t I2CMaster::readByte(uint8_t deviceAddr, uint8_t byteAddr) {
     uint8_t address = byteAddr;
     uint8_t value;
-    esp_err_t error = i2c_master_write_read_device(I2C_MASTER_NUM, deviceAddr, &address, 1, &value,
-                                                   1, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS); 
+    esp_err_t error = i2c_master_write_read_device(instance, deviceAddr, &address, 1, &value, 1,
+                                                   I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS); 
     if (error != ESP_OK) {
         throw error;
     }
@@ -75,7 +72,7 @@ uint8_t I2CMaster::readByte(uint8_t deviceAddr, uint8_t byteAddr) {
 void I2CMaster::writeByte(uint8_t deviceAddr, uint8_t byteAddr, uint8_t value) {
     uint8_t write_buf[2] = { byteAddr, value };
 
-    esp_err_t error = i2c_master_write_to_device(I2C_MASTER_NUM, deviceAddr, write_buf,
+    esp_err_t error = i2c_master_write_to_device(instance, deviceAddr, write_buf,
                                                  sizeof(write_buf),
                                                  I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
     if (error != ESP_OK) {
@@ -84,8 +81,7 @@ void I2CMaster::writeByte(uint8_t deviceAddr, uint8_t byteAddr, uint8_t value) {
 }
 
 void I2CMaster::readBytes(uint8_t deviceAddr, uint8_t address, uint8_t *bytes, size_t count) {
-    esp_err_t error = i2c_master_write_read_device(I2C_MASTER_NUM, deviceAddr, &address, 1,
-                                                   bytes, count,
+    esp_err_t error = i2c_master_write_read_device(instance, deviceAddr, &address, 1, bytes, count,
                                                    I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS); 
     if (error != ESP_OK) {
         throw error;

@@ -16,25 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef I2C_MASTER
-#define I2C_MASTER
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include "driver/i2c.h"
+#define I2C_MASTER_SCL_IO       GPIO_NUM_22
+#define I2C_MASTER_SDA_IO       GPIO_NUM_23
+#define I2C_MASTER_NUM          I2C_NUM_0
 
-#include <stdint.h>
-#include <stddef.h>
+#define BME280_ADDRESS          0x77
 
-class I2CMaster {
-    private:
-        i2c_port_t instance;
-
-    public:
-        // The ESP32 supports up to two I2C busses, depending on the model. The instance parameter
-        // selects which port to use, 0 or 1.
-        I2CMaster(i2c_port_t instance, int sclIOPin, int sdaIOPin);
-        uint8_t readByte(uint8_t deviceAddr, uint8_t byteAddr);
-        void writeByte(uint8_t deviceAddr, uint8_t byteAddr, uint8_t value);
-        void readBytes(uint8_t deviceAddr, uint8_t address, uint8_t *bytes, size_t count);
-};
-
-#endif // I2C_MASTER
+#endif // CONFIG_H

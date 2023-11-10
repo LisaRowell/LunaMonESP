@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Config.h"
 #include "I2CMaster.h"
 #include "BME280Driver.h"
 #include "Logger.h"
@@ -25,22 +26,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "driver/i2c.h"
-
-#define I2C_MASTER_SCL_IO       GPIO_NUM_22
-#define I2C_MASTER_SDA_IO       GPIO_NUM_23
-#define I2C_MASTER_NUM          I2C_NUM_0
-#define I2C_MASTER_FREQ_HZ      400000
-#define I2C_MASTER_TIMEOUT_MS   1000
-
-#define BME280_ADDRESS          0x77
-#define BME280_ID_REG           0xD0
-
 extern "C" void app_main(void) {
     logger.setLevel(LOGGER_LEVEL_DEBUG);
     logger.enableModuleDebug(LOGGER_MODULE_BME280_DRIVER);
 
-    I2CMaster ic2Master;
+    I2CMaster ic2Master(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
     BME280Driver bme280Driver(ic2Master, BME280_ADDRESS);
 
     if (bme280Driver.detect()) {
