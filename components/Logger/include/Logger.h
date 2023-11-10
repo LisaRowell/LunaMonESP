@@ -163,4 +163,4 @@ class Logger {
 
 extern Logger logger;
 
-#endif
+#endif // LOGGER_H

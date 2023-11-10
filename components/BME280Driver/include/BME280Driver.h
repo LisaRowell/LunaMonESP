@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef BME280_DRIVER_H
+#define BME280_DRIVER_H
+
 #include "I2CDriver.h"
 
 #include <stdint.h>
@@ -65,3 +68,5 @@ class BME280Driver : I2CDriver {
         void read(HundredthsInt16 &temperatureC, HundredthsUInt32 &pressureMBar,
                   HundredthsUInt8 &relativeHumidity);
 };
+
+#endif // BME280_DRIVER_H

@@ -26,4 +26,4 @@ class LoggableItem {
         virtual void log(Logger &logger) const = 0;
 };
 
-#endif
+#endif // LOGGABLE_ITEM_H

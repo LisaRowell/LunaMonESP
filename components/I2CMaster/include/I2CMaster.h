@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef I2C_MASTER
-#define I2C_MASTER
+#ifndef I2C_MASTER_H
+#define I2C_MASTER_H
 
 #include "driver/i2c.h"
 
@@ -37,4 +37,4 @@ class I2CMaster {
         void readBytes(uint8_t deviceAddr, uint8_t address, uint8_t *bytes, size_t count);
 };
 
-#endif // I2C_MASTER
+#endif // I2C_MASTER_H

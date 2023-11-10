@@ -25,4 +25,4 @@ extern void fatalError(const char *errorMsg) __attribute__((noreturn));
 extern void fatalError(const etl::istring &errorMsg) __attribute__((noreturn));
 extern void errorExit() __attribute__((noreturn));
 
-#endif
+#endif // ERROR_H
