@@ -17,8 +17,8 @@
  */
 
 #include "BME280Driver.h"
+#include "I2CDriver.h"
 
-#include "I2CMaster.h"
 #include "Logger.h"
 
 #include "esp_err.h"
@@ -131,19 +131,7 @@
 #define BME280_CTRL_MEAS_MODE_SHIFT                 0
 
 BME280Driver::BME280Driver(I2CMaster &ic2Master, uint8_t deviceAddr)
-    : ic2Master(ic2Master), deviceAddr(deviceAddr) {
-}
-
-uint8_t BME280Driver::readRegister(uint8_t offset) {
-    return ic2Master.readByte(deviceAddr, offset);
-}
-
-void BME280Driver::writeRegister(uint8_t offset, uint8_t value) {
-    ic2Master.writeByte(deviceAddr, offset, value);
-}
-
-void BME280Driver::readRegisters(uint8_t offset, uint8_t *registers, size_t count) {
-    ic2Master.readBytes(deviceAddr, offset, registers, count);
+    : I2CDriver(ic2Master, deviceAddr) {
 }
 
 bool BME280Driver::detect() {

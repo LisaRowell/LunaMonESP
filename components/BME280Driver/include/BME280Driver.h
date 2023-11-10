@@ -16,16 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class I2CMaster;
+#include "I2CDriver.h"
 
 #include <stdint.h>
-#include <stddef.h>
 
-class BME280Driver {
+class BME280Driver : I2CDriver {
     private:
-        I2CMaster &ic2Master;
-        uint8_t deviceAddr;
-
     	uint16_t dig_T1;
         int16_t dig_T2;
         int16_t dig_T3;
@@ -47,9 +43,6 @@ class BME280Driver {
         int16_t dig_H5;
         int8_t dig_H6;
 
-        uint8_t readRegister(uint8_t offset);
-        void writeRegister(uint8_t offset, uint8_t value);
-        void readRegisters(uint8_t offset, uint8_t *registers, size_t count);
         void readCalibrationData();
         void setStandbyTime(uint8_t standByCode);
         void setFilter(uint8_t filterCode);
