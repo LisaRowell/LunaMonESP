@@ -19,6 +19,9 @@
 #include "BME280Driver.h"
 #include "I2CDriver.h"
 
+#include "HundredthsInt16.h"
+#include "HundredthsUInt8.h"
+#include "HundredthsUInt32.h"
 #include "Logger.h"
 
 #include "esp_err.h"
@@ -270,29 +273,27 @@ void BME280Driver::setMode(uint8_t modeCode) {
 	writeRegister(BME280_CTRL_MEAS_REG, controlData);
 }
 
-void BME280Driver::read(int32_t &temperatureHundredthsC, uint32_t &pressureHundredthsMBar,
-                        uint32_t &relativeHumidityHundredths) {
+void BME280Driver::read(HundredthsInt16 &temperatureC, HundredthsUInt32 &pressureMBar,
+                        HundredthsUInt8 &relativeHumidity) {
 	uint8_t data[8];
 	readRegisters(BME280_MEASUREMENTS_REG, data, 8);
 
     int32_t t_fine;
     int32_t adcTemperature = ((uint32_t)data[3] << 12) | ((uint32_t)data[4] << 4) |
                              ((data[5] >> 4) & 0x0F);
-    temperatureHundredthsC = compensateTemperature(adcTemperature, t_fine);
+    int32_t temperatureHundredthsC = compensateTemperature(adcTemperature, t_fine);
+    temperatureC.setFromHundredths(temperatureHundredthsC);
 
     int32_t adc_P = ((uint32_t)data[0] << 12) | ((uint32_t)data[1] << 4) |
                     ((data[2] >> 4) & 0x0F);
     uint32_t pressureQ24Dot8 = compensatePressure(adc_P, t_fine);
-    uint32_t pressureMBar = pressureQ24Dot8 / (256 * 100);
-    uint32_t fractionalPressure256th = pressureQ24Dot8 % (256 * 100);
-    uint32_t fractionalPressure100ths = (fractionalPressure256th * 100) / (256 * 100);
-    pressureHundredthsMBar = pressureMBar * 100 + fractionalPressure100ths;
+    HundredthsUInt32 pressurePa;
+    pressurePa.setFromQ24Dot8(pressureQ24Dot8);
+    pressureMBar = pressurePa / 100;
 
     int32_t adcHumidity = ((uint32_t)data[6] << 8) | ((uint32_t)data[7]);
     uint32_t relativeHumidityQ22Dot10 = compensateHumidity(adcHumidity, t_fine);
-    // The below is erroneous.
-    relativeHumidityHundredths = (relativeHumidityQ22Dot10 / 1024) * 100 +
-                                 (relativeHumidityQ22Dot10 % 1024) / 10;
+    relativeHumidity.setFromQ22Dot10(relativeHumidityQ22Dot10);
 }
 
 // From datasheet

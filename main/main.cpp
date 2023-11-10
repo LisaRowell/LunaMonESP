@@ -19,6 +19,9 @@
 #include "Config.h"
 #include "I2CMaster.h"
 #include "BME280Driver.h"
+#include "HundredthsInt16.h"
+#include "HundredthsUInt8.h"
+#include "HundredthsUInt32.h"
 #include "Logger.h"
 #include "Error.h"
 
@@ -46,18 +49,17 @@ extern "C" void app_main(void) {
     }
 
     while (1) {
-        int32_t temperatureHundredthsC;
-        uint32_t pressureHundredthsMBar;
-        uint32_t relativeHumidityHundredths;
-        bme280Driver.read(temperatureHundredthsC, pressureHundredthsMBar,
-                          relativeHumidityHundredths);
+        HundredthsInt16 temperatureC;
+        HundredthsUInt32 pressureMBar;
+        HundredthsUInt8 relativeHumidity;
+        bme280Driver.read(temperatureC, pressureMBar, relativeHumidity);
 
-        logger << logNotifyMain << "Temperature = " << temperatureHundredthsC / 100 << "."
-               << temperatureHundredthsC % 100 << " C";
-        logger << " Pressure = " << pressureHundredthsMBar / 100 << "."
-               << pressureHundredthsMBar % 100 << " mBar";
-        logger << " Relative Humidity = " << relativeHumidityHundredths / 100 << "."
-               << relativeHumidityHundredths % 100 << "%" << eol;
+        HundredthsInt16 temperatureF = (temperatureC * 9) / 5 + 32;
+
+        logger << logNotifyMain << "Temperature = " << temperatureF << " F"
+               << " (" << temperatureC << " C)"
+               << "  Pressure = " << pressureMBar << " mBar"
+               << "  Relative Humidity = " << relativeHumidity << "%" << eol;
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

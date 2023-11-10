@@ -20,6 +20,10 @@
 
 #include <stdint.h>
 
+class HundredthsInt16;
+class HundredthsUInt8;
+class HundredthsUInt32;
+
 class BME280Driver : I2CDriver {
     private:
     	uint16_t dig_T1;
@@ -58,6 +62,6 @@ class BME280Driver : I2CDriver {
         BME280Driver(I2CMaster &ic2Master, uint8_t deviceAddr);
         bool detect();
         void start();
-        void read(int32_t &temperatureHundredthsC, uint32_t &pressureHundredthsMBar,
-                  uint32_t &relativeHumidityHundredths);
+        void read(HundredthsInt16 &temperatureC, HundredthsUInt32 &pressureMBar,
+                  HundredthsUInt8 &relativeHumidity);
 };
