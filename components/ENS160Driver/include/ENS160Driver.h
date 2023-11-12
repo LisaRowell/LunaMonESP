@@ -16,16 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef ENS160_DRIVER_H
+#define ENS160_DRIVER_H
 
-#define I2C_MASTER_SCL_IO       GPIO_NUM_22
-#define I2C_MASTER_SDA_IO       GPIO_NUM_23
-#define I2C_MASTER_NUM          I2C_NUM_0
+#include "I2CDriver.h"
 
-#define BME280_ADDRESS          0x77
-#define ENS160_ADDRESS          0x53
+#include <stdint.h>
 
-#define STATUS_LED_GPIO         GPIO_NUM_13
+class I2CMaster;
 
-#endif // CONFIG_H
+class ENS160Driver : I2CDriver {
+    private:
+        void logStatus(uint8_t status);
+
+    public:
+        ENS160Driver(I2CMaster &ic2Master, uint8_t deviceAddr);
+        bool detect();
+        void start();
+        bool read(bool &startingUp, uint8_t &aqi, uint16_t &tvoc, uint16_t &eco2);
+        const char *aqiDescription(uint8_t aqi);
+        const char *tvocDescription(uint16_t tvoc);
+        const char *eco2Description(uint16_t eco2);
+};
+
+#endif // ENS160_DRIVER_H

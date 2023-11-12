@@ -334,6 +334,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "I2C Master";
         case LOGGER_MODULE_BME280_DRIVER:
             return "BME280 Driver";
+        case LOGGER_MODULE_ENS160_DRIVER:
+            return "ENS160 Driver";
         default:
             fatalError("Unhandled LoggerModule in Logger::moduleName");
     }

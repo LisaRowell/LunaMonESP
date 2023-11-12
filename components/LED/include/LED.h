@@ -16,16 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef LED_H
+#define LED_H
 
-#define I2C_MASTER_SCL_IO       GPIO_NUM_22
-#define I2C_MASTER_SDA_IO       GPIO_NUM_23
-#define I2C_MASTER_NUM          I2C_NUM_0
+#include "driver/gpio.h"
 
-#define BME280_ADDRESS          0x77
-#define ENS160_ADDRESS          0x53
+class LED {
+    private:
+        gpio_num_t gpioPin;
 
-#define STATUS_LED_GPIO         GPIO_NUM_13
+    public:
+        LED(gpio_num_t gpioPin);
+        void on();
+        void off();
+};
 
-#endif // CONFIG_H
+#endif // LED_H
