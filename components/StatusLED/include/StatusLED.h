@@ -16,21 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LED_H
-#define LED_H
+#ifndef STATUS_LED_H
+#define STATUS_LED_H
 
-#include "driver/gpio.h"
+#include "LED.h"
 
-class LED {
-    private:
-        gpio_num_t gpioPin;
-        bool isOn;
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-    public:
-        LED(gpio_num_t gpioPin);
-        void on();
-        void off();
-        void toggle();
+enum StatusLEDState {
+    STATUS_LED_OFF,
+    STATUS_LED_ERROR_FLASH,
+    STATUS_LED_NORMAL_FLASH,
+    STATUS_LED_ON,
 };
 
-#endif // LED_H
+class StatusLED : LED {
+    private:
+        StatusLEDState state;
+        TaskHandle_t flasherTask;
+
+        void changeState(StatusLEDState newState);
+
+    public:
+        StatusLED(gpio_num_t gpioPin);
+        void off();
+        void errorFlash();
+        void normalFlash();
+        void on();
+};
+
+#endif // STATUS_LED_H

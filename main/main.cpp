@@ -20,7 +20,7 @@
 #include "I2CMaster.h"
 #include "BME280Driver.h"
 #include "ENS160Driver.h"
-#include "LED.h"
+#include "StatusLED.h"
 #include "HundredthsInt16.h"
 #include "HundredthsUInt8.h"
 #include "HundredthsUInt32.h"
@@ -32,13 +32,10 @@
 #include "freertos/task.h"
 
 extern "C" void app_main(void) {
-    LED statusLED(STATUS_LED_GPIO);
+    StatusLED statusLED(STATUS_LED_GPIO);
 
     bool bme280Functional;
     bool ens160Functional;
-    bool ens160HasData;
-    bool ens160StartingUp;
-    bool badAirWarning;
 
     logger.setLevel(LOGGER_LEVEL_DEBUG);
 //    logger.enableModuleDebug(LOGGER_MODULE_BME280_DRIVER);
@@ -72,10 +69,12 @@ extern "C" void app_main(void) {
         }
         catch (esp_err_t error) {
             logger << logErrorMain << "Failed to start ENS160 device." << eol;
+            statusLED.off();
             ens160Functional = false;
         }
     } else {
         logger << logErrorMain << "ENS160 not detected." << eol;
+        statusLED.off();
         ens160Functional = false;
     }
 
@@ -95,10 +94,11 @@ extern "C" void app_main(void) {
         }
 
         if (ens160Functional) {
+            bool ens160StartingUp;
             uint8_t aqi;
             uint16_t tvoc;
             uint16_t eco2;
-            ens160HasData = ens160Driver.read(ens160StartingUp, aqi, tvoc, eco2);
+            bool ens160HasData = ens160Driver.read(ens160StartingUp, aqi, tvoc, eco2);
             if (ens160HasData) {
                 logger << logNotifyMain
                        << "AQI = " << aqi << " (" << ens160Driver.aqiDescription(aqi) << ")"
@@ -109,36 +109,19 @@ extern "C" void app_main(void) {
                 }
                 logger << eol;
 
-                badAirWarning = aqi >= 4;
+                if (aqi >= 4) {
+                    statusLED.errorFlash();
+                } else if (ens160StartingUp) {
+                    statusLED.normalFlash();
+                } else {
+                    statusLED.on();
+                }
             } else {
                 logger << logNotifyMain << "No valid environmental data." << eol;
-                badAirWarning = false; // Keeping the compiler happy.
+                statusLED.off();
             }
-        } else {
-            ens160HasData = false; // Keeping the compiler happy.
-            badAirWarning = false; // Keeping the compiler happy.
         }
 
-        if (!ens160Functional || !ens160HasData) {
-            statusLED.off();
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-        } else if (badAirWarning) {
-            statusLED.on();
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            statusLED.off();
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            statusLED.on();
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            statusLED.off();
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-        } else if (ens160StartingUp) {
-            statusLED.on();
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            statusLED.off();
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        } else {
-            statusLED.on();
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-        }
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }

@@ -23,12 +23,25 @@
 LED::LED(gpio_num_t gpioPin) : gpioPin(gpioPin) {
     gpio_reset_pin(gpioPin);
     gpio_set_direction(gpioPin, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(gpioPin, 0);
+    isOn = false;
 }
 
 void LED::on() {
     gpio_set_level(gpioPin, 1);
+    isOn = true;
 }
 
 void LED::off() {
     gpio_set_level(gpioPin, 0);
+    isOn = false;
+}
+
+void LED::toggle() {
+    if (isOn) {
+        off();
+    } else {
+        on();
+    }
 }
