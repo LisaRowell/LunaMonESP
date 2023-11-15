@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMon)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2021-2023 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,36 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATUS_LED_H
-#define STATUS_LED_H
+#ifndef LUNA_MON_H
+#define LUNA_MON_H
 
-#include "LED.h"
+#include "StatusLED.h"
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
-enum StatusLEDState {
-    STATUS_LED_OFF,
-    STATUS_LED_ERROR_FLASH,
-    STATUS_LED_NORMAL_FLASH,
-    STATUS_LED_ON,
-};
-
-class StatusLED : LED {
+class LunaMon {
     private:
-        StatusLEDState state;
-        TaskHandle_t flasherTask;
-
-        void changeState(StatusLEDState newState);
-
-        static void flashTask(void *pvParameters);
+        StatusLED statusLED;
 
     public:
-        StatusLED(gpio_num_t gpioPin);
-        void off();
-        void errorFlash();
-        void normalFlash();
-        void on();
+        LunaMon();
+        void run();
 };
 
-#endif // STATUS_LED_H
+#endif // LUNA_MON_H

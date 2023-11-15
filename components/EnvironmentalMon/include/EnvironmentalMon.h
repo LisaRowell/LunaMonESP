@@ -16,36 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATUS_LED_H
-#define STATUS_LED_H
+#ifndef ENVIRONMENTAL_MON_H
+#define ENVIRONMENTAL_MON_H
 
-#include "LED.h"
+#include "TaskObject.h"
+#include "BME280Driver.h"
+#include "ENS160Driver.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-enum StatusLEDState {
-    STATUS_LED_OFF,
-    STATUS_LED_ERROR_FLASH,
-    STATUS_LED_NORMAL_FLASH,
-    STATUS_LED_ON,
-};
+class I2CMaster;
+class StatusLED;
 
-class StatusLED : LED {
+class EnvironmentalMon : TaskObject {
     private:
-        StatusLEDState state;
-        TaskHandle_t flasherTask;
+        StatusLED &statusLED;
+        bool bme280Functional;
+        BME280Driver bme280Driver;
+        bool ens160Functional;
+        ENS160Driver ens160Driver;
 
-        void changeState(StatusLEDState newState);
-
-        static void flashTask(void *pvParameters);
+        virtual void task() override;
+        void detectBME280();
+        void pollBME280();
+        void detectENS160();
+        void pollENS160();
 
     public:
-        StatusLED(gpio_num_t gpioPin);
-        void off();
-        void errorFlash();
-        void normalFlash();
-        void on();
+        EnvironmentalMon(I2CMaster &ic2Master, StatusLED &statusLED);
 };
 
-#endif // STATUS_LED_H
+#endif // ENVIRONMENTAL_MON_H

@@ -26,7 +26,7 @@
 
 #define STACK_SIZE  1024
 
-static void flashTask(void *pvParameters) {
+void StatusLED::flashTask(void *pvParameters) {
     LED *led = (LED *)pvParameters;
     TickType_t cycleTicks = portMAX_DELAY;
     bool toggle = false;

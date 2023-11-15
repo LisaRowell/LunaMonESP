@@ -16,36 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATUS_LED_H
-#define STATUS_LED_H
+#include "TaskObject.h"
+#include "Logger.h"
+#include "Error.h"
 
-#include "LED.h"
+#include <stddef.h>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+TaskObject::TaskObject(const char *name, LoggerLevel level, size_t stackSize)
+    : name(name), stackSize(stackSize), _task(nullptr), logger(level) {
+}
 
-enum StatusLEDState {
-    STATUS_LED_OFF,
-    STATUS_LED_ERROR_FLASH,
-    STATUS_LED_NORMAL_FLASH,
-    STATUS_LED_ON,
-};
+void TaskObject::start() {
+    BaseType_t created = xTaskCreate(startTask, name, stackSize, this,
+                                     tskIDLE_PRIORITY, &_task);
+    if (created != pdPASS || _task == NULL) {
+        logger << logErrorTaskObject << "Failed to create " << name << " task" << eol;
+        errorExit();
+    }
+}
 
-class StatusLED : LED {
-    private:
-        StatusLEDState state;
-        TaskHandle_t flasherTask;
-
-        void changeState(StatusLEDState newState);
-
-        static void flashTask(void *pvParameters);
-
-    public:
-        StatusLED(gpio_num_t gpioPin);
-        void off();
-        void errorFlash();
-        void normalFlash();
-        void on();
-};
-
-#endif // STATUS_LED_H
+void TaskObject::startTask(void *taskPtr) {
+    TaskObject *task = (TaskObject *)taskPtr;
+    task->task();
+}
