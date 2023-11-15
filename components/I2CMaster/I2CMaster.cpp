@@ -32,7 +32,8 @@
 #define I2C_MASTER_FREQ_HZ      400000
 #define I2C_MASTER_TIMEOUT_MS   1000
 
-I2CMaster::I2CMaster(i2c_port_t instance, int sclIOPin, int sdaIOPin) : instance(instance) {
+I2CMaster::I2CMaster(i2c_port_t instance, gpio_num_t sclIOPin, gpio_num_t sdaIOPin)
+    : instance(instance) {
     esp_err_t error;
 
     i2c_config_t i2c_config;

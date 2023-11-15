@@ -1,0 +1,90 @@
+menu "Luna Mon Configuration"
+
+    config WIFI_SSID
+        string "WiFi SSID"
+        default "myssid"
+        help
+            SSID (network name) for Luna Mon to connect to.
+
+    config WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WiFi password (WPA or WPA2) for Luna Mon to use.
+
+    config STATUS_LED_GPIO
+        int "Status LED Pin"
+        default 13
+        help
+            GPIO pin number where a status LED is connected. Consult your board documentation for
+            information on which pin to use.
+
+    choice 
+        prompt "I2C Master ID"
+        default I2C_MASTER_NUM_0
+        help
+            Some ESP variants have two I2C interfaces. Select which interface to use for Luna Mon 
+            sensors.
+
+        config I2C_MASTER_NUM_0
+            bool "0"
+        config I2C_MASTER_NUM_1
+            bool "1"
+    endchoice
+
+    config I2C_MASTER_NUM
+        int
+        default 0 if I2C_MASTER_NUM_0
+        default 1 if I2C_MASTER_NUM_1
+        
+    config I2C_MASTER_SCL_IO
+        int "I2C SCL IO Pin"
+        default 22
+        help
+            Pin number to use for the I2C SCL. Consult your board documentation for information
+            on which pin to use.
+
+    config I2C_MASTER_SDA_IO
+        int "I2C SDA IO Pin"
+        default 23
+        help
+            Pin number to use for the I2C SDA. Consult your board documentation for information
+            on which pin to use.
+
+    choice
+        prompt "BME280 I2C Address"
+        default BME280_ADDRESS_77
+        help
+            The BME280 defaults to I2C address 0x77, but can be configured hardware to be 0x76.
+            Select the address used by your board.
+
+        config BME280_ADDRESS_77
+            bool "0x77"
+        config BME280_ADDRESS_76
+            bool "0x76"
+    endchoice
+
+    config BME280_ADDRESS
+        hex
+        default 0x77 if BME280_ADDRESS_77
+        default 0x76 if BME280_ADDRESS_76
+
+    choice
+        prompt "ENS160 I2C Address"
+        default ENS160_ADDRESS_53
+        help
+            The ENS160 defaults to I2C address 0x53, but can be configured hardware to be 0x52.
+            Select the address used by your board.
+
+        config ENS160_ADDRESS_53
+            bool "0x53"
+        config ENS160_ADDRESS_52
+            bool "0x52"
+    endchoice
+
+    config ENS160_ADDRESS
+        hex
+        default 0x53 if ENS160_ADDRESS_53
+        default 0x52 if ENS160_ADDRESS_52
+
+endmenu

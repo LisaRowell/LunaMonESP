@@ -31,7 +31,7 @@ class I2CMaster {
     public:
         // The ESP32 supports up to two I2C busses, depending on the model. The instance parameter
         // selects which port to use, 0 or 1.
-        I2CMaster(i2c_port_t instance, int sclIOPin, int sdaIOPin);
+        I2CMaster(i2c_port_t instance, gpio_num_t sclIOPin, gpio_num_t sdaIOPin);
         uint8_t readByte(uint8_t deviceAddr, uint8_t byteAddr);
         void writeByte(uint8_t deviceAddr, uint8_t byteAddr, uint8_t value);
         void readBytes(uint8_t deviceAddr, uint8_t address, uint8_t *bytes, size_t count);

@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Config.h"
 #include "I2CMaster.h"
 #include "BME280Driver.h"
 #include "ENS160Driver.h"
@@ -31,6 +30,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#define STATUS_LED_GPIO     ((gpio_num_t)CONFIG_STATUS_LED_GPIO)
+#define I2C_MASTER_NUM      ((i2c_port_t)CONFIG_I2C_MASTER_NUM)
+#define I2C_MASTER_SCL_IO   ((gpio_num_t)CONFIG_I2C_MASTER_SCL_IO)
+#define I2C_MASTER_SDA_IO   ((gpio_num_t)CONFIG_I2C_MASTER_SDA_IO)
+
 extern "C" void app_main(void) {
     StatusLED statusLED(STATUS_LED_GPIO);
 
@@ -43,7 +47,7 @@ extern "C" void app_main(void) {
 
     I2CMaster ic2Master(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
 
-    BME280Driver bme280Driver(ic2Master, BME280_ADDRESS);
+    BME280Driver bme280Driver(ic2Master, CONFIG_BME280_ADDRESS);
 
     if (bme280Driver.detect()) {
         bme280Functional = true;
@@ -60,7 +64,7 @@ extern "C" void app_main(void) {
         bme280Functional = false;
     }
 
-    ENS160Driver ens160Driver(ic2Master, ENS160_ADDRESS);
+    ENS160Driver ens160Driver(ic2Master, CONFIG_ENS160_ADDRESS);
     if (ens160Driver.detect()) {
         ens160Functional = true;
         logger << logNotifyMain << "ENS160 detected." << eol;
