@@ -30,11 +30,11 @@ class TaskObject {
     private:
         const char *name;
         size_t stackSize;
-        TaskHandle_t _task;
 
         static void startTask(void *task);
 
     protected:
+        TaskHandle_t _task;
         // Each task needs it's own logger since it holds state as a message is built.
         Logger logger;
 

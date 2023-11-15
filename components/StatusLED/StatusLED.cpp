@@ -19,18 +19,25 @@
 #include "StatusLED.h"
 
 #include "LED.h"
+#include "TaskObject.h"
 #include "Error.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#define STACK_SIZE  1024
+#define STACK_SIZE  (2 *1024)
 
-void StatusLED::flashTask(void *pvParameters) {
-    LED *led = (LED *)pvParameters;
+StatusLED::StatusLED(gpio_num_t gpioPin)
+    : LED(gpioPin),
+      TaskObject("Status LED", LOGGER_LEVEL_DEBUG, STACK_SIZE),
+      state(STATUS_LED_OFF) {
+    start();
+}
+
+void StatusLED::task() {
     TickType_t cycleTicks = portMAX_DELAY;
-    bool toggle = false;
-    led->off();
+    bool toggling = false;
+    LED::off();
 
     while (true != false) {
         uint32_t notification;
@@ -39,45 +46,37 @@ void StatusLED::flashTask(void *pvParameters) {
             StatusLEDState newState = (StatusLEDState)notification;
             switch (newState) {
                 case STATUS_LED_OFF:
-                    led->off();
+                    LED::off();
                     cycleTicks = portMAX_DELAY;
-                    toggle = false;
+                    toggling = false;
                     break;
 
                 case STATUS_LED_NORMAL_FLASH:
-                    led->on();
+                    LED::on();
                     cycleTicks = pdMS_TO_TICKS(1000);
-                    toggle = true;
+                    toggling = true;
                     break;
 
                 case STATUS_LED_ERROR_FLASH:
-                    led->on();
+                    LED::on();
                     cycleTicks = pdMS_TO_TICKS(500);
-                    toggle = true;
+                    toggling = true;
                     break;
 
                 case STATUS_LED_ON:
-                    led->on();
+                    LED::on();
                     cycleTicks = portMAX_DELAY;
-                    toggle = false;
+                    toggling = false;
                     break;
 
                 default:
                     fatalError("Bad Status LED state");
             }
         } else {
-            if (toggle) {
-                led->toggle();
+            if (toggling) {
+                LED::toggle();
             }
         }
-    }
-}
-
-StatusLED::StatusLED(gpio_num_t gpioPin) : LED(gpioPin), state(STATUS_LED_OFF) {
-    BaseType_t created = xTaskCreate(flashTask, "StatusLEDFlashTask", STACK_SIZE, this,
-                                     tskIDLE_PRIORITY, &flasherTask);
-    if (created != pdPASS || flasherTask == NULL) {
-        fatalError("Failed to create StatusLED task");
     }
 }
 
@@ -100,5 +99,5 @@ void StatusLED::on() {
 
 void StatusLED::changeState(StatusLEDState newState) {
     state = newState;
-    xTaskNotify(flasherTask, state, eSetValueWithOverwrite);
+    xTaskNotify(_task, state, eSetValueWithOverwrite);
 }

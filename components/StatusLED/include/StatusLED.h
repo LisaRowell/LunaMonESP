@@ -20,9 +20,7 @@
 #define STATUS_LED_H
 
 #include "LED.h"
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "TaskObject.h"
 
 enum StatusLEDState {
     STATUS_LED_OFF,
@@ -31,14 +29,12 @@ enum StatusLEDState {
     STATUS_LED_ON,
 };
 
-class StatusLED : LED {
+class StatusLED : LED, TaskObject {
     private:
         StatusLEDState state;
-        TaskHandle_t flasherTask;
 
+        virtual void task() override;
         void changeState(StatusLEDState newState);
-
-        static void flashTask(void *pvParameters);
 
     public:
         StatusLED(gpio_num_t gpioPin);

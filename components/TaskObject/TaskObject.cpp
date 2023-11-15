@@ -37,5 +37,8 @@ void TaskObject::start() {
 
 void TaskObject::startTask(void *taskPtr) {
     TaskObject *task = (TaskObject *)taskPtr;
+
+    task->logger << logNotifyTaskObject << "Starting task " << task->name << eol;
+
     task->task();
 }
