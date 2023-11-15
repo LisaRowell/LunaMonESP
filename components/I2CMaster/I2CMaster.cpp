@@ -19,6 +19,7 @@
 #include "I2CMaster.h"
 
 #include "Logger.h"
+#include "ESPError.h"
 #include "Error.h"
 
 #include "driver/i2c.h"
@@ -46,12 +47,14 @@ I2CMaster::I2CMaster(i2c_port_t instance, int sclIOPin, int sdaIOPin) : instance
     
     error = i2c_param_config(instance, &i2c_config);
     if (error != ESP_OK) {
-        fatalError("Failed to configure i2c driver");
+        logger << logErrorI2CMaster << "Failed to configure i2c driver: " << ESPError(error) << eol;
+        errorExit();
     }
     
     error = i2c_driver_install(instance, I2C_MODE_MASTER, 0, 0, 0);
     if (error != ESP_OK) {
-        fatalError("Failed to install i2c driver");
+        logger << logErrorI2CMaster << "Failed to install i2c driver: " << ESPError(error) << eol;
+        errorExit();
     }
 
     logger << logNotifyI2CMaster << "I2C Master Initialized." << eol;

@@ -19,12 +19,12 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include "LoggableItem.h"
-
 #include <etl/string.h>
 #include <etl/string_view.h>
 
 #include <stdint.h>
+
+class LoggableItem;
 
 enum LoggerModule {
     LOGGER_MODULE_MAIN,
