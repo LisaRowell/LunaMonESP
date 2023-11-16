@@ -35,12 +35,14 @@
 class WiFiManager : TaskObject {
     private:
         static constexpr size_t stackSize = 8 * 1024;
+        static constexpr uint32_t connectionRetryTimeMs = 1000;
         EventGroupHandle_t eventGroup;
         bool connected;
 
         virtual void task() override;
         void handleWiFiEvent(int32_t eventId, void *eventData);
         void handleIPEvent(int32_t eventId, void *eventData);
+        void wifiDisconnection();
 
         static void eventHandler(void *arg, esp_event_base_t eventBase, int32_t eventId,
                                  void *eventData);

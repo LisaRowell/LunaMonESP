@@ -32,12 +32,14 @@
 
 #include "freertos/FreeRTOSConfig.h"
 #include "freertos/event_groups.h"
+#include "freertos/portmacro.h"
 
 #include <stdint.h>
 #include <string.h>
 
 WiFiManager::WiFiManager()
     : TaskObject("WiFi Manager", LOGGER_LEVEL_DEBUG, stackSize), connected(false) {
+    logger.enableModuleDebug(LOGGER_MODULE_WIFI_MANAGER);
 }
 
 void WiFiManager::start() {
@@ -151,26 +153,35 @@ void WiFiManager::handleIPEvent(int32_t eventId, void *eventData) {
 
 void WiFiManager::task() {
     while (true != false) {
-        if (!connected) {
-            EventBits_t eventBits = xEventGroupWaitBits(eventGroup, WIFI_CONNECTED_BIT, pdFALSE,
-                                                        pdFALSE, portMAX_DELAY);
-            if (eventBits & WIFI_CONNECTED_BIT) {
-                logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
-                       << eol;
-                connected = true;
-            } else {
-                // Timeout of max delay
-            }
+        EventBits_t eventBits = xEventGroupWaitBits(eventGroup, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+                                                    pdTRUE, pdFALSE, portMAX_DELAY);
+        if (eventBits & WIFI_CONNECTED_BIT) {
+            logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
+                   << eol;
+            connected = true;
+        } else if (eventBits & WIFI_FAIL_BIT) {
+            wifiDisconnection();
         } else {
-            EventBits_t eventBits = xEventGroupWaitBits(eventGroup, WIFI_FAIL_BIT, pdFALSE, pdFALSE,
-                                                        portMAX_DELAY);
-            if (eventBits & WIFI_FAIL_BIT) {
-                logger << logNotifyWiFiManager << "Connection to WiFi to SSID " << CONFIG_WIFI_SSID
-                       << " failed" << eol;
-                connected = false;
-            } else {
-                // Timeout of max delay
-            }
+            // Timeout of max delay
         }
+    }
+}
+
+void WiFiManager::wifiDisconnection() {
+    esp_err_t error;
+
+    logger << logNotifyWiFiManager << "Connection to WiFi to SSID " << CONFIG_WIFI_SSID
+           << " failed. Retrying..." << eol;
+
+    connected = false;
+
+    if ((error = esp_wifi_stop()) != ESP_OK) {
+        logger << logWarnWiFiManager << "esp_wifi_stop failed: " << ESPError(error) << eol;
+    }
+    vTaskDelay(pdMS_TO_TICKS(connectionRetryTimeMs));
+    if ((error = esp_wifi_start()) != ESP_OK) {
+        logger << logWarnWiFiManager << "Call to restart WiFi via esp_wifi_start failed: "
+               << ESPError(error) << eol;
+        errorExit();
     }
 }
