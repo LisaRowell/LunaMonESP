@@ -22,9 +22,13 @@
 #include "I2CMaster.h"
 #include "EnvironmentalMon.h"
 #include "Logger.h"
+#include "ESPError.h"
+#include "Error.h"
 
 #include "driver/gpio.h"
 #include "driver/i2c.h"
+#include "nvs_flash.h"
+#include "esp_err.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
@@ -41,11 +45,37 @@ LunaMon::LunaMon() : statusLED(STATUS_LED_GPIO) {
 }
 
 void LunaMon::run() {
+    initNVS();
+
+    wifiManager.start();
+
     I2CMaster ic2Master(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
 
     EnvironmentalMon environmentalMon(ic2Master, statusLED);
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10000));
+    }
+}
+
+void LunaMon::initNVS() {
+    esp_err_t error;
+
+    if ((error = nvs_flash_init()) != ESP_OK) {
+        if (error == ESP_ERR_NVS_NO_FREE_PAGES || error == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+            logger << logNotifyMain << "Erasing flash" << eol;
+            if ((error = nvs_flash_erase()) != ESP_OK) {
+                logger << logNotifyMain << "Failed to erase flash: " << ESPError(error) << eol;
+                errorExit();
+            }
+
+            if ((error = nvs_flash_init()) != ESP_OK) {
+                logger << logNotifyMain << "Failed to initialize flash: " << ESPError(error) << eol;
+                errorExit();
+            }
+        } else {
+            logger << logNotifyMain << "Failed to initialize flash: " << ESPError(error) << eol;
+            errorExit();
+        }
     }
 }

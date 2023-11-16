@@ -20,10 +20,14 @@
 #define LUNA_MON_H
 
 #include "StatusLED.h"
+#include "WiFiManager.h"
 
 class LunaMon {
     private:
         StatusLED statusLED;
+        WiFiManager wifiManager;
+
+        void initNVS();
 
     public:
         LunaMon();
