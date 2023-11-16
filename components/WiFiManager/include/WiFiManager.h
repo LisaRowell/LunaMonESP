@@ -29,14 +29,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define WIFI_CONNECTED_BIT 0b00000001
-#define WIFI_FAIL_BIT      0b00000010
+#define WIFI_CONNECTED_EVENT            0b00000001
+#define WIFI_DISCONNECTED_EVENT         0b00000010
+#define WIFI_CONNECTION_FAILED_EVENT    0b00000100
 
 class WiFiManager : TaskObject {
     private:
         static constexpr size_t stackSize = 8 * 1024;
         static constexpr uint32_t connectionRetryTimeMs = 1000;
-        EventGroupHandle_t eventGroup;
         bool connected;
 
         virtual void task() override;
@@ -48,6 +48,8 @@ class WiFiManager : TaskObject {
                                  void *eventData);
 
     public:
+        EventGroupHandle_t eventGroup;
+
         WiFiManager();
         void start();
 };

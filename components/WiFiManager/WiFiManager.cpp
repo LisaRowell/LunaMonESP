@@ -129,8 +129,8 @@ void WiFiManager::handleWiFiEvent(int32_t eventId, void *eventData) {
             break;
         
         case WIFI_EVENT_STA_DISCONNECTED:
-            xEventGroupClearBits(eventGroup, WIFI_CONNECTED_BIT);
-            xEventGroupSetBits(eventGroup, WIFI_FAIL_BIT);
+            xEventGroupClearBits(eventGroup, WIFI_CONNECTED_EVENT);
+            xEventGroupSetBits(eventGroup, WIFI_DISCONNECTED_EVENT | WIFI_CONNECTION_FAILED_EVENT);
             break;
     }
 }
@@ -140,8 +140,9 @@ void WiFiManager::handleIPEvent(int32_t eventId, void *eventData) {
 
     switch (eventId) {
         case IP_EVENT_STA_GOT_IP:
-            xEventGroupClearBits(eventGroup, WIFI_FAIL_BIT);
-            xEventGroupSetBits(eventGroup, WIFI_CONNECTED_BIT);
+            xEventGroupClearBits(eventGroup,
+                                 WIFI_DISCONNECTED_EVENT | WIFI_CONNECTION_FAILED_EVENT);
+            xEventGroupSetBits(eventGroup, WIFI_CONNECTED_EVENT);
             break;
 
         default:
@@ -153,22 +154,38 @@ void WiFiManager::handleIPEvent(int32_t eventId, void *eventData) {
 
 void WiFiManager::task() {
     while (true != false) {
-        EventBits_t eventBits = xEventGroupWaitBits(eventGroup, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                                                    pdTRUE, pdFALSE, portMAX_DELAY);
-        if (eventBits & WIFI_CONNECTED_BIT) {
-            logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
-                   << eol;
-            connected = true;
-        } else if (eventBits & WIFI_FAIL_BIT) {
-            wifiDisconnection();
+        if (connected) {
+            EventBits_t eventBits = xEventGroupWaitBits(eventGroup, WIFI_DISCONNECTED_EVENT,
+                                                        pdFALSE, pdFALSE, portMAX_DELAY);
+            if (eventBits & WIFI_DISCONNECTED_EVENT) {
+                wifiDisconnection();
+            } else {
+                // Timeout of max delay
+            }
         } else {
-            // Timeout of max delay
+            EventBits_t eventBits = xEventGroupWaitBits(eventGroup,
+                                                        WIFI_CONNECTED_EVENT |
+                                                        WIFI_CONNECTION_FAILED_EVENT,
+                                                        pdFALSE, pdFALSE, portMAX_DELAY);
+            if (eventBits & WIFI_CONNECTED_EVENT) {
+                logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
+                       << eol;
+                connected = true;
+            } else if (eventBits & WIFI_CONNECTION_FAILED_EVENT) {
+                wifiDisconnection();
+            } else {
+                // Timeout of max delay
+            }
         }
     }
 }
 
 void WiFiManager::wifiDisconnection() {
     esp_err_t error;
+
+    // We clear the connection failed event so that we can retry a failed retry cleanly, but we
+    // leave the disconnected event set for clients that might not have been triggered yet.
+    xEventGroupClearBits(eventGroup, WIFI_CONNECTION_FAILED_EVENT);
 
     logger << logNotifyWiFiManager << "Connection to WiFi to SSID " << CONFIG_WIFI_SSID
            << " failed. Retrying..." << eol;
