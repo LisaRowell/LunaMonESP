@@ -38,7 +38,8 @@
 #include <string.h>
 
 WiFiManager::WiFiManager()
-    : TaskObject("WiFi Manager", LOGGER_LEVEL_DEBUG, stackSize), connected(false) {
+    : TaskObject("WiFi Manager", LOGGER_LEVEL_DEBUG, stackSize), connected(false),
+      wifiInterface(nullptr) {
     logger.enableModuleDebug(LOGGER_MODULE_WIFI_MANAGER);
 }
 
@@ -59,7 +60,7 @@ void WiFiManager::start() {
         errorExit();
     }
 
-    esp_netif_create_default_wifi_sta();
+    wifiInterface = esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t wifiInitConfig = WIFI_INIT_CONFIG_DEFAULT();
     if ((error = esp_wifi_init(&wifiInitConfig)) != ESP_OK) {
@@ -168,15 +169,28 @@ void WiFiManager::task() {
                                                         WIFI_CONNECTION_FAILED_EVENT,
                                                         pdFALSE, pdFALSE, portMAX_DELAY);
             if (eventBits & WIFI_CONNECTED_EVENT) {
-                logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
-                       << eol;
-                connected = true;
+                wifiConnected();
             } else if (eventBits & WIFI_CONNECTION_FAILED_EVENT) {
                 wifiDisconnection();
             } else {
                 // Timeout of max delay
             }
         }
+    }
+}
+
+void WiFiManager::wifiConnected() {
+    esp_err_t error;
+
+    connected = true;
+
+    esp_netif_ip_info_t ipInfo;
+    if ((error = esp_netif_get_ip_info(wifiInterface, &ipInfo)) != ESP_OK) {
+        logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID << eol;
+        logger << logWarnWiFiManager << "Failed to get the WiFi interface's IP address." << eol;
+    } else {
+        logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
+               << " with IPv4 address " << ipInfo.ip << eol;
     }
 }
 
@@ -187,7 +201,7 @@ void WiFiManager::wifiDisconnection() {
     // leave the disconnected event set for clients that might not have been triggered yet.
     xEventGroupClearBits(eventGroup, WIFI_CONNECTION_FAILED_EVENT);
 
-    logger << logNotifyWiFiManager << "Connection to WiFi to SSID " << CONFIG_WIFI_SSID
+    logger << logNotifyWiFiManager << "Connection to WiFi SSID " << CONFIG_WIFI_SSID
            << " failed. Retrying..." << eol;
 
     connected = false;

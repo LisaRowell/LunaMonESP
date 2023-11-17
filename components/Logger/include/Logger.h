@@ -22,6 +22,8 @@
 #include <etl/string.h>
 #include <etl/string_view.h>
 
+#include "esp_netif.h"
+
 #include <stdint.h>
 
 class LoggableItem;
@@ -166,6 +168,7 @@ class Logger {
         Logger & operator << (int32_t value);
         Logger & operator << (int value);
         Logger & operator << (bool value);
+        Logger & operator << (esp_ip4_addr_t addr);
 
         Logger & operator << (const LoggableItem &item);
         Logger & operator << (const EndOfLine &eol);

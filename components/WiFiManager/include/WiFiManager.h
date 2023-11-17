@@ -22,6 +22,7 @@
 #include "TaskObject.h"
 
 #include "esp_event_base.h"
+#include "esp_netif.h"
 
 #include "freertos/FreeRTOSConfig.h"
 #include "freertos/event_groups.h"
@@ -38,10 +39,12 @@ class WiFiManager : TaskObject {
         static constexpr size_t stackSize = 8 * 1024;
         static constexpr uint32_t connectionRetryTimeMs = 1000;
         bool connected;
+        esp_netif_t *wifiInterface;
 
         virtual void task() override;
         void handleWiFiEvent(int32_t eventId, void *eventData);
         void handleIPEvent(int32_t eventId, void *eventData);
+        void wifiConnected();
         void wifiDisconnection();
 
         static void eventHandler(void *arg, esp_event_base_t eventBase, int32_t eventId,

@@ -286,6 +286,17 @@ Logger & Logger::operator << (bool value) {
     return *this;
 }
 
+Logger & Logger::operator << (esp_ip4_addr_t addr) {
+    char addrStr[16];
+
+    snprintf(addrStr, 16, "%u.%u.%u.%u",
+             (uint8_t)(addr.addr & 0x000000ff), (uint8_t)((addr.addr & 0x0000ff00) >> 8),
+             (uint8_t)((addr.addr & 0x00ff0000) >> 16), (uint8_t)((addr.addr & 0xff000000) >> 24));
+    logString(addrStr);
+
+    return *this;
+}
+
 Logger & Logger::operator << (const LoggableItem &item) {
     if (outputCurrentLine) {
         item.log(*this);
