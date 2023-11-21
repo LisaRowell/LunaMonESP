@@ -90,8 +90,9 @@ void WiFiManager::start() {
 
     wifi_config_t wifiConfig;
     memset(&wifiConfig, 0, sizeof(wifi_config_t));
-    strncpy((char *)wifiConfig.sta.ssid, CONFIG_WIFI_SSID, sizeof(wifiConfig.sta.ssid));
-    strncpy((char *)wifiConfig.sta.password, CONFIG_WIFI_PASSWORD, sizeof(wifiConfig.sta.password));
+    strncpy((char *)wifiConfig.sta.ssid, CONFIG_LUNAMON_WIFI_SSID, sizeof(wifiConfig.sta.ssid));
+    strncpy((char *)wifiConfig.sta.password, CONFIG_LUNAMON_WIFI_PASSWORD,
+            sizeof(wifiConfig.sta.password));
     if ((error = esp_wifi_set_config(WIFI_IF_STA, &wifiConfig)) != ESP_OK) {
         logger << logErrorWiFiManager << "Failed to set WiFi station mode: " << ESPError(error)
                << eol;
@@ -186,10 +187,11 @@ void WiFiManager::wifiConnected() {
 
     esp_netif_ip_info_t ipInfo;
     if ((error = esp_netif_get_ip_info(wifiInterface, &ipInfo)) != ESP_OK) {
-        logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID << eol;
+        logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_LUNAMON_WIFI_SSID
+               << eol;
         logger << logWarnWiFiManager << "Failed to get the WiFi interface's IP address." << eol;
     } else {
-        logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_WIFI_SSID
+        logger << logNotifyWiFiManager << "WiFi connected to SSID " << CONFIG_LUNAMON_WIFI_SSID
                << " with IPv4 address " << ipInfo.ip << eol;
     }
 }
@@ -201,7 +203,7 @@ void WiFiManager::wifiDisconnection() {
     // leave the disconnected event set for clients that might not have been triggered yet.
     xEventGroupClearBits(eventGroup, WIFI_CONNECTION_FAILED_EVENT);
 
-    logger << logNotifyWiFiManager << "Connection to WiFi SSID " << CONFIG_WIFI_SSID
+    logger << logNotifyWiFiManager << "Connection to WiFi SSID " << CONFIG_LUNAMON_WIFI_SSID
            << " failed. Retrying..." << eol;
 
     connected = false;

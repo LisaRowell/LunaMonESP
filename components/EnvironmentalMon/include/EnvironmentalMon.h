@@ -31,20 +31,24 @@ class StatusLED;
 
 class EnvironmentalMon : TaskObject {
     private:
-        StatusLED &statusLED;
+        StatusLED *statusLED;
         bool bme280Functional;
-        BME280Driver bme280Driver;
+        BME280Driver *bme280Driver;
         bool ens160Functional;
-        ENS160Driver ens160Driver;
+        ENS160Driver *ens160Driver;
 
         virtual void task() override;
         void detectBME280();
         void pollBME280();
         void detectENS160();
         void pollENS160();
+        void statusLEDOn();
+        void statusLEDOff();
+        void statusNormalFlash();
+        void statusErrorFlash();
 
     public:
-        EnvironmentalMon(I2CMaster &ic2Master, StatusLED &statusLED);
+        EnvironmentalMon(I2CMaster &ic2Master, StatusLED *statusLED);
 };
 
 #endif // ENVIRONMENTAL_MON_H

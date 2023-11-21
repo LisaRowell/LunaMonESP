@@ -19,13 +19,18 @@
 #ifndef LUNA_MON_H
 #define LUNA_MON_H
 
-#include "StatusLED.h"
 #include "WiFiManager.h"
+
+class StatusLED;
+class I2CMaster;
+class EnvironmentalMon;
 
 class LunaMon {
     private:
-        StatusLED statusLED;
+        StatusLED *statusLED;
         WiFiManager wifiManager;
+        I2CMaster *ic2Master;
+        EnvironmentalMon *environmentalMon;
 
         void initNVS();
 

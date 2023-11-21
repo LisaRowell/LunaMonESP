@@ -33,15 +33,32 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
 
-#define STATUS_LED_GPIO     ((gpio_num_t)CONFIG_STATUS_LED_GPIO)
-#define I2C_MASTER_NUM      ((i2c_port_t)CONFIG_I2C_MASTER_NUM)
-#define I2C_MASTER_SCL_IO   ((gpio_num_t)CONFIG_I2C_MASTER_SCL_IO)
-#define I2C_MASTER_SDA_IO   ((gpio_num_t)CONFIG_I2C_MASTER_SDA_IO)
+#if CONFIG_LUNAMON_STATUS_LED_ENABLED
+#define STATUS_LED_GPIO     ((gpio_num_t)CONFIG_LUNAMON_STATUS_LED_GPIO)
+#else
+#define STATUS_LED_GPIO     (GPIO_NUM_0)
+#endif
 
-LunaMon::LunaMon() : statusLED(STATUS_LED_GPIO) {
+#if CONFIG_LUNAMON_I2C_ENABLED
+#define I2C_MASTER_NUM      ((i2c_port_t)CONFIG_LUNAMON_I2C_MASTER_NUM)
+#define I2C_MASTER_SCL_IO   ((gpio_num_t)CONFIG_LUNAMON_I2C_MASTER_SCL_IO)
+#define I2C_MASTER_SDA_IO   ((gpio_num_t)CONFIG_LUNAMON_I2C_MASTER_SDA_IO)
+#else
+#define I2C_MASTER_NUM      (I2C_NUM_0)
+#define I2C_MASTER_SCL_IO   (GPIO_NUM_0)
+#define I2C_MASTER_SDA_IO   (GPIO_NUM_0)
+#endif
+
+LunaMon::LunaMon() : ic2Master(nullptr), environmentalMon(nullptr) {
     logger.setLevel(LOGGER_LEVEL_DEBUG);
 //    logger.enableModuleDebug(LOGGER_MODULE_BME280_DRIVER);
 //    logger.enableModuleDebug(LOGGER_MODULE_ENS160_DRIVER);
+
+    if (CONFIG_LUNAMON_STATUS_LED_ENABLED) {
+        statusLED = new StatusLED(STATUS_LED_GPIO);
+    } else {
+        statusLED = nullptr;
+    }
 }
 
 void LunaMon::run() {
@@ -49,9 +66,13 @@ void LunaMon::run() {
 
     wifiManager.start();
 
-    I2CMaster ic2Master(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
+    if (CONFIG_LUNAMON_I2C_ENABLED) {
+        ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
+    }
 
-    EnvironmentalMon environmentalMon(ic2Master, statusLED);
+    if (CONFIG_LUNAMON_I2C_ENABLED && (CONFIG_LUNAMON_BME280_ENABLED || CONFIG_LUNAMON_ENS160_ENABLED)) {
+        environmentalMon = new EnvironmentalMon(*ic2Master, statusLED);
+    }
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10000));

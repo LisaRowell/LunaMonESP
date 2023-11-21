@@ -34,18 +34,43 @@
 
 #define STACK_SIZE  (8 * 1024)
 
-EnvironmentalMon::EnvironmentalMon(I2CMaster &ic2Master, StatusLED &statusLED)
+#if !CONFIG_LUNAMON_BME280_ENABLED
+#define CONFIG_LUNAMON_BME280_ADDRESS   0
+#endif
+#if !CONFIG_LUNAMON_ENS160_ENABLED
+#define CONFIG_LUNAMON_ENS160_ADDRESS   0
+#endif
+
+EnvironmentalMon::EnvironmentalMon(I2CMaster &ic2Master, StatusLED *statusLED)
     : TaskObject("EnvironmentalMon", LOGGER_LEVEL_DEBUG, STACK_SIZE),
-      statusLED(statusLED),
-      bme280Driver(ic2Master, CONFIG_BME280_ADDRESS),
-      ens160Driver(ic2Master, CONFIG_ENS160_ADDRESS) {
+      statusLED(statusLED) {
+    if (CONFIG_LUNAMON_BME280_ENABLED) {
+        bme280Driver = new BME280Driver(ic2Master, CONFIG_LUNAMON_BME280_ADDRESS);
+    } else {
+        bme280Driver = nullptr;
+    }
+
+    if (CONFIG_LUNAMON_ENS160_ENABLED) {
+        ens160Driver = new ENS160Driver(ic2Master, CONFIG_LUNAMON_ENS160_ADDRESS);
+    } else {
+        ens160Driver = nullptr;
+    }
 
     start();
 }
 
 void EnvironmentalMon::task() {
-    detectBME280();
-    detectENS160();
+    if (bme280Driver) {
+        detectBME280();
+    } else {
+        bme280Functional = false;
+    }
+
+    if (ens160Driver) {
+        detectENS160();
+    } else {
+        ens160Functional = false;
+    }
 
     while (1) {
         if (bme280Functional) {
@@ -61,11 +86,11 @@ void EnvironmentalMon::task() {
 }
 
 void EnvironmentalMon::detectBME280() {
-    if (bme280Driver.detect()) {
+    if (bme280Driver->detect()) {
         bme280Functional = true;
         logger << logNotifyMain << "BME280 detected." << eol;
         try {
-            bme280Driver.start();
+            bme280Driver->start();
         }
         catch (esp_err_t error) {
             logger << logErrorMain << "Failed to start BME280 device." << eol;
@@ -81,7 +106,7 @@ void EnvironmentalMon::pollBME280() {
     HundredthsInt16 temperatureC;
     HundredthsUInt32 pressureMBar;
     HundredthsUInt8 relativeHumidity;
-    bme280Driver.read(temperatureC, pressureMBar, relativeHumidity);
+    bme280Driver->read(temperatureC, pressureMBar, relativeHumidity);
 
     HundredthsInt16 temperatureF = (temperatureC * 9) / 5 + 32;
 
@@ -92,20 +117,20 @@ void EnvironmentalMon::pollBME280() {
 }
 
 void EnvironmentalMon::detectENS160() {
-    if (ens160Driver.detect()) {
+    if (ens160Driver->detect()) {
         ens160Functional = true;
         logger << logNotifyMain << "ENS160 detected." << eol;
         try {
-            ens160Driver.start();
+            ens160Driver->start();
         }
         catch (esp_err_t error) {
             logger << logErrorMain << "Failed to start ENS160 device." << eol;
-            statusLED.off();
+            statusLEDOff();
             ens160Functional = false;
         }
     } else {
         logger << logErrorMain << "ENS160 not detected." << eol;
-        statusLED.off();
+        statusLEDOff();
         ens160Functional = false;
     }
 }
@@ -115,26 +140,50 @@ void EnvironmentalMon::pollENS160() {
     uint8_t aqi;
     uint16_t tvoc;
     uint16_t eco2;
-    bool ens160HasData = ens160Driver.read(ens160StartingUp, aqi, tvoc, eco2);
+    bool ens160HasData = ens160Driver->read(ens160StartingUp, aqi, tvoc, eco2);
     if (ens160HasData) {
         logger << logNotifyMain
-               << "AQI = " << aqi << " (" << ens160Driver.aqiDescription(aqi) << ")"
-               << "  TVOC = " << tvoc << " (" << ens160Driver.tvocDescription(tvoc) << ")"
-               << "  eCO2 = " << eco2 << " (" << ens160Driver.eco2Description(eco2) << ")";
+               << "AQI = " << aqi << " (" << ens160Driver->aqiDescription(aqi) << ")"
+               << "  TVOC = " << tvoc << " (" << ens160Driver->tvocDescription(tvoc) << ")"
+               << "  eCO2 = " << eco2 << " (" << ens160Driver->eco2Description(eco2) << ")";
         if (ens160StartingUp) {
             logger << "  Starting Up";
         }
         logger << eol;
 
         if (aqi >= 4) {
-            statusLED.errorFlash();
+            statusErrorFlash();
         } else if (ens160StartingUp) {
-            statusLED.normalFlash();
+            statusNormalFlash();
         } else {
-            statusLED.on();
+            statusLEDOn();
         }
     } else {
         logger << logNotifyMain << "No valid environmental data." << eol;
-        statusLED.off();
+        statusLEDOff();
+    }
+}
+
+void EnvironmentalMon::statusLEDOn() {
+    if (statusLED) {
+        statusLED->on();
+    }
+}
+
+void EnvironmentalMon::statusLEDOff() {
+    if (statusLED) {
+        statusLED->off();
+    }
+}
+
+void EnvironmentalMon::statusNormalFlash() {
+    if (statusLED) {
+        statusLED->normalFlash();
+    }
+}
+
+void EnvironmentalMon::statusErrorFlash() {
+    if (statusLED) {
+        statusLED->errorFlash();
     }
 }
