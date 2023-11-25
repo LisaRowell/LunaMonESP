@@ -38,10 +38,11 @@ class TaskObject {
         // Each task needs it's own logger since it holds state as a message is built.
         Logger logger;
 
+        virtual void task() = 0;
+
     public:
         TaskObject(const char *name, LoggerLevel level, size_t stackSize);
         void start();
-        virtual void task() = 0;
 
         // Copy of a task object is a bad idea as theres a task running that would not be
         // duplicated. Prevent the automatic constructors that involve copies and moves.

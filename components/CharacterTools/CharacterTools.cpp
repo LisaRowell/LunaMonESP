@@ -16,29 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#include "CharacterTools.h"
 
-#include "WiFiManager.h"
+#include <stdint.h>
+#include <ctype.h>
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+uint8_t decimalValue(char character) {
+    return character - '0';
+}
 
-class LunaMon {
-    private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+bool isUpperCaseHexidecimalDigit(char character) {
+    return isdigit(character) || (isupper(character) && isxdigit(character));
+}
 
-        void initNVS();
+uint8_t hexidecimalValue(char character) {
+    if (isdigit(character)) {
+        return decimalValue(character);
+    } else {
+        if (isupper(character)) {
+            return character - 'A' + 10;
+        } else {
+            return character - 'a' + 10;
+        }
+    }
+}
 
-    public:
-        LunaMon();
-        void run();
-};
+bool isCarriageReturn(char character) {
+    return character == '\r';
+}
 
-#endif // LUNA_MON_H
+bool isLineFeed(char character) {
+    return character == '\n';
+}

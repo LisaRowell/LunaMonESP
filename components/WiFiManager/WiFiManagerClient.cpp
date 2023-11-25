@@ -16,29 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#include "WiFiManagerClient.h"
 
 #include "WiFiManager.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include "freertos/FreeRTOSConfig.h"
+#include "freertos/event_groups.h"
 
-class LunaMon {
-    private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+WiFiManagerClient::WiFiManagerClient(WiFiManager &wifiManager) : wifiManager(wifiManager) {
+}
 
-        void initNVS();
+void WiFiManagerClient::waitForWiFiConnect() {
+    EventBits_t eventBits;
+    do {
+        eventBits = xEventGroupWaitBits(wifiManager.eventGroup, WIFI_CONNECTED_EVENT, pdFALSE,
+                                        pdFALSE, portMAX_DELAY);
+    } while ((eventBits & WIFI_CONNECTED_EVENT) == 0);
+}
 
-    public:
-        LunaMon();
-        void run();
-};
-
-#endif // LUNA_MON_H
+bool WiFiManagerClient::wifiConnected() {
+    EventBits_t eventBits = xEventGroupGetBits(wifiManager.eventGroup);
+    return (eventBits & WIFI_CONNECTED_EVENT) != 0;
+}

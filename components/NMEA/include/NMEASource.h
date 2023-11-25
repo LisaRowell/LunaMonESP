@@ -16,29 +16,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_SOURCE_H
+#define NMEA_SOURCE_H
 
-#include "WiFiManager.h"
+class NMEAMessageHandler;
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include "NMEALine.h"
 
-class LunaMon {
+#include <etl/vector.h>
+
+#include <stddef.h>
+
+class NMEASource {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+        char buffer[maxNMEALineLength];
+        size_t bufferPos;
+        size_t remaining;
+        bool carriageReturnFound;
+        NMEALine inputLine;
+        static const size_t maxMessageHandlers = 5;
+        etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
 
-        void initNVS();
+        bool scanForCarriageReturn(size_t &carriageReturnPos);
+        bool readAvailableInput(int sock);
+        bool processBuffer();
+        void lineCompleted();
+        void updateStats();
+
+    protected:
+        void processNMEAStream(int sock);
 
     public:
-        LunaMon();
-        void run();
+        NMEASource();
+        void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 
-#endif // LUNA_MON_H
+#endif

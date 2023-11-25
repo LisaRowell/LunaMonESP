@@ -16,29 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef WIFI_MANAGER_CLIENT_H
+#define WIFI_MANAGER_CLIENT_H
 
-#include "WiFiManager.h"
+class WiFiManager;
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
-
-class LunaMon {
+class WiFiManagerClient {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+        WiFiManager &wifiManager;
 
-        void initNVS();
+    protected:
+        void waitForWiFiConnect();
 
     public:
-        LunaMon();
-        void run();
+        WiFiManagerClient(WiFiManager &wifiManager);
+        bool wifiConnected();
 };
 
-#endif // LUNA_MON_H
+#endif

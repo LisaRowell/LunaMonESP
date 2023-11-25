@@ -16,29 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef STRING_TOOLS_H
+#define STRING_TOOLS_H
 
-#include "WiFiManager.h"
+#include <etl/string_view.h>
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <stdint.h>
+#include <stddef.h>
 
-class LunaMon {
-    private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+extern bool extractUInt32FromStringView(const etl::string_view &stringView, size_t start,
+                                        size_t length, uint32_t &value,
+                                        uint32_t maxValue = 0xffffffff);
+extern bool extractUInt16FromStringView(const etl::string_view &stringView, size_t start,
+                                        size_t length, uint16_t &value, uint16_t maxValue = 0xffff);
+extern bool extractUInt8FromStringView(const etl::string_view &stringView, size_t start,
+                                       size_t length, uint8_t &value, uint8_t maxValue = 0xff);
 
-        void initNVS();
-
-    public:
-        LunaMon();
-        void run();
-};
-
-#endif // LUNA_MON_H
+#endif

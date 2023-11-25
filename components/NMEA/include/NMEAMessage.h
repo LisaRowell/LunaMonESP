@@ -16,29 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_MESSAGE_H
+#define NMEA_MESSAGE_H
 
-#include "WiFiManager.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
+#include "NMEAMsgType.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+class NMEAMessage {
+    protected:
+        NMEATalker talker;
 
-class LunaMon {
-    private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-
-        void initNVS();
+        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
+                                 const char *constantWord);
 
     public:
-        LunaMon();
-        void run();
+        NMEAMessage(NMEATalker &talker);
+        NMEATalker source() const;
+        virtual enum NMEAMsgType type() const = 0;
+        virtual void log() const = 0;
 };
 
-#endif // LUNA_MON_H
+NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
+
+#endif

@@ -16,29 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_TALKER_H
+#define NMEA_TALKER_H
 
-#include "WiFiManager.h"
+#include "LoggableItem.h"
+#include "Logger.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <etl/string.h>
 
-class LunaMon {
+class NMEATalker : public LoggableItem {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-
-        void initNVS();
+        etl::string<2> talkerCode;
 
     public:
-        LunaMon();
-        void run();
+        NMEATalker(const etl::istring &talkerCode);
+        const char *name() const;
+        virtual void log(Logger &logger) const override;
 };
 
-#endif // LUNA_MON_H
+#endif

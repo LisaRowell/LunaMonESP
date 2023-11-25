@@ -16,29 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_WIFI_SOURCE_H
+#define NMEA_WIFI_SOURCE_H
 
-#include "WiFiManager.h"
+#include "TaskObject.h"
+#include "WiFiManagerClient.h"
+#include "NMEASource.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <stddef.h>
+#include <netdb.h>
 
-class LunaMon {
+class WiFiManager;
+
+class NMEAWiFiSource : public TaskObject, WiFiManagerClient, NMEASource {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+        const char *ipv4Addr;
+        uint16_t tcpPort;
+        struct sockaddr_in sourceAddr;
+        bool sourceAddrValid;
 
-        void initNVS();
+        virtual void task() override;
+
+        static constexpr size_t stackSize = (1024 * 8);
+        static constexpr uint32_t reconnectDelayMs = 1000;
 
     public:
-        LunaMon();
-        void run();
+        NMEAWiFiSource(WiFiManager &wifiManager, const char *ipv4Addr, uint16_t tcpPort);
 };
 
-#endif // LUNA_MON_H
+#endif

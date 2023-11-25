@@ -16,29 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_RADIO_CHANNEL_CODE_H
+#define NMEA_RADIO_CHANNEL_CODE_H
 
-#include "WiFiManager.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+// #include "DataModel/DataModelStringLeaf.h"
 
-class LunaMon {
+#include "LoggableItem.h"
+#include "Logger.h"
+
+#include <etl/string_view.h>
+
+class NMEARadioChannelCode : public LoggableItem {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+        enum RadioChannelCode {
+            RADIO_CHANNEL_87B,
+            RADIO_CHANNEL_88B
+        };
+        RadioChannelCode radioChannelCode;
 
-        void initNVS();
+        bool set(const etl::string_view &radioChannelCodeView);
 
     public:
-        LunaMon();
-        void run();
+        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+//        void publish(DataModelStringLeaf &leaf) const;
+        virtual void log(Logger &logger) const override;
 };
 
-#endif // LUNA_MON_H
+#endif

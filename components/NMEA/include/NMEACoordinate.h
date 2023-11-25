@@ -16,29 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_COORDINATE_H
+#define NMEA_COORDINATE_H
 
-#include "WiFiManager.h"
+// #include "DataModel/DataModelStringLeaf.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <etl/string_view.h>
 
-class LunaMon {
-    private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+#include <stdint.h>
 
-        void initNVS();
+class Logger;
 
-    public:
-        LunaMon();
-        void run();
+class NMEACoordinate {
+    protected:
+        uint8_t degrees;
+        float minutes;
+
+        bool setDegrees(const etl::string_view &degreesView, uint8_t maxDegrees);
+        bool setMinutes(const etl::string_view &minutesView);
+        void log(Logger &logger) const;
+        void snprint(char *string, size_t maxLength) const;
+//        void publish(DataModelStringLeaf &leaf, const char *suffix) const;
 };
 
-#endif // LUNA_MON_H
+#endif

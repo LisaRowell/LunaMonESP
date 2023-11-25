@@ -18,6 +18,8 @@
 
 #include "LunaMon.h"
 
+#include "WiFiManager.h"
+#include "NMEAWiFiSource.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
 #include "EnvironmentalMon.h"
@@ -32,6 +34,11 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
+
+#if !CONFIG_LUNAMON_NMEA_WIFI_ENABLED
+#define CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR   ""
+#define CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT    0
+#endif
 
 #if CONFIG_LUNAMON_STATUS_LED_ENABLED
 #define STATUS_LED_GPIO     ((gpio_num_t)CONFIG_LUNAMON_STATUS_LED_GPIO)
@@ -51,13 +58,27 @@
 
 LunaMon::LunaMon() : ic2Master(nullptr), environmentalMon(nullptr) {
     logger.setLevel(LOGGER_LEVEL_DEBUG);
-//    logger.enableModuleDebug(LOGGER_MODULE_BME280_DRIVER);
-//    logger.enableModuleDebug(LOGGER_MODULE_ENS160_DRIVER);
+    // This is a bad thing as it's showing that the main thread's logger is being used by the ported
+    // over NMEA code. Will go away with future Logger usage changes...
+    logger.enableModuleDebug(LOGGER_MODULE_NMEA);
 
     if (CONFIG_LUNAMON_STATUS_LED_ENABLED) {
         statusLED = new StatusLED(STATUS_LED_GPIO);
+        if (!statusLED) {
+            logger << logErrorMain << "Failed to allocate status LED." << eol;
+        }
     } else {
         statusLED = nullptr;
+    }
+
+    if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
+        nmeaWiFiSource = new NMEAWiFiSource(wifiManager, CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
+                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT);
+        if (!nmeaWiFiSource) {
+            logger << logErrorMain << "Failed to allocate WiFi NMEA source." << eol;
+        }
+    } else {
+        nmeaWiFiSource = nullptr;
     }
 }
 
@@ -65,6 +86,10 @@ void LunaMon::run() {
     initNVS();
 
     wifiManager.start();
+
+    if (nmeaWiFiSource) {
+        nmeaWiFiSource->start();
+    }
 
     if (CONFIG_LUNAMON_I2C_ENABLED) {
         ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);

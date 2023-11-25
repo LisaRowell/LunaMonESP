@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMon)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2023 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_DBT_MESSAGE_H
+#define NMEA_DBT_MESSAGE_H
 
-#include "WiFiManager.h"
+#include "NMEAMessage.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include "NMEATenthsUInt16.h"
+#include "NMEATalker.h"
+#include "NMEALine.h"
 
-class LunaMon {
+class NMEADBTMessage : public NMEAMessage {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-
-        void initNVS();
+        NMEATenthsUInt16 depthFeet;
+        NMEATenthsUInt16 depthMeters;
+        NMEATenthsUInt16 depthFathoms;
 
     public:
-        LunaMon();
-        void run();
+        NMEADBTMessage(NMEATalker &talker);
+        bool parse(NMEALine &nmeaLine);
+        virtual enum NMEAMsgType type() const override;
+        virtual void log() const override;
+
+    friend class NMEADataModelBridge;
 };
 
-#endif // LUNA_MON_H
+extern NMEADBTMessage *parseNMEADBTMessage(NMEATalker &talker, NMEALine &nmeaLine);
+
+#endif //NMEA_DBT_MESSAGE_H

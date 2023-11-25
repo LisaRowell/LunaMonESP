@@ -16,29 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_GSA_MESSAGE_H
+#define NMEA_GSA_MESSAGE_H
 
-#include "WiFiManager.h"
+#include "NMEAMessage.h"
+#include "NMEAGPSFixMode.h"
+#include "NMEAUInt16.h"
+#include "NMEAHundredthsUInt8.h"
+#include "NMEATalker.h"
+#include "NMEALine.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
-
-class LunaMon {
+class NMEAGSAMessage : public NMEAMessage {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-
-        void initNVS();
+        bool automaticMode;
+        NMEAGPSFixMode gpsFixMode;
+        NMEAUInt16 satelliteIDs[12];
+        NMEAHundredthsUInt8 pdop;
+        NMEAHundredthsUInt8 hdop;
+        NMEAHundredthsUInt8 vdop;
 
     public:
-        LunaMon();
-        void run();
+        NMEAGSAMessage(NMEATalker &talker);
+        bool parse(NMEALine &nmeaLine);
+        virtual enum NMEAMsgType type() const override;
+        virtual void log() const override;
+
+    friend class NMEADataModelBridge;
 };
 
-#endif // LUNA_MON_H
+extern NMEAGSAMessage *parseNMEAGSAMessage(NMEATalker &talker, NMEALine &nmeaLine);
+
+#endif

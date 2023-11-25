@@ -16,29 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_DATA_VALID_H
+#define NMEA_DATA_VALID_H
 
-#include "WiFiManager.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+// #include "DataModel/DataModelBoolLeaf.h"
 
-class LunaMon {
+#include "LoggableItem.h"
+#include "Logger.h"
+
+#include <etl/string_view.h>
+
+class NMEADataValid : public LoggableItem {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+        bool valid;
 
-        void initNVS();
+        bool set(etl::string_view &dataValidView);
 
     public:
-        LunaMon();
-        void run();
+        NMEADataValid();
+        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+//        void publish(DataModelBoolLeaf &leaf) const;
+        virtual void log(Logger &logger) const override;
 };
 
-#endif // LUNA_MON_H
+#endif

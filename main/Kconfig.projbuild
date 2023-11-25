@@ -12,6 +12,33 @@ menu "Luna Mon Configuration"
         help
             WiFi password (WPA or WPA2) for Luna Mon to use.
 
+    config LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        bool "Has NMEA over WiFi Source"
+        default n
+        help
+            Whether or not there's a WiFi source for NMEA messages.
+
+    config LUNAMON_NMEA_WIFI_ENABLED
+        int
+            default 1 if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+            default 0 if !LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+
+    if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+
+    config LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR
+        string "WiFi NMEA Source IPv4 Address"
+        default "sourceIPV4"
+        help
+            The IPv4 address of the NMEA source.
+
+    config LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT
+        int "WiFi NMEA Source TCP Port"
+        default 39150
+        help
+            The TCP port number for the NMEA source.
+
+    endif
+
     config LUNAMON_HAS_STATUS_LED
         bool "Has Status LED"
         default n

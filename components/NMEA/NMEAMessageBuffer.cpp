@@ -16,29 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#include "NMEAMessageBuffer.h"
 
-#include "WiFiManager.h"
+#include "NMEAGGAMessage.h"
+#include "NMEAGLLMessage.h"
+#include "NMEAGSAMessage.h"
+#include "NMEAGSTMessage.h"
+#include "NMEAGSVMessage.h"
+#include "NMEARMCMessage.h"
+#include "NMEATXTMessage.h"
+#include "NMEAVDMVDOMessage.h"
+#include "NMEAVTGMessage.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <stdint.h>
 
-class LunaMon {
-    private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
-        void initNVS();
+#define NMEA_MESSAGE_BUFFER_SIZE \
+(MAX(MAX(MAX(MAX(sizeof(NMEAGGAMessage), sizeof(NMEAGSAMessage)), \
+             MAX(sizeof(NMEAGLLMessage), sizeof(NMEAGSTMessage))), \
+         MAX(MAX(sizeof(NMEAGSVMessage), sizeof(NMEARMCMessage)), \
+             MAX(sizeof(NMEATXTMessage), sizeof(NMEAVDMVDOMessage)))), \
+     sizeof(NMEAVTGMessage)))
 
-    public:
-        LunaMon();
-        void run();
-};
-
-#endif // LUNA_MON_H
+uint8_t nmeaMessageBuffer[NMEA_MESSAGE_BUFFER_SIZE];

@@ -16,29 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef NMEA_HUNDREDTHS_UINT8_H
+#define NMEA_HUNDREDTHS_UINT8_H
 
-#include "WiFiManager.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+// #include "DataModel/DataModelHundredthsUInt8Leaf.h"
 
-class LunaMon {
+#include "LoggableItem.h"
+#include "Logger.h"
+
+#include <etl/string_view.h>
+
+#include <stdint.h>
+
+class NMEAHundredthsUInt8 : public LoggableItem {
     private:
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+        uint8_t wholeNumber;
+        uint8_t hundredths;
 
-        void initNVS();
+        bool set(const etl::string_view &decimalString);
 
     public:
-        LunaMon();
-        void run();
+        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+                     const char *fieldName);
+//        void publish(DataModelHundredthsUInt8Leaf &leaf) const;
+        virtual void log(Logger &logger) const override;
 };
 
-#endif // LUNA_MON_H
+#endif
