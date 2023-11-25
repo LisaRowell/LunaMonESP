@@ -80,13 +80,13 @@ bool NMEADate::set(const etl::string_view &dateView) {
 bool NMEADate::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view dateView;
     if (!nmeaLine.getWord(dateView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing Date field" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing Date field" << eol;
         return false;
     }
 
     if (!set(dateView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad Date field '"
-               << dateView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message with bad Date field '"
+                 << dateView << "'" << eol;
         return false;
     }
 

@@ -154,6 +154,7 @@ class Logger {
         void setLevel(LoggerLevel level);
         void enableModuleDebug(LoggerModule module);
         void disableModuleDebug(LoggerModule module);
+        void initForTask();
         Logger & operator << (const LogSelector level);
         Logger & operator << (const LogBase base);
         Logger & operator << (char character);
@@ -174,6 +175,10 @@ class Logger {
         Logger & operator << (const EndOfLine &eol);
 };
 
-extern Logger logger;
+extern __thread Logger *threadSpecificLogger;
+
+inline Logger &logger() {
+    return *threadSpecificLogger;
+}
 
 #endif // LOGGER_H

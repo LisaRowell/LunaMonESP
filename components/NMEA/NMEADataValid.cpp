@@ -51,13 +51,13 @@ bool NMEADataValid::set(etl::string_view &dataValidView) {
 bool NMEADataValid::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view dataValidView;
     if (!nmeaLine.getWord(dataValidView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing Data Valid field"
-               << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing Data Valid field"
+                 << eol;
         return false;
     }
     if (!set(dataValidView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad Data Valid field '"
-               << dataValidView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message with bad Data Valid field '" << dataValidView << "'" << eol;
         return false;
     }
 

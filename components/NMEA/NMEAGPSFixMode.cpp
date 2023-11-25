@@ -49,14 +49,14 @@ bool NMEAGPSFixMode::set(etl::string_view &gpsFixModeView) {
 bool NMEAGPSFixMode::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view gpsFixModeView;
     if (!nmeaLine.getWord(gpsFixModeView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing GPS Fix Mode field"
-               << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing GPS Fix Mode field"
+                 << eol;
         return false;
     }
 
     if (!set(gpsFixModeView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad GPS Fix Mode field '"
-               << gpsFixModeView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message with bad GPS Fix Mode field '" << gpsFixModeView << "'" << eol;
         return false;
     }
 

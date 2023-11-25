@@ -36,7 +36,8 @@ NMEARMCMessage::NMEARMCMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEARMCMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " RMC message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " RMC message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -84,13 +85,13 @@ enum NMEAMsgType NMEARMCMessage::type() const {
 }
 
 void NMEARMCMessage::log() const {
-    logger << logDebugNMEA << talker << " RMC: " << time << " " << dataValid << " " << latitude
-           << " " << longitude << " " << speedOverGround << "kn " << trackMadeGood << " " << date
-           << " " << magneticVariation;
+    logger() << logDebugNMEA << talker << " RMC: " << time << " " << dataValid << " " << latitude
+             << " " << longitude << " " << speedOverGround << "kn " << trackMadeGood << " " << date
+             << " " << magneticVariation;
     if (faaModeIndicator.hasValue()) {
-        logger << " " << faaModeIndicator;
+        logger() << " " << faaModeIndicator;
     }
-    logger << eol;
+    logger() << eol;
 }
 
 NMEARMCMessage *parseNMEARMCMessage(NMEATalker &talker, NMEALine &nmeaLine) {

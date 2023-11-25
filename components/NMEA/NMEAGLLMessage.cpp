@@ -35,7 +35,8 @@ NMEAGLLMessage::NMEAGLLMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEAGLLMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " GLL message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " GLL message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -67,12 +68,12 @@ enum NMEAMsgType NMEAGLLMessage::type() const {
 }
 
 void NMEAGLLMessage::log() const {
-    logger << logDebugNMEA << talker << " GLL: " << latitude << " " << longitude << " " << time
-           << " " << dataValid;
+    logger() << logDebugNMEA << talker << " GLL: " << latitude << " " << longitude << " " << time
+             << " " << dataValid;
     if (faaModeIndicator.hasValue()) {
-        logger << " " << faaModeIndicator;
+        logger() << " " << faaModeIndicator;
     }
-    logger << eol;
+    logger() << eol;
 }
 
 NMEAGLLMessage *parseNMEAGLLMessage(NMEATalker &talker, NMEALine &nmeaLine) {

@@ -51,7 +51,7 @@ bool NMEALine::sanityCheck() {
     char msgStart;
 
     if (!extractChar(msgStart)) {
-        logger << logWarnNMEA << "Empty NMEA message" << eol;
+        logger() << logWarnNMEA << "Empty NMEA message" << eol;
         return false;
     }
 
@@ -65,13 +65,13 @@ bool NMEALine::sanityCheck() {
             break;
 
         default:
-            logger << logWarnNMEA << "NMEA message missing leading '$'" << eol;
+            logger() << logWarnNMEA << "NMEA message missing leading '$'" << eol;
             logLine();
             return false;
     }
 
     if (!checkParity()) {
-        logger << logWarnNMEA << "NMEA line with bad parity: " << line << eol;
+        logger() << logWarnNMEA << "NMEA line with bad parity: " << line << eol;
         return false;
     }
     stripParity();
@@ -139,5 +139,5 @@ bool NMEALine::checkParity() {
 }
 
 void NMEALine::logLine() {
-    logger << logDebugNMEA << line << eol;
+    logger() << logDebugNMEA << line << eol;
 }

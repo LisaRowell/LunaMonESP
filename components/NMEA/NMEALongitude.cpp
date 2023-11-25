@@ -60,19 +60,19 @@ bool NMEALongitude::set(const etl::string_view &longitudeView,
 bool NMEALongitude::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view longitudeView;
     if (!nmeaLine.getWord(longitudeView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing longitude" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing longitude" << eol;
         return false;
     }
 
     etl::string_view eastOrWestView;
     if (!nmeaLine.getWord(eastOrWestView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing E/W" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing E/W" << eol;
         return false;
     }
 
     if (!set(longitudeView, eastOrWestView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad longitude '"
-               << longitudeView << "' '" << eastOrWestView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message with bad longitude '"
+                 << longitudeView << "' '" << eastOrWestView << "'" << eol;
         return false;
     }
 

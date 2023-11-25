@@ -90,16 +90,16 @@ bool ENS160Driver::detect() {
         readRegisters(ENS160_PART_ID_REG, idBytes, 2);
     }
     catch (esp_err_t error) {
-        logger << logErrorENS160Driver << "Failed to read ENS160 Device ID." << eol;
+        logger() << logErrorENS160Driver << "Failed to read ENS160 Device ID." << eol;
         return false;
     }
 
     const uint16_t id = idBytes[1] << 8 | idBytes[0];
     if (id == ENS160_PART_ID) {
-        logger << logErrorENS160Driver << "Successfully read ENS160 chip id." << eol;
+        logger() << logErrorENS160Driver << "Successfully read ENS160 chip id." << eol;
         return true;
     } else {
-        logger << logErrorENS160Driver << "Unexpected ENS160 chip id: " << Hex << id << eol;
+        logger() << logErrorENS160Driver << "Unexpected ENS160 chip id: " << Hex << id << eol;
         return false;
     }
 }
@@ -108,7 +108,7 @@ void ENS160Driver::start() {
     writeRegister(ENS160_CONFIG_REG, 0);
     writeRegister(ENS160_OPMODE_REG, ENS160_OPMODE_STANDARD);
 
-    logger << logDebugENS160Driver << "Set Op Mode to Standard." << eol;
+    logger() << logDebugENS160Driver << "Set Op Mode to Standard." << eol;
 }
 
 bool ENS160Driver::read(bool &startingUp, uint8_t &aqi, uint16_t &tvoc, uint16_t &eco2) {
@@ -144,45 +144,45 @@ bool ENS160Driver::read(bool &startingUp, uint8_t &aqi, uint16_t &tvoc, uint16_t
 }
 
 void ENS160Driver::logStatus(uint8_t status) {
-    logger << logDebugENS160Driver << "Status: ";
+    logger() << logDebugENS160Driver << "Status: ";
     if (status & ENS160_STATUS_STATAS_MASK) {
-        logger << "Running";
+        logger() << "Running";
     } else {
-        logger << "Not Running";
+        logger() << "Not Running";
     }
     if (status & ENS160_STATUS_STATER_MASK) {
-        logger << ", Error";
+        logger() << ", Error";
     } else {
-        logger << ", No Error";
+        logger() << ", No Error";
     }
  
     const uint8_t validity = (status & ENS160_STATUS_VALIDITY_MASK) >> ENS160_STATUS_VALIDITY_SHIFT;
     switch (validity) {
         case ENS160_VALIDITY_NORMAL_OPERATION:
-            logger << ", Normal Operation";
+            logger() << ", Normal Operation";
             break;
         case ENS160_VALIDITY_WARM_UP_PHASE:
-            logger << ", Warm Up Phase";
+            logger() << ", Warm Up Phase";
             break;
         case ENS160_VALIDITY_INITIAL_START_UP_PHASE:
-            logger << ", Initial Start Up Phase";
+            logger() << ", Initial Start Up Phase";
             break;
         case ENS160_VALIDITY_INVALID_OUTPUT:
-            logger << ", Invalid Output";
+            logger() << ", Invalid Output";
             break;
     }
 
     if (status & ENS160_STATUS_NEWDAT_MASK) {
-        logger << ", New Data";
+        logger() << ", New Data";
     } else {
-        logger << ", No New Data";
+        logger() << ", No New Data";
     }
     if (status & ENS160_STATUS_NEWGPR_MASK) {
-        logger << ", New GPR Data";
+        logger() << ", New GPR Data";
     } else {
-        logger << ", No New GPR Data";
+        logger() << ", No New GPR Data";
     }
-    logger << eol;
+    logger() << eol;
 }
 
 const char *ENS160Driver::aqiDescription(uint8_t aqi) {

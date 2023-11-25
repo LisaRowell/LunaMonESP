@@ -67,13 +67,13 @@ bool NMEATime::set(const etl::string_view &timeView) {
 bool NMEATime::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view timeView;
     if (!nmeaLine.getWord(timeView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing Time field" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing Time field" << eol;
         return false;
     }
 
     if (!set(timeView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad Time field '"
-               << timeView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message with bad Time field '"
+                 << timeView << "'" << eol;
         return false;
     }
 

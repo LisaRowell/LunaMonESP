@@ -31,7 +31,8 @@ NMEAGSVMessage::NMEAGSVMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEAGSVMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " GSV message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " GSV message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -65,15 +66,15 @@ enum NMEAMsgType NMEAGSVMessage::type() const {
 }
 
 void NMEAGSVMessage::log() const {
-    logger << logDebugNMEA << talker << " GSV: " << sentenceNumber << " of " << sentencesInGroup
-           << " Satelllites " << numberSatellites;
+    logger() << logDebugNMEA << talker << " GSV: " << sentenceNumber << " of " << sentencesInGroup
+             << " Satelllites " << numberSatellites;
 
     unsigned satelitteIndex;
     for (satelitteIndex = 0; satelitteIndex < satelittesInMessage; satelitteIndex++) {
-        logger << " " << satelittes[satelitteIndex];
+        logger() << " " << satelittes[satelitteIndex];
     }
 
-    logger << eol;
+    logger() << eol;
 }
 
 NMEAGSVMessage *parseNMEAGSVMessage(NMEATalker &talker, NMEALine &nmeaLine) {

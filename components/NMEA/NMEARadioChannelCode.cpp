@@ -47,14 +47,14 @@ bool NMEARadioChannelCode::set(const etl::string_view &radioChannelCodeView) {
 bool NMEARadioChannelCode::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view radioChannelCodeView;
     if (!nmeaLine.getWord(radioChannelCodeView)) {
-        logger << logWarnNMEA << talker << " " << msgType
-               << " message missing Radio Channel Code field" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message missing Radio Channel Code field" << eol;
         return false;
     }
     if (!set(radioChannelCodeView)) {
-        logger << logWarnNMEA << talker << " " << msgType
-               << " message with bad Radio Channel Code field '" << radioChannelCodeView << "'"
-               << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message with bad Radio Channel Code field '" << radioChannelCodeView << "'"
+                 << eol;
         return false;
     }
 

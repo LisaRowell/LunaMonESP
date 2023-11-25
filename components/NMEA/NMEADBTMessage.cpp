@@ -31,7 +31,8 @@ NMEADBTMessage::NMEADBTMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEADBTMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " DBT message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " DBT message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -67,8 +68,8 @@ enum NMEAMsgType NMEADBTMessage::type() const {
 }
 
 void NMEADBTMessage::log() const {
-    logger << logDebugNMEA << talker << " DBT: Depth " << depthFeet << "', " << depthMeters
-           << " m, " << depthFathoms << " ftm" << eol;
+    logger() << logDebugNMEA << talker << " DBT: Depth " << depthFeet << "', " << depthMeters
+             << " m, " << depthFathoms << " ftm" << eol;
 }
 
 NMEADBTMessage *parseNMEADBTMessage(NMEATalker &talker, NMEALine &nmeaLine) {

@@ -49,14 +49,14 @@ bool NMEAGPSQuality::set(etl::string_view &gpsQualityView) {
 bool NMEAGPSQuality::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view gpsQualityView;
     if (!nmeaLine.getWord(gpsQualityView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing GPS Quality field"
-               << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing GPS Quality field"
+                 << eol;
         return false;
     }
 
     if (!set(gpsQualityView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad GPS Quality field '"
-               << gpsQualityView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message with bad GPS Quality field '" << gpsQualityView << "'" << eol;
         return false;
     }
 

@@ -28,6 +28,7 @@ class EnvironmentalMon;
 
 class LunaMon {
     private:
+        Logger logger;
         StatusLED *statusLED;
         WiFiManager wifiManager;
         NMEAWiFiSource *nmeaWiFiSource;

@@ -75,7 +75,7 @@ bool NMEASource::processBuffer() {
         } else {
             // We had a carriage return without the associated line feed. Toss out any characters
             // that we had accumulated in the line and move on, processing the buffer.
-            logger << logWarnNMEA << "NMEA line with CR, but no LF. Ignoring." << eol;
+            logger() << logWarnNMEA << "NMEA line with CR, but no LF. Ignoring." << eol;
             inputLine.reset();
             carriageReturnFound = false;
         }
@@ -99,7 +99,7 @@ bool NMEASource::processBuffer() {
                 // We had a carriage return without the associated line feed. Toss out any
                 // characters that we had accumulated in the line. If we still have characters in
                 // the buffer, recursively process those.
-                logger << logWarnNMEA << "NMEA line with CR, but no LF. Ignoring." << eol;
+                logger() << logWarnNMEA << "NMEA line with CR, but no LF. Ignoring." << eol;
                 inputLine.reset();
                 remaining--;
                 bufferPos++;
@@ -128,7 +128,7 @@ bool NMEASource::processBuffer() {
 bool NMEASource::readAvailableInput(int sock) {
     ssize_t count = recv(sock, buffer, maxNMEALineLength, 0);
     if (count < 0) {
-        logger << logDebugNMEA << "NMEA source read failed" << eol;
+        logger() << logDebugNMEA << "NMEA source read failed" << eol;
         return false;
     } else {
         remaining = count;

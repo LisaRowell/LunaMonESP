@@ -32,14 +32,15 @@ NMEAGSAMessage::NMEAGSAMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " GSA message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " GSA message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
     etl::string_view manualOrAutomaticModeView;
     if (!nmeaLine.getWord(manualOrAutomaticModeView)) {
-        logger << logWarnNMEA << talker << " GSA message missing Manual or Automatic Mode indicator"
-               << eol;
+        logger() << logWarnNMEA << talker
+                 << " GSA message missing Manual or Automatic Mode indicator" << eol;
         return false;
     }
     if (manualOrAutomaticModeView.size() == 1) {
@@ -51,13 +52,13 @@ bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
                 automaticMode = false;
                 break;
             default:
-                logger << logWarnNMEA << talker
-                       << " GSA message with bad Manual or Automatic Mode indicator" << eol;
+                logger() << logWarnNMEA << talker
+                         << " GSA message with bad Manual or Automatic Mode indicator" << eol;
                 return false;
         }
     } else {
-        logger << logWarnNMEA << talker
-               << " GSA message with bad Manual or Automatic Mode indicator" << eol;
+        logger() << logWarnNMEA << talker
+                 << " GSA message with bad Manual or Automatic Mode indicator" << eol;
         return false;
     }
 
@@ -90,22 +91,22 @@ enum NMEAMsgType NMEAGSAMessage::type() const {
 }
 
 void NMEAGSAMessage::log() const {
-    logger << logDebugNMEA << talker << " GSA: ";
+    logger() << logDebugNMEA << talker << " GSA: ";
 
     if (automaticMode) {
-        logger << "Automatic ";
+        logger() << "Automatic ";
     } else {
-        logger << "Manual ";
+        logger() << "Manual ";
     }
 
-    logger << gpsFixMode << " Satellites ";
+    logger() << gpsFixMode << " Satellites ";
 
     unsigned satelliteIndex;
     for (satelliteIndex = 0; satelliteIndex < 12; satelliteIndex++) {
-        logger << satelliteIDs[satelliteIndex] << " ";
+        logger() << satelliteIDs[satelliteIndex] << " ";
     }
  
-    logger << "PDOP " << pdop << " HDOP " << hdop << " VDOP " << vdop << eol;
+    logger() << "PDOP " << pdop << " HDOP " << hdop << " VDOP " << vdop << eol;
 }
 
 NMEAGSAMessage *parseNMEAGSAMessage(NMEATalker &talker, NMEALine &nmeaLine) {

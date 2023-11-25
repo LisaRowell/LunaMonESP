@@ -59,8 +59,8 @@ bool NMEAUInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgT
     etl::string_view valueView;
     if (!nmeaLine.getWord(valueView)) {
         if (!optional) {
-            logger << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
-                   << " field" << eol;
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
+                     << " field" << eol;
             return false;
         }
 
@@ -69,8 +69,8 @@ bool NMEAUInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgT
     }
 
     if (!set(valueView, optional, maxValue)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad " << fieldName
-               << " field '" << valueView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message with bad " << fieldName
+                 << " field '" << valueView << "'" << eol;
         return false;
     }
 

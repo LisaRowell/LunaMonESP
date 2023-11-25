@@ -17,8 +17,12 @@
  */
 
 #include "TaskObject.h"
+
 #include "Logger.h"
 #include "Error.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include <stddef.h>
 
@@ -38,7 +42,10 @@ void TaskObject::start() {
 void TaskObject::startTask(void *taskPtr) {
     TaskObject *task = (TaskObject *)taskPtr;
 
-    task->logger << logNotifyTaskObject << "Starting task " << task->name << eol;
+    Logger &logger = task->logger;
+    logger.initForTask();
+
+    logger << logNotifyTaskObject << "Starting task " << task->name << eol;
 
     task->task();
 }

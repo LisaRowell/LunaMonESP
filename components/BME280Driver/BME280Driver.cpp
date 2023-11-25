@@ -144,15 +144,15 @@ bool BME280Driver::detect() {
         id = readRegister(BME280_CHIP_ID_REG);
     }
     catch (esp_err_t error) {
-        logger << logErrorBME280Driver << "Failed to read BME280 Device ID." << eol;
+        logger() << logErrorBME280Driver << "Failed to read BME280 Device ID." << eol;
         return false;
     }
 
     if (id == BME280_CHIP_ID) {
-        logger << logDebugBME280Driver << "Successfully read BME280 chip id." << eol;
+        logger() << logDebugBME280Driver << "Successfully read BME280 chip id." << eol;
         return true;
     } else {
-        logger << logErrorBME280Driver << "Unexpected BME280 chip id: " << Hex << id << eol;
+        logger() << logErrorBME280Driver << "Unexpected BME280 chip id: " << Hex << id << eol;
         return false;
     }
 }

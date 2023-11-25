@@ -48,17 +48,18 @@ I2CMaster::I2CMaster(i2c_port_t instance, gpio_num_t sclIOPin, gpio_num_t sdaIOP
     
     error = i2c_param_config(instance, &i2c_config);
     if (error != ESP_OK) {
-        logger << logErrorI2CMaster << "Failed to configure i2c driver: " << ESPError(error) << eol;
+        logger() << logErrorI2CMaster << "Failed to configure i2c driver: " << ESPError(error)
+                 << eol;
         errorExit();
     }
     
     error = i2c_driver_install(instance, I2C_MODE_MASTER, 0, 0, 0);
     if (error != ESP_OK) {
-        logger << logErrorI2CMaster << "Failed to install i2c driver: " << ESPError(error) << eol;
+        logger() << logErrorI2CMaster << "Failed to install i2c driver: " << ESPError(error) << eol;
         errorExit();
     }
 
-    logger << logNotifyI2CMaster << "I2C Master Initialized." << eol;
+    logger() << logNotifyI2CMaster << "I2C Master Initialized." << eol;
 }
 
 uint8_t I2CMaster::readByte(uint8_t deviceAddr, uint8_t byteAddr) {

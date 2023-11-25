@@ -62,19 +62,19 @@ bool NMEALatitude::set(const etl::string_view &latitudeView,
 bool NMEALatitude::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view latitudeView;
     if (!nmeaLine.getWord(latitudeView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing latitude" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing latitude" << eol;
         return false;
     }
 
     etl::string_view northOrSouthView;
     if (!nmeaLine.getWord(northOrSouthView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing N/S" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing N/S" << eol;
         return false;
     }
 
     if (!set(latitudeView, northOrSouthView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad latitude '"
-               << latitudeView << "' '" << northOrSouthView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message with bad latitude '"
+                 << latitudeView << "' '" << northOrSouthView << "'" << eol;
         return false;
     }
 

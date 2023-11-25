@@ -82,14 +82,14 @@ bool NMEAHundredthsUInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const 
                                   const char *fieldName) {
     etl::string_view valueView;
     if (!nmeaLine.getWord(valueView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
-               << " field" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
+                 << " field" << eol;
         return false;
     }
 
     if (!set(valueView)) {
-        logger << logWarnNMEA << talker << " " << msgType << " message with bad " << fieldName
-               << " field '" << valueView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType << " message with bad " << fieldName
+                 << " field '" << valueView << "'" << eol;
         return false;
     }
 

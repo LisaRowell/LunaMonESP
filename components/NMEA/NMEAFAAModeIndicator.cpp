@@ -92,9 +92,9 @@ bool NMEAFAAModeIndicator::extract(NMEALine &nmeaLine, NMEATalker &talker, const
     etl::string_view faaModeIndicatorView;
     if (nmeaLine.getWord(faaModeIndicatorView)) {
         if (!set(faaModeIndicatorView)) {
-            logger << logWarnNMEA << talker << " " << msgType
-                   << " message with bad FAA Mode Indicator field '" << faaModeIndicatorView << "'"
-                   << eol;
+            logger() << logWarnNMEA << talker << " " << msgType
+                     << " message with bad FAA Mode Indicator field '" << faaModeIndicatorView
+                     << "'" << eol;
             return false;
         }
     }

@@ -56,11 +56,9 @@
 #define I2C_MASTER_SDA_IO   (GPIO_NUM_0)
 #endif
 
-LunaMon::LunaMon() : ic2Master(nullptr), environmentalMon(nullptr) {
-    logger.setLevel(LOGGER_LEVEL_DEBUG);
-    // This is a bad thing as it's showing that the main thread's logger is being used by the ported
-    // over NMEA code. Will go away with future Logger usage changes...
+LunaMon::LunaMon() : logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr), environmentalMon(nullptr) {
     logger.enableModuleDebug(LOGGER_MODULE_NMEA);
+    logger.initForTask();
 
     if (CONFIG_LUNAMON_STATUS_LED_ENABLED) {
         statusLED = new StatusLED(STATUS_LED_GPIO);

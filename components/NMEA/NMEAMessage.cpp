@@ -49,14 +49,14 @@ bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageTyp
                                       const char *constantWord) {
     etl::string_view word;
     if (!nmeaLine.getWord(word)) {
-        logger << logErrorNMEA << talker << " " << messageType << " message missing "
-               << constantWord << " field" << eol;
+        logger() << logErrorNMEA << talker << " " << messageType << " message missing "
+                 << constantWord << " field" << eol;
         return false;
     }
 
     if (word != constantWord) {
-        logger << logErrorNMEA << talker << " " << messageType << " message with bad "
-               << constantWord << " field" << eol;
+        logger() << logErrorNMEA << talker << " " << messageType << " message with bad "
+                 << constantWord << " field" << eol;
         return false;
     }
 
@@ -66,11 +66,11 @@ bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageTyp
 NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine) {
     etl::string_view tagView;
     if (!nmeaLine.getWord(tagView)) {
-        logger << logWarnNMEA << "NMEA message missing tag" << eol;
+        logger() << logWarnNMEA << "NMEA message missing tag" << eol;
         return NULL;
     }
     if (tagView.size() != 5) {
-        logger << logWarnNMEA << "Bad NMEA tag '" << tagView << "'" << eol;
+        logger() << logWarnNMEA << "Bad NMEA tag '" << tagView << "'" << eol;
         return NULL;
     }
 
@@ -120,8 +120,8 @@ NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine) {
 
         case NMEA_MSG_TYPE_UNKNOWN:
         default:
-            logger << logWarnNMEA << "Unknown NMEA message type (" << msgTypeStr << ") from "
-                   << talker << eol;
+            logger() << logWarnNMEA << "Unknown NMEA message type (" << msgTypeStr << ") from "
+                     << talker << eol;
             return NULL;
     }
 }

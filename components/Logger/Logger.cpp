@@ -28,8 +28,6 @@
 
 #include <stdint.h>
 
-Logger logger(LOGGER_LEVEL_WARNING);
-
 Logger::Logger(LoggerLevel level)
     : logLevel(level), lineLevel(LOGGER_LEVEL_ERROR), lineModule(LOGGER_MODULE_UTIL),
       outputCurrentLine(false), base(Dec), errorsSetInDataModel(0), inLogger(false) {
@@ -51,6 +49,12 @@ void Logger::enableModuleDebug(LoggerModule module) {
 
 void Logger::disableModuleDebug(LoggerModule module) {
     moduleDebugFlags[module] = false;
+}
+
+__thread Logger *threadSpecificLogger;
+
+void Logger::initForTask() {
+    threadSpecificLogger = this;
 }
 
 Logger & Logger::operator << (const LogSelector logSelector) {

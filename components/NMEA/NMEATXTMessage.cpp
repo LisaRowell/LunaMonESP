@@ -33,7 +33,8 @@ NMEATXTMessage::NMEATXTMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEATXTMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " TXT message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " TXT message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -51,7 +52,7 @@ bool NMEATXTMessage::parse(NMEALine &nmeaLine) {
 
     etl::string_view textView;
     if (!nmeaLine.getWord(textView)) {
-        logger << logWarnNMEA << talker << " TXT message missing Text field" << eol;
+        logger() << logWarnNMEA << talker << " TXT message missing Text field" << eol;
         return false;
     }
     text.assign(textView.begin(), textView.end());
@@ -62,15 +63,16 @@ bool NMEATXTMessage::parse(NMEALine &nmeaLine) {
 bool NMEATXTMessage::getTwoDigitField(NMEALine &nmeaLine, uint8_t &value, const char *fieldName) {
     etl::string_view valueView;
     if (!nmeaLine.getWord(valueView)) {
-        logger << logWarnNMEA << talker << " TXT message missing " << fieldName << " field" << eol;
+        logger() << logWarnNMEA << talker << " TXT message missing " << fieldName << " field"
+                 << eol;
         return false;
     }
 
     etl::to_arithmetic_result<uint8_t> conversionResult;
     conversionResult = etl::to_arithmetic<uint8_t>(valueView);
     if (!conversionResult.has_value()) {
-        logger << logWarnNMEA << talker << " TXT message with bad " << fieldName << " field '"
-               << valueView << "'" << eol;
+        logger() << logWarnNMEA << talker << " TXT message with bad " << fieldName << " field '"
+                 << valueView << "'" << eol;
         return false;
     }
     value = conversionResult.value();
@@ -82,8 +84,8 @@ enum NMEAMsgType NMEATXTMessage::type() const {
 }
 
 void NMEATXTMessage::log() const {
-    logger << logDebugNMEA << talker << " TXT: TotalSentences " << totalSentences << " Sentence "
-           << sentenceNumber << " TextId " << textIdentifier << " " << text << eol;
+    logger() << logDebugNMEA << talker << " TXT: TotalSentences " << totalSentences << " Sentence "
+             << sentenceNumber << " TextId " << textIdentifier << " " << text << eol;
 }
 
 NMEATXTMessage *parseNMEATXTMessage(NMEATalker &talker, NMEALine &nmeaLine) {

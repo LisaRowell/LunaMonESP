@@ -35,7 +35,8 @@ NMEAGGAMessage::NMEAGGAMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEAGGAMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " GGA message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " GGA message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -97,19 +98,19 @@ enum NMEAMsgType NMEAGGAMessage::type() const {
 }
 
 void NMEAGGAMessage::log() const {
-    logger << logDebugNMEA << talker << " GGA: " << time << " " << latitude << " " << longitude
-           << " " << gpsQuality << " " << numberSatellites << " " << horizontalDilutionOfPrecision
-           << " " << antennaAltitude << "m " << geoidalSeparation << "m";
+    logger() << logDebugNMEA << talker << " GGA: " << time << " " << latitude << " " << longitude
+             << " " << gpsQuality << " " << numberSatellites << " " << horizontalDilutionOfPrecision
+             << " " << antennaAltitude << "m " << geoidalSeparation << "m";
 
     if (gpsDataAge.hasValue()) {
-        logger << " " << gpsDataAge;
+        logger() << " " << gpsDataAge;
     }
 
     if (differentialReferenceStation.hasValue()) {
-        logger << " " << differentialReferenceStation;
+        logger() << " " << differentialReferenceStation;
     }
 
-    logger << eol;
+    logger() << eol;
 }
 
 NMEAGGAMessage *parseNMEAGGAMessage(NMEATalker &talker, NMEALine &nmeaLine) {

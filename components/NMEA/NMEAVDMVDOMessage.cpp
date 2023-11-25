@@ -33,8 +33,8 @@ NMEAVDMVDOMessage::NMEAVDMVDOMessage(NMEATalker &talker, NMEAMsgType &msgType)
 
 bool NMEAVDMVDOMessage::parse(NMEALine &nmeaLine) {
     if (!nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " " << msgTypeName()
-               << " message in unsupported, non-encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " " << msgTypeName()
+                 << " message in unsupported, non-encapsulated format" << eol;
         return false;
     }
 
@@ -66,8 +66,8 @@ const char *NMEAVDMVDOMessage::msgTypeName() const {
 }
 
 void NMEAVDMVDOMessage::log() const {
-    logger << logDebugNMEA << talker << " " << msgTypeName() << ": " << fragmentNumber << " of "
-           << totalFragments << " Msg Id " << messageId << " Channel " << radioChannelCode << eol;
+    logger() << logDebugNMEA << talker << " " << msgTypeName() << ": " << fragmentNumber << " of "
+             << totalFragments << " Msg Id " << messageId << " Channel " << radioChannelCode << eol;
 }
 
 bool NMEAVDMVDOMessage::isOwnShip() const {

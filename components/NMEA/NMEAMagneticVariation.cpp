@@ -95,23 +95,23 @@ bool NMEAMagneticVariation::set(const etl::string_view &directionView,
 bool NMEAMagneticVariation::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
     etl::string_view directionView;
     if (!nmeaLine.getWord(directionView)) {
-        logger << logWarnNMEA << talker << " " << msgType
-               << " message missing Magnetic Variation direction field" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message missing Magnetic Variation direction field" << eol;
         hasValue = false;
         return false;
     }
     etl::string_view eastOrWestView;
     if (!nmeaLine.getWord(eastOrWestView)) {
-        logger << logWarnNMEA << talker << " " << msgType
-               << " message missing Magnetic Variation E/W field" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message missing Magnetic Variation E/W field" << eol;
         hasValue = false;
         return false;
     }
 
     if (!set(directionView, eastOrWestView)) {
-        logger << logWarnNMEA << talker << " " << msgType
-               << " message with bad Magnetic Variation field '" << directionView << ","
-               << eastOrWestView << "'" << eol;
+        logger() << logWarnNMEA << talker << " " << msgType
+                 << " message with bad Magnetic Variation field '" << directionView << ","
+                 << eastOrWestView << "'" << eol;
         return false;
     }
 

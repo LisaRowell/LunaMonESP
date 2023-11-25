@@ -32,7 +32,8 @@ NMEAGSTMessage::NMEAGSTMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEAGSTMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " GST message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " GST message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -88,14 +89,14 @@ enum NMEAMsgType NMEAGSTMessage::type() const {
 }
 
 void NMEAGSTMessage::log() const {
-    logger << logDebugNMEA << talker << " GST: " << time << " SD of Range of Inputs RMS "
-           << standardDeviationOfRangeInputsRMS << " SD of Semi-Major Axis "
-           << standardDeviationOfSemiMajorAxis << "m SD of Semi-Minor Axis "
-           << standardDeviationOfSemiMinorAxis << "m Orientation of Semi Major Axis "
-           << orientationOfSemiMajorAxis << " SD of Latitude Error "
-           << standardDeviationOfLatitudeError << "m SD of Longitude Error "
-           << standardDeviationOfLongitudeError << "m SD of Atitude Error "
-           << standardDeviationOfAltitudeError << "m" << eol;
+    logger() << logDebugNMEA << talker << " GST: " << time << " SD of Range of Inputs RMS "
+             << standardDeviationOfRangeInputsRMS << " SD of Semi-Major Axis "
+             << standardDeviationOfSemiMajorAxis << "m SD of Semi-Minor Axis "
+             << standardDeviationOfSemiMinorAxis << "m Orientation of Semi Major Axis "
+             << orientationOfSemiMajorAxis << " SD of Latitude Error "
+             << standardDeviationOfLatitudeError << "m SD of Longitude Error "
+             << standardDeviationOfLongitudeError << "m SD of Atitude Error "
+             << standardDeviationOfAltitudeError << "m" << eol;
 }
 
 NMEAGSTMessage *parseNMEAGSTMessage(NMEATalker &talker, NMEALine &nmeaLine) {

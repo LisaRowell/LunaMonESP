@@ -32,7 +32,8 @@ NMEAVTGMessage::NMEAVTGMessage(NMEATalker &talker) : NMEAMessage(talker) {
 
 bool NMEAVTGMessage::parse(NMEALine &nmeaLine) {
     if (nmeaLine.isEncapsulatedData()) {
-        logger << logWarnNMEA << talker << " VTG message in unsupported encapsulated format" << eol;
+        logger() << logWarnNMEA << talker << " VTG message in unsupported encapsulated format"
+                 << eol;
         return false;
     }
 
@@ -44,22 +45,22 @@ bool NMEAVTGMessage::parse(NMEALine &nmeaLine) {
     // with out.
     etl::string_view secondWordView;
     if (!nmeaLine.getWord(secondWordView)) {
-        logger << logErrorNMEA << talker << " VTG message missing second field" << eol;
+        logger() << logErrorNMEA << talker << " VTG message missing second field" << eol;
         return false;
     }
 
     bool oldForm = !wordIsT(secondWordView);
     if (!oldForm) {
         if (!nmeaLine.getWord(secondWordView)) {
-            logger << logErrorNMEA << talker << " VTG message missing Course Over Ground, Magnetic "
-                   << eol;
+            logger() << logErrorNMEA << talker
+                     << " VTG message missing Course Over Ground, Magnetic " << eol;
             return false;
         }
     }
 
     if (!trackMadeGoodMagnetic.set(secondWordView, true)) {
-        logger << logErrorNMEA << talker << " VTG message with a bad Course Over Ground, Magentic"
-               << "'" << secondWordView << "'" << eol;
+        logger() << logErrorNMEA << talker << " VTG message with a bad Course Over Ground, Magentic"
+                 << "'" << secondWordView << "'" << eol;
         return false;
     }
 
@@ -113,14 +114,14 @@ enum NMEAMsgType NMEAVTGMessage::type() const {
 }
 
 void NMEAVTGMessage::log() const {
-    logger << logDebugNMEA << talker << " VTG: " << trackMadeGoodTrue << " "
-           << trackMadeGoodMagnetic << " " << speedOverGround << "kn " << speedOverGroundKmPerH
-           << "km/h";
+    logger() << logDebugNMEA << talker << " VTG: " << trackMadeGoodTrue << " "
+             << trackMadeGoodMagnetic << " " << speedOverGround << "kn " << speedOverGroundKmPerH
+             << "km/h";
 
     if (faaModeIndicator.hasValue()) {
-        logger << " " << faaModeIndicator;
+        logger() << " " << faaModeIndicator;
     }
-    logger << eol;
+    logger() << eol;
 }
 
 NMEAVTGMessage *parseNMEAVTGMessage(NMEATalker &talker, NMEALine &nmeaLine) {
