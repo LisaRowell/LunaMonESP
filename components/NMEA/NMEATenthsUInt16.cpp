@@ -43,8 +43,8 @@ bool NMEATenthsUInt16::set(const etl::string_view &valueView, bool optional) {
     } else {
         wholeNumberView = etl::string_view(valueView.begin(), periodPos);
     }
-    etl::to_arithmetic_result<uint16_t> wholeNumberResult;
-    wholeNumberResult = etl::to_arithmetic<uint16_t>(wholeNumberView);
+    etl::to_arithmetic_result<uint16_t> wholeNumberResult
+        = etl::to_arithmetic<uint16_t>(wholeNumberView);
     if (!wholeNumberResult.has_value()) {
         valuePresent = false;
         return false;
@@ -57,8 +57,7 @@ bool NMEATenthsUInt16::set(const etl::string_view &valueView, bool optional) {
         if (decimalView.length() > 2) {
             decimalView.remove_suffix(decimalView.length() - 2);
         }
-        etl::to_arithmetic_result<uint8_t> decimalResult;
-        decimalResult = etl::to_arithmetic<uint8_t>(decimalView);
+        etl::to_arithmetic_result<uint8_t> decimalResult = etl::to_arithmetic<uint8_t>(decimalView);
         if (!decimalResult.has_value()) {
             valuePresent = false;
             return false;

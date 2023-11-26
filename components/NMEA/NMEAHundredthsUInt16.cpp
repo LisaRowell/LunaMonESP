@@ -38,8 +38,8 @@ bool NMEAHundredthsUInt16::set(const etl::string_view &valueView) {
     } else {
         wholeNumberView = etl::string_view(valueView.begin(), periodPos);
     }
-    etl::to_arithmetic_result<uint16_t> wholeNumberResult;
-    wholeNumberResult = etl::to_arithmetic<uint16_t>(wholeNumberView);
+    etl::to_arithmetic_result<uint16_t> wholeNumberResult
+        = etl::to_arithmetic<uint16_t>(wholeNumberView);
     if (!wholeNumberResult.has_value()) {
         return false;
     }
@@ -51,8 +51,8 @@ bool NMEAHundredthsUInt16::set(const etl::string_view &valueView) {
         if (decimalView.length() > 3) {
             decimalView.remove_suffix(decimalView.length() - 3);
         }
-        etl::to_arithmetic_result<uint16_t> decimalResult;
-        decimalResult = etl::to_arithmetic<uint16_t>(decimalView);
+        etl::to_arithmetic_result<uint16_t> decimalResult
+            = etl::to_arithmetic<uint16_t>(decimalView);
         if (!decimalResult.has_value()) {
             return false;
         }

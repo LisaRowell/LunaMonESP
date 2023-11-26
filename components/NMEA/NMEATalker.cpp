@@ -148,7 +148,7 @@ static const TalkerTableEntry talkerTable[] = {
 
 NMEATalker::NMEATalker(const etl::istring &talkerCode) {
 
-    if (talkerCode.truncated() || talkerCode.size() != 2) {
+    if (talkerCode.is_truncated() || talkerCode.size() != 2) {
         fatalError("Bad parsing of the NMEA Talker Code");
     }
 

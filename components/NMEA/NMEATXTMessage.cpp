@@ -68,8 +68,7 @@ bool NMEATXTMessage::getTwoDigitField(NMEALine &nmeaLine, uint8_t &value, const 
         return false;
     }
 
-    etl::to_arithmetic_result<uint8_t> conversionResult;
-    conversionResult = etl::to_arithmetic<uint8_t>(valueView);
+    etl::to_arithmetic_result<uint8_t> conversionResult = etl::to_arithmetic<uint8_t>(valueView);
     if (!conversionResult.has_value()) {
         logger() << logWarnNMEA << talker << " TXT message with bad " << fieldName << " field '"
                  << valueView << "'" << eol;
