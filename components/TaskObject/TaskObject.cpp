@@ -48,4 +48,7 @@ void TaskObject::startTask(void *taskPtr) {
     logger << logNotifyTaskObject << "Starting task " << task->name << eol;
 
     task->task();
+
+    logger << logErrorTaskObject << "Task " << task->name << " returned. Deleting task..." << eol;
+    vTaskDelete(NULL);
 }
