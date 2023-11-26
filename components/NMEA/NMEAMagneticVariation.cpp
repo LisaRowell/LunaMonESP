@@ -52,8 +52,7 @@ bool NMEAMagneticVariation::set(const etl::string_view &directionView,
         if (decimalView.length() > 2) {
             decimalView.remove_suffix(decimalView.length() - 2);
         }
-        etl::to_arithmetic_result<uint8_t> decimalResult;
-        decimalResult = etl::to_arithmetic<uint8_t>(decimalView);
+        etl::to_arithmetic_result<uint8_t> decimalResult = etl::to_arithmetic<uint8_t>(decimalView);
         if (!decimalResult.has_value()) {
             hasValue = false;
             return false;
