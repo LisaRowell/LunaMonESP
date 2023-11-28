@@ -21,8 +21,8 @@
 #include "Logger.h"
 #include "Error.h"
 
-#include <etl/string_view.h>
-#include <etl/to_arithmetic.h>
+#include "etl/string_view.h"
+#include "etl/to_arithmetic.h"
 
 bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
     if (valueView.size() == 0) {

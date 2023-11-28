@@ -24,7 +24,7 @@
 
 #include "Logger.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 bool NMEARadioChannelCode::set(const etl::string_view &radioChannelCodeView) {
     if (radioChannelCodeView.size() != 1) {

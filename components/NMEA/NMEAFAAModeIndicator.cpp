@@ -22,7 +22,7 @@
 
 #include "Logger.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 NMEAFAAModeIndicator::NMEAFAAModeIndicator() : faaMode(FAA_MODE_NONE) {
 }

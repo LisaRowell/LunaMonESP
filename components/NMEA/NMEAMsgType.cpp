@@ -20,7 +20,7 @@
 
 #include "Error.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 enum NMEAMsgType parseNMEAMsgType(const etl::istring &msgTypeStr) {
     if (msgTypeStr == "DBK") {

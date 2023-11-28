@@ -25,10 +25,10 @@
 #include "StringTools.h"
 #include "Logger.h"
 
-#include <etl/string_view.h>
-#include <etl/to_arithmetic.h>
-#include <etl/string.h>
-#include <etl/string_stream.h>
+#include "etl/string_view.h"
+#include "etl/to_arithmetic.h"
+#include "etl/string.h"
+#include "etl/string_stream.h"
 
 #include <stdint.h>
 

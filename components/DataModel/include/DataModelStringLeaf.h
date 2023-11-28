@@ -21,7 +21,7 @@
 
 #include "DataModelRetainedValueLeaf.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 #include <stddef.h>
 

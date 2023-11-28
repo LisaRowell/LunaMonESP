@@ -18,11 +18,6 @@
 
 #include "DataModel.h"
 
-#include "Logger.h"
-#include "Error.h"
-
-#include <etl/string_view.h>
-
 DataModel::DataModel() {
 }
 

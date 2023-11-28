@@ -22,7 +22,7 @@
 #include "LoggableItem.h"
 #include "Logger.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 class NMEATalker : public LoggableItem {
     private:

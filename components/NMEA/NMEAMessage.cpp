@@ -35,8 +35,8 @@
 
 #include "Logger.h"
 
-#include <etl/string.h>
-#include <etl/string_view.h>
+#include "etl/string.h"
+#include "etl/string_view.h"
 
 NMEAMessage::NMEAMessage(NMEATalker &talker) : talker(talker) {
 }

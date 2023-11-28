@@ -19,7 +19,7 @@
 #include "DataModelRetainedValueLeaf.h"
 #include "DataModelLeaf.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 #include <stdint.h>
 

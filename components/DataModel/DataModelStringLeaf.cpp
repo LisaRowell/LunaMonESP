@@ -18,7 +18,7 @@
 
 #include "DataModelStringLeaf.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 #include <stddef.h>
 

@@ -21,7 +21,7 @@
 #include "Logger.h"
 #include "Error.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 typedef struct {
     const char code[3];

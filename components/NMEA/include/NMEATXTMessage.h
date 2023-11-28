@@ -23,7 +23,7 @@
 #include "NMEATalker.h"
 #include "NMEALine.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 #include <stdint.h>
 

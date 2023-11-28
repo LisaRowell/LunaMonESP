@@ -25,9 +25,9 @@
 #include "Logger.h"
 #include "StringTools.h"
 
-#include <etl/string.h>
-#include <etl/string_stream.h>
-#include <etl/string_view.h>
+#include "etl/string.h"
+#include "etl/string_stream.h"
+#include "etl/string_view.h"
 
 bool NMEATime::set(const etl::string_view &timeView) {
     if (timeView.size() < 6) {

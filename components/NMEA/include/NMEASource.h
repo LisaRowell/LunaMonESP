@@ -23,7 +23,7 @@ class NMEAMessageHandler;
 
 #include "NMEALine.h"
 
-#include <etl/vector.h>
+#include "etl/vector.h"
 
 #include <stddef.h>
 

@@ -19,7 +19,7 @@
 #ifndef DATA_MODEL_SUBSCRIBER_H
 #define DATA_MODEL_SUBSCRIBER_H
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 class DataModelSubscriber {
     public:

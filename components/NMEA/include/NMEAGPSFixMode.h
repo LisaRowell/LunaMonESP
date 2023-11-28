@@ -27,7 +27,7 @@
 #include "LoggableItem.h"
 #include "Logger.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 class NMEAGPSFixMode : public LoggableItem {
     private:

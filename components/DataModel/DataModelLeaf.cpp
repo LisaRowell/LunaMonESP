@@ -22,8 +22,8 @@
 
 #include "Logger.h"
 
-#include <etl/string.h>
-#include <etl/to_string.h>
+#include "etl/string.h"
+#include "etl/to_string.h"
 
 #include <stdint.h>
 #include <stddef.h>

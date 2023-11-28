@@ -19,8 +19,8 @@
 #include "DataModelInt8Leaf.h"
 #include "DataModelLeaf.h"
 
-#include <etl/string.h>
-#include <etl/to_string.h>
+#include "etl/string.h"
+#include "etl/to_string.h"
 
 #include <stdint.h>
 

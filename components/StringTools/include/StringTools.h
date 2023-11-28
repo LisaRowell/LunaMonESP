@@ -19,7 +19,7 @@
 #ifndef STRING_TOOLS_H
 #define STRING_TOOLS_H
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 #include <stdint.h>
 #include <stddef.h>

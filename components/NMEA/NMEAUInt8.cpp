@@ -22,8 +22,8 @@
 #include "CharacterTools.h"
 #include "StringTools.h"
 
-#include <etl/string_view.h>
-#include <etl/to_arithmetic.h>
+#include "etl/string_view.h"
+#include "etl/to_arithmetic.h"
 
 #include <stdint.h>
 #include <stddef.h>

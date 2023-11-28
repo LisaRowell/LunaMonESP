@@ -21,8 +21,8 @@
 
 #include "Error.h"
 
-#include <etl/string.h>
-#include <etl/string_view.h>
+#include "etl/string.h"
+#include "etl/string_view.h"
 
 #include "esp_log.h"
 

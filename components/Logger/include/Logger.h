@@ -19,8 +19,8 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <etl/string.h>
-#include <etl/string_view.h>
+#include "etl/string.h"
+#include "etl/string_view.h"
 
 #include "esp_netif.h"
 

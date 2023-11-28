@@ -19,9 +19,9 @@
 #include "StringTools.h"
 #include "CharacterTools.h"
 
-#include <etl/string.h>
-#include <etl/string_view.h>
-#include <etl/to_arithmetic.h>
+#include "etl/string.h"
+#include "etl/string_view.h"
+#include "etl/to_arithmetic.h"
 
 #include <stdint.h>
 #include <stddef.h>

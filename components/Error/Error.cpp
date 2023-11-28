@@ -18,7 +18,7 @@
 
 #include "Error.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 #include "esp_log.h"
 

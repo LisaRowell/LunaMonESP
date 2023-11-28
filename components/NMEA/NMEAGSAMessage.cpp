@@ -25,7 +25,7 @@
 #include "StringTools.h"
 #include "Logger.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 NMEAGSAMessage::NMEAGSAMessage(NMEATalker &talker) : NMEAMessage(talker) {
 }

@@ -22,8 +22,8 @@
 #include "Logger.h"
 #include "Error.h"
 
-#include <etl/string_view.h>
-#include <etl/to_arithmetic.h>
+#include "etl/string_view.h"
+#include "etl/to_arithmetic.h"
 
 bool NMEAMagneticVariation::set(const etl::string_view &directionView,
                                 const etl::string_view &eastOrWestView) {

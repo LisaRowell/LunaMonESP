@@ -21,10 +21,10 @@
 #include "Logger.h"
 #include "Error.h"
 
-#include <etl/string_view.h>
-#include <etl/to_arithmetic.h>
-#include <etl/string.h>
-#include <etl/string_stream.h>
+#include "etl/string_view.h"
+#include "etl/to_arithmetic.h"
+#include "etl/string.h"
+#include "etl/string_stream.h"
 
 bool NMEAHundredthsUInt16::set(const etl::string_view &valueView) {
     if (valueView.size() == 0) {

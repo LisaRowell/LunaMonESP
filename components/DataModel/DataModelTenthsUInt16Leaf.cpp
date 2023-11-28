@@ -19,8 +19,8 @@
 #include "DataModelTenthsUInt16Leaf.h"
 #include "DataModelLeaf.h"
 
-#include <etl/string.h>
-#include <etl/string_stream.h>
+#include "etl/string.h"
+#include "etl/string_stream.h"
 
 #include <stdint.h>
 

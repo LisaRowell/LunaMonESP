@@ -27,7 +27,7 @@
 #include "Logger.h"
 #include "LoggableItem.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 class NMEAMagneticVariation : public LoggableItem {
     private:

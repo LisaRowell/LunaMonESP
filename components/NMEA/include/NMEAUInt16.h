@@ -27,7 +27,7 @@
 #include "LoggableItem.h"
 #include "Logger.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 class NMEAUInt16 : public LoggableItem {
     private:

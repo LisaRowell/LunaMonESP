@@ -19,8 +19,8 @@
 #ifndef NMEA_LINE_H
 #define NMEA_LINE_H
 
-#include <etl/string.h>
-#include <etl/string_view.h>
+#include "etl/string.h"
+#include "etl/string_view.h"
 
 #include <stddef.h>
 

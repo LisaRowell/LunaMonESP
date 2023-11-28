@@ -24,7 +24,7 @@
 
 #include "Logger.h"
 
-#include <etl/string_view.h>
+#include "etl/string_view.h"
 
 bool NMEALatitude::set(const etl::string_view &latitudeView,
                        const etl::string_view &northOrSouthView) {

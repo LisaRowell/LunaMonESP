@@ -19,7 +19,7 @@
 #ifndef NMEA_MSG_TYPE_H
 #define NMEA_MSG_TYPE_H
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 enum NMEAMsgType {
     NMEA_MSG_TYPE_UNKNOWN,

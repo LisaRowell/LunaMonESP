@@ -23,7 +23,7 @@ class DataModelSubscriber;
 
 #include "DataModelElement.h"
 
-#include <etl/string.h>
+#include "etl/string.h"
 
 #include <stdint.h>
 
