@@ -41,9 +41,6 @@ NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, const char *ipv4Addr, u
         logger << logErrorNMEAWiFi << "Bad NMEA WiFi source IPv4 address '"
                << ipv4Addr << "'" << eol;
     }
-
-    logger.enableModuleDebug(LOGGER_MODULE_NMEA);
-    logger.enableModuleDebug(LOGGER_MODULE_NMEA_WIFI);
 }
 
 void NMEAWiFiSource::task() {
