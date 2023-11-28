@@ -90,16 +90,16 @@ void EnvironmentalMon::task() {
 void EnvironmentalMon::detectBME280() {
     if (bme280Driver->detect()) {
         bme280Functional = true;
-        logger << logNotifyMain << "BME280 detected." << eol;
+        logger << logNotifyEnvironmentalMon << "BME280 detected." << eol;
         try {
             bme280Driver->start();
         }
         catch (esp_err_t error) {
-            logger << logErrorMain << "Failed to start BME280 device." << eol;
+            logger << logErrorEnvironmentalMon << "Failed to start BME280 device." << eol;
             bme280Functional = false;
         }
     } else {
-        logger << logErrorMain << "BME280 not detected." << eol;
+        logger << logErrorEnvironmentalMon << "BME280 not detected." << eol;
         bme280Functional = false;
     }
 }
@@ -112,7 +112,7 @@ void EnvironmentalMon::pollBME280() {
 
     HundredthsInt16 temperatureF = (temperatureC * 9) / 5 + 32;
 
-    logger << logNotifyMain << "Temperature = " << temperatureF << " F"
+    logger << logDebugEnvironmentalMon << "Temperature = " << temperatureF << " F"
            << " (" << temperatureC << " C)"
            << "  Pressure = " << pressureMBar << " mBar"
            << "  Relative Humidity = " << relativeHumidity << "%" << eol;
@@ -121,17 +121,17 @@ void EnvironmentalMon::pollBME280() {
 void EnvironmentalMon::detectENS160() {
     if (ens160Driver->detect()) {
         ens160Functional = true;
-        logger << logNotifyMain << "ENS160 detected." << eol;
+        logger << logNotifyEnvironmentalMon << "ENS160 detected." << eol;
         try {
             ens160Driver->start();
         }
         catch (esp_err_t error) {
-            logger << logErrorMain << "Failed to start ENS160 device." << eol;
+            logger << logErrorEnvironmentalMon << "Failed to start ENS160 device." << eol;
             statusLEDOff();
             ens160Functional = false;
         }
     } else {
-        logger << logErrorMain << "ENS160 not detected." << eol;
+        logger << logErrorEnvironmentalMon << "ENS160 not detected." << eol;
         statusLEDOff();
         ens160Functional = false;
     }
@@ -144,7 +144,7 @@ void EnvironmentalMon::pollENS160() {
     uint16_t eco2;
     bool ens160HasData = ens160Driver->read(ens160StartingUp, aqi, tvoc, eco2);
     if (ens160HasData) {
-        logger << logNotifyMain
+        logger << logDebugEnvironmentalMon
                << "AQI = " << aqi << " (" << ens160Driver->aqiDescription(aqi) << ")"
                << "  TVOC = " << tvoc << " (" << ens160Driver->tvocDescription(tvoc) << ")"
                << "  eCO2 = " << eco2 << " (" << ens160Driver->eco2Description(eco2) << ")";
@@ -163,7 +163,7 @@ void EnvironmentalMon::pollENS160() {
             statusLEDOn();
         }
     } else {
-        logger << logNotifyMain << "No valid environmental data." << eol;
+        logger << logDebugEnvironmentalMon << "No valid environmental data." << eol;
 
         aqiDataModelLeaf.clear();
 

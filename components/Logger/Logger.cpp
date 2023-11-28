@@ -351,6 +351,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "BME280 Driver";
         case LOGGER_MODULE_ENS160_DRIVER:
             return "ENS160 Driver";
+        case LOGGER_MODULE_ENVIRONMENTAL_MON:
+            return "Environmental Mon";
         case LOGGER_MODULE_TASK_OBJECT:
             return "Task Object";
         default:
