@@ -29,14 +29,32 @@
 #include <stdint.h>
 
 Logger::Logger(LoggerLevel level)
-    : logLevel(level), lineLevel(LOGGER_LEVEL_ERROR), lineModule(LOGGER_MODULE_UTIL),
+    : logLevel(level), lineLevel(LOGGER_LEVEL_ERROR), lineModule(LOGGER_MODULE_MAIN),
       outputCurrentLine(false), base(Dec), errorsSetInDataModel(0), inLogger(false) {
     errorLine.clear();
 
-    unsigned moduleIndex;
-    for (moduleIndex = 0; moduleIndex < LOGGER_MODULE_COUNT; moduleIndex++) {
-        moduleDebugFlags[moduleIndex] = false;
+    for (bool &moduleDebugFlag : moduleDebugFlags) {
+        moduleDebugFlag = false;
     }
+
+    moduleDebugFlags[LOGGER_MODULE_MAIN] = CONFIG_LUNAMON_DEBUG_MODULE_MAIN_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_DATA_MODEL] = CONFIG_LUNAMON_DEBUG_MODULE_DATA_MODEL_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_MQTT] = CONFIG_LUNAMON_DEBUG_MODULE_MQTT_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_NMEA] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_NMEA_DATA_MODEL_BRIDGE]
+        = CONFIG_LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_NMEA_WIFI] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_WIFI_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_WIFI_MANAGER] = CONFIG_LUNAMON_DEBUG_MODULE_WIFI_MANAGER_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_STATS_MANAGER]
+        = CONFIG_LUNAMON_DEBUG_MODULE_STATS_MANAGER_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_I2C_MASTER] = CONFIG_LUNAMON_DEBUG_MODULE_I2C_MASTER_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_BME280_DRIVER]
+        = CONFIG_LUNAMON_DEBUG_MODULE_BME280_DRIVER_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_ENS160_DRIVER]
+        = CONFIG_LUNAMON_DEBUG_MODULE_ENS160_DRIVER_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_ENVIRONMENTAL_MON]
+        = CONFIG_LUNAMON_DEBUG_MODULE_ENVIRONMENTAL_MON_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_TASK_OBJECT] = CONFIG_LUNAMON_DEBUG_MODULE_TASK_OBJECT_ENABLED;
 }
 
 void Logger::setLevel(LoggerLevel level) {
@@ -335,12 +353,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "NMEA";
         case LOGGER_MODULE_NMEA_DATA_MODEL_BRIDGE:
             return "Data Model Bridge";
-        case LOGGER_MODULE_NMEA_WIFI_BRIDGE:
-            return "NMEA WiFi Bridge";
         case LOGGER_MODULE_NMEA_WIFI:
             return "NMEA WiFi";
-        case LOGGER_MODULE_UTIL:
-            return "Util";
         case LOGGER_MODULE_WIFI_MANAGER:
             return "WiFi Manager";
         case LOGGER_MODULE_STATS_MANAGER:
