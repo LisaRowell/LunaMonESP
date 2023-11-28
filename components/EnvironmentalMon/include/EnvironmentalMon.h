@@ -19,6 +19,8 @@
 #ifndef ENVIRONMENTAL_MON_H
 #define ENVIRONMENTAL_MON_H
 
+#include "DataModelNode.h"
+#include "DataModelUInt8Leaf.h"
 #include "TaskObject.h"
 #include "BME280Driver.h"
 #include "ENS160Driver.h"
@@ -26,11 +28,16 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+class DataModel;
 class I2CMaster;
 class StatusLED;
 
-class EnvironmentalMon : TaskObject {
+class EnvironmentalMon : public TaskObject {
     private:
+        DataModelNode environmentDataModelNode;
+        DataModelNode cabinDataModelNode;
+        DataModelUInt8Leaf aqiDataModelLeaf;
+
         StatusLED *statusLED;
         bool bme280Functional;
         BME280Driver *bme280Driver;
@@ -48,7 +55,7 @@ class EnvironmentalMon : TaskObject {
         void statusErrorFlash();
 
     public:
-        EnvironmentalMon(I2CMaster &ic2Master, StatusLED *statusLED);
+        EnvironmentalMon(DataModel &dataModel, I2CMaster &ic2Master, StatusLED *statusLED);
 };
 
 #endif // ENVIRONMENTAL_MON_H

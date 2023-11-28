@@ -18,6 +18,7 @@
 
 #include "EnvironmentalMon.h"
 
+#include "DataModel.h"
 #include "I2CMaster.h"
 #include "StatusLED.h"
 #include "BME280Driver.h"
@@ -41,8 +42,11 @@
 #define CONFIG_LUNAMON_ENS160_ADDRESS   0
 #endif
 
-EnvironmentalMon::EnvironmentalMon(I2CMaster &ic2Master, StatusLED *statusLED)
+EnvironmentalMon::EnvironmentalMon(DataModel &dataModel, I2CMaster &ic2Master, StatusLED *statusLED)
     : TaskObject("EnvironmentalMon", LOGGER_LEVEL_DEBUG, STACK_SIZE),
+      environmentDataModelNode("environment", &dataModel.rootNode()),
+      cabinDataModelNode("cabin", &environmentDataModelNode),
+      aqiDataModelLeaf("aqi", &cabinDataModelNode),
       statusLED(statusLED) {
     if (CONFIG_LUNAMON_BME280_ENABLED) {
         bme280Driver = new BME280Driver(ic2Master, CONFIG_LUNAMON_BME280_ADDRESS);
@@ -55,8 +59,6 @@ EnvironmentalMon::EnvironmentalMon(I2CMaster &ic2Master, StatusLED *statusLED)
     } else {
         ens160Driver = nullptr;
     }
-
-    start();
 }
 
 void EnvironmentalMon::task() {
@@ -151,6 +153,8 @@ void EnvironmentalMon::pollENS160() {
         }
         logger << eol;
 
+        aqiDataModelLeaf = aqi;
+
         if (aqi >= 4) {
             statusErrorFlash();
         } else if (ens160StartingUp) {
@@ -160,6 +164,9 @@ void EnvironmentalMon::pollENS160() {
         }
     } else {
         logger << logNotifyMain << "No valid environmental data." << eol;
+
+        aqiDataModelLeaf.clear();
+
         statusLEDOff();
     }
 }

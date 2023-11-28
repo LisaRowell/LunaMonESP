@@ -16,32 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef DATA_MODEL_HUNDREDTHS_UINT8_LEAF_H
+#define DATA_MODEL_HUNDREDTHS_UINT8_LEAF_H
 
-#include "DataModel.h"
-#include "WiFiManager.h"
+#include "DataModelRetainedValueLeaf.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <stdint.h>
 
-class LunaMon {
-    private:
-        DataModel dataModel;
-        Logger logger;
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-
-        void initNVS();
+class DataModelHundredthsUInt8Leaf : public DataModelRetainedValueLeaf {
+   private:
+        uint8_t wholeNumber;
+        uint8_t hundredths;
 
     public:
-        LunaMon();
-        void run();
+        DataModelHundredthsUInt8Leaf(const char *name, DataModelElement *parent);
+        void set(uint8_t wholeNumber, uint8_t hundredths);
+        virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
 };
 
-#endif // LUNA_MON_H
+#endif

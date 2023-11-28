@@ -16,32 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
-
 #include "DataModel.h"
-#include "WiFiManager.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include "Logger.h"
+#include "Error.h"
 
-class LunaMon {
-    private:
-        DataModel dataModel;
-        Logger logger;
-        StatusLED *statusLED;
-        WiFiManager wifiManager;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
+#include <etl/string_view.h>
 
-        void initNVS();
+DataModel::DataModel() {
+}
 
-    public:
-        LunaMon();
-        void run();
-};
+DataModelRoot &DataModel::rootNode() {
+    return _rootNode;
+}
 
-#endif // LUNA_MON_H
+void DataModel::leafUpdated() {
+}

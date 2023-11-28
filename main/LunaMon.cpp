@@ -78,6 +78,15 @@ LunaMon::LunaMon() : logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr), environment
     } else {
         nmeaWiFiSource = nullptr;
     }
+
+    if (CONFIG_LUNAMON_I2C_ENABLED) {
+        ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
+    }
+
+    if (CONFIG_LUNAMON_I2C_ENABLED &&
+        (CONFIG_LUNAMON_BME280_ENABLED || CONFIG_LUNAMON_ENS160_ENABLED)) {
+        environmentalMon = new EnvironmentalMon(dataModel, *ic2Master, statusLED);
+    }
 }
 
 void LunaMon::run() {
@@ -89,12 +98,8 @@ void LunaMon::run() {
         nmeaWiFiSource->start();
     }
 
-    if (CONFIG_LUNAMON_I2C_ENABLED) {
-        ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
-    }
-
-    if (CONFIG_LUNAMON_I2C_ENABLED && (CONFIG_LUNAMON_BME280_ENABLED || CONFIG_LUNAMON_ENS160_ENABLED)) {
-        environmentalMon = new EnvironmentalMon(*ic2Master, statusLED);
+    if (environmentalMon) {
+        environmentalMon->start();
     }
 
     while (1) {
