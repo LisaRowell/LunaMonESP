@@ -1,5 +1,5 @@
 /*
- * This file is part of LunaMon (https://github.com/LisaRowell/LunaMon)
+ * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
  * Copyright (C) 2021-2023 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
