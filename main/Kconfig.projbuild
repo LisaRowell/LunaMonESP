@@ -12,6 +12,12 @@ menu "Luna Mon Configuration"
         help
             WiFi password (WPA or WPA2) for Luna Mon to use.
 
+    config LUNAMON_MAX_MQTT_CLIENTS
+        int "Max MQTT Clients"
+        default 5
+        help
+            The maximum allowed simultaneous MQTT client connections.
+
     config LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
         bool "Has NMEA over WiFi Source"
         default n
@@ -167,6 +173,25 @@ menu "Luna Mon Configuration"
         int
         default 1 if LUNAMON_HAS_ENS160
         default 0 if !LUNAMON_HAS_ENS160
+
+    config LUNAMON_TCP_KEEPALIVE_IDLE
+        int "TCP keep-alive idle time(s)"
+        default 5
+        help
+            Keep-alive idle time. In idle time without receiving any data from peer, will send
+            keep-alive probe packet.
+
+    config LUNAMON_TCP_KEEPALIVE_INTERVAL
+        int "TCP keep-alive interval time(s)"
+        default 5
+        help
+            Keep-alive probe packet interval time.
+
+    config LUNAMON_TCP_KEEPALIVE_COUNT
+        int "TCP keep-alive packet retry send counts"
+        default 3
+        help
+            Keep-alive probe packet retry count.
 
     config LUNAMON_DEBUG_MODULE_MAIN
         bool "Debug Main"

@@ -22,7 +22,7 @@
 #include "etl/string.h"
 #include "etl/string_view.h"
 
-#include "esp_netif.h"
+#include <esp_netif.h>
 
 #include <stdint.h>
 
@@ -169,6 +169,8 @@ class Logger {
         Logger & operator << (int value);
         Logger & operator << (bool value);
         Logger & operator << (esp_ip4_addr_t addr);
+        Logger & operator << (struct in_addr addr);
+        Logger & operator << (struct sockaddr_in addr);
 
         Logger & operator << (const LoggableItem &item);
         Logger & operator << (const EndOfLine &eol);
@@ -177,6 +179,10 @@ class Logger {
 extern __thread Logger *threadSpecificLogger;
 
 inline Logger &logger() {
+    return *threadSpecificLogger;
+}
+
+inline Logger &taskLogger() {
     return *threadSpecificLogger;
 }
 

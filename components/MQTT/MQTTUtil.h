@@ -16,35 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef MQTT_UTIL_H
+#define MQTT_UTIL_H
 
-#include "DataModel.h"
-#include "WiFiManager.h"
-#include "MQTTBroker.h"
-#include "Logger.h"
+#include "MQTTConnection.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <stdint.h>
 
-class LunaMon {
-    private:
-        DataModel dataModel;
-        WiFiManager wifiManager;
-        MQTTBroker mqttBroker;
-        Logger logger;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-        StatusLED *statusLED;
+bool mqttWriteRemainingLength(int connectionSocket, uint32_t remainingLength);
+bool mqttWriteUInt16(int connectionSocket, uint16_t value);
+bool mqttWriteMQTTString(int connectionSocket, const char *string);
 
-        void initNVS();
-
-    public:
-        LunaMon();
-        void run();
-};
-
-#endif // LUNA_MON_H
+#endif

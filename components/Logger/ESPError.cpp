@@ -27,5 +27,6 @@ ESPError::ESPError(esp_err_t code) : code(code) {
 }
 
 void ESPError::log(Logger &logger) const {
-    logger << esp_err_to_name(code);
+    char errorBuffer[maxErrorLength];
+    logger << esp_err_to_name_r(code, errorBuffer, sizeof(errorBuffer));
 }

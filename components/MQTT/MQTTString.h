@@ -16,35 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef MQTT_STRING_H
+#define MQTT_STRING_H
 
-#include "DataModel.h"
-#include "WiFiManager.h"
-#include "MQTTBroker.h"
-#include "Logger.h"
+#include <etl/string.h>
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+#include <stdint.h>
 
-class LunaMon {
+class Logger;
+
+class MQTTString {
     private:
-        DataModel dataModel;
-        WiFiManager wifiManager;
-        MQTTBroker mqttBroker;
-        Logger logger;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-        StatusLED *statusLED;
-
-        void initNVS();
+        uint8_t lengthMSB;
+        uint8_t lengthLSB;
+        char characterData[];
 
     public:
-        LunaMon();
-        void run();
+        uint16_t length() const;
+        uint32_t size() const;
+        // Returns false if too long to copy. maxLength is max in source and does not include nil.
+        bool copyTo(char *cString, unsigned maxLength) const;
+        bool copyTo(etl::istring &destString) const;
+
+    friend Logger & operator << (Logger &logger, const MQTTString &mqttString);
 };
 
-#endif // LUNA_MON_H
+Logger & operator << (Logger &logger, const MQTTString &mqttString);
+
+#endif

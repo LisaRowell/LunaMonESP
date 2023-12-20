@@ -39,6 +39,10 @@ void TaskObject::start() {
     }
 }
 
+TaskHandle_t TaskObject::taskHandle() {
+    return _task;
+}
+
 void TaskObject::startTask(void *taskPtr) {
     TaskObject *task = (TaskObject *)taskPtr;
 

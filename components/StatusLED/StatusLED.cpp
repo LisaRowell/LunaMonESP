@@ -22,8 +22,8 @@
 #include "TaskObject.h"
 #include "Error.h"
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 #define STACK_SIZE  (2 *1024)
 

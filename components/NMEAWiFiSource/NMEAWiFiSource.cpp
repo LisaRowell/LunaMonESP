@@ -23,6 +23,9 @@
 #include "WiFiManagerClient.h"
 #include "Logger.h"
 
+#include "freertos/FreeRTOSConfig.h"
+#include "freertos/task.h"
+
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -44,7 +47,6 @@ NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, const char *ipv4Addr, u
 }
 
 void NMEAWiFiSource::task() {
-    logger << logNotifyNMEAWiFi << "In task" << eol;
     if (!sourceAddrValid) {
         logger << logNotifyNMEAWiFi << "Exiting WiFi NMEA source due to invalid address" << eol;
         return;

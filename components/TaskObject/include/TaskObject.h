@@ -43,6 +43,7 @@ class TaskObject {
     public:
         TaskObject(const char *name, LoggerLevel level, size_t stackSize);
         void start();
+        TaskHandle_t taskHandle();
 
         // Copy of a task object is a bad idea as theres a task running that would not be
         // duplicated. Prevent the automatic constructors that involve copies and moves.

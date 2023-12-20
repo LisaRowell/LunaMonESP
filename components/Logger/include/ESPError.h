@@ -24,11 +24,15 @@
 
 #include "esp_err.h"
 
+#include <stddef.h>
+
 class Logger;
 
 class ESPError : public LoggableItem {
     private:
         esp_err_t code;
+
+        static constexpr ssize_t maxErrorLength = 80;
 
     public:
         ESPError(esp_err_t code);

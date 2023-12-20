@@ -24,7 +24,9 @@
 #include "etl/string.h"
 #include "etl/string_view.h"
 
-#include "esp_log.h"
+#include <esp_log.h>
+
+#include <lwip/sockets.h>
 
 #include <stdint.h>
 
@@ -315,6 +317,30 @@ Logger & Logger::operator << (esp_ip4_addr_t addr) {
              (uint8_t)(addr.addr & 0x000000ff), (uint8_t)((addr.addr & 0x0000ff00) >> 8),
              (uint8_t)((addr.addr & 0x00ff0000) >> 16), (uint8_t)((addr.addr & 0xff000000) >> 24));
     logString(addrStr);
+
+    return *this;
+}
+
+Logger & Logger::operator << (struct in_addr addr) {
+    char addrStr[16];
+
+    inet_ntoa_r(addr.s_addr, addrStr, sizeof(addrStr) - 1);
+    logString(addrStr);
+
+    return *this;
+}
+
+Logger & Logger::operator << (struct sockaddr_in addr) {
+    char addrStr[16];
+
+    inet_ntoa_r(addr.sin_addr.s_addr, addrStr, sizeof(addrStr) - 1);
+    logString(addrStr);
+
+    logCharacter(':');
+
+    char portStr[12];
+    snprintf(portStr, sizeof(portStr), "%u", ntohs(addr.sin_port));
+    logString(portStr);
 
     return *this;
 }

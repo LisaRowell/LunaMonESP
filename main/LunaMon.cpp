@@ -56,7 +56,9 @@
 #define I2C_MASTER_SDA_IO   (GPIO_NUM_0)
 #endif
 
-LunaMon::LunaMon() : logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr), environmentalMon(nullptr) {
+LunaMon::LunaMon()
+    : mqttBroker(wifiManager), logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr),
+      environmentalMon(nullptr) {
     logger.enableModuleDebug(LOGGER_MODULE_NMEA);
     logger.initForTask();
 
@@ -93,6 +95,7 @@ void LunaMon::run() {
     initNVS();
 
     wifiManager.start();
+    mqttBroker.start();
 
     if (nmeaWiFiSource) {
         nmeaWiFiSource->start();

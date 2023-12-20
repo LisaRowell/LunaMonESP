@@ -16,35 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LUNA_MON_H
-#define LUNA_MON_H
+#ifndef MQTT_SESSION_H
+#define MQTT_SESSION_H
 
-#include "DataModel.h"
-#include "WiFiManager.h"
-#include "MQTTBroker.h"
-#include "Logger.h"
+#include "etl/intrusive_links.h"
 
-class NMEAWiFiSource;
-class StatusLED;
-class I2CMaster;
-class EnvironmentalMon;
+constexpr size_t sessionLinkId = 0;
+typedef etl::bidirectional_link<sessionLinkId> SessionLink;
 
-class LunaMon {
-    private:
-        DataModel dataModel;
-        WiFiManager wifiManager;
-        MQTTBroker mqttBroker;
-        Logger logger;
-        NMEAWiFiSource *nmeaWiFiSource;
-        I2CMaster *ic2Master;
-        EnvironmentalMon *environmentalMon;
-        StatusLED *statusLED;
-
-        void initNVS();
-
-    public:
-        LunaMon();
-        void run();
+class MQTTSession : public SessionLink {
 };
 
-#endif // LUNA_MON_H
+#endif //MQTT_SESSION_H
