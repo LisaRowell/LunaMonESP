@@ -58,7 +58,7 @@ void NMEAWiFiSource::task() {
             waitForWiFiConnect();
         }
 
-        int sock =  socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+        int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
         if (sock == -1) {
             logger << logErrorNMEAWiFi << "Failed to create NMEA WiFi source socket" << eol;
             return;
