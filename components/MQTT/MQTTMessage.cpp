@@ -34,6 +34,18 @@ MQTTMessage::MQTTMessage(MQTTFixedHeader *fixedHeader, size_t fixedHeaderLength,
     variableHeaderStart = ((uint8_t *)fixedHeader) + fixedHeaderLength;
 }
 
+MQTTMessage::MQTTMessage(uint8_t *buffer, size_t totalLength) {
+    fixedHeader = (MQTTFixedHeader *)buffer;
+    fixedHeaderLength = sizeof(MQTTFixedHeader);
+
+    size_t remainingLengthSize;
+    for (remainingLengthSize = 0; (fixedHeader->remainingLength[remainingLengthSize] & 0x80) != 0;
+         remainingLengthSize++, fixedHeaderLength++);
+
+    variableHeaderStart = (void *)fixedHeader + fixedHeaderLength;
+    remainingLength = totalLength - fixedHeaderLength;
+}
+
 MQTTMessageType MQTTMessage::messageType() const {
     uint8_t typeValue =
         (MQTTMessageType)(fixedHeader->typeAndFlags & MQTT_MSG_TYPE_MASK) >> MQTT_MSG_TYPE_SHIFT;
@@ -77,6 +89,14 @@ const char *MQTTMessage::messageTypeStr() const {
         default:
             fatalError("Wonkie MQTT message type enum");
     }
+}
+
+size_t MQTTMessage::totalLength() const {
+    return fixedHeaderLength + remainingLength;
+}
+
+uint8_t *MQTTMessage::messageStart() const {
+    return (uint8_t *)fixedHeader;
 }
 
 uint8_t MQTTMessage::fixedHeaderFlags() const {

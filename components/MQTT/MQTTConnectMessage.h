@@ -49,7 +49,7 @@ struct MQTTConnectVariableHeader {
 // These two are up for debate.
 #define MQTT_MAX_WILL_MESSAGE_LENGTH 255
 
-class MQTTConnectMessage : MQTTMessage {
+class MQTTConnectMessage : public MQTTMessage {
     private:
         MQTTConnectVariableHeader *variableHeader;
         MQTTString *clientIDStr;

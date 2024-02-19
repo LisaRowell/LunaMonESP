@@ -26,20 +26,29 @@
 #include "Logger.h"
 #include "Error.h"
 
+#include "etl/string.h"
 #include "etl/string_stream.h"
 
 #include <lwip/sockets.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/message_buffer.h>
 
 #include <strings.h>
 #include <arpa/inet.h>
 
 MQTTConnection::MQTTConnection(MQTTBroker &broker, uint8_t id)
     : TaskObject("MQTTConnection", LOGGER_LEVEL_DEBUG, stackSize),
-      id(id), broker(broker), connectionSocket(0) {
+      _id(id), broker(broker), connectionSocket(0) {
     bzero(&sourceAddr, sizeof(sourceAddr));
+
+    sessionMessages = xMessageBufferCreate(sessionMessageBufferSize);
+    if (sessionMessages == nullptr) {
+        logger << logErrorMQTT << "Failed to allocation session message buffer for session #" << id
+               << eol;
+        errorExit();
+    }
 }
 
 // This method is invoked by the Broker task and uses FreeRTOS's direct to task notification
@@ -50,11 +59,25 @@ void MQTTConnection::assignSocket(int connectionSocket, struct sockaddr_in &sour
     // It's important (or at least proper) that taskLogger() is used and not logger as this is not
     // invoked on the Connection's thread.
     taskLogger() << logDebugMQTT << "Assigning socket " << connectionSocket << " to Connection #"
-                 << id << eol;
+                 << _id << eol;
 
     this->sourceAddr = sourceAddr;
 
-    (void)xTaskNotify(taskHandle(), (uint32_t)connectionSocket, eSetValueWithOverwrite);
+    if (xTaskNotifyIndexed(taskHandle(), notifyIndex, (uint32_t)connectionSocket,
+                           eSetValueWithOverwrite) != pdPASS) {
+        logger << logErrorMQTT << "Failed to assign socket to Connection #" << _id << eol;
+        errorExit();
+    }
+}
+
+// This method is invoked by either a session that has received a disconnect or a connection which
+// is taking over a session that's still paired with a now obsolete connection. Use the task's
+// notification as a mailbox. After the next read or timeout, the task will pick it up and close.
+void MQTTConnection::markForDisconnection() {
+     if (xTaskNotifyIndexed(taskHandle(), notifyIndex, notifyDisconnect, eSetBits) != pdPASS) {
+        logger << logErrorMQTT << "Failed to disconnect notification to Connection #" << _id << eol;
+        errorExit();
+    }
 }
 
 void MQTTConnection::waitForSocketAssignment() {
@@ -63,17 +86,39 @@ void MQTTConnection::waitForSocketAssignment() {
     BaseType_t socketReceived;
     uint32_t socketNotification;
     do {
-        socketReceived = xTaskNotifyWait(0, ULONG_MAX, &socketNotification,
-                                                    portMAX_DELAY);
+        socketReceived = xTaskNotifyWaitIndexed(notifyIndex, 0, ULONG_MAX, &socketNotification,
+                                                portMAX_DELAY);
     } while (!socketReceived);
 
     // Sanity check the socket number
-    connectionSocket = (int)socketNotification;
-    if (connectionSocket <= 0) {
-        logger << logErrorMQTT << "MQTT Connection was assigned an illegal socket number "
-               << connectionSocket << eol;
+    if (socketNotification == notifyDisconnect) {
+        logger << logErrorMQTT << "MQTT Connection #" << _id
+               << " received a disconnect notification while not connected." << eol;
         errorExit();
     }
+
+    connectionSocket = (int)socketNotification;
+    if (connectionSocket <= 0) {
+        logger << logErrorMQTT << "MQTT Connection #" << _id
+               << " was assigned an illegal socket number " << connectionSocket << eol;
+        errorExit();
+    }
+}
+
+uint8_t MQTTConnection::id() const {
+    return _id;
+}
+
+const etl::istring &MQTTConnection::clientID() const {
+    return _clientID;
+}
+
+int MQTTConnection::socket() const {
+    return connectionSocket;
+}
+
+MessageBufferHandle_t MQTTConnection::sessionMessageBuffer() {
+    return sessionMessages;
 }
 
 void MQTTConnection::task() {
@@ -94,6 +139,8 @@ void MQTTConnection::task() {
         }
 
         shutdownConnection();
+        waitForSessionDisconnect();
+        goIdle();
     }
 }
 
@@ -147,30 +194,31 @@ bool MQTTConnection::readMessage(MQTTMessage &message) {
 }
 
 bool MQTTConnection::processMessage(const MQTTMessage &message) {
-    logger << logDebugMQTT << message.messageTypeStr() << " message received from connection #"
-           << id << " (" << sourceAddr << ")" << eol;
+    logger << logDebugMQTT << message.messageTypeStr() << " message received on connection #"
+           << _id << " (" << sourceAddr << ")" << eol;
 
-    switch (message.messageType()) {
-        case MQTT_MSG_CONNECT:
-            return processConnectMessage(message);
+    // We process messages at the connection level until we successfully associate the connection
+    // with either a pre-existing session or a new one. After that, we let the session handle the
+    // message.
+    if (!session) {
+        switch (message.messageType()) {
+            case MQTT_MSG_CONNECT:
+                return processConnectMessage(message);
 
-        default:
-            logger << logWarnMQTT << "Unimplemented message type " << message.messageTypeStr()
-                   << " message received from connection #" << id << " (" << sourceAddr << ")"
-                   << eol;
-            return true;
+            default:
+                logger << logWarnMQTT << "Unimplemented message type " << message.messageTypeStr()
+                       << " message received from connection #" << _id << " (" << sourceAddr << ")"
+                       << eol;
+                return true;
+        }
+    } else {
+        queueMessageForSession(message);
+        return true;
     }
 }
 
 // Returns true if the message was processed without a terminating condition
 bool MQTTConnection::processConnectMessage(const MQTTMessage &message) {
-    // Per the MQTT specification, we treat a second CONNECT for a connection as a protocol error.
-    if (session) {
-        // Todo: Make this message more detailed to aid in debugging.
-        logger << logWarnMQTT << "Second MQTT CONNECT received for a connection." << eol;
-        return false;
-    }
-
     MQTTConnectMessage connectMessage(message);
     if (!connectMessage.parse()) {
         logger << logWarnMQTT << "Bad connect message. Terminating connection." << eol;
@@ -182,48 +230,50 @@ bool MQTTConnection::processConnectMessage(const MQTTMessage &message) {
     if (errorCode != MQTT_CONNACK_ACCEPTED) {
         logger << logWarnMQTT << "Terminating connection due to failed CONNECT message sanity check"
                << eol;
-        sendMQTTConnectAckMessage(connectionSocket, false, errorCode);
         // While we're refusing the connection, we don't terminate here and instead let it close out
         // naturally as we want the client to receive the NACK.
-        return true;
+        return sendMQTTConnectAckMessage(connectionSocket, false, errorCode);
     }
 
     // Since this is a light weight broker, and a work in progress, we reject a few currently
     // unsupported types of connections.
     if (connectMessage.hasWill()) {
         logger << logWarnMQTT << "MQTT CONNECT with Will: Currently unsupported" << eol;
-        sendMQTTConnectAckMessage(connectionSocket, false, MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE);
-        return true;
+        return sendMQTTConnectAckMessage(connectionSocket, false,
+                                         MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE);
     }
     if (connectMessage.hasUserName()) {
         logger << logWarnMQTT << "MQTT CONNECT message with Password set" << eol;
-        sendMQTTConnectAckMessage(connectionSocket, false,
-                                  MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD);
-        return true;
+        return sendMQTTConnectAckMessage(connectionSocket, false,
+                                         MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD);
     }
     if (connectMessage.hasPassword()) {
         logger << logWarnMQTT << "MQTT CONNECT message with Password set" << eol;
-        sendMQTTConnectAckMessage(connectionSocket, false,
-                                  MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD);
-        return true;
+        return sendMQTTConnectAckMessage(connectionSocket, false,
+                                         MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD);
     }
 
     const MQTTString *clientIDStr = connectMessage.clientID();
-    etl::string<maxMQTTClientIDLength> clientID;
-    if (!clientIDStr->copyTo(clientID)) {
+    if (!clientIDStr->copyTo(_clientID)) {
         logger << logWarnMQTT << "MQTT CONNECT message with too long of a Client ID:"
                << *clientIDStr << eol;
-        sendMQTTConnectAckMessage(connectionSocket, false,
-                                  MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED);
-        return true;
+        return sendMQTTConnectAckMessage(connectionSocket, false,
+                                         MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED);
     }
 
     // It's less than helpful to have a client connecting without providing a Client ID, though it
     // is allowed by the spec iff the clean session flag is set. We give such connections a name
     // based on their IP address and TCP port so that we can better debug things. It's best to
     // configure the offending application and have it provide sonmething useful...
-    if (clientID.empty()) {
-        etl::string_stream clientIDStream(clientID);
+    if (_clientID.empty()) {
+        if (!connectMessage.cleanSession()) {
+            logger << logWarnMQTT << "MQTT CONNECT message with a null Client ID and clean session"
+                                     " false. Rejecting." << eol;
+            return sendMQTTConnectAckMessage(connectionSocket, false,
+                                             MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED);
+        }
+
+        etl::string_stream clientIDStream(_clientID);
     
         char connectionIPAddressStr[16];
         inet_ntoa_r(sourceAddr.sin_addr.s_addr, connectionIPAddressStr,
@@ -232,12 +282,32 @@ bool MQTTConnection::processConnectMessage(const MQTTMessage &message) {
         clientIDStream << connectionIPAddressStr << ":" << ntohs(sourceAddr.sin_port);
     }
 
-    uint16_t keepAliveTime = connectMessage.keepAliveSec();
+    keepAliveTime = connectMessage.keepAliveSec();
+    cleanSession = connectMessage.cleanSession();
 
-    // Add session stuff here
-    return sendMQTTConnectAckMessage(connectionSocket, false, MQTT_CONNACK_ACCEPTED);
+    // Pair the connection with a session (existing or new) then, if successful queue the connect
+    // message for it.
+    session = broker.pairConnectionWithSession(this, cleanSession);
+    if (session != nullptr) {
+        logger << logDebugMQTT << "Paired connection (#" << _id << ") from client ID " << _clientID
+               << " with session" << eol;
 
-//    return true;
+        queueMessageForSession(connectMessage);
+
+        return true;
+    } else {
+        // We failed to pair with either an existing session or a free one. This could happen if
+        // we were full up with either active sessions or ones waiting for a reconnection and we
+        // got some new connection for a completely new client. In this case we want to make sure
+        // and clear out the session message queue.
+        logger << logWarnMQTT << "Failed to get a session for connection #" << _id << " ("
+               << sourceAddr << ")" << eol;
+        clearSessionMessages();
+        return sendMQTTConnectAckMessage(connectionSocket, false,
+                                         MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE);
+    }
+
+    return true;
 }
 
 // An MQTT message has a variable length field indicating the remaining length of the message after
@@ -303,7 +373,7 @@ bool MQTTConnection::readToBuffer(size_t readAmount) {
 }
 
 void MQTTConnection::shutdownConnection() {
-    logger << "Shutting down Connection #" << id << " (" << sourceAddr << ")" << eol;
+    logger << "Shutting down Connection #" << _id << " (" << sourceAddr << ")" << eol;
 
     // Properly shutdown the socket
     shutdown(connectionSocket, SHUT_WR);
@@ -312,6 +382,57 @@ void MQTTConnection::shutdownConnection() {
 
     // Move ourselves to the idle list
     broker.connectionGoingIdle(*this);
+}
+
+void MQTTConnection::waitForSessionDisconnect() {
+    // We loop here for correctness as it's theoretically possible to timeout even with a max wait
+    // interval.
+    BaseType_t notificationReceived;
+    uint32_t notification;
+    do {
+        notificationReceived = xTaskNotifyWaitIndexed(notifyIndex, 0, ULONG_MAX, &notification,
+                                                      portMAX_DELAY);
+    } while (!notificationReceived);
+
+    // Sanity check the notification
+    if (notification != notifyDisconnect) {
+        logger << logErrorMQTT << "MQTT Connection #" << _id
+               << " received a socket notification while waiting for a disconnect." << eol;
+        errorExit();
+    }
+
+    logger << logDebugMQTT << "MQTT Connection #" << _id << " received disconnect." << eol;
+}
+
+void MQTTConnection::goIdle() {
+    logger << logDebugMQTT << "MQTT Connection #" << _id << " going idle." << eol;
+
+    session = nullptr;
+
+    // Move ourselves to the idle list
+    broker.connectionGoingIdle(*this);
+}
+
+void MQTTConnection::queueMessageForSession(const MQTTMessage &message) {
+    if (xMessageBufferSend(sessionMessages, message.messageStart(), message.totalLength(),
+                           sessionMessageBufferTimeout) == 0) {
+        logger << logErrorMQTT << "Failed to enqueue MQTT " << message.messageTypeStr()
+               << " message from connection #" << _id << " (" << sourceAddr << ") to session"
+               << eol;
+        errorExit();
+    }
+
+    // Since sessions wait both on a queue and on notifications, send the session a notification
+    // that has a message waiting for it.
+    session->notifyMessageReady();
+}
+
+void MQTTConnection::clearSessionMessages() {
+    if (xMessageBufferReset(sessionMessages) != pdPASS) {
+        logger << logErrorMQTT << "Failed to reset session message buffer for connection #" << _id
+               << eol;
+        errorExit();
+    }
 }
 
 void MQTTConnection::logIllegalRemainingLength(MQTTFixedHeader *fixedHeader,
@@ -323,7 +444,7 @@ void MQTTConnection::logIllegalRemainingLength(MQTTFixedHeader *fixedHeader,
         logger << fixedHeader->remainingLength[lengthByte];
     }
 
-    logger << " Aborting connection #" << id << " (" << sourceAddr << ")" << eol;
+    logger << " Aborting connection #" << _id << " (" << sourceAddr << ")" << eol;
 }
 
 void MQTTConnection::logMessageSizeTooLarge(size_t messageSize) {

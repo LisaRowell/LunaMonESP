@@ -68,8 +68,11 @@ class MQTTMessage {
     public:
         MQTTMessage();
         MQTTMessage(MQTTFixedHeader *fixedHeader, size_t fixedHeaderLength, size_t remainingLength);
+        MQTTMessage(uint8_t *buffer, size_t totalLength);
         enum MQTTMessageType messageType() const;
         const char *messageTypeStr() const;
+        size_t totalLength() const;
+        uint8_t *messageStart() const;
 };
 
 #endif

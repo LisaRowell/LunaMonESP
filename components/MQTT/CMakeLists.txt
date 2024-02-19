@@ -1,5 +1,6 @@
 idf_component_register(SRCS "MQTTBroker.cpp"
                             "MQTTConnection.cpp"
+                            "MQTTSession.cpp"
                             "MQTTConnectMessage.cpp"
                             "MQTTConnectAckMessage.cpp"
                             "MQTTMessage.cpp"
