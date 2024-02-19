@@ -71,6 +71,7 @@ class MQTTBroker : public TaskObject, WiFiManagerClient {
         void connectionGoingIdle(MQTTConnection &connection);
         MQTTSession *pairConnectionWithSession(MQTTConnection *connection, bool cleanSession);
         void sessionGoingIdle(MQTTSession &session);
+        void sessionLostConnection(MQTTSession &session);
 };
 
 #endif //MQTT_BROKER_H

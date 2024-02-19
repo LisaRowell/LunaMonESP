@@ -285,6 +285,17 @@ void MQTTBroker::sessionGoingIdle(MQTTSession &session) {
     releaseSessionLock();
 }
 
+void MQTTBroker::sessionLostConnection(MQTTSession &session) {
+    takeSessionLock();
+
+    // Remove which ever list the session is on (active or disconnected) then append to the
+    // disconnected list
+    etl::unlink<SessionLink>(session);
+    disconnectedSessions.push_back(session);
+
+    releaseSessionLock();
+}
+
 void MQTTBroker::closeConnectionSocket(int connectionSocket) {
     shutdown(connectionSocket, SHUT_RDWR);
     close(connectionSocket);

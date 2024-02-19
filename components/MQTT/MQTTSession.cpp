@@ -44,6 +44,10 @@ void MQTTSession::task() {
             shutdown();
         }
 
+        if (notifications & notifyConnectionLostMask) {
+            connectionLost();
+        }
+
         if (notifications & notifyNewConnectionIdMask) {
             const unsigned newConnectionId =
                 (notifications & notifyNewConnectionIdMask) >> notifyNewConnectionIdShift;
@@ -97,6 +101,27 @@ void MQTTSession::cancelPendingConnectionAssignment() {
     }
 }
 
+void MQTTSession::connectionLost() {
+    // The Connection has signaled us that it has detected that the TCP connection closed. We should
+    // notify it that it should go idle, and if we're a clean session go idle ourselvses. If we
+    // we're set up as a clean connection we should let the broker know that we're a disconnected
+    // session.
+    _connection->markForDisconnection();
+    _connection = nullptr;
+
+    if (cleanSession) {
+        logger << logDebugMQTT << "Session #" << id << " lost connection to " << clientID
+               << ". Going idle." << eol;
+
+        clientID.clear();
+        broker.sessionGoingIdle(*this);
+    } else {
+        logger << logDebugMQTT << "Session #" << id << " lost connection to " << clientID
+               << ". Going into disconnected." << eol;
+        broker.sessionLostConnection(*this);
+    }
+}
+
 bool MQTTSession::isForClient(const etl::istring &clientID) const {
     return this->clientID == clientID;
 }
@@ -118,22 +143,33 @@ void MQTTSession::newConnection(unsigned connectionId) {
     clientID = _connection->clientID();
     connectionMessageBuffer = _connection->sessionMessageBuffer();
 
-    logger << logDebugMQTT << "Session #" << id << " for " << clientID
-           << " paired with connection #" << connectionId << eol;
+    if (freshSession) {
+        // Until we suck in a CONNECT message from the connection, we mark the session as being a
+        // clean session in case we get disconnected before the message comes in (unlikely) and
+        // reuse a session that shouldn't have been.
+        cleanSession = true;
+
+        logger << logDebugMQTT << "Session #" << id << " for " << clientID
+               << " paired with connection #" << connectionId << eol;
+    } else {
+        logger << logDebugMQTT << "Session #" << id << " for " << clientID
+               << " repaired with connection #" << connectionId << eol;
+    }
 }
 
 void MQTTSession::readMessages() {
     size_t messageSize;
     uint8_t messageBuffer[maxIncomingMessageSize];
 
-    while ((messageSize = xMessageBufferReceive(connectionMessageBuffer, messageBuffer,
+    while (_connection &&
+           (messageSize = xMessageBufferReceive(connectionMessageBuffer, messageBuffer,
                                                 maxIncomingMessageSize, 0)) > 0) {
         MQTTMessage message = MQTTMessage(messageBuffer, messageSize);
 
         MQTTMessageType msgType = message.messageType();
         switch (msgType) {
             case MQTT_MSG_CONNECT:
-                connectMessageReceived(message);
+                handleConnectMessage(message);
                 break;
 
             default:
@@ -143,15 +179,39 @@ void MQTTSession::readMessages() {
     }
 }
 
-void MQTTSession::connectMessageReceived(MQTTMessage &message) {
+void MQTTSession::handleConnectMessage(MQTTMessage &message) {
     MQTTConnectMessage connectMessage(message);
-    (void)connectMessage.parse();
+    if (!connectMessage.parse()) {
+        // Since the Connection had to already parse the CONNECT message, this should not have
+        // failed.
+        logger << logErrorMQTT << "Session #" << id << "'s parsing of CONNECT message from "
+               << clientID << " failed." << eol;
+        errorExit();
+    }
     cleanSession = connectMessage.cleanSession();
 
     logger << "Session #" << id << " sending a CONNACK Accepted to " << clientID << eol;
 
-    bool result = sendMQTTConnectAckMessage(connectionSocket, !freshSession, MQTT_CONNACK_ACCEPTED);
-    // TODO:: Need to handle when the send fails as this could indicate the TCP connection closing
+    if (!sendMQTTConnectAckMessage(connectionSocket, !freshSession, MQTT_CONNACK_ACCEPTED)) {
+        handleConnectionSendFailure();
+    }
+}
+
+void MQTTSession::handleConnectionSendFailure() {
+    // Signal the Connection that we got hung up on and make sure we stop using it
+    _connection->markForDisconnection();
+    _connection = nullptr;
+    connectionSocket = 0;
+
+    // MQTT's clean session flag on a connect indicates that the session should stay open after the
+    // loss of a tcp connection. If the flag was off when the connection was made, we should stick
+    // around on the broker's set of sessions that can be reconnected with. Otherwise we should go
+    // idle for later reuse.
+    if (!cleanSession) {
+        broker.sessionLostConnection(*this);
+    } else {
+        broker.sessionGoingIdle(*this);
+    }
 }
 
 void MQTTSession::shutdown() {
@@ -174,6 +234,16 @@ void MQTTSession::shutdown() {
 void MQTTSession::notifyMessageReady() {
     if (xTaskNotifyIndexed(taskHandle(), notifyIndex, notifyMessageReadyMask, eSetBits) != pdPASS) {
         taskLogger() << logErrorMQTT << "Failed to send message ready notification to session #"
+                     << id << eol;
+        errorExit();
+    }
+}
+
+// Called from a Connection thread
+void MQTTSession::notifyConnectionLost() {
+    if (xTaskNotifyIndexed(taskHandle(), notifyIndex, notifyConnectionLostMask,
+                           eSetBits) != pdPASS) {
+        taskLogger() << logErrorMQTT << "Failed to send connection lost notification to session #"
                      << id << eol;
         errorExit();
     }

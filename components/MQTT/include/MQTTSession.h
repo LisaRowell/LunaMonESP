@@ -48,6 +48,7 @@ class MQTTSession : public TaskObject, public SessionLink {
         static constexpr unsigned notifyNewConnectionIdShift = 28;
         static constexpr uint32_t notifyShutdownMask         = 0x08000000;
         static constexpr uint32_t notifyMessageReadyMask     = 0x04000000;
+        static constexpr uint32_t notifyConnectionLostMask   = 0x02000000;
 
         static constexpr uint32_t maxIncomingMessageSize = 1024;
 
@@ -64,8 +65,10 @@ class MQTTSession : public TaskObject, public SessionLink {
         void newConnection(unsigned connectionId);
         void cancelPendingConnectionAssignment();
         void readMessages();
-        void connectMessageReceived(MQTTMessage &message);
+        void handleConnectMessage(MQTTMessage &message);
+        void handleConnectionSendFailure();
         void shutdown();
+        void connectionLost();
 
     public:
         MQTTSession(MQTTBroker &broker, uint8_t id);
@@ -74,6 +77,7 @@ class MQTTSession : public TaskObject, public SessionLink {
         bool isForClient(const etl::istring &clientID) const;
         MQTTConnection *connection() const;
         void notifyMessageReady();
+        void notifyConnectionLost();
 };
 
 #endif //MQTT_SESSION_H

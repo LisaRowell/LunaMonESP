@@ -139,7 +139,10 @@ void MQTTConnection::task() {
         }
 
         shutdownConnection();
-        waitForSessionDisconnect();
+        if (session != nullptr) {
+            session->notifyConnectionLost();
+            waitForSessionDisconnect();
+        }
         goIdle();
     }
 }
@@ -379,9 +382,6 @@ void MQTTConnection::shutdownConnection() {
     shutdown(connectionSocket, SHUT_WR);
     shutdown(connectionSocket, SHUT_RD);
     close(connectionSocket);
-
-    // Move ourselves to the idle list
-    broker.connectionGoingIdle(*this);
 }
 
 void MQTTConnection::waitForSessionDisconnect() {
@@ -402,12 +402,12 @@ void MQTTConnection::waitForSessionDisconnect() {
     }
 
     logger << logDebugMQTT << "MQTT Connection #" << _id << " received disconnect." << eol;
+
+    session = nullptr;
 }
 
 void MQTTConnection::goIdle() {
     logger << logDebugMQTT << "MQTT Connection #" << _id << " going idle." << eol;
-
-    session = nullptr;
 
     // Move ourselves to the idle list
     broker.connectionGoingIdle(*this);
