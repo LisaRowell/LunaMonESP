@@ -16,28 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_H
-#define DATA_MODEL_H
+#ifndef MQTT_SUBSCRIBE_MESSAGE_H
+#define MQTT_SUBSCRIBE_MESSAGE_H
 
-#include "DataModelRoot.h"
+#include "MQTTMessage.h"
 
-#include <stddef.h>
+#include <stdint.h>
 
-const char dataModelLevelSeparator = '/';
-const char dataModelMultiLevelWildcard = '#';
-const char dataModelSingleLevelWildcard = '+';
+class MQTTString;
 
-const size_t maxTopicNameLength = 255;
-
-class DataModel {
-    private:
-        DataModelRoot _rootNode;
-
-    public:
-        DataModel();
-        DataModelRoot &rootNode();
-
-        void leafUpdated();
+struct MQTTSubscribeVariableHeader {
+    uint8_t packetIdMSB;
+    uint8_t packetIdLSB;
 };
 
-#endif // DATA_MODEL_H
+class MQTTSubscribeMessage : MQTTMessage {
+    private:
+        MQTTSubscribeVariableHeader *variableHeader;
+        uint8_t *payloadStart;
+        unsigned topicFilters;
+        unsigned topicFiltersReturned;
+        uint8_t *topicFiltersPos;
+
+    public:
+        MQTTSubscribeMessage(MQTTMessage const &message);
+        bool parse();
+        bool getTopicFilter(MQTTString * &topicFilter, uint8_t &maxQoS);
+        uint16_t packetId() const;
+        unsigned numTopicFilters() const;
+};
+
+#endif

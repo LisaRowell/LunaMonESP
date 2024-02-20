@@ -16,28 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_H
-#define DATA_MODEL_H
+#include "MQTTPingResponseMessage.h"
 
-#include "DataModelRoot.h"
+#include "MQTTMessage.h"
+#include "MQTTUtil.h"
 
-#include <stddef.h>
+#include <sys/socket.h>
 
-const char dataModelLevelSeparator = '/';
-const char dataModelMultiLevelWildcard = '#';
-const char dataModelSingleLevelWildcard = '+';
+bool sendMQTTPingResponseMessage(int connectionSocket) {
+    MQTTFixedHeader fixedHeader;
 
-const size_t maxTopicNameLength = 255;
+    fixedHeader.typeAndFlags = MQTT_MSG_PINGRESP << MQTT_MSG_TYPE_SHIFT;
+    if (send(connectionSocket, &fixedHeader, sizeof(fixedHeader), 0) < 0) {
+        return false;
+    }
 
-class DataModel {
-    private:
-        DataModelRoot _rootNode;
+    if (!mqttWriteRemainingLength(connectionSocket, 0)) {
+        return false;
+    }
 
-    public:
-        DataModel();
-        DataModelRoot &rootNode();
+    // messagesSent++;
 
-        void leafUpdated();
-};
-
-#endif // DATA_MODEL_H
+    return true;
+}

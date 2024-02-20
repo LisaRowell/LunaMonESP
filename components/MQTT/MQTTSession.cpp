@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,16 @@
 #include "MQTTBroker.h"
 #include "MQTTConnectMessage.h"
 #include "MQTTConnectAckMessage.h"
+#include "MQTTSubscribeMessage.h"
+#include "MQTTSubscribeAckMessage.h"
+#include "MQTTUnsubscribeMessage.h"
+#include "MQTTUnsubscribeAckMessage.h"
+#include "MQTTPingRequestMessage.h"
+#include "MQTTPingResponseMessage.h"
+#include "MQTTDisconnectMessage.h"
+#include "MQTTString.h"
+
+#include "DataModel.h"
 
 #include "Logger.h"
 #include "Error.h"
@@ -169,17 +179,54 @@ void MQTTSession::readMessages() {
         MQTTMessageType msgType = message.messageType();
         switch (msgType) {
             case MQTT_MSG_CONNECT:
-                handleConnectMessage(message);
+                connectMessageReceived(message);
                 break;
 
+            case MQTT_MSG_CONNACK:
+            case MQTT_MSG_SUBACK:
+            case MQTT_MSG_UNSUBACK:
+            case MQTT_MSG_PINGRESP:
+                serverOnlyMsgReceivedError(message);
+                break;
+
+            case MQTT_MSG_SUBSCRIBE:
+                subscribeMessageReceived(message);
+                break;
+
+            case MQTT_MSG_UNSUBSCRIBE:
+                unsubscribeMessageReceived(message);
+                break;
+
+            case MQTT_MSG_PINGREQ:
+                pingRequestMessageReceived(message);
+                break;
+
+            case MQTT_MSG_DISCONNECT:
+                disconnectMessageReceived(message);
+                break;
+
+            case MQTT_MSG_RESERVED1:
+            case MQTT_MSG_RESERVED2:
+                reservedMsgReceivedError(message);
+                break;
+
+            case MQTT_MSG_PUBREC:
+                // publishMessagesReceived++;
+                logger << logWarnMQTT << "Received unimplemented message type "
+                       << message.messageTypeStr() << " from client " << clientID << eol;
+                break;
+
+            case MQTT_MSG_PUBACK:
+            case MQTT_MSG_PUBREL:
+            case MQTT_MSG_PUBCOMP:
             default:
-                logger << logDebugMQTT << "Session #" << id << " ignored a "
-                       << message.messageTypeStr() << " message from client " << clientID << eol;
+                logger << logWarnMQTT << "Received unimplemented message type "
+                       << message.messageTypeStr() << " from client " << clientID << eol;
         }
     }
 }
 
-void MQTTSession::handleConnectMessage(MQTTMessage &message) {
+void MQTTSession::connectMessageReceived(MQTTMessage &message) {
     MQTTConnectMessage connectMessage(message);
     if (!connectMessage.parse()) {
         // Since the Connection had to already parse the CONNECT message, this should not have
@@ -193,8 +240,179 @@ void MQTTSession::handleConnectMessage(MQTTMessage &message) {
     logger << "Session #" << id << " sending a CONNACK Accepted to " << clientID << eol;
 
     if (!sendMQTTConnectAckMessage(connectionSocket, !freshSession, MQTT_CONNACK_ACCEPTED)) {
+        logger << logWarnMQTT << "Failed to send CONNACK message to client " << clientID
+               << ". Closing connection." << eol;
         handleConnectionSendFailure();
     }
+}
+
+void MQTTSession::subscribeMessageReceived(MQTTMessage &message) {
+    MQTTSubscribeMessage subscribeMessage(message);
+    if (!subscribeMessage.parse()) {
+        logger << logWarnMQTT << "Bad subscribe message from client '" << clientID
+               << "'. Terminating connection." << eol;
+        shutdown();
+        return;
+    }
+
+    resetKeepAliveTimer();
+
+    // Loop through the topics, trying to subscribe to each and adding the result to the SUBACK
+    // message.
+    unsigned topicFilterCount = subscribeMessage.numTopicFilters();
+    if (topicFilterCount > maxTopicsPerSubscribeMessage) {
+        logger << logWarnMQTT << "MQTT SUBSCRIBE from client " << clientID
+               << " has too many topic filters (" << topicFilterCount
+               << "). Terminating connection." << eol;
+        shutdown();
+    }
+    uint8_t subscribeResults[maxTopicsPerSubscribeMessage];
+
+    unsigned topicFilterIndex;
+    for (topicFilterIndex = 0; topicFilterIndex < topicFilterCount; topicFilterIndex++) {
+        MQTTString *topicFilterStr;
+        uint8_t maxQoS;
+        if (!subscribeMessage.getTopicFilter(topicFilterStr, maxQoS)) {
+            logger << logWarnMQTT << "MQTT SUBSCRIBE from client " << clientID
+                   << " has a messed up number of topic filters. Terminating connection." << eol;
+            shutdown();
+            return;
+        }
+
+        logger << logDebugMQTT << "MQTT Client '" << clientID << "' wants to subscribe to '"
+               << *topicFilterStr << "' with max QoS " << maxQoS << eol;
+
+        char topicFilter[maxTopicNameLength + 1];
+        if (!topicFilterStr->copyTo(topicFilter, maxTopicNameLength)) {
+            logger << logWarnMQTT << "MQTT SUBSCRIBE message with too long of a Topic Filter '"
+                   << *topicFilterStr << "'" << eol;
+            subscribeResults[topicFilterIndex] = mqttSubscribeResult(false, 0);
+        } else {
+            // *** Implement! ***
+#if 0
+            if (dataModel.subscribe(topicFilter, *session, (uint32_t)maxQoS)) {
+#endif
+            if (1) {
+                logger << logDebugMQTT << "Topic Filter '" << topicFilter << "' subscribed to by '"
+                       << clientID << "'" << eol;
+                subscribeResults[topicFilterIndex] = mqttSubscribeResult(true, 0);
+            } else {
+                logger << logWarnMQTT << "Client '" << clientID
+                       << "' failed to subscribe to Topic Filter '" << topicFilter << "'" << eol;
+                subscribeResults[topicFilterIndex] = mqttSubscribeResult(false, 0);
+           }
+        }
+    }
+
+    logger << logDebugMQTT << "Sending SUBACK message with " << topicFilterCount
+           << " results to Client '" << clientID << "'" << eol;
+    if (!sendMQTTSubscribeAckMessage(connectionSocket, subscribeMessage.packetId(),
+                                     topicFilterCount, subscribeResults)) {
+        logger << logErrorMQTT << "Failed to send SUBACK message to Client '" << clientID << "'"
+               << eol;
+        handleConnectionSendFailure();
+    }
+}
+
+void MQTTSession::unsubscribeMessageReceived(MQTTMessage &message) {
+    MQTTUnsubscribeMessage unsubscribeMessage(message);
+    if (!unsubscribeMessage.parse()) {
+        logger << logWarnMQTT << "Bad unsubscribe message from client '" << clientID
+               << "'. Terminating connection." << eol;
+        shutdown();
+        return;
+    }
+
+    resetKeepAliveTimer();
+
+    unsigned topicFilterCount = unsubscribeMessage.numTopicFilters();
+    unsigned topicFilterIndex;
+    for (topicFilterIndex = 0; topicFilterIndex < topicFilterCount; topicFilterIndex++) {
+        MQTTString *topicFilterStr;
+        if (!unsubscribeMessage.getTopicFilter(topicFilterStr)) {
+            logger << logWarnMQTT << "MQTT UNSUBSCRIBE from client " << clientID
+                   << " has a messed up number of topic filters. Terminating connection." << eol;
+            shutdown();
+            return;
+        }
+
+        logger << logDebugMQTT << "MQTT Client '" << clientID
+               << "' wants to unsubscribe from '" << *topicFilterStr << "'" << eol;
+
+        char topicFilter[maxTopicNameLength + 1];
+        if (!topicFilterStr->copyTo(topicFilter, maxTopicNameLength)) {
+            logger << logWarnMQTT << "MQTT UNSUBSCRIBE message with too long of a Topic Filter '"
+                   << *topicFilterStr << "'" << eol;
+        } else {
+            // *** Implement! ***
+//            dataModel.unsubscribe(topicFilter, *session);
+            logger << logDebugMQTT << "Topic Filter '" << topicFilter << "' unsubscribed from by '"
+                   << clientID << "'" << eol;
+        }
+    }
+
+    logger << logDebugMQTT << "Sending UNSUBACK message to client '" << clientID << "'"
+           << eol;
+    if (!sendMQTTUnsubscribeAckMessage(connectionSocket, unsubscribeMessage.packetId())) {
+        logger << logErrorMQTT << "Failed to send UNSUBACK message to client '" << clientID
+               << "'" << eol;
+        handleConnectionSendFailure();
+    }
+}
+
+void MQTTSession::pingRequestMessageReceived(MQTTMessage &message) {
+    logger << logErrorMQTT << "Received ping request message from client " << clientID << "."
+           << eol;
+
+    MQTTPingRequestMessage pingRequestMessage(message);
+
+    if (!pingRequestMessage.parse()) {
+        logger << logErrorMQTT << "Bad MQTT PINGREQ message from clent " << clientID
+               << ". Terminating connection." << eol;
+        shutdown();
+        return;
+    }
+
+    resetKeepAliveTimer();
+
+    logger << logDebugMQTT << "Sending MQTT PINGRESP message to client '" << clientID << eol;
+
+    if (!sendMQTTPingResponseMessage(connectionSocket)) {
+        logger << logWarnMQTT << "Failed to send PINGRESP message to client " << clientID
+               << ". Closing connection." << eol;
+        handleConnectionSendFailure();
+    }
+}
+
+void MQTTSession::disconnectMessageReceived(MQTTMessage &message) {
+    MQTTDisconnectMessage disconnectMessage(message);
+
+    // We do this for the log message, the connection is going the way of the water buffalo either
+    // way.
+    if (!disconnectMessage.parse()) {
+        logger << logErrorMQTT << "Bad MQTT DISCONNECT message. Terminating connection." << eol;
+        shutdown();
+        return;
+    }
+
+    logger << logDebugMQTT << "Stopping client due to DISCONNECT" << eol;
+    shutdown();
+}
+
+void MQTTSession::serverOnlyMsgReceivedError(MQTTMessage &message) {
+    logger << logErrorMQTT << "Received server->client only message " << message.messageTypeStr()
+           << " from client " << clientID << ". Terminating connection." << eol;
+    shutdown();
+}
+
+void MQTTSession::reservedMsgReceivedError(MQTTMessage &message) {
+    logger << logErrorMQTT << "Received reserved message " << message.messageTypeStr()
+           << " from client " << clientID << ". Terminating connection." << eol;
+    shutdown();
+}
+
+void MQTTSession::resetKeepAliveTimer() {
+    // *** Implement! ***
 }
 
 void MQTTSession::handleConnectionSendFailure() {

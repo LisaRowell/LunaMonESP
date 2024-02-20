@@ -16,28 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_H
-#define DATA_MODEL_H
+#ifndef MQTT_SUBSCRIBE_ACK_MESSAGE_H
+#define MQTT_SUBSCRIBE_ACK_MESSAGE_H
 
-#include "DataModelRoot.h"
+#include <stdint.h>
 
-#include <stddef.h>
-
-const char dataModelLevelSeparator = '/';
-const char dataModelMultiLevelWildcard = '#';
-const char dataModelSingleLevelWildcard = '+';
-
-const size_t maxTopicNameLength = 255;
-
-class DataModel {
-    private:
-        DataModelRoot _rootNode;
-
-    public:
-        DataModel();
-        DataModelRoot &rootNode();
-
-        void leafUpdated();
+struct MQTTSubscribeAckVariableHeader {
+    uint8_t packetIdMSB;
+    uint8_t packetIdLSB;
 };
 
-#endif // DATA_MODEL_H
+#define MQTT_SUBACK_FAILURE_FLAG 0x80
+
+uint8_t mqttSubscribeResult(bool success, uint8_t maxQoS);
+bool sendMQTTSubscribeAckMessage(int connectionSocket, uint16_t packetId, uint8_t numberResults,
+                                 uint8_t *results);
+
+#endif

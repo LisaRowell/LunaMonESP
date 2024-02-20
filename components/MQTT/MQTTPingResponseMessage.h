@@ -16,28 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_H
-#define DATA_MODEL_H
+#ifndef MQTT_PING_RESPONSE_MESSAGE_H
+#define MQTT_PING_RESPONSE_MESSAGE_H
 
-#include "DataModelRoot.h"
+bool sendMQTTPingResponseMessage(int connectionSocket);
 
-#include <stddef.h>
-
-const char dataModelLevelSeparator = '/';
-const char dataModelMultiLevelWildcard = '#';
-const char dataModelSingleLevelWildcard = '+';
-
-const size_t maxTopicNameLength = 255;
-
-class DataModel {
-    private:
-        DataModelRoot _rootNode;
-
-    public:
-        DataModel();
-        DataModelRoot &rootNode();
-
-        void leafUpdated();
-};
-
-#endif // DATA_MODEL_H
+#endif // MQTT_PING_RESPONSE_MESSAGE_H

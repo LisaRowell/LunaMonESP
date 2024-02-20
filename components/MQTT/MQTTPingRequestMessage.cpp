@@ -16,28 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_H
-#define DATA_MODEL_H
+#include "MQTTPingRequestMessage.h"
 
-#include "DataModelRoot.h"
+#include "Logger.h"
 
-#include <stddef.h>
+MQTTPingRequestMessage::MQTTPingRequestMessage(MQTTMessage const &message) : MQTTMessage(message) {
+}
 
-const char dataModelLevelSeparator = '/';
-const char dataModelMultiLevelWildcard = '#';
-const char dataModelSingleLevelWildcard = '+';
+bool MQTTPingRequestMessage::parse() {
+    if (fixedHeaderFlags() != 0x0) {
+        taskLogger() << logWarnMQTT
+                     << "Received MQTT PINGREQ message with invalid Fixed Header Flags" << eol;
+        return false;
+    }
 
-const size_t maxTopicNameLength = 255;
+    if (remainingLength > 0) {
+        taskLogger() << logWarnMQTT
+                     << "Received MQTT PINGREQ message with extra data after Fixed Header" << eol;
+        return false;
+    }
 
-class DataModel {
-    private:
-        DataModelRoot _rootNode;
-
-    public:
-        DataModel();
-        DataModelRoot &rootNode();
-
-        void leafUpdated();
-};
-
-#endif // DATA_MODEL_H
+    return true;
+}

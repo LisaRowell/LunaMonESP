@@ -16,28 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_H
-#define DATA_MODEL_H
+#ifndef MQTT_DISCONNECT_MESSAGE_H
+#define MQTT_DISCONNECT_MESSAGE_H
 
-#include "DataModelRoot.h"
+#include "MQTTMessage.h"
 
-#include <stddef.h>
-
-const char dataModelLevelSeparator = '/';
-const char dataModelMultiLevelWildcard = '#';
-const char dataModelSingleLevelWildcard = '+';
-
-const size_t maxTopicNameLength = 255;
-
-class DataModel {
-    private:
-        DataModelRoot _rootNode;
-
+class MQTTDisconnectMessage : MQTTMessage {
     public:
-        DataModel();
-        DataModelRoot &rootNode();
-
-        void leafUpdated();
+        MQTTDisconnectMessage(MQTTMessage const &message);
+        bool parse();
 };
 
-#endif // DATA_MODEL_H
+#endif

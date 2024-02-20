@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ class MQTTSession : public TaskObject, public SessionLink {
         static constexpr uint32_t notifyConnectionLostMask   = 0x02000000;
 
         static constexpr uint32_t maxIncomingMessageSize = 1024;
+        static constexpr uint32_t maxTopicsPerSubscribeMessage = 100;
 
         uint8_t id;
         MQTTBroker &broker;
@@ -65,7 +66,14 @@ class MQTTSession : public TaskObject, public SessionLink {
         void newConnection(unsigned connectionId);
         void cancelPendingConnectionAssignment();
         void readMessages();
-        void handleConnectMessage(MQTTMessage &message);
+        void connectMessageReceived(MQTTMessage &message);
+        void subscribeMessageReceived(MQTTMessage &message);
+        void unsubscribeMessageReceived(MQTTMessage &message);
+        void pingRequestMessageReceived(MQTTMessage &message);
+        void disconnectMessageReceived(MQTTMessage &message);
+        void serverOnlyMsgReceivedError(MQTTMessage &message);
+        void reservedMsgReceivedError(MQTTMessage &message);
+        void resetKeepAliveTimer();
         void handleConnectionSendFailure();
         void shutdown();
         void connectionLost();
