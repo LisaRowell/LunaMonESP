@@ -44,7 +44,7 @@ MQTTMessage::MQTTMessage(uint8_t *buffer, size_t totalLength) {
          remainingLengthSize++);
     fixedHeaderLength += remainingLengthSize;
 
-    variableHeaderStart = (void *)fixedHeader + fixedHeaderLength;
+    variableHeaderStart = (uint8_t *)fixedHeader + fixedHeaderLength;
     remainingLength = totalLength - fixedHeaderLength;
 }
 
