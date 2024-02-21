@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ class DataModelNode : public DataModelElement {
                                            DataModelSubscriber &subscriber);
 
     public:
-        DataModelNode(const char *name, DataModelElement *parent);
+        DataModelNode(const char *name, DataModelNode *parent);
         void addChild(DataModelElement &element);
         virtual bool subscribeIfMatching(const char *topicFilter, DataModelSubscriber &subscriber,
                                          uint32_t cookie) override;
@@ -45,6 +45,7 @@ class DataModelNode : public DataModelElement {
                                            DataModelSubscriber &subscriber) override;
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) override;
         virtual void unsubscribeAll(DataModelSubscriber &subscriber) override;
+        virtual void dump() override;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,14 @@
 
 #include <stdint.h>
 
+class DataModelNode;
+
 class DataModelUInt16Leaf : public DataModelRetainedValueLeaf {
    private:
         uint16_t value;
 
     public:
-        DataModelUInt16Leaf(const char *name, DataModelElement *parent);
+        DataModelUInt16Leaf(const char *name, DataModelNode *parent);
         DataModelUInt16Leaf & operator = (const uint16_t value);
         DataModelUInt16Leaf operator ++ (int);
         DataModelUInt16Leaf operator -- (int);

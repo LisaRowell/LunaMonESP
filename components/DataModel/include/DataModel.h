@@ -21,6 +21,8 @@
 
 #include "DataModelRoot.h"
 
+#include "TaskObject.h"
+
 #include <stddef.h>
 
 const char dataModelLevelSeparator = '/';
@@ -29,14 +31,19 @@ const char dataModelSingleLevelWildcard = '+';
 
 const size_t maxTopicNameLength = 255;
 
-class DataModel {
+class DataModel : public TaskObject {
     private:
         DataModelRoot _rootNode;
+
+        virtual void task() override;
 
     public:
         DataModel();
         DataModelRoot &rootNode();
 
+        void dump();
+
+        // The below method should probably be a friend method or something
         void leafUpdated();
 };
 

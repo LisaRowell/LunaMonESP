@@ -15,4 +15,4 @@ idf_component_register(SRCS "DataModel.cpp"
                             "DataModelHundredthsUInt8Leaf.cpp"
                             "DataModelHundredthsUInt16Leaf.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES Logger Error)
+                       REQUIRES TaskObject Logger Error)

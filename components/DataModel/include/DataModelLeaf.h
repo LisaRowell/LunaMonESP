@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ class DataModelSubscriber;
 
 #include <stdint.h>
 
+class DataModelNode;
+
 class DataModelLeaf : public DataModelElement {
     private:
         DataModelSubscriber *subscribers[maxDataModelSubscribers];
@@ -43,7 +45,7 @@ class DataModelLeaf : public DataModelElement {
                                  bool retainedValue);
 
     public:
-        DataModelLeaf(const char *name, DataModelElement *parent);
+        DataModelLeaf(const char *name, DataModelNode *parent);
         virtual bool subscribeIfMatching(const char *topicFilter, DataModelSubscriber &subscriber,
                                          uint32_t cookie) override;
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) override;

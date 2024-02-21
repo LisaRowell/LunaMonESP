@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +18,31 @@
 
 #include "DataModel.h"
 
-DataModel::DataModel() {
+#include "TaskObject.h"
+#include "Logger.h"
+
+#define STACK_SIZE  (8 * 1024)
+
+DataModel::DataModel() : TaskObject("DataModel", LOGGER_LEVEL_DEBUG, STACK_SIZE) {
+}
+
+void DataModel::task() {
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(10000));
+
+        dump();
+    }
 }
 
 DataModelRoot &DataModel::rootNode() {
     return _rootNode;
+}
+
+// Debuging method to dump out the data model tree. Useful debugging tree issues and verifying
+// updates. Not called, but shouldn't be removed.
+void DataModel::dump() {
+    logger << logDebugDataModel << "Datamodel:" << eol;
+    _rootNode.dump();
 }
 
 void DataModel::leafUpdated() {

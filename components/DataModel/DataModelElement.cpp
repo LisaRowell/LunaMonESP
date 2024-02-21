@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,18 @@
  */
 
 #include "DataModelElement.h"
+#include "DataModelNode.h"
 #include "DataModel.h"
 
 #include "Logger.h"
 
 #include <stdint.h>
 
-DataModelElement::DataModelElement(const char *name, DataModelElement *parent)
+DataModelElement::DataModelElement(const char *name, DataModelNode *parent)
     : name(name), parent(parent) {
+    if (parent != nullptr) {
+        parent->addChild(*this);
+    }
 }
 
 bool DataModelElement::isMultiLevelWildcard(const char *topicFilter) {
@@ -93,4 +97,10 @@ void DataModelElement::leafUpdated() {
     if (parent != nullptr) {
         parent->leafUpdated();
     }
+}
+
+void DataModelElement::dump() {
+    char topic[maxTopicNameLength];
+    buildTopicName(topic);
+    taskLogger() << logDebugDataModel << topic << eol;
 }

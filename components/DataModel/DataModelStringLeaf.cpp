@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
  */
 
 #include "DataModelStringLeaf.h"
+#include "DataModelNode.h"
 
 #include "etl/string.h"
 
 #include <stddef.h>
 
-DataModelStringLeaf::DataModelStringLeaf(const char *name, DataModelElement *parent,
+DataModelStringLeaf::DataModelStringLeaf(const char *name, DataModelNode *parent,
                                          etl::istring &buffer)
     : DataModelRetainedValueLeaf(name, parent), value(buffer) {
 }

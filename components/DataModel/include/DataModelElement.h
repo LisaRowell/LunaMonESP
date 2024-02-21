@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+class DataModelNode;
 class DataModelSubscriber;
 
 const unsigned maxDataModelSubscribers = 5;
@@ -34,7 +35,7 @@ typedef etl::forward_link<siblingLinkId> siblingLink;
 class DataModelElement : public siblingLink {
     private:
         const char *name;
-        DataModelElement *parent;
+        DataModelNode *parent;
 
     protected:
         bool isMultiLevelWildcard(const char *topicFilter);
@@ -43,7 +44,7 @@ class DataModelElement : public siblingLink {
         void buildTopicName(char *topicNameBuffer);
 
     public:
-        DataModelElement(const char *name, DataModelElement *parent);
+        DataModelElement(const char *name, DataModelNode *parent);
         const char *elementName() const;
         // Returns true if one or more subscriptions were made
         virtual bool subscribeIfMatching(const char *topicFilter, DataModelSubscriber &subscriber,
@@ -53,6 +54,7 @@ class DataModelElement : public siblingLink {
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) = 0;
         virtual void unsubscribeAll(DataModelSubscriber &subscriber) = 0;
         virtual void leafUpdated();
+        virtual void dump();
 };
 
 #endif

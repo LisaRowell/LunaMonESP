@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,15 @@
 
 #include <stdint.h>
 
+class DataModelNode;
+
 class DataModelHundredthsUInt16Leaf : public DataModelRetainedValueLeaf {
    private:
         uint16_t wholeNumber;
         uint8_t hundredths;
 
     public:
-        DataModelHundredthsUInt16Leaf(const char *name, DataModelElement *parent);
+        DataModelHundredthsUInt16Leaf(const char *name, DataModelNode *parent);
         void set(uint16_t wholeNumber, uint8_t hundredths);
         virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
 };

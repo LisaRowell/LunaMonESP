@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ class DataModelRoot : public DataModelNode {
         void unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber);
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) override;
         virtual void leafUpdated() override;
+        virtual void dump() override;
 };
 
 #endif

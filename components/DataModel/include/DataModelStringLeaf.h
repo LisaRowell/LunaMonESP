@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,14 @@
 
 #include <stddef.h>
 
+class DataModelNode;
+
 class DataModelStringLeaf : public DataModelRetainedValueLeaf {
     private:
         etl::istring &value;
 
     public:
-        DataModelStringLeaf(const char *name, DataModelElement *parent, etl::istring &buffer);
+        DataModelStringLeaf(const char *name, DataModelNode *parent, etl::istring &buffer);
         DataModelStringLeaf & operator = (const etl::istring &newString);
         DataModelStringLeaf & operator = (const char *newString);
         DataModelStringLeaf & operator = (const DataModelStringLeaf &otherLeaf);
