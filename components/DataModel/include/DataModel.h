@@ -20,6 +20,7 @@
 #define DATA_MODEL_H
 
 #include "DataModelRoot.h"
+#include "DataModelSubscriber.h"
 
 #include "TaskObject.h"
 
@@ -40,7 +41,8 @@ class DataModel : public TaskObject {
     public:
         DataModel();
         DataModelRoot &rootNode();
-
+        bool subscribe(const char *topicFilter, DataModelSubscriber &subscriber, uint32_t cookie);
+        void unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber);
         void dump();
 
         // The below method should probably be a friend method or something

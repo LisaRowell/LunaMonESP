@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,10 @@
 #include "MQTTConnection.h"
 #include "MQTTSession.h"
 
+#include "DataModel.h"
+
 #include "Logger.h"
+
 #include "Error.h"
 #include "ESPError.h"
 
@@ -31,7 +34,7 @@
 
 #include <freertos/semphr.h>
 
-MQTTBroker::MQTTBroker(WiFiManager &wifiManager)
+MQTTBroker::MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager) {
     if ((connectionLock = xSemaphoreCreateMutex()) == nullptr) {
@@ -66,7 +69,7 @@ MQTTBroker::MQTTBroker(WiFiManager &wifiManager)
     // when we later assign a connection to it.
     takeSessionLock();
     for (unsigned sessionId = 1; sessionId <= maxMQTTSessions; sessionId++) {
-        MQTTSession *session = new MQTTSession(*this, sessionId);
+        MQTTSession *session = new MQTTSession(*this, dataModel, sessionId);
         if (!session) {
             logger << logErrorMQTT << "Failed to allocation session " << sessionId << eol;
             errorExit();

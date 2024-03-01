@@ -38,6 +38,15 @@ DataModelRoot &DataModel::rootNode() {
     return _rootNode;
 }
 
+bool DataModel::subscribe(const char *topicFilter, DataModelSubscriber &subscriber,
+                          uint32_t cookie) {
+    return _rootNode.subscribe(topicFilter, subscriber, cookie);
+}
+
+void DataModel::unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber) {
+    _rootNode.unsubscribe(topicFilter, subscriber);
+}
+
 // Debuging method to dump out the data model tree. Useful debugging tree issues and verifying
 // updates. Not called, but shouldn't be removed.
 void DataModel::dump() {

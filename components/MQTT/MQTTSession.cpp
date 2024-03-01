@@ -27,6 +27,7 @@
 #include "MQTTUnsubscribeAckMessage.h"
 #include "MQTTPingRequestMessage.h"
 #include "MQTTPingResponseMessage.h"
+#include "MQTTPublishMessage.h"
 #include "MQTTDisconnectMessage.h"
 #include "MQTTString.h"
 
@@ -40,9 +41,9 @@
 
 #include <stdint.h>
 
-MQTTSession::MQTTSession(MQTTBroker &broker, uint8_t id)
+MQTTSession::MQTTSession(MQTTBroker &broker, DataModel &dataModel, uint8_t id)
     : TaskObject("MQTTSession", LOGGER_LEVEL_DEBUG, stackSize),
-      id(id), broker(broker), _connection(nullptr), freshSession(true) {
+      id(id), broker(broker), dataModel(dataModel), _connection(nullptr), freshSession(true) {
 }
 
 void MQTTSession::task() {
@@ -288,11 +289,7 @@ void MQTTSession::subscribeMessageReceived(MQTTMessage &message) {
                    << *topicFilterStr << "'" << eol;
             subscribeResults[topicFilterIndex] = mqttSubscribeResult(false, 0);
         } else {
-            // *** Implement! ***
-#if 0
-            if (dataModel.subscribe(topicFilter, *session, (uint32_t)maxQoS)) {
-#endif
-            if (1) {
+            if (dataModel.subscribe(topicFilter, *this, (uint32_t)maxQoS)) {
                 logger << logDebugMQTT << "Topic Filter '" << topicFilter << "' subscribed to by '"
                        << clientID << "'" << eol;
                 subscribeResults[topicFilterIndex] = mqttSubscribeResult(true, 0);
@@ -344,8 +341,7 @@ void MQTTSession::unsubscribeMessageReceived(MQTTMessage &message) {
             logger << logWarnMQTT << "MQTT UNSUBSCRIBE message with too long of a Topic Filter '"
                    << *topicFilterStr << "'" << eol;
         } else {
-            // *** Implement! ***
-//            dataModel.unsubscribe(topicFilter, *session);
+            dataModel.unsubscribe(topicFilter, *this);
             logger << logDebugMQTT << "Topic Filter '" << topicFilter << "' unsubscribed from by '"
                    << clientID << "'" << eol;
         }
@@ -409,6 +405,19 @@ void MQTTSession::reservedMsgReceivedError(MQTTMessage &message) {
     logger << logErrorMQTT << "Received reserved message " << message.messageTypeStr()
            << " from client " << clientID << ". Terminating connection." << eol;
     shutdown();
+}
+
+void MQTTSession::publish(const char *topic, const char *value, bool retainedValue) {
+    logger << logDebugMQTT << "Publishing Topic '" << topic << "' to Client '" << clientID
+           << "' with value '" << value << "' and retain " << retainedValue << eol;
+
+    if (_connection != nullptr) {
+        sendMQTTPublishMessage(connectionSocket, topic, value, false, 0, retainedValue, 0);
+    }
+}
+
+const etl::istring &MQTTSession::name() const {
+    return clientID;
 }
 
 void MQTTSession::resetKeepAliveTimer() {

@@ -57,7 +57,7 @@
 #endif
 
 LunaMon::LunaMon()
-    : mqttBroker(wifiManager), logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr),
+    : mqttBroker(wifiManager, dataModel), logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr),
       environmentalMon(nullptr) {
     logger.enableModuleDebug(LOGGER_MODULE_NMEA);
     logger.initForTask();

@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
 #include <lwip/sockets.h>
 
 #include <freertos/semphr.h>
+
+class DataModel;
 
 class MQTTBroker : public TaskObject, WiFiManagerClient {
     private:
@@ -66,7 +68,7 @@ class MQTTBroker : public TaskObject, WiFiManagerClient {
         void releaseSessionLock();
 
     public:
-        MQTTBroker(WiFiManager &wifiManager);
+        MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel);
         MQTTConnection *connectionForId(uint8_t connectionId) const;
         void connectionGoingIdle(MQTTConnection &connection);
         MQTTSession *pairConnectionWithSession(MQTTConnection *connection, bool cleanSession);

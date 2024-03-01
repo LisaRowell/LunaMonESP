@@ -19,6 +19,8 @@
 #ifndef MQTT_SESSION_H
 #define MQTT_SESSION_H
 
+#include "DataModelSubscriber.h"
+
 #include "TaskObject.h"
 
 #include "MQTT.h"
@@ -32,11 +34,12 @@
 class MQTTBroker;
 class MQTTConnection;
 class MQTTMessage;
+class DataModel;
 
 constexpr size_t sessionLinkId = 0;
 typedef etl::bidirectional_link<sessionLinkId> SessionLink;
 
-class MQTTSession : public TaskObject, public SessionLink {
+class MQTTSession : public DataModelSubscriber, public TaskObject, public SessionLink {
     private:
         static constexpr size_t stackSize = 8 * 1024;
 
@@ -55,6 +58,7 @@ class MQTTSession : public TaskObject, public SessionLink {
 
         uint8_t id;
         MQTTBroker &broker;
+        DataModel &dataModel;
         etl::string<maxMQTTClientIDLength> clientID;
         MQTTConnection *_connection;
         bool cleanSession;
@@ -73,13 +77,15 @@ class MQTTSession : public TaskObject, public SessionLink {
         void disconnectMessageReceived(MQTTMessage &message);
         void serverOnlyMsgReceivedError(MQTTMessage &message);
         void reservedMsgReceivedError(MQTTMessage &message);
+        virtual void publish(const char *topic, const char *value, bool retainedValue) override;
+        virtual const etl::istring &name() const override;
         void resetKeepAliveTimer();
         void handleConnectionSendFailure();
         void shutdown();
         void connectionLost();
 
     public:
-        MQTTSession(MQTTBroker &broker, uint8_t id);
+        MQTTSession(MQTTBroker &broker, DataModel &dataModel, uint8_t id);
         void assignConnection(unsigned connectionId);
         void initiateShutdown();
         bool isForClient(const etl::istring &clientID) const;

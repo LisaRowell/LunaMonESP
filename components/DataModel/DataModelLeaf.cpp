@@ -160,11 +160,9 @@ DataModelLeaf & DataModelLeaf::operator << (uint32_t value) {
 
 void DataModelLeaf::publishToSubscriber(DataModelSubscriber &subscriber, const etl::istring &value,
                                         bool retainedValue) {
-#if 0
     char topic[maxTopicNameLength];
     buildTopicName(topic);
     subscriber.publish(topic, value.c_str(), retainedValue);
-#endif
 }
 
 void DataModelLeaf::unsubscribeIfMatching(const char *topicFilter,
