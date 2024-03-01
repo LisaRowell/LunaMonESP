@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #include "LoggableItem.h"
 
+#include "etl/string.h"
+
 #include <stdint.h>
 
 class HundredthsUInt16 : public LoggableItem {
@@ -33,7 +35,9 @@ class HundredthsUInt16 : public LoggableItem {
         HundredthsUInt16(uint16_t wholeNumber, uint8_t hundredths);
         uint16_t wholeNumber();
         uint8_t hundredths();
+        bool operator == (const HundredthsUInt16 &right) const;
         void setFromQ22Dot10(uint32_t q22Dot10);
+        void toString(etl::istring &string) const;
         virtual void log(Logger &logger) const override;
 };
 

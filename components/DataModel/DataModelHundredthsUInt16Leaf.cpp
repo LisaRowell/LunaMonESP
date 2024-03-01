@@ -20,6 +20,8 @@
 #include "DataModelLeaf.h"
 #include "DataModelNode.h"
 
+#include "HundredthsUInt16.h"
+
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
@@ -32,23 +34,25 @@ DataModelHundredthsUInt16Leaf::DataModelHundredthsUInt16Leaf(const char *name,
     : DataModelRetainedValueLeaf(name, parent) {
 }
 
-void DataModelHundredthsUInt16Leaf::set(uint16_t wholeNumber, uint8_t hundredths) {
-    if (!hasValue() || this->wholeNumber != wholeNumber || this->hundredths != hundredths) {
-        this->wholeNumber = wholeNumber;
-        this->hundredths = hundredths;
+DataModelHundredthsUInt16Leaf & DataModelHundredthsUInt16Leaf::operator =
+        (const HundredthsUInt16 &value) {
+    if (!hasValue() || this->value != value) {
+        this->value = value;
+
         updated();
+
         etl::string<maxStringLength> valueStr;
-        etl::string_stream valueStrStream(valueStr);
-        valueStrStream << wholeNumber << "." << etl::setfill(0) << etl::setw(2) << hundredths;
+        value.toString(valueStr);
         *this << valueStr;
     }
+
+    return *this;
 }
 
 void DataModelHundredthsUInt16Leaf::sendRetainedValue(DataModelSubscriber &subscriber) {
     if (hasValue()) {
         etl::string<maxStringLength> valueStr;
-        etl::string_stream valueStrStream(valueStr);
-        valueStrStream << wholeNumber << "." << etl::setfill(0) << etl::setw(2) << hundredths;
+        value.toString(valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
 }

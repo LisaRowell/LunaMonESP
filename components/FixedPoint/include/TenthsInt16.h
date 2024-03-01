@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,25 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATA_MODEL_HUNDREDTHS_UINT8_LEAF_H
-#define DATA_MODEL_HUNDREDTHS_UINT8_LEAF_H
+#ifndef TENTHS_INT16_H
+#define TENTHS_INT16_H
 
-#include "DataModelRetainedValueLeaf.h"
+#include "LoggableItem.h"
 
-#include "HundredthsUInt8.h"
+#include "etl/string.h"
 
 #include <stdint.h>
 
-class DataModelNode;
-
-class DataModelHundredthsUInt8Leaf : public DataModelRetainedValueLeaf {
-   private:
-        HundredthsUInt8 value;
+class TenthsInt16 : public LoggableItem {
+    private:
+        int16_t _integer;
+        uint8_t _tenths;
 
     public:
-        DataModelHundredthsUInt8Leaf(const char *name, DataModelNode *parent);
-        DataModelHundredthsUInt8Leaf & operator = (const HundredthsUInt8 &value);
-        virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
+        TenthsInt16();
+        TenthsInt16(int16_t integer, uint8_t tenths);
+        int16_t integer();
+        uint8_t tenths();
+        bool operator == (const TenthsInt16 &right) const;
+        void setFromTenths(int32_t tenths);
+        TenthsInt16 operator+(uint32_t adder);
+        TenthsInt16 operator*(uint32_t multiplier);
+        TenthsInt16 operator/(uint32_t divider);
+        void toString(etl::istring &string) const;
+        virtual void log(Logger &logger) const override;
 };
 
-#endif
+#endif // TENTHS_INT16_H

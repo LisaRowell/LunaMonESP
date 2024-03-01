@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,20 +23,24 @@
 
 #include "LoggableItem.h"
 
-class HundredthsUInt32 : public LoggableItem {
-   private:
-    uint32_t _wholeNumber;
-    uint8_t _hundredths;
+#include "etl/string.h"
 
-   public:
-    HundredthsUInt32();
-    HundredthsUInt32(uint32_t wholeNumber, uint8_t hundredths);
-    uint32_t wholeNumber();
-    uint8_t hundredths();
-    void setFromQ22Dot10(uint32_t q22Dot10);
-    void setFromQ24Dot8(uint32_t q24Dot8);
-    HundredthsUInt32 operator/(uint32_t divider);
-    virtual void log(Logger &logger) const override;
+class HundredthsUInt32 : public LoggableItem {
+    private:
+        uint32_t _wholeNumber;
+        uint8_t _hundredths;
+
+    public:
+        HundredthsUInt32();
+        HundredthsUInt32(uint32_t wholeNumber, uint8_t hundredths);
+        uint32_t wholeNumber();
+        uint8_t hundredths();
+        bool operator == (const HundredthsUInt32 &right) const;
+        void setFromQ22Dot10(uint32_t q22Dot10);
+        void setFromQ24Dot8(uint32_t q24Dot8);
+        HundredthsUInt32 operator/(uint32_t divider);
+        void toString(etl::istring &string) const;
+        virtual void log(Logger &logger) const override;
 };
 
 #endif  // HUNDREDTHS_UINT32_H

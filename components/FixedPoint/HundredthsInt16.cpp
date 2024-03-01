@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@
 
 #include "Logger.h"
 
+#include "etl/string.h"
+#include "etl/string_stream.h"
+
 HundredthsInt16::HundredthsInt16() : _integer(0), _hundredths(0) {
 }
 
@@ -33,6 +36,10 @@ int16_t HundredthsInt16::integer() {
 
 uint8_t HundredthsInt16::hundredths() {
     return _hundredths;
+}
+
+bool HundredthsInt16::operator == (const HundredthsInt16 &right) const {
+    return _integer == right._integer && _hundredths == right._hundredths;
 }
 
 void HundredthsInt16::setFromHundredths(int32_t hundredths) {
@@ -57,6 +64,12 @@ HundredthsInt16 HundredthsInt16::operator/(uint32_t divider) {
     uint32_t remainder = _integer % divider;
     uint32_t hundredths = (remainder * 100 + _hundredths) / divider;
     return HundredthsInt16(integer, hundredths);
+}
+
+void HundredthsInt16::toString(etl::istring &string) const {
+    etl::string_stream stringStream(string);
+
+    stringStream << _integer << "." << etl::setfill(0) << etl::setw(2) << _hundredths;
 }
 
 // Doesn't honor base changes, but do they really makes sense for this type?

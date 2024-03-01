@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HUNDREDTHS_UINT8_H
-#define HUNDREDTHS_UINT8_H
+#ifndef TENTHS_UINT16_H
+#define TENTHS_UINT16_H
 
 #include "LoggableItem.h"
 
@@ -25,20 +25,23 @@
 
 #include <stdint.h>
 
-class HundredthsUInt8 : public LoggableItem {
+class TenthsUInt16 : public LoggableItem {
     private:
-        uint8_t _wholeNumber;
-        uint8_t _hundredths;
+        uint16_t _wholeNumber;
+        uint8_t _tenths;
 
     public:
-        HundredthsUInt8();
-        HundredthsUInt8(uint8_t wholeNumber, uint8_t hundredths);
-        uint8_t wholeNumber();
-        uint8_t hundredths();
-        bool operator == (const HundredthsUInt8 &right) const;
-        void setFromQ22Dot10(uint32_t q22Dot10);
+        TenthsUInt16();
+        TenthsUInt16(uint16_t wholeNumber, uint8_t tenths);
+        uint16_t wholeNumber();
+        uint8_t tenths();
+        bool operator == (const TenthsUInt16 &right) const;
+        void setFromTenths(uint32_t tenths);
+        TenthsUInt16 operator+(uint32_t adder);
+        TenthsUInt16 operator*(uint32_t multiplier);
+        TenthsUInt16 operator/(uint32_t divider);
         void toString(etl::istring &string) const;
         virtual void log(Logger &logger) const override;
 };
 
-#endif // HUNDREDTHS_UINT8_H
+#endif // TENTHS_UINT16_H

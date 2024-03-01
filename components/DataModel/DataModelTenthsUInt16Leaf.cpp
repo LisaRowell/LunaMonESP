@@ -20,6 +20,8 @@
 #include "DataModelLeaf.h"
 #include "DataModelNode.h"
 
+#include "TenthsUInt16.h"
+
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
@@ -31,23 +33,24 @@ DataModelTenthsUInt16Leaf::DataModelTenthsUInt16Leaf(const char *name, DataModel
     : DataModelRetainedValueLeaf(name, parent) {
 }
 
-void DataModelTenthsUInt16Leaf::set(uint16_t wholeNumber, uint8_t tenths) {
-    if (!hasValue() || this->wholeNumber != wholeNumber || this->tenths != tenths) {
-        this->wholeNumber = wholeNumber;
-        this->tenths = tenths;
+DataModelTenthsUInt16Leaf & DataModelTenthsUInt16Leaf::operator = (const TenthsUInt16 &value) {
+    if (!hasValue() || this->value != value) {
+        this->value = value;
+
         updated();
+
         etl::string<maxStringLength> valueStr;
-        etl::string_stream valueStrStream(valueStr);
-        valueStrStream << wholeNumber << "." << tenths;
+        value.toString(valueStr);
         *this << valueStr;
     }
+
+    return *this;
 }
 
 void DataModelTenthsUInt16Leaf::sendRetainedValue(DataModelSubscriber &subscriber) {
     if (hasValue()) {
         etl::string<maxStringLength> valueStr;
-        etl::string_stream valueStrStream(valueStr);
-        valueStrStream << wholeNumber << "." << tenths;
+        value.toString(valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
 }

@@ -21,18 +21,19 @@
 
 #include "DataModelRetainedValueLeaf.h"
 
+#include "HundredthsUInt16.h"
+
 #include <stdint.h>
 
 class DataModelNode;
 
 class DataModelHundredthsUInt16Leaf : public DataModelRetainedValueLeaf {
    private:
-        uint16_t wholeNumber;
-        uint8_t hundredths;
+        HundredthsUInt16 value;
 
     public:
         DataModelHundredthsUInt16Leaf(const char *name, DataModelNode *parent);
-        void set(uint16_t wholeNumber, uint8_t hundredths);
+        DataModelHundredthsUInt16Leaf & operator = (const HundredthsUInt16 &value);
         virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
 };
 
