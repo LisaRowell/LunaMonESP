@@ -27,6 +27,8 @@
 
 #include <stdint.h>
 
+constexpr size_t maxStringLength = 5;
+
 DataModelUInt16Leaf::DataModelUInt16Leaf(const char *name, DataModelNode *parent)
     : DataModelRetainedValueLeaf(name, parent) {
 }
@@ -61,7 +63,7 @@ DataModelUInt16Leaf::operator uint16_t() const {
 
 void DataModelUInt16Leaf::sendRetainedValue(DataModelSubscriber &subscriber) {
     if (hasValue()) {
-        etl::string<3> valueStr;
+        etl::string<maxStringLength> valueStr;
         etl::to_string(value, valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
