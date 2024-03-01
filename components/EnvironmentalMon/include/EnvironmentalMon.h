@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,13 @@
 
 #include "DataModelNode.h"
 #include "DataModelUInt8Leaf.h"
+#include "DataModelUInt16Leaf.h"
+#include "DataModelHundredthsInt16Leaf.h"
+#include "DataModelHundredthsUInt8Leaf.h"
+#include "DataModelHundredthsUInt32Leaf.h"
+
 #include "TaskObject.h"
+
 #include "BME280Driver.h"
 #include "ENS160Driver.h"
 
@@ -36,7 +42,13 @@ class EnvironmentalMon : public TaskObject {
     private:
         DataModelNode environmentDataModelNode;
         DataModelNode cabinDataModelNode;
+        DataModelHundredthsInt16Leaf temperatureCLeaf;
+        DataModelHundredthsInt16Leaf temperatureFLeaf;
+        DataModelHundredthsUInt32Leaf pressureLeaf;
+        DataModelHundredthsUInt8Leaf relativeHumidityLeaf;
         DataModelUInt8Leaf aqiDataModelLeaf;
+        DataModelUInt16Leaf tvocDataModelLeaf;
+        DataModelUInt16Leaf eco2DataModelLeaf;
 
         StatusLED *statusLED;
         bool bme280Functional;

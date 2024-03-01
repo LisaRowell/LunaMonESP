@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,24 @@
 #include "EnvironmentalMon.h"
 
 #include "DataModel.h"
+#include "DataModelUInt8Leaf.h"
+#include "DataModelUInt16Leaf.h"
+#include "DataModelHundredthsInt16Leaf.h"
+#include "DataModelHundredthsUInt8Leaf.h"
+#include "DataModelHundredthsUInt32Leaf.h"
+
 #include "I2CMaster.h"
 #include "StatusLED.h"
+
 #include "BME280Driver.h"
 #include "ENS160Driver.h"
+
 #include "HundredthsUInt8.h"
 #include "HundredthsInt16.h"
 #include "HundredthsUInt32.h"
+
 #include "Logger.h"
+
 #include "Error.h"
 
 #include "freertos/FreeRTOS.h"
@@ -46,7 +56,13 @@ EnvironmentalMon::EnvironmentalMon(DataModel &dataModel, I2CMaster &ic2Master, S
     : TaskObject("EnvironmentalMon", LOGGER_LEVEL_DEBUG, STACK_SIZE),
       environmentDataModelNode("environment", &dataModel.rootNode()),
       cabinDataModelNode("cabin", &environmentDataModelNode),
+      temperatureCLeaf("temperatureCLeaf", &cabinDataModelNode),
+      temperatureFLeaf("temperatureFLeaf", &cabinDataModelNode),
+      pressureLeaf("pressure", &cabinDataModelNode),
+      relativeHumidityLeaf("relativeHumidity", &cabinDataModelNode),
       aqiDataModelLeaf("aqi", &cabinDataModelNode),
+      tvocDataModelLeaf("tvoc", &cabinDataModelNode),
+      eco2DataModelLeaf("eco2", &cabinDataModelNode),
       statusLED(statusLED) {
     if (CONFIG_LUNAMON_BME280_ENABLED) {
         bme280Driver = new BME280Driver(ic2Master, CONFIG_LUNAMON_BME280_ADDRESS);
@@ -112,6 +128,11 @@ void EnvironmentalMon::pollBME280() {
 
     HundredthsInt16 temperatureF = (temperatureC * 9) / 5 + 32;
 
+    temperatureCLeaf = temperatureC;
+    temperatureFLeaf = temperatureF;
+    pressureLeaf = pressureMBar;
+    relativeHumidityLeaf = relativeHumidity;
+
     logger << logDebugEnvironmentalMon << "Temperature = " << temperatureF << " F"
            << " (" << temperatureC << " C)"
            << "  Pressure = " << pressureMBar << " mBar"
@@ -154,6 +175,8 @@ void EnvironmentalMon::pollENS160() {
         logger << eol;
 
         aqiDataModelLeaf = aqi;
+        tvocDataModelLeaf = tvoc;
+        eco2DataModelLeaf = eco2;
 
         if (aqi >= 4) {
             statusErrorFlash();
