@@ -22,6 +22,8 @@
 
 #include "TenthsUInt16.h"
 
+#include "Logger.h"
+
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
@@ -53,4 +55,8 @@ void DataModelTenthsUInt16Leaf::sendRetainedValue(DataModelSubscriber &subscribe
         value.toString(valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
+}
+
+void DataModelTenthsUInt16Leaf::logValue(Logger &logger) {
+    logger << value;
 }

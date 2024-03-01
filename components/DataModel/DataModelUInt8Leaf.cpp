@@ -20,6 +20,8 @@
 #include "DataModelLeaf.h"
 #include "DataModelNode.h"
 
+#include "Logger.h"
+
 #include "etl/string.h"
 #include "etl/to_string.h"
 
@@ -64,4 +66,8 @@ void DataModelUInt8Leaf::sendRetainedValue(DataModelSubscriber &subscriber) {
         etl::to_string(value, valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
+}
+
+void DataModelUInt8Leaf::logValue(Logger &logger) {
+    logger << value;
 }

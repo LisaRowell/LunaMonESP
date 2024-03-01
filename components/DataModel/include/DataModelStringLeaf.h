@@ -26,10 +26,13 @@
 #include <stddef.h>
 
 class DataModelNode;
+class Logger;
 
 class DataModelStringLeaf : public DataModelRetainedValueLeaf {
     private:
         etl::istring &value;
+
+        virtual void logValue(Logger &logger) override;
 
     public:
         DataModelStringLeaf(const char *name, DataModelNode *parent, etl::istring &buffer);

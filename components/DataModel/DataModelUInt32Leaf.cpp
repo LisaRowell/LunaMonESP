@@ -20,6 +20,8 @@
 #include "DataModelLeaf.h"
 #include "DataModelNode.h"
 
+#include "Logger.h"
+
 #include "etl/string.h"
 #include "etl/to_string.h"
 
@@ -57,11 +59,14 @@ DataModelUInt32Leaf::operator uint32_t() const {
     return value;
 }
 
-
 void DataModelUInt32Leaf::sendRetainedValue(DataModelSubscriber &subscriber) {
     if (hasValue()) {
         etl::string<12> valueStr;
         etl::to_string(value, valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
+}
+
+void DataModelUInt32Leaf::logValue(Logger &logger) {
+    logger << value;
 }

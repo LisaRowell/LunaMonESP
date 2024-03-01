@@ -17,8 +17,11 @@
  */
 
 #include "DataModelRetainedValueLeaf.h"
+#include "DataModel.h"
 #include "DataModelNode.h"
 #include "DataModelLeaf.h"
+
+#include "Logger.h"
 
 #include "etl/string.h"
 
@@ -62,4 +65,18 @@ void DataModelRetainedValueLeaf::removeValue() {
 
 bool DataModelRetainedValueLeaf::hasValue() const {
     return hasBeenSet;
+}
+
+void DataModelRetainedValueLeaf::dump() {
+    Logger &logger = taskLogger();
+
+    char topic[maxTopicNameLength];
+    buildTopicName(topic);
+    logger << logDebugDataModel << topic << ": ";
+    if (hasValue()) {
+        logValue(logger);
+    } else {
+        logger << "Unset";
+    }
+    logger << eol;
 }

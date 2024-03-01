@@ -26,10 +26,13 @@
 #include <stdint.h>
 
 class DataModelNode;
+class Logger;
 
 class DataModelHundredthsUInt16Leaf : public DataModelRetainedValueLeaf {
    private:
         HundredthsUInt16 value;
+
+        virtual void logValue(Logger &logger) override;
 
     public:
         DataModelHundredthsUInt16Leaf(const char *name, DataModelNode *parent);

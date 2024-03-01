@@ -20,6 +20,8 @@
 #include "DataModelLeaf.h"
 #include "DataModelNode.h"
 
+#include "Logger.h"
+
 #include "etl/string.h"
 #include "etl/to_string.h"
 
@@ -58,4 +60,8 @@ void DataModelBoolLeaf::sendRetainedValue(DataModelSubscriber &subscriber) {
         }
         publishToSubscriber(subscriber, valueStr, true);
     }
+}
+
+void DataModelBoolLeaf::logValue(Logger &logger) {
+    logger << value;
 }

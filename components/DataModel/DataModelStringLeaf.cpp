@@ -19,6 +19,8 @@
 #include "DataModelStringLeaf.h"
 #include "DataModelNode.h"
 
+#include "Logger.h"
+
 #include "etl/string.h"
 
 #include <stddef.h>
@@ -74,4 +76,8 @@ void DataModelStringLeaf::sendRetainedValue(DataModelSubscriber &subscriber) {
 
 bool DataModelStringLeaf::isEmptyStr() const {
     return hasValue() && value.empty();
+}
+
+void DataModelStringLeaf::logValue(Logger &logger) {
+    logger << value;
 }

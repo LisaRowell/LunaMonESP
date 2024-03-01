@@ -24,10 +24,13 @@
 #include <stdint.h>
 
 class DataModelNode;
+class Logger;
 
 class DataModelInt8Leaf : public DataModelRetainedValueLeaf {
    private:
         int8_t value;
+
+        virtual void logValue(Logger &logger) override;
 
     public:
         DataModelInt8Leaf(const char *name, DataModelNode *parent);

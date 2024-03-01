@@ -22,6 +22,8 @@
 
 #include "HundredthsUInt8.h"
 
+#include "Logger.h"
+
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
@@ -54,4 +56,8 @@ void DataModelHundredthsUInt8Leaf::sendRetainedValue(DataModelSubscriber &subscr
         value.toString(valueStr);
         publishToSubscriber(subscriber, valueStr, true);
     }
+}
+
+void DataModelHundredthsUInt8Leaf::logValue(Logger &logger) {
+    logger << value;
 }
