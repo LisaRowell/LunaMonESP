@@ -30,7 +30,7 @@ void DataModel::task() {
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10000));
 
-        dump();
+        // Later we'll export stats here. For dumping, a dump() could be done here.
     }
 }
 
