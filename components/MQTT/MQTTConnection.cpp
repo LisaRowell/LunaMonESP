@@ -75,7 +75,8 @@ void MQTTConnection::assignSocket(int connectionSocket, struct sockaddr_in &sour
 // notification as a mailbox. After the next read or timeout, the task will pick it up and close.
 void MQTTConnection::markForDisconnection() {
      if (xTaskNotifyIndexed(taskHandle(), notifyIndex, notifyDisconnect, eSetBits) != pdPASS) {
-        logger << logErrorMQTT << "Failed to disconnect notification to Connection #" << _id << eol;
+        taskLogger() << logErrorMQTT << "Failed to send disconnect notification to Connection #"
+                     << _id << eol;
         errorExit();
     }
 }
