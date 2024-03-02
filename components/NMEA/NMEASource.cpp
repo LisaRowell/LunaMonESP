@@ -28,6 +28,7 @@
 #include "Error.h"
 
 #include <stddef.h>
+#include <string.h>
 #include <sys/socket.h>
 
 NMEASource::NMEASource()
@@ -127,8 +128,12 @@ bool NMEASource::processBuffer() {
 
 bool NMEASource::readAvailableInput(int sock) {
     ssize_t count = recv(sock, buffer, maxNMEALineLength, 0);
-    if (count < 0) {
-        logger() << logDebugNMEA << "NMEA source read failed" << eol;
+    if (count == 0) {
+        logger() << logWarnNMEA << "NMEA source closed connection." << eol;
+        return false;
+    } else if (count < 0) {
+        logger() << logWarnNMEA << "NMEA source read failed:" << strerror(errno) << "(" << errno
+                 << ")" << eol;
         return false;
     } else {
         remaining = count;
