@@ -56,7 +56,15 @@ void MQTTSession::task() {
         }
 
         if (notifications & notifyConnectionLostMask) {
-            connectionLost();
+            // It's possible that we detected the connection closing while doing a write and
+            // signaled the connection to shutdown, but the connection shutdown before getting the
+            // signal and also signalled us to shut down. Hey Mo!
+            // We ignore the signal if we're not connected, but this needs to be considered more
+            // closely as there could be a race condition here. Would it be better to not signal the
+            // session if it's not connected to the connection in question?
+            if (_connection != nullptr) {
+                connectionLost();
+            }
         }
 
         if (notifications & notifyNewConnectionIdMask) {
