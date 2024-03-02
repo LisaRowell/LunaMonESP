@@ -60,7 +60,8 @@ void NMEAWiFiSource::task() {
 
         int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
         if (sock == -1) {
-            logger << logErrorNMEAWiFi << "Failed to create NMEA WiFi source socket" << eol;
+            logger << logErrorNMEAWiFi << "Failed to create NMEA WiFi source socket: "
+                   << strerror(errno) << "(" << errno << ")" << eol;
             return;
         }
 
@@ -70,6 +71,7 @@ void NMEAWiFiSource::task() {
         if (connect(sock, (struct sockaddr *)&sourceAddr, sizeof(sourceAddr)) != 0) {
             logger << logNotifyNMEAWiFi << "Failed to connect to WiFi NMEA source " << ipv4Addr
                    << ":" << tcpPort << ": " << strerror(errno) << eol;
+            close(sock);
         } else {
             logger << logDebugNMEAWiFi << "Connected to NMEA source "<< ipv4Addr << ":" << tcpPort
                    << eol;
