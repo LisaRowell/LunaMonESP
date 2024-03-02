@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,7 @@
 
 #include "NMEACoordinate.h"
 
-// #include "DataModel/DataModel.h"
-// #include "DataModel/DataModelStringLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "CharacterTools.h"
 #include "StringTools.h"
@@ -89,7 +88,6 @@ void NMEACoordinate::log(Logger &logger) const {
     logger << coordinateStr;
 }
 
-#if 0
 void NMEACoordinate::publish(DataModelStringLeaf &leaf, const char *suffix) const {
     etl::string<coordinateLength> coordinateStr;
     etl::string_stream coordinateStream(coordinateStr);
@@ -98,4 +96,3 @@ void NMEACoordinate::publish(DataModelStringLeaf &leaf, const char *suffix) cons
 
     leaf = coordinateStr;
 }
-#endif

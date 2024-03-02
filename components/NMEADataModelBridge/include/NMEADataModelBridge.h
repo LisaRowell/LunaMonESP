@@ -16,35 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_LONGITUDE_H
-#define NMEA_LONGITUDE_H
+#ifndef NMEA_DATA_MODEL_BRIDGE_H
+#define NMEA_DATA_MODEL_BRIDGE_H
 
-#include "NMEACoordinate.h"
+#include "NMEAMessageHandler.h"
 
-#include "LoggableItem.h"
+#include "NMEADepthBridge.h"
+#include "NMEAGPSBridge.h"
 
-#include "etl/string_view.h"
+class DataModel;
 
-class NMEALine;
-class NMEATalker;
-class DataModelStringLeaf;
-class Logger;
-
-enum EastOrWest {
-    EAST,
-    WEST
-};
-
-class NMEALongitude : public NMEACoordinate, public LoggableItem {
+class NMEADataModelBridge : public NMEAMessageHandler {
     private:
-        enum EastOrWest eastOrWest;
-
-        bool set(const etl::string_view &longitudeView, const etl::string_view &eastOrWestView);
+        NMEADepthBridge depthBridge;
+        NMEAGPSBridge gpsBridge;
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
-        void publish(DataModelStringLeaf &leaf) const;
-        virtual void log(Logger &logger) const override;
+        NMEADataModelBridge(DataModel &dataModel);
+        virtual void processMessage(NMEAMessage *message) override;
 };
 
-#endif
+#endif // NMEA_DATA_MODEL_BRIDGE_H

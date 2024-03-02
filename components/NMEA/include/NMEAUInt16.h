@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,14 @@
 #ifndef NMEA_UINT16_H
 #define NMEA_UINT16_H
 
-#include "NMEALine.h"
-#include "NMEATalker.h"
-
-// #include "DataModel/DataModelUInt16Leaf.h"
-
 #include "LoggableItem.h"
-#include "Logger.h"
 
 #include "etl/string_view.h"
+
+class NMEALine;
+class NMEATalker;
+class DataModelUInt16Leaf;
+class Logger;
 
 class NMEAUInt16 : public LoggableItem {
     private:
@@ -41,7 +40,7 @@ class NMEAUInt16 : public LoggableItem {
                      const char *fieldName, bool optional = false, uint16_t maxValue = 0xffff);
         bool hasValue() const;
         uint16_t getValue() const;
-//        void publish(DataModelUInt16Leaf &leaf) const;
+        void publish(DataModelUInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 

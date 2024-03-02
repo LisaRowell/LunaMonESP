@@ -19,6 +19,7 @@
 #ifndef LUNA_MON_H
 #define LUNA_MON_H
 
+#include "NMEADataModelBridge.h"
 #include "DataModel.h"
 #include "WiFiManager.h"
 #include "MQTTBroker.h"
@@ -34,6 +35,7 @@ class LunaMon {
         DataModel dataModel;
         WiFiManager wifiManager;
         MQTTBroker mqttBroker;
+        NMEADataModelBridge nmeaDataModelBridge;
         Logger logger;
         NMEAWiFiSource *nmeaWiFiSource;
         I2CMaster *ic2Master;

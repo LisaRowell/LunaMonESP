@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelStringLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "CharacterTools.h"
 #include "Logger.h"
@@ -63,7 +63,6 @@ bool NMEAGPSQuality::extract(NMEALine &nmeaLine, NMEATalker &talker, const char 
     return true;
 }
 
-#if 0
 void NMEAGPSQuality::publish(DataModelStringLeaf &leaf) const {
     switch (gpsQuality) {
         case GPS_QUALITY_FIX_NOT_AVAILABLE:
@@ -102,7 +101,6 @@ void NMEAGPSQuality::publish(DataModelStringLeaf &leaf) const {
             leaf = "Simulated Mode";
     }
 }
-#endif
 
 void NMEAGPSQuality::log(Logger &logger) const {
     switch (gpsQuality) {

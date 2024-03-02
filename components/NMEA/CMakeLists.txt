@@ -36,4 +36,4 @@ idf_component_register(SRCS "NMEASource.cpp"
                             "NMEAHundredthsUInt8.cpp"
                             "NMEAHundredthsUInt16.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES CharacterTools StringTools Logger Error)
+                       REQUIRES DataModel FixedPoint CharacterTools StringTools Logger Error)

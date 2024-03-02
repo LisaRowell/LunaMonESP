@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,24 +22,25 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelHundredthsUInt16Leaf.h"
+#include "HundredthsUInt16.h"
 
 #include "LoggableItem.h"
 #include "Logger.h"
 
 #include "etl/string_view.h"
 
+class DataModelHundredthsUInt16Leaf;
+
 class NMEAHundredthsUInt16 : public LoggableItem {
     private:
-        uint16_t wholeNumber;
-        uint8_t hundredths;
+        HundredthsUInt16 value;
 
         bool set(const etl::string_view &valueView);
 
     public:
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
                      const char *fieldName);
-//        void publish(DataModelHundredthsUInt16Leaf &leaf) const;
+        void publish(DataModelHundredthsUInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
  */
 
 #include "NMEAFAAModeIndicator.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
 
-// #include "DataModel/DataModelLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "Logger.h"
 
@@ -106,7 +108,6 @@ bool NMEAFAAModeIndicator::hasValue() const {
     return faaMode != FAA_MODE_NONE;
 }
 
-#if 0
 void NMEAFAAModeIndicator::publish(DataModelStringLeaf &leaf) const {
     switch (faaMode) {
         case FAA_MODE_NONE:
@@ -156,7 +157,6 @@ void NMEAFAAModeIndicator::publish(DataModelStringLeaf &leaf) const {
             leaf = "Unsafe";
     }
 }
-#endif
 
 void NMEAFAAModeIndicator::log(Logger &logger) const {
     switch (faaMode) {

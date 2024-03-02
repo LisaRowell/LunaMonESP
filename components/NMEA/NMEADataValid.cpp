@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelBoolLeaf.h"
+#include "DataModelBoolLeaf.h"
 
 #include "Logger.h"
 
@@ -64,11 +64,9 @@ bool NMEADataValid::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *
     return true;
 }
 
-#if 0
 void NMEADataValid::publish(DataModelBoolLeaf &leaf) const {
     leaf = valid;
 }
-#endif
 
 void NMEADataValid::log(Logger &logger) const {
     if (valid) {

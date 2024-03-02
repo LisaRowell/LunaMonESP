@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,20 +19,20 @@
 #ifndef NMEA_TENTHS_UINT16_H
 #define NMEA_TENTHS_UINT16_H
 
-#include "NMEALine.h"
-#include "NMEATalker.h"
-
-// #include "DataModel/DataModelTenthsUInt16Leaf.h"
+#include "TenthsUInt16.h"
 
 #include "LoggableItem.h"
-#include "Logger.h"
 
 #include "etl/string_view.h"
 
+class NMEALine;
+class NMEATalker;
+class DataModelTenthsUInt16Leaf;
+class Logger;
+
 class NMEATenthsUInt16 : public LoggableItem {
     private:
-        uint16_t wholeNumber;
-        uint8_t tenths;
+        TenthsUInt16 value;
         bool valuePresent;
 
     public:
@@ -40,7 +40,7 @@ class NMEATenthsUInt16 : public LoggableItem {
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false);
         bool hasValue() const;
- //       void publish(DataModelTenthsUInt16Leaf &leaf) const;
+        void publish(DataModelTenthsUInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 

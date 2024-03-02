@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,10 @@
  */
 
 #include "NMEATenthsInt16.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
+
+#include "DataModelTenthsInt16Leaf.h"
 
 #include "Logger.h"
 #include "Error.h"
@@ -25,6 +29,9 @@
 #include "etl/to_arithmetic.h"
 
 bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
+    int16_t integer;
+    uint8_t tenths;
+
     if (valueView.size() == 0) {
         if (!optional) {
             valuePresent = false;
@@ -73,6 +80,7 @@ bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
         tenths = 0;
     }
 
+    value = TenthsInt16(integer, tenths);
     valuePresent = true;
     return true;
 }
@@ -101,19 +109,17 @@ bool NMEATenthsInt16::extract(NMEALine &nmeaLine, NMEATalker &talker, const char
     return true;
 }
 
-#if 0
 void NMEATenthsInt16::publish(DataModelTenthsInt16Leaf &leaf) const {
     if (valuePresent) {
-        leaf.set(integer, tenths);
+        leaf = value;
     } else {
         leaf.removeValue();
     }
 }
-#endif
 
 void NMEATenthsInt16::log(Logger &logger) const {
     if (valuePresent) {
-        logger << integer << "." << tenths;
+        value.log(logger);
     } else {
         logger << "NA";
     }

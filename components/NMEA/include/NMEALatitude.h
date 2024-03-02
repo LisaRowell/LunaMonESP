@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,15 @@
 #define NMEA_LATITUDE_H
 
 #include "NMEACoordinate.h"
-#include "NMEALine.h"
-#include "NMEATalker.h"
-
-// #include "DataModel/DataModelStringLeaf.h"
 
 #include "LoggableItem.h"
 #include "Logger.h"
 
 #include "etl/string_view.h"
+
+class NMEALine;
+class NMEATalker;
+class DataModelStringLeaf;
 
 enum NorthOrSouth {
     NORTH,
@@ -43,7 +43,7 @@ class NMEALatitude : public NMEACoordinate, public LoggableItem {
 
     public:
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
-//        void publish(DataModelStringLeaf &leaf) const;
+        void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 

@@ -28,7 +28,7 @@
 
 class WiFiManager;
 
-class NMEAWiFiSource : public TaskObject, WiFiManagerClient, NMEASource {
+class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
     private:
         const char *ipv4Addr;
         uint16_t tcpPort;

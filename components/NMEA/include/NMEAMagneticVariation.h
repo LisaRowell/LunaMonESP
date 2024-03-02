@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,14 @@
 #ifndef NMEA_MAGNETIC_VARIATION_H
 #define NMEA_MAGNETIC_VARIATION_H
 
-#include "NMEALine.h"
-#include "NMEATalker.h"
-
-// #include "DataModel/DataModelTenthsInt16Leaf.h"
-
-#include "Logger.h"
 #include "LoggableItem.h"
 
 #include "etl/string_view.h"
+
+class NMEALine;
+class NMEATalker;
+class DataModelTenthsInt16Leaf;
+class Logger;
 
 class NMEAMagneticVariation : public LoggableItem {
     private:
@@ -39,7 +38,7 @@ class NMEAMagneticVariation : public LoggableItem {
 
     public:
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
-//        void publish(DataModelTenthsInt16Leaf &leaf) const;
+        void publish(DataModelTenthsInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 

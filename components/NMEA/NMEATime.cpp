@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelStringLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "Logger.h"
 #include "StringTools.h"
@@ -80,7 +80,6 @@ bool NMEATime::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgTy
     return true;
 }
 
-#if 0
 void NMEATime::publish(DataModelStringLeaf &leaf) const {
     char secondFractionStr[12];
     buildSecondsFactionString(secondFractionStr);
@@ -93,7 +92,6 @@ void NMEATime::publish(DataModelStringLeaf &leaf) const {
 
     leaf = timeStr;
 }
-#endif
 
 void NMEATime::buildSecondsFactionString(char *string) const {
     if (secondPrecision > 0) {

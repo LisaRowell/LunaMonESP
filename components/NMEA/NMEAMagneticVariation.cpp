@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,12 @@
  */
 
 #include "NMEAMagneticVariation.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
+
+#include "DataModelTenthsInt16Leaf.h"
+
+#include "TenthsInt16.h"
 
 #include "CharacterTools.h"
 #include "Logger.h"
@@ -117,15 +123,13 @@ bool NMEAMagneticVariation::extract(NMEALine &nmeaLine, NMEATalker &talker, cons
     return true;
 }
 
-#if 0
 void NMEAMagneticVariation::publish(DataModelTenthsInt16Leaf &leaf) const {
     if (hasValue) {
-        leaf.set(direction, tenths);
+        leaf = TenthsInt16(direction, tenths);
     } else {
         leaf.removeValue();
     }
 }
-#endif
 
 void NMEAMagneticVariation::log(Logger &logger) const {
     if (hasValue) {

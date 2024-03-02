@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelStringLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "Logger.h"
 
@@ -81,7 +81,6 @@ bool NMEALatitude::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *m
     return true;
 }
 
-#if 0
 void NMEALatitude::publish(DataModelStringLeaf &leaf) const {
     switch (northOrSouth) {
         case NORTH:
@@ -92,7 +91,6 @@ void NMEALatitude::publish(DataModelStringLeaf &leaf) const {
             NMEACoordinate::publish(leaf, "S");
     }
 }
-#endif
 
 void NMEALatitude::log(Logger &logger) const {
     NMEACoordinate::log(logger);

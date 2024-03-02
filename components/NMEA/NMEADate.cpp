@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,10 @@
  */
 
 #include "NMEADate.h"
+#include "NMEALine.h"
+#include "NMEATalker.h"
+
+#include "DataModelStringLeaf.h"
 
 #include "Logger.h"
 
@@ -93,7 +97,6 @@ bool NMEADate::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgTy
     return true;
 }
 
-#if 0
 void NMEADate::publish(DataModelStringLeaf &leaf) const {
     if (hasValue) {
         // We use the US format of mm/dd/yyyyy.
@@ -106,7 +109,6 @@ void NMEADate::publish(DataModelStringLeaf &leaf) const {
         leaf.removeValue();
     }
 }
-#endif
 
 void NMEADate::log(Logger &logger) const {
     if (hasValue) {

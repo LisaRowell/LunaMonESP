@@ -20,6 +20,7 @@
 
 #include "WiFiManager.h"
 #include "NMEAWiFiSource.h"
+#include "NMEADataModelBridge.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
 #include "EnvironmentalMon.h"
@@ -57,7 +58,10 @@
 #endif
 
 LunaMon::LunaMon()
-    : mqttBroker(wifiManager, dataModel), logger(LOGGER_LEVEL_DEBUG), ic2Master(nullptr),
+    : mqttBroker(wifiManager, dataModel),
+      nmeaDataModelBridge(dataModel),
+      logger(LOGGER_LEVEL_DEBUG),
+      ic2Master(nullptr),
       environmentalMon(nullptr) {
     logger.enableModuleDebug(LOGGER_MODULE_NMEA);
     logger.initForTask();
@@ -74,7 +78,9 @@ LunaMon::LunaMon()
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
         nmeaWiFiSource = new NMEAWiFiSource(wifiManager, CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
                                             CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT);
-        if (!nmeaWiFiSource) {
+        if (nmeaWiFiSource) {
+            nmeaWiFiSource->addMessageHandler(nmeaDataModelBridge);
+        } else {
             logger << logErrorMain << "Failed to allocate WiFi NMEA source." << eol;
         }
     } else {

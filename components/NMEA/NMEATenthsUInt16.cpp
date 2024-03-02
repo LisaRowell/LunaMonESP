@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "NMEALine.h"
+#include "NMEATalker.h"
 #include "NMEATenthsUInt16.h"
+
+#include "DataModelTenthsUInt16Leaf.h"
+
+#include "TenthsUInt16.h"
 
 #include "Logger.h"
 #include "Error.h"
@@ -26,7 +32,12 @@
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
+#include <stdint.h>
+
 bool NMEATenthsUInt16::set(const etl::string_view &valueView, bool optional) {
+    uint16_t wholeNumber;
+    uint8_t tenths;
+
     if (valueView.size() == 0) {
         if (!optional) {
             valuePresent = false;
@@ -76,6 +87,7 @@ bool NMEATenthsUInt16::set(const etl::string_view &valueView, bool optional) {
         tenths = 0;
     }
 
+    value = TenthsUInt16(wholeNumber, tenths);
     valuePresent = true;
     return true;
 }
@@ -107,19 +119,17 @@ bool NMEATenthsUInt16::hasValue() const {
     return valuePresent;
 }
 
-#if 0
 void NMEATenthsUInt16::publish(DataModelTenthsUInt16Leaf &leaf) const {
     if (valuePresent) {
-        leaf.set(wholeNumber, tenths);
+        leaf = value;
     } else {
         leaf.removeValue();
     }
 }
-#endif
 
 void NMEATenthsUInt16::log(Logger &logger) const {
     if (valuePresent) {
-        logger << wholeNumber << "." << tenths;
+        value.log(logger);
     } else {
         logger << "NA";
     }

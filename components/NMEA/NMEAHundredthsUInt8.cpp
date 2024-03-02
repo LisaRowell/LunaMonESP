@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "NMEALine.h"
+#include "NMEATalker.h"
 #include "NMEAHundredthsUInt8.h"
+
+#include "DataModelHundredthsUInt8Leaf.h"
+
+#include "HundredthsUInt8.h"
 
 #include "Logger.h"
 #include "Error.h"
@@ -29,6 +35,9 @@
 #include <stdint.h>
 
 bool NMEAHundredthsUInt8::set(const etl::string_view &valueView) {
+    uint8_t wholeNumber;
+    uint8_t hundredths;
+
     if (valueView.size() == 0) {
         return false;
     }
@@ -75,6 +84,7 @@ bool NMEAHundredthsUInt8::set(const etl::string_view &valueView) {
         hundredths = 0;
     }
 
+    value = HundredthsUInt8(wholeNumber, hundredths);
     return true;
 }
 
@@ -96,15 +106,10 @@ bool NMEAHundredthsUInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const 
     return true;
 }
 
-#if 0
 void NMEAHundredthsUInt8::publish(DataModelHundredthsUInt8Leaf &leaf) const {
-    leaf.set(wholeNumber, hundredths);
+    leaf = value;
 }
-#endif
 
 void NMEAHundredthsUInt8::log(Logger &logger) const {
-    etl::string<6> decimalStr;
-    etl::string_stream decimalStream(decimalStr);
-    decimalStream << wholeNumber << "." << etl::setw(2) << etl::setfill('0') << hundredths;
-    logger << decimalStr;
+    value.log(logger);
 }

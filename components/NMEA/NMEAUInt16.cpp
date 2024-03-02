@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#include "NMEALine.h"
+#include "NMEATalker.h"
 #include "NMEAUInt16.h"
 
+#include "DataModelUInt16Leaf.h"
 #include "Logger.h"
 #include "CharacterTools.h"
 #include "StringTools.h"
@@ -84,7 +88,6 @@ uint16_t NMEAUInt16::getValue() const {
     return value;
 }
 
-#if 0
 void NMEAUInt16::publish(DataModelUInt16Leaf &leaf) const {
     if (valuePresent) {
         leaf = value;
@@ -92,7 +95,6 @@ void NMEAUInt16::publish(DataModelUInt16Leaf &leaf) const {
         leaf.removeValue();
     }
 }
-#endif
 
 void NMEAUInt16::log(Logger &logger) const {
     if (valuePresent) {
