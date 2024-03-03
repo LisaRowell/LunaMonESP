@@ -19,11 +19,20 @@
 #include "DataModel.h"
 
 #include "TaskObject.h"
+
 #include "Logger.h"
+
+#include "Error.h"
+
+#include <freertos/semphr.h>
 
 #define STACK_SIZE  (8 * 1024)
 
 DataModel::DataModel() : TaskObject("DataModel", LOGGER_LEVEL_DEBUG, STACK_SIZE) {
+    if ((subscriptionLock = xSemaphoreCreateMutex()) == nullptr) {
+        logger << logErrorMQTT << "Failed to create subscriptionLock mutex" << eol;
+        errorExit();
+    }
 }
 
 void DataModel::task() {
@@ -40,11 +49,26 @@ DataModelRoot &DataModel::rootNode() {
 
 bool DataModel::subscribe(const char *topicFilter, DataModelSubscriber &subscriber,
                           uint32_t cookie) {
+    takeSubscriptionLock();
     return _rootNode.subscribe(topicFilter, subscriber, cookie);
+    releaseSubscriptionLock();
 }
 
 void DataModel::unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber) {
+    takeSubscriptionLock();
     _rootNode.unsubscribe(topicFilter, subscriber);
+    releaseSubscriptionLock();
+}
+
+void DataModel::takeSubscriptionLock() {
+    if (xSemaphoreTake(subscriptionLock, pdMS_TO_TICKS(lockTimeoutMs)) != pdTRUE) {
+        taskLogger() << logErrorMQTT << "Failed to get session lock mutex" << eol;
+        errorExit();
+    }
+}
+
+void DataModel::releaseSubscriptionLock() {
+    xSemaphoreGive(subscriptionLock);
 }
 
 // Debuging method to dump out the data model tree. Useful debugging tree issues and verifying

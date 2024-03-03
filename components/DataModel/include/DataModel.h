@@ -24,6 +24,8 @@
 
 #include "TaskObject.h"
 
+#include <freertos/semphr.h>
+
 #include <stddef.h>
 
 const char dataModelLevelSeparator = '/';
@@ -34,9 +36,14 @@ const size_t maxTopicNameLength = 255;
 
 class DataModel : public TaskObject {
     private:
+        static constexpr uint32_t lockTimeoutMs = 60 * 1000;
+
         DataModelRoot _rootNode;
+        SemaphoreHandle_t subscriptionLock;
 
         virtual void task() override;
+        void takeSubscriptionLock();
+        void releaseSubscriptionLock();
 
     public:
         DataModel();
