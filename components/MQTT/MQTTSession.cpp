@@ -132,6 +132,7 @@ void MQTTSession::connectionLost() {
         logger << logDebugMQTT << "Session #" << id << " lost connection to " << clientID
                << ". Going idle." << eol;
 
+        dataModel.unsubscribeAll(*this);
         clientID.clear();
         broker.sessionGoingIdle(*this);
     } else {
@@ -448,6 +449,8 @@ void MQTTSession::handleConnectionSendFailure() {
     if (!cleanSession) {
         broker.sessionLostConnection(*this);
     } else {
+        dataModel.unsubscribeAll(*this);
+        clientID.clear();
         broker.sessionGoingIdle(*this);
     }
 }
@@ -455,6 +458,8 @@ void MQTTSession::handleConnectionSendFailure() {
 void MQTTSession::shutdown() {
     logger << logNotifyMQTT << "Shutting down session (#" << id << ") for client id " << clientID
            << eol;
+
+    dataModel.unsubscribeAll(*this);
 
     // If we have a connection currently, make sure we signal it to close and for sanity, clear our
     // references as well.

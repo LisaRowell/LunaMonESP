@@ -50,6 +50,7 @@ class DataModel : public TaskObject {
         DataModelRoot &rootNode();
         bool subscribe(const char *topicFilter, DataModelSubscriber &subscriber, uint32_t cookie);
         void unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber);
+        void unsubscribeAll(DataModelSubscriber &subscriber);
         void dump();
 
         // The below method should probably be a friend method or something

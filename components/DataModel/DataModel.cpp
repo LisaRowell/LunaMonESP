@@ -50,8 +50,10 @@ DataModelRoot &DataModel::rootNode() {
 bool DataModel::subscribe(const char *topicFilter, DataModelSubscriber &subscriber,
                           uint32_t cookie) {
     takeSubscriptionLock();
-    return _rootNode.subscribe(topicFilter, subscriber, cookie);
+    bool result = _rootNode.subscribe(topicFilter, subscriber, cookie);
     releaseSubscriptionLock();
+
+    return result;
 }
 
 void DataModel::unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber) {
@@ -60,9 +62,17 @@ void DataModel::unsubscribe(const char *topicFilter, DataModelSubscriber &subscr
     releaseSubscriptionLock();
 }
 
+void DataModel::unsubscribeAll(DataModelSubscriber &subscriber) {
+    taskLogger() << logDebugDataModel << "Unsubscribing client '"<< subscriber.name()
+                 << "' from all topics." << eol;
+    takeSubscriptionLock();
+    _rootNode.unsubscribeAll(subscriber);
+    releaseSubscriptionLock();
+}
+
 void DataModel::takeSubscriptionLock() {
     if (xSemaphoreTake(subscriptionLock, pdMS_TO_TICKS(lockTimeoutMs)) != pdTRUE) {
-        taskLogger() << logErrorMQTT << "Failed to get session lock mutex" << eol;
+        taskLogger() << logErrorDataModel << "Failed to get session lock mutex" << eol;
         errorExit();
     }
 }
