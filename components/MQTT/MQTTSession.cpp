@@ -416,11 +416,14 @@ void MQTTSession::reservedMsgReceivedError(MQTTMessage &message) {
 }
 
 void MQTTSession::publish(const char *topic, const char *value, bool retainedValue) {
-    logger << logDebugMQTT << "Publishing Topic '" << topic << "' to Client '" << clientID
-           << "' with value '" << value << "' and retain " << retainedValue << eol;
+    if (_connection != nullptr && connectionSocket != 0) {
+        logger << logDebugMQTT << "Publishing Topic '" << topic << "' to Client '" << clientID
+               << "' with value '" << value << "' and retain " << retainedValue << eol;
 
-    if (_connection != nullptr) {
         sendMQTTPublishMessage(connectionSocket, topic, value, false, 0, retainedValue, 0);
+    } else {
+        logger << logDebugMQTT << "Skipping Publishing Topic '" << topic << "' to Client '"
+               << clientID << ": no connection." << eol;
     }
 }
 
