@@ -56,7 +56,7 @@ bool DataModelLeaf::addSubscriber(DataModelSubscriber &subscriber, uint32_t cook
             subscribers[subscriberPos] = &subscriber;
             cookies[subscriberPos] = cookie;
 
-//            sysBrokerSubscriptionsCount++;
+            parent->leafSubscribedTo();
 
             return true;
         }
@@ -84,13 +84,13 @@ void DataModelLeaf::unsubscribe(DataModelSubscriber &subscriber) {
     for (subscriberPos = 0; subscriberPos < maxDataModelSubscribers; subscriberPos++) {
         if (subscribers[subscriberPos] == &subscriber) {
             subscribers[subscriberPos] = NULL;
-//            sysBrokerSubscriptionsCount--;
+            parent->leafUnsubscribedFrom();
 
             // We don't cache the full name of a topic, and instead store it in bits in the tree,
             // so we don't log the full name. If we switch to storing the name, this debug could be
             // made to be more specific
             logger() << logDebugDataModel << "Client '" << subscriber.name()
-                     << "' unscribed from topic ending in '" << elementName() << "'" << eol;
+                     << "' unsubcribed from topic ending in '" << elementName() << "'" << eol;
             return;
         }
     }
@@ -135,6 +135,10 @@ bool DataModelLeaf::subscribeAll(DataModelSubscriber &subscriber, uint32_t cooki
 }
 
 DataModelLeaf & DataModelLeaf::operator << (const etl::istring &value) {
+    // For now we take the subscription lock when publishing, but later this should go away when
+    // updates become threaded.
+    parent->takeSubscriptionLock();
+
     unsigned subscriberIndex;
     for (subscriberIndex = 0; subscriberIndex < maxDataModelSubscribers; subscriberIndex++) {
         DataModelSubscriber *subscriber = subscribers[subscriberIndex];
@@ -145,7 +149,9 @@ DataModelLeaf & DataModelLeaf::operator << (const etl::istring &value) {
         }
     }
 
-    leafUpdated();
+    parent->releaseSubscriptionLock();
+
+    parent->leafUpdated();
 
     return *this;
 }

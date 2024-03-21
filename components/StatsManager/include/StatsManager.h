@@ -16,16 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_SUBSCRIBE_ACK_MESSAGE_H
-#define MQTT_SUBSCRIBE_ACK_MESSAGE_H
+#ifndef STATS_MANAGER_H
+#define STATS_MANAGER_H
 
+#include "TaskObject.h"
+
+#include "StatsHolder.h"
+
+#include "PassiveTimer.h"
+
+#include "etl/intrusive_list.h"
+
+#include <stddef.h>
 #include <stdint.h>
 
-struct MQTTSubscribeAckVariableHeader {
-    uint8_t packetIdMSB;
-    uint8_t packetIdLSB;
-};
+class StatsHolder;
 
-#define MQTT_SUBACK_FAILURE_FLAG 0x80
+class StatsManager : public TaskObject {
+    private:
+        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr uint32_t statsUpdateTimeIntervalMs = 10 * 1000;
+
+        PassiveTimer lastHarvestTime;
+        etl::intrusive_list<StatsHolder, statsHolderLink> statsHolders;
+
+        virtual void task() override;
+
+    public:
+        StatsManager();
+        void addStatsHolder(StatsHolder &statsHolder);
+};
 
 #endif

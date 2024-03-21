@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 
 MQTTConnection::MQTTConnection(MQTTBroker &broker, uint8_t id)
     : TaskObject("MQTTConnection", LOGGER_LEVEL_DEBUG, stackSize),
-      _id(id), broker(broker), connectionSocket(0) {
+      _id(id), broker(broker), connectionSocket(0), _messagesSent(0) {
     bzero(&sourceAddr, sizeof(sourceAddr));
 
     sessionMessages = xMessageBufferCreate(sessionMessageBufferSize);
@@ -236,33 +236,59 @@ bool MQTTConnection::processConnectMessage(const MQTTMessage &message) {
                << eol;
         // While we're refusing the connection, we don't terminate here and instead let it close out
         // naturally as we want the client to receive the NACK.
-        return sendMQTTConnectAckMessage(connectionSocket, false, errorCode);
+        if (sendMQTTConnectAckMessage(connectionSocket, false, errorCode)) {
+            _messagesSent++;
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     // Since this is a light weight broker, and a work in progress, we reject a few currently
     // unsupported types of connections.
     if (connectMessage.hasWill()) {
         logger << logWarnMQTT << "MQTT CONNECT with Will: Currently unsupported" << eol;
-        return sendMQTTConnectAckMessage(connectionSocket, false,
-                                         MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE);
+        if (sendMQTTConnectAckMessage(connectionSocket, false,
+                                      MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE)) {
+            _messagesSent++;
+            return true;
+        } else {
+            return false;
+        }
     }
     if (connectMessage.hasUserName()) {
         logger << logWarnMQTT << "MQTT CONNECT message with Password set" << eol;
-        return sendMQTTConnectAckMessage(connectionSocket, false,
-                                         MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD);
+        if (sendMQTTConnectAckMessage(connectionSocket, false,
+                                      MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD)) {
+            _messagesSent++;
+            return true;
+        } else {
+            return false;
+        }
     }
     if (connectMessage.hasPassword()) {
         logger << logWarnMQTT << "MQTT CONNECT message with Password set" << eol;
-        return sendMQTTConnectAckMessage(connectionSocket, false,
-                                         MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD);
+        if (sendMQTTConnectAckMessage(connectionSocket, false,
+                                      MQTT_CONNACK_REFUSED_USERNAME_OR_PASSWORD)) {
+            _messagesSent++;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     const MQTTString *clientIDStr = connectMessage.clientID();
     if (!clientIDStr->copyTo(_clientID)) {
         logger << logWarnMQTT << "MQTT CONNECT message with too long of a Client ID:"
                << *clientIDStr << eol;
-        return sendMQTTConnectAckMessage(connectionSocket, false,
-                                         MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED);
+        if (sendMQTTConnectAckMessage(connectionSocket, false,
+                                      MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED)) {
+            _messagesSent++;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // It's less than helpful to have a client connecting without providing a Client ID, though it
@@ -273,8 +299,13 @@ bool MQTTConnection::processConnectMessage(const MQTTMessage &message) {
         if (!connectMessage.cleanSession()) {
             logger << logWarnMQTT << "MQTT CONNECT message with a null Client ID and clean session"
                                      " false. Rejecting." << eol;
-            return sendMQTTConnectAckMessage(connectionSocket, false,
-                                             MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED);
+            if (sendMQTTConnectAckMessage(connectionSocket, false,
+                                          MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED)) {
+                _messagesSent++;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         etl::string_stream clientIDStream(_clientID);
@@ -307,8 +338,13 @@ bool MQTTConnection::processConnectMessage(const MQTTMessage &message) {
         logger << logWarnMQTT << "Failed to get a session for connection #" << _id << " ("
                << sourceAddr << ")" << eol;
         clearSessionMessages();
-        return sendMQTTConnectAckMessage(connectionSocket, false,
-                                         MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE);
+        if (sendMQTTConnectAckMessage(connectionSocket, false,
+                                      MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE)) {
+            _messagesSent++;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     return true;
@@ -452,4 +488,8 @@ void MQTTConnection::logMessageSizeTooLarge(size_t messageSize) {
     logger << logErrorMQTT << "Message size " << messageSize << " from " << sourceAddr
            << " exceeds maximum allowable ("
            << maxIncomingMessageSize << "). Aborting connection." << eol;
+}
+
+uint32_t MQTTConnection::messagesSent() {
+    return _messagesSent;
 }

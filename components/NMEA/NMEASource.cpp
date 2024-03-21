@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,11 @@
 #include "NMEAMessage.h"
 #include "NMEAMessageHandler.h"
 
-// #include "StatsManager/StatCounter.h"
+#include "DataModelUInt32Leaf.h"
+
+#include "StatsManager.h"
+
+#include "StatCounter.h"
 
 #include "CharacterTools.h"
 #include "Logger.h"
@@ -31,11 +35,15 @@
 #include <string.h>
 #include <sys/socket.h>
 
-NMEASource::NMEASource()
+NMEASource::NMEASource(DataModelUInt32Leaf &messagesLeaf, DataModelUInt32Leaf &messageRateLeaf,
+                       StatsManager &statsManager)
     : bufferPos(0),
       remaining(0),
       carriageReturnFound(false),
-      messageHandlers() {
+      messageHandlers(),
+      messagesLeaf(messagesLeaf),
+      messageRateLeaf(messageRateLeaf) {
+    statsManager.addStatsHolder(*this);
 }
 
 void NMEASource::addMessageHandler(NMEAMessageHandler &messageHandler) {
@@ -161,7 +169,7 @@ void NMEASource::lineCompleted() {
             messageHandler->processMessage(nmeaMessage);
         }
 
-//        messagesCounter++;
+        messagesCounter++;
 
         // While we're done with the nmeaMessage, we don't do a free here
         // since it was allocated with a static buffer and placement new.
@@ -186,4 +194,8 @@ void NMEASource::processNMEAStream(int sock) {
             }
         }
     }
+}
+
+void NMEASource::exportStats(uint32_t msElapsed) {
+    messagesCounter.update(messagesLeaf, messageRateLeaf, msElapsed);
 }

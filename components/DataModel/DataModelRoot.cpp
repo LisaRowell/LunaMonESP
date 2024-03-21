@@ -25,8 +25,8 @@
 
 #include <stdint.h>
 
-DataModelRoot::DataModelRoot()
-    : DataModelNode(NULL, NULL), dataModel(nullptr) {
+DataModelRoot::DataModelRoot(DataModel *dataModel)
+    : DataModelNode(NULL, NULL), dataModel(dataModel) {
 }
 
 void DataModelRoot::setDataModel(DataModel *dataModel) {
@@ -137,9 +137,31 @@ bool DataModelRoot::checkTopicFilterValidity(const char *topicFilter) {
 }
 
 void DataModelRoot::leafUpdated() {
-    if (dataModel != nullptr) {
-        dataModel->leafUpdated();
-    }
+    dataModel->leafUpdated();
+}
+
+void DataModelRoot::leafSubscribedTo() {
+    dataModel->leafSubscribedTo();
+}
+
+void DataModelRoot::leafUnsubscribedFrom() {
+    dataModel->leafUnsubscribedFrom();
+};
+
+void DataModelRoot::valueRetained() {
+    dataModel->valueRetained();
+}
+
+void DataModelRoot::retainedValueCleared() {
+    dataModel->retainedValueCleared();
+}
+
+void DataModelRoot::takeSubscriptionLock() {
+    dataModel->takeSubscriptionLock();
+}
+
+void DataModelRoot::releaseSubscriptionLock() {
+    dataModel->releaseSubscriptionLock();
 }
 
 void DataModelRoot::dump() {

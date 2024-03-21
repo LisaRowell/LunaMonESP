@@ -93,12 +93,6 @@ const char *DataModelElement::elementName() const {
     return name;
 }
 
-void DataModelElement::leafUpdated() {
-    if (parent != nullptr) {
-        parent->leafUpdated();
-    }
-}
-
 void DataModelElement::dump() {
     char topic[maxTopicNameLength];
     buildTopicName(topic);

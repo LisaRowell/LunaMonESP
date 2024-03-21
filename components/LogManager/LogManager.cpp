@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_SUBSCRIBE_ACK_MESSAGE_H
-#define MQTT_SUBSCRIBE_ACK_MESSAGE_H
+#include "LogManager.h"
 
-#include <stdint.h>
+#include "DataModel.h"
+#include "DataModelNode.h"
 
-struct MQTTSubscribeAckVariableHeader {
-    uint8_t packetIdMSB;
-    uint8_t packetIdLSB;
-};
+LogManager::LogManager(DataModel &dataModel) :
+    logNode("log", &dataModel.sysNode()),
+    log1Leaf("1", &logNode, log1Buffer),
+    log2Leaf("2", &logNode, log2Buffer),
+    log3Leaf("3", &logNode, log3Buffer),
+    log4Leaf("4", &logNode, log4Buffer),
+    log5Leaf("5", &logNode, log5Buffer) {
+}
 
-#define MQTT_SUBACK_FAILURE_FLAG 0x80
-
-#endif
+// Later this will need to be extended to periodically grab important log messages and update
+// the associated leafs.

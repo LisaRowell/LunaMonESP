@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,16 @@
 #include "WiFiManagerClient.h"
 #include "NMEASource.h"
 
+#include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
+#include "DataModelBoolLeaf.h"
+
 #include <stddef.h>
 #include <netdb.h>
 
 class WiFiManager;
+class StatsManager;
+class NMEA;
 
 class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
     private:
@@ -35,13 +41,19 @@ class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
         struct sockaddr_in sourceAddr;
         bool sourceAddrValid;
 
+        DataModelNode nmeaWiFiNode;
+        DataModelBoolLeaf stateLeaf;
+        DataModelUInt32Leaf messagesLeaf;
+        DataModelUInt32Leaf messageRateLeaf;
+
         virtual void task() override;
 
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr uint32_t reconnectDelayMs = 1000;
 
     public:
-        NMEAWiFiSource(WiFiManager &wifiManager, const char *ipv4Addr, uint16_t tcpPort);
+        NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsManager, const char *ipv4Addr,
+                       uint16_t tcpPort, NMEA &nmea);
 };
 
 #endif

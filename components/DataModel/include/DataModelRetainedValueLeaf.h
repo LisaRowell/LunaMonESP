@@ -29,7 +29,6 @@ class Logger;
 class DataModelRetainedValueLeaf : public DataModelLeaf {
     private:
         bool hasBeenSet;
-        static uint16_t retainedValues;
 
     protected:
         DataModelRetainedValueLeaf(const char *name, DataModelNode *parent);
@@ -41,7 +40,6 @@ class DataModelRetainedValueLeaf : public DataModelLeaf {
 
     public:
         void removeValue();
-        static uint16_t retainedValueCount();
         virtual void dump() override;
 };
 

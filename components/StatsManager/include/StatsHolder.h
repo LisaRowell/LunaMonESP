@@ -16,16 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_SUBSCRIBE_ACK_MESSAGE_H
-#define MQTT_SUBSCRIBE_ACK_MESSAGE_H
+#ifndef STATS_HOLDER_H
+#define STATS_HOLDER_H
+
+#include "etl/intrusive_links.h"
 
 #include <stdint.h>
 
-struct MQTTSubscribeAckVariableHeader {
-    uint8_t packetIdMSB;
-    uint8_t packetIdLSB;
+constexpr size_t statsHolderLinkID = 0;
+typedef etl::bidirectional_link<statsHolderLinkID> statsHolderLink;
+
+class StatsHolder : public statsHolderLink {
+    public:
+        virtual void exportStats(uint32_t msElapsed) = 0;
 };
 
-#define MQTT_SUBACK_FAILURE_FLAG 0x80
-
-#endif
+#endif // STATS_HOLDER_H

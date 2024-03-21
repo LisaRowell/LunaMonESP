@@ -35,9 +35,9 @@ typedef etl::forward_link<siblingLinkId> siblingLink;
 class DataModelElement : public siblingLink {
     private:
         const char *name;
-        DataModelNode *parent;
 
     protected:
+        DataModelNode *parent;
         bool isMultiLevelWildcard(const char *topicFilter);
         bool topicFilterMatch(const char *topicFilter, unsigned &offsetToNextLevel,
                               bool &lastLevel);
@@ -53,7 +53,6 @@ class DataModelElement : public siblingLink {
                                            DataModelSubscriber &subscriber) = 0;
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) = 0;
         virtual void unsubscribeAll(DataModelSubscriber &subscriber) = 0;
-        virtual void leafUpdated();
         virtual void dump();
 };
 

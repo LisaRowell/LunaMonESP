@@ -30,11 +30,14 @@
 #include "DataModelStringLeaf.h"
 #include "DataModelTenthsInt16Leaf.h"
 
+#include "StatCounter.h"
+
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
-NMEAGPSBridge::NMEAGPSBridge(DataModel &dataModel)
-    : gpsNode("gps", &dataModel.rootNode()),
+NMEAGPSBridge::NMEAGPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+    : messagesBridgedCounter(messagesBridgedCounter),
+      gpsNode("gps", &dataModel.rootNode()),
       gpsTimeLeaf("time", &gpsNode, gpsTimeBuffer),
       gpsDateLeaf("date", &gpsNode, gpsDateBuffer),
       gpsDataValidLeaf("dataValid", &gpsNode),
@@ -82,7 +85,7 @@ void NMEAGPSBridge::bridgeNMEAGGAMessage(NMEAGGAMessage *message) {
     message->gpsDataAge.publish(gpsDataAgeLeaf);
     message->differentialReferenceStation.publish(gpsDifferentialReferenceStationLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 void NMEAGPSBridge::bridgeNMEAGLLMessage(NMEAGLLMessage *message) {
@@ -92,7 +95,7 @@ void NMEAGPSBridge::bridgeNMEAGLLMessage(NMEAGLLMessage *message) {
     message->dataValid.publish(gpsDataValidLeaf);
     message->faaModeIndicator.publish(gpsFAAModeindicatorLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 // The Vesper GPS receivers, and possibly others, emit back to back GSA messages with two sets of
@@ -126,7 +129,7 @@ void NMEAGPSBridge::bridgeNMEAGSAMessage(NMEAGSAMessage *message) {
     message->hdop.publish(gpsHDOPLeaf);
     message->vdop.publish(gpsVDOPLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 void NMEAGPSBridge::bridgeNMEAGSTMessage(NMEAGSTMessage *message) {
@@ -138,7 +141,7 @@ void NMEAGPSBridge::bridgeNMEAGSTMessage(NMEAGSTMessage *message) {
     message->standardDeviationOfLongitudeError.publish(gpsStandardDeviationOfLongitudeErrorLeaf);
     message->standardDeviationOfAltitudeError.publish(gpsStandardDeviationOfAltitudeErrorLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 void NMEAGPSBridge::bridgeNMEARMCMessage(NMEARMCMessage *message) {
@@ -152,7 +155,7 @@ void NMEAGPSBridge::bridgeNMEARMCMessage(NMEARMCMessage *message) {
     message->magneticVariation.publish(gpsMagneticVariationLeaf);
     message->faaModeIndicator.publish(gpsFAAModeindicatorLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 void NMEAGPSBridge::bridgeNMEAVTGMessage(NMEAVTGMessage *message) {
@@ -162,5 +165,5 @@ void NMEAGPSBridge::bridgeNMEAVTGMessage(NMEAVTGMessage *message) {
     message->speedOverGroundKmPerH.publish(gpsSpeedOverGroundKmPerHLeaf);
     message->faaModeIndicator.publish(gpsFAAModeindicatorLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }

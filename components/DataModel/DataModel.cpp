@@ -20,6 +20,9 @@
 
 #include "TaskObject.h"
 
+#include "StatsManager.h"
+#include "StatsHolder.h"
+
 #include "Logger.h"
 
 #include "Error.h"
@@ -28,11 +31,26 @@
 
 #define STACK_SIZE  (8 * 1024)
 
-DataModel::DataModel() : TaskObject("DataModel", LOGGER_LEVEL_DEBUG, STACK_SIZE) {
+DataModel::DataModel(StatsManager &statsManager)
+    : TaskObject("DataModel", LOGGER_LEVEL_DEBUG, STACK_SIZE),
+      _rootNode(this),
+      subscriptionCount(0), retainedValues(0),
+      _sysNode("$SYS", &_rootNode),
+      _brokerNode("broker", &_sysNode),
+      subscriptionsNode("subscriptions", &_brokerNode),
+      subscriptionsCountLeaf("count", &subscriptionsNode),
+      _messagesNode("messages", &_brokerNode),
+      retainedNode("retained", &_messagesNode),
+      retainedCountLeaf("count", &retainedNode),
+      dataModelNode("dataModel", &_sysNode),
+      updatesLeaf("updates", &dataModelNode),
+      updateRateLeaf("updateRate", &dataModelNode) {
     if ((subscriptionLock = xSemaphoreCreateMutex()) == nullptr) {
         logger << logErrorMQTT << "Failed to create subscriptionLock mutex" << eol;
         errorExit();
     }
+
+    statsManager.addStatsHolder(*this);
 }
 
 void DataModel::task() {
@@ -72,13 +90,25 @@ void DataModel::unsubscribeAll(DataModelSubscriber &subscriber) {
 
 void DataModel::takeSubscriptionLock() {
     if (xSemaphoreTake(subscriptionLock, pdMS_TO_TICKS(lockTimeoutMs)) != pdTRUE) {
-        taskLogger() << logErrorDataModel << "Failed to get session lock mutex" << eol;
+        taskLogger() << logErrorDataModel << "Failed to get subscription lock mutex" << eol;
         errorExit();
     }
 }
 
 void DataModel::releaseSubscriptionLock() {
     xSemaphoreGive(subscriptionLock);
+}
+
+DataModelNode &DataModel::sysNode() {
+    return _sysNode;
+}
+
+DataModelNode &DataModel::brokerNode() {
+    return _brokerNode;
+}
+
+DataModelNode &DataModel::messagesNode() {
+    return _messagesNode;
 }
 
 // Debuging method to dump out the data model tree. Useful debugging tree issues and verifying
@@ -89,4 +119,28 @@ void DataModel::dump() {
 }
 
 void DataModel::leafUpdated() {
+    updates++;
+}
+
+void DataModel::leafSubscribedTo() {
+    subscriptionCount++;
+}
+
+void DataModel::leafUnsubscribedFrom() {
+    subscriptionCount--;
+}
+
+void DataModel::valueRetained() {
+    retainedValues++;
+}
+
+void DataModel::retainedValueCleared() {
+    retainedValues--;
+}
+
+// Called from the StatsManager task
+void DataModel::exportStats(uint32_t msElapsed) {
+    subscriptionsCountLeaf = subscriptionCount;
+    retainedCountLeaf = retainedValues;
+    updates.update(updatesLeaf, updateRateLeaf, msElapsed);
 }

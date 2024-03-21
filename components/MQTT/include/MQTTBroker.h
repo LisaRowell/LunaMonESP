@@ -23,22 +23,33 @@
 #include "MQTTSession.h"
 #include "MQTTMessage.h"
 
+#include "DataModelNode.h"
+#include "DataModelUInt8Leaf.h"
+#include "DataModelUInt32Leaf.h"
+#include "DataModelStringLeaf.h"
+
+#include "StatsHolder.h"
 #include "TaskObject.h"
 #include "WiFiManagerClient.h"
 
 #include "etl/intrusive_list.h"
+#include "etl/string.h"
 
 #include <lwip/sockets.h>
 
 #include <freertos/semphr.h>
 
-class DataModel;
+#include <stdint.h>
 
-class MQTTBroker : public TaskObject, WiFiManagerClient {
+class DataModel;
+class StatsManager;
+
+static constexpr size_t maxMQTTConnections = CONFIG_LUNAMON_MAX_MQTT_CLIENTS;
+static constexpr size_t maxMQTTSessions = CONFIG_LUNAMON_MAX_MQTT_CLIENTS;
+
+class MQTTBroker : public TaskObject, WiFiManagerClient, StatsHolder {
     private:
         static constexpr size_t stackSize = 8 * 1024;
-        static constexpr size_t maxMQTTConnections = CONFIG_LUNAMON_MAX_MQTT_CLIENTS;
-        static constexpr size_t maxMQTTSessions = CONFIG_LUNAMON_MAX_MQTT_CLIENTS;
         static constexpr uint16_t serverPort = 1883;
         static constexpr uint32_t lockTimeoutMs = 60 * 1000;
 
@@ -51,6 +62,42 @@ class MQTTBroker : public TaskObject, WiFiManagerClient {
         etl::intrusive_list<MQTTSession, SessionLink> freeSessions;
         etl::intrusive_list<MQTTSession, SessionLink> activeSessions;
         etl::intrusive_list<MQTTSession, SessionLink> disconnectedSessions;
+
+        DataModelNode clientsNode;
+        DataModelUInt8Leaf connectedClientsLeaf;
+        DataModelUInt8Leaf disconnectedClientsLeaf;
+        DataModelUInt8Leaf maximumClientsLeaf;
+        DataModelUInt8Leaf totalClientsLeaf;
+        DataModelUInt32Leaf messagesReceivedLeaf;
+        DataModelUInt32Leaf messagesSentLeaf;
+        DataModelNode publishNode;
+        DataModelUInt32Leaf publishReceivedLeaf;
+        DataModelUInt32Leaf publishSentLeaf;
+        DataModelUInt32Leaf publishDroppedLeaf;
+        DataModelNode connectionsNode;
+        etl::string<maxMQTTClientIDLength> connection1IDBuffer;
+        DataModelStringLeaf connection1IDLeaf;
+        etl::string<maxMQTTClientIDLength> connection2IDBuffer;
+        DataModelStringLeaf connection2IDLeaf;
+        etl::string<maxMQTTClientIDLength> connection3IDBuffer;
+        DataModelStringLeaf connection3IDLeaf;
+        etl::string<maxMQTTClientIDLength> connection4IDBuffer;
+        DataModelStringLeaf connection4IDLeaf;
+        etl::string<maxMQTTClientIDLength> connection5IDBuffer;
+        DataModelStringLeaf connection5IDLeaf;
+        DataModelStringLeaf *connectionLeaves[maxMQTTConnections];
+        DataModelNode sessionsNode;
+        etl::string<maxMQTTClientIDLength> session1IDBuffer;
+        DataModelStringLeaf session1IDLeaf;
+        etl::string<maxMQTTClientIDLength> session2IDBuffer;
+        DataModelStringLeaf session2IDLeaf;
+        etl::string<maxMQTTClientIDLength> session3IDBuffer;
+        DataModelStringLeaf session3IDLeaf;
+        etl::string<maxMQTTClientIDLength> session4IDBuffer;
+        DataModelStringLeaf session4IDLeaf;
+        etl::string<maxMQTTClientIDLength> session5IDBuffer;
+        DataModelStringLeaf session5IDLeaf;
+        DataModelStringLeaf *sessionLeaves[maxMQTTSessions];
 
         virtual void task() override;
         void createServerSocket();
@@ -67,8 +114,14 @@ class MQTTBroker : public TaskObject, WiFiManagerClient {
         void takeSessionLock();
         void releaseSessionLock();
 
+        void initClientStats();
+        virtual void exportStats(uint32_t msElapsed) override;
+        void exportMessageStats();
+        void exportConnectionInfo();
+        void exportSessionInfo();
+
     public:
-        MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel);
+        MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel, StatsManager &statsManager);
         MQTTConnection *connectionForId(uint8_t connectionId) const;
         void connectionGoingIdle(MQTTConnection &connection);
         MQTTSession *pairConnectionWithSession(MQTTConnection *connection, bool cleanSession);

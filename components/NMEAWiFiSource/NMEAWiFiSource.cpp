@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,12 @@
 #include "TaskObject.h"
 #include "WiFiManager.h"
 #include "WiFiManagerClient.h"
+
+#include "NMEA.h"
+
+#include "DataModelNode.h"
+#include "DataModelBoolLeaf.h"
+
 #include "Logger.h"
 
 #include "freertos/FreeRTOSConfig.h"
@@ -31,10 +37,16 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, const char *ipv4Addr, uint16_t tcpPort)
+NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsManager,
+                               const char *ipv4Addr, uint16_t tcpPort, NMEA &nmea)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager),
-      ipv4Addr(ipv4Addr), tcpPort(tcpPort) {
+      NMEASource(messagesLeaf, messageRateLeaf, statsManager),
+      ipv4Addr(ipv4Addr), tcpPort(tcpPort),
+      nmeaWiFiNode("wifi", &nmea.nmeaNode()),
+      stateLeaf("state", &nmeaWiFiNode),
+      messagesLeaf("messages", &nmeaWiFiNode),
+      messageRateLeaf("messageRate", &nmeaWiFiNode) {
     if (inet_pton(AF_INET, ipv4Addr, &sourceAddr.sin_addr) == 1) {
         sourceAddrValid = true;
         sourceAddr.sin_family = AF_INET;
@@ -75,7 +87,9 @@ void NMEAWiFiSource::task() {
         } else {
             logger << logDebugNMEAWiFi << "Connected to NMEA source "<< ipv4Addr << ":" << tcpPort
                    << eol;
+            stateLeaf = true;
             processNMEAStream(sock);
+            stateLeaf = false;
             close(sock);
         }
 

@@ -24,12 +24,27 @@
 #include "NMEADepthBridge.h"
 #include "NMEAGPSBridge.h"
 
+#include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
+
+#include "StatCounter.h"
+
+#include "StatsHolder.h"
+
 class DataModel;
 
-class NMEADataModelBridge : public NMEAMessageHandler {
+class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
         NMEADepthBridge depthBridge;
         NMEAGPSBridge gpsBridge;
+
+        StatCounter messagesBridgedCounter;
+
+        DataModelNode nmeaDataModelBridgeNode;
+        DataModelUInt32Leaf messagesBridgedLeaf;
+        DataModelUInt32Leaf messagesBridgedRateLeaf;
+
+        virtual void exportStats(uint32_t msElapsed) override;
 
     public:
         NMEADataModelBridge(DataModel &dataModel);

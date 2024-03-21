@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ class MQTTConnection : public TaskObject, public ConnectionLink {
 
         uint16_t keepAliveTime;
         bool cleanSession;
+        uint32_t _messagesSent;
 
         virtual void task() override;
         void waitForSocketAssignment();
@@ -105,6 +106,7 @@ class MQTTConnection : public TaskObject, public ConnectionLink {
         const etl::istring &clientID() const;
         int socket() const;
         MessageBufferHandle_t sessionMessageBuffer();
+        uint32_t messagesSent();
 };
 
 #endif // MQTT_CONNECTION_H

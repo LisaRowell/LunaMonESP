@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,21 @@
 #ifndef NMEA_SOURCE_H
 #define NMEA_SOURCE_H
 
-class NMEAMessageHandler;
-
 #include "NMEALine.h"
+
+#include "StatCounter.h"
+
+#include "StatsHolder.h"
 
 #include "etl/vector.h"
 
 #include <stddef.h>
 
-class NMEASource {
+class NMEAMessageHandler;
+class DataModelUInt32Leaf;
+class StatsManager;
+
+class NMEASource : StatsHolder {
     private:
         char buffer[maxNMEALineLength];
         size_t bufferPos;
@@ -37,17 +43,22 @@ class NMEASource {
         static const size_t maxMessageHandlers = 5;
         etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
 
+        StatCounter messagesCounter;
+        DataModelUInt32Leaf &messagesLeaf;
+        DataModelUInt32Leaf &messageRateLeaf;
+
         bool scanForCarriageReturn(size_t &carriageReturnPos);
         bool readAvailableInput(int sock);
         bool processBuffer();
         void lineCompleted();
-        void updateStats();
+        virtual void exportStats(uint32_t msElapsed) override;
 
     protected:
         void processNMEAStream(int sock);
 
     public:
-        NMEASource();
+        NMEASource(DataModelUInt32Leaf &messagesLeaf, DataModelUInt32Leaf &messageRateLeaf,
+                   StatsManager &statsManager);
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 

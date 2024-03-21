@@ -39,6 +39,7 @@ class NMEAGSAMessage;
 class NMEAGSTMessage;
 class NMEARMCMessage;
 class NMEAVTGMessage;
+class StatCounter;
 
 class NMEAGPSBridge {
     private:
@@ -46,6 +47,8 @@ class NMEAGPSBridge {
         static constexpr size_t dateLength = 10;
         static constexpr size_t coordinateLength = 20;
         static constexpr size_t activeSatellitesLength = 72;
+
+        StatCounter &messagesBridgedCounter;
 
         DataModelNode gpsNode;
         etl::string<timeLength> gpsTimeBuffer;
@@ -90,7 +93,7 @@ class NMEAGPSBridge {
         DataModelTenthsUInt16Leaf gpsStandardDeviationOfAltitudeErrorLeaf;
 
     public:
-        NMEAGPSBridge(DataModel &dataModel);
+        NMEAGPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEAGGAMessage(NMEAGGAMessage *message);
         void bridgeNMEAGLLMessage(NMEAGLLMessage *message);
         void bridgeNMEAGSAMessage(NMEAGSAMessage *message);

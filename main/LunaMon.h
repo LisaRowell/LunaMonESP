@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,20 @@
 #ifndef LUNA_MON_H
 #define LUNA_MON_H
 
-#include "NMEADataModelBridge.h"
+#include "StatsManager.h"
+
 #include "DataModel.h"
+#include "DataModelStringLeaf.h"
+#include "DataModelUInt32Leaf.h"
+
 #include "WiFiManager.h"
 #include "MQTTBroker.h"
+#include "NMEA.h"
+#include "NMEADataModelBridge.h"
+#include "LogManager.h"
 #include "Logger.h"
+
+#include "etl/string.h"
 
 class NMEAWiFiSource;
 class StatusLED;
@@ -32,15 +41,22 @@ class EnvironmentalMon;
 
 class LunaMon {
     private:
+        StatsManager statsManager;
         DataModel dataModel;
         WiFiManager wifiManager;
         MQTTBroker mqttBroker;
+        NMEA nmea;
         NMEADataModelBridge nmeaDataModelBridge;
+        LogManager logManager;
         Logger logger;
         NMEAWiFiSource *nmeaWiFiSource;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
+
+        etl::string<10> versionBuffer;
+        DataModelStringLeaf versionLeaf;
+        DataModelUInt32Leaf uptimeLeaf;
 
         void initNVS();
 

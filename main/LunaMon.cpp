@@ -19,8 +19,13 @@
 #include "LunaMon.h"
 
 #include "WiFiManager.h"
+#include "DataModel.h"
+#include "DataModelStringLeaf.h"
+#include "DataModelUInt32Leaf.h"
+#include "NMEA.h"
 #include "NMEAWiFiSource.h"
 #include "NMEADataModelBridge.h"
+#include "LogManager.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
 #include "EnvironmentalMon.h"
@@ -31,6 +36,7 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 #include "nvs_flash.h"
+#include "esp_timer.h"
 #include "esp_err.h"
 
 #include "freertos/FreeRTOS.h"
@@ -58,11 +64,16 @@
 #endif
 
 LunaMon::LunaMon()
-    : mqttBroker(wifiManager, dataModel),
+    : dataModel(statsManager),
+      mqttBroker(wifiManager, dataModel, statsManager),
+      nmea(dataModel),
       nmeaDataModelBridge(dataModel),
+      logManager(dataModel),
       logger(LOGGER_LEVEL_DEBUG),
       ic2Master(nullptr),
-      environmentalMon(nullptr) {
+      environmentalMon(nullptr),
+      versionLeaf("version", &dataModel.brokerNode(), versionBuffer),
+      uptimeLeaf("uptime", &dataModel.brokerNode()) {
     logger.enableModuleDebug(LOGGER_MODULE_NMEA);
     logger.initForTask();
 
@@ -76,8 +87,9 @@ LunaMon::LunaMon()
     }
 
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
-        nmeaWiFiSource = new NMEAWiFiSource(wifiManager, CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
-                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT);
+        nmeaWiFiSource = new NMEAWiFiSource(wifiManager, statsManager,
+                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
+                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT, nmea);
         if (nmeaWiFiSource) {
             nmeaWiFiSource->addMessageHandler(nmeaDataModelBridge);
         } else {
@@ -100,6 +112,7 @@ LunaMon::LunaMon()
 void LunaMon::run() {
     initNVS();
 
+    statsManager.start();
     dataModel.start();
     wifiManager.start();
     mqttBroker.start();
@@ -112,8 +125,11 @@ void LunaMon::run() {
         environmentalMon->start();
     }
 
+    versionLeaf = "0.1.1";
+
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10000));
+        uptimeLeaf = (uint32_t)(esp_timer_get_time() / 1000000);
     }
 }
 

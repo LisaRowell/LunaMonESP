@@ -45,6 +45,13 @@ class DataModelNode : public DataModelElement {
                                            DataModelSubscriber &subscriber) override;
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) override;
         virtual void unsubscribeAll(DataModelSubscriber &subscriber) override;
+        virtual void leafUpdated();
+        virtual void leafSubscribedTo();
+        virtual void leafUnsubscribedFrom();
+        virtual void valueRetained();
+        virtual void retainedValueCleared();
+        virtual void takeSubscriptionLock();
+        virtual void releaseSubscriptionLock();
         virtual void dump() override;
 };
 

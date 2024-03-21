@@ -27,12 +27,6 @@
 
 #include <stdint.h>
 
-uint16_t DataModelRetainedValueLeaf::retainedValues = 0;
-
-uint16_t DataModelRetainedValueLeaf::retainedValueCount() {
-    return retainedValues;
-}
-
 DataModelRetainedValueLeaf::DataModelRetainedValueLeaf(const char *name, DataModelNode *parent)
     : DataModelLeaf(name, parent), hasBeenSet(false) {
 }
@@ -49,8 +43,8 @@ bool DataModelRetainedValueLeaf::subscribe(DataModelSubscriber &subscriber, uint
 
 void DataModelRetainedValueLeaf::updated() {
     if (!hasBeenSet) {
-        retainedValues++;
         hasBeenSet = true;
+        parent->valueRetained();
     }
 }
 
@@ -60,6 +54,7 @@ void DataModelRetainedValueLeaf::removeValue() {
 
         *this << emptyStr;
         hasBeenSet = false;
+        parent->retainedValueCleared();
     }
 }
 

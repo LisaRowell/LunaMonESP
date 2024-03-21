@@ -26,15 +26,17 @@
 #include "MQTTUnsubscribeMessage.h"
 #include "MQTTUnsubscribeAckMessage.h"
 #include "MQTTPingRequestMessage.h"
-#include "MQTTPingResponseMessage.h"
 #include "MQTTPublishMessage.h"
 #include "MQTTDisconnectMessage.h"
+#include "MQTTUtil.h"
 #include "MQTTString.h"
 
 #include "DataModel.h"
 
 #include "Logger.h"
 #include "Error.h"
+
+#include "etl/string.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -43,7 +45,9 @@
 
 MQTTSession::MQTTSession(MQTTBroker &broker, DataModel &dataModel, uint8_t id)
     : TaskObject("MQTTSession", LOGGER_LEVEL_DEBUG, stackSize),
-      id(id), broker(broker), dataModel(dataModel), _connection(nullptr), freshSession(true) {
+      id(id), broker(broker), dataModel(dataModel), _connection(nullptr), freshSession(true),
+      _messagesReceived(0), _messagesSent(0), _publishMessagesReceived(0), _publishMessagesSent(0),
+      _publishMessagesDropped(0) {
 }
 
 void MQTTSession::task() {
@@ -142,6 +146,10 @@ void MQTTSession::connectionLost() {
     }
 }
 
+const etl::istring &MQTTSession::getClientID() const {
+    return clientID;
+}
+
 bool MQTTSession::isForClient(const etl::istring &clientID) const {
     return this->clientID == clientID;
 }
@@ -186,6 +194,8 @@ void MQTTSession::readMessages() {
                                                 maxIncomingMessageSize, 0)) > 0) {
         MQTTMessage message = MQTTMessage(messageBuffer, messageSize);
 
+        _messagesReceived++;
+
         MQTTMessageType msgType = message.messageType();
         switch (msgType) {
             case MQTT_MSG_CONNECT:
@@ -221,7 +231,7 @@ void MQTTSession::readMessages() {
                 break;
 
             case MQTT_MSG_PUBREC:
-                // publishMessagesReceived++;
+                _publishMessagesReceived++;
                 logger << logWarnMQTT << "Received unimplemented message type "
                        << message.messageTypeStr() << " from client " << clientID << eol;
                 break;
@@ -249,7 +259,9 @@ void MQTTSession::connectMessageReceived(MQTTMessage &message) {
 
     logger << "Session #" << id << " sending a CONNACK Accepted to " << clientID << eol;
 
-    if (!sendMQTTConnectAckMessage(connectionSocket, !freshSession, MQTT_CONNACK_ACCEPTED)) {
+    if (sendMQTTConnectAckMessage(connectionSocket, !freshSession, MQTT_CONNACK_ACCEPTED)) {
+        _messagesSent++;
+    } else {
         logger << logWarnMQTT << "Failed to send CONNACK message to client " << clientID
                << ". Closing connection." << eol;
         handleConnectionSendFailure();
@@ -296,24 +308,23 @@ void MQTTSession::subscribeMessageReceived(MQTTMessage &message) {
         if (!topicFilterStr->copyTo(topicFilter, maxTopicNameLength)) {
             logger << logWarnMQTT << "MQTT SUBSCRIBE message with too long of a Topic Filter '"
                    << *topicFilterStr << "'" << eol;
-            subscribeResults[topicFilterIndex] = mqttSubscribeResult(false, 0);
+            subscribeResults[topicFilterIndex] = subscribeResult(false, 0);
         } else {
             if (dataModel.subscribe(topicFilter, *this, (uint32_t)maxQoS)) {
                 logger << logDebugMQTT << "Topic Filter '" << topicFilter << "' subscribed to by '"
                        << clientID << "'" << eol;
-                subscribeResults[topicFilterIndex] = mqttSubscribeResult(true, 0);
+                subscribeResults[topicFilterIndex] = subscribeResult(true, 0);
             } else {
                 logger << logWarnMQTT << "Client '" << clientID
                        << "' failed to subscribe to Topic Filter '" << topicFilter << "'" << eol;
-                subscribeResults[topicFilterIndex] = mqttSubscribeResult(false, 0);
+                subscribeResults[topicFilterIndex] = subscribeResult(false, 0);
            }
         }
     }
 
     logger << logDebugMQTT << "Sending SUBACK message with " << topicFilterCount
            << " results to Client '" << clientID << "'" << eol;
-    if (!sendMQTTSubscribeAckMessage(connectionSocket, subscribeMessage.packetId(),
-                                     topicFilterCount, subscribeResults)) {
+    if (!sendSubscribeAckMessage(subscribeMessage.packetId(), topicFilterCount, subscribeResults)) {
         logger << logErrorMQTT << "Failed to send SUBACK message to Client '" << clientID << "'"
                << eol;
         handleConnectionSendFailure();
@@ -358,7 +369,7 @@ void MQTTSession::unsubscribeMessageReceived(MQTTMessage &message) {
 
     logger << logDebugMQTT << "Sending UNSUBACK message to client '" << clientID << "'"
            << eol;
-    if (!sendMQTTUnsubscribeAckMessage(connectionSocket, unsubscribeMessage.packetId())) {
+    if (!sendUnsubscribeAckMessage(unsubscribeMessage.packetId())) {
         logger << logErrorMQTT << "Failed to send UNSUBACK message to client '" << clientID
                << "'" << eol;
         handleConnectionSendFailure();
@@ -382,7 +393,7 @@ void MQTTSession::pingRequestMessageReceived(MQTTMessage &message) {
 
     logger << logDebugMQTT << "Sending MQTT PINGRESP message to client '" << clientID << eol;
 
-    if (!sendMQTTPingResponseMessage(connectionSocket)) {
+    if (!sendPingResponseMessage()) {
         logger << logWarnMQTT << "Failed to send PINGRESP message to client " << clientID
                << ". Closing connection." << eol;
         handleConnectionSendFailure();
@@ -421,11 +432,142 @@ void MQTTSession::publish(const char *topic, const char *value, bool retainedVal
         logger << logDebugMQTT << "Publishing Topic '" << topic << "' to Client '" << clientID
                << "' with value '" << value << "' and retain " << retainedValue << eol;
 
-        sendMQTTPublishMessage(connectionSocket, topic, value, false, 0, retainedValue, 0);
+        sendPublishMessage(topic, value, false, 0, retainedValue, 0);
     } else {
         logger << logDebugMQTT << "Skipping Publishing Topic '" << topic << "' to Client '"
                << clientID << ": no connection." << eol;
     }
+}
+
+uint8_t MQTTSession::subscribeResult(bool success, uint8_t maxQoS) {
+    if (!success) {
+        return MQTT_SUBACK_FAILURE_FLAG;
+    } else {
+        return maxQoS;
+    }
+}
+
+bool MQTTSession::sendSubscribeAckMessage(uint16_t packetId, uint8_t numberResults,
+                                              uint8_t *results) {
+    MQTTFixedHeader fixedHeader;
+    MQTTSubscribeAckVariableHeader variableHeader;
+
+    fixedHeader.typeAndFlags = MQTT_MSG_SUBACK << MQTT_MSG_TYPE_SHIFT;
+    if (send(connectionSocket, &fixedHeader, sizeof(fixedHeader), 0) < 0) {
+        return false;
+    }
+    const uint8_t remainingLength = sizeof(MQTTSubscribeAckVariableHeader) + numberResults;
+    if (!mqttWriteRemainingLength(connectionSocket, remainingLength)) {
+        return false;
+    }
+
+    variableHeader.packetIdMSB = packetId >> 8;
+    variableHeader.packetIdLSB = packetId & 0xff;
+
+    if (send(connectionSocket, &variableHeader, sizeof(variableHeader), 0) < 0) {
+        return false;
+    }
+
+    if (send(connectionSocket, results, numberResults * sizeof(uint8_t), 0) < 0) {
+        return false;
+    }
+
+    _messagesSent++;
+
+    return true;
+}
+
+bool MQTTSession::sendUnsubscribeAckMessage(uint16_t packetId) {
+    MQTTFixedHeader fixedHeader;
+    MQTTUnsubscribeAckVariableHeader variableHeader;
+
+    fixedHeader.typeAndFlags = MQTT_MSG_UNSUBACK << MQTT_MSG_TYPE_SHIFT;
+    if (send(connectionSocket, &fixedHeader, sizeof(fixedHeader), 0) < 0) {
+        return false;
+    }
+    const uint8_t remainingLength = sizeof(MQTTUnsubscribeAckVariableHeader);
+    if (!mqttWriteRemainingLength(connectionSocket, remainingLength)) {
+        return false;
+    }
+
+    variableHeader.packetIdMSB = packetId >> 8;
+    variableHeader.packetIdLSB = packetId & 0xff;
+
+    if (send(connectionSocket, &variableHeader, sizeof(variableHeader), 0) < 0) {
+        return false;
+    }
+
+    _messagesSent++;
+
+    return true;
+}
+
+bool MQTTSession::sendPublishMessage(const char *topic, const char *value, bool dup,
+                                     uint8_t qosLevel, bool retain, uint16_t packetId) {
+    MQTTFixedHeader fixedHeader;
+
+    fixedHeader.typeAndFlags = MQTT_MSG_PUBLISH << MQTT_MSG_TYPE_SHIFT;
+    if (dup) {
+        fixedHeader.typeAndFlags |= MQTT_PUBLISH_FLAGS_DUP_MASK;
+    }
+    fixedHeader.typeAndFlags |= qosLevel << MQTT_PUBLISH_FLAGS_QOS_SHIFT;
+    if (retain) {
+        fixedHeader.typeAndFlags |= MQTT_PUBLISH_FLAGS_RETAIN_MASK;
+    }
+    if (send(connectionSocket, &fixedHeader, sizeof(fixedHeader), 0) < 0) {
+        _publishMessagesDropped++;
+        return false;
+    }
+
+    const size_t valueLength = strlen(value);
+    uint32_t remainingLength;
+    remainingLength = strlen(topic) + 2 + valueLength;
+    if (qosLevel > 0) {
+        remainingLength += 2;
+    }
+    if (!mqttWriteRemainingLength(connectionSocket, remainingLength)) {
+        _publishMessagesDropped++;
+        return false;
+    }
+
+    if (!mqttWriteMQTTString(connectionSocket, topic)) {
+        _publishMessagesDropped++;
+        return false;
+    }
+
+    if (qosLevel > 0) {
+        if (!mqttWriteUInt16(connectionSocket, packetId)) {
+            _publishMessagesDropped++;
+            return false;
+        }
+    }
+
+    if (send(connectionSocket, value, valueLength, 0) < 0) {
+        _publishMessagesDropped++;
+        return false;
+    }
+
+    _messagesSent++;
+    _publishMessagesSent++;
+
+    return true;
+}
+
+bool MQTTSession::sendPingResponseMessage() {
+    MQTTFixedHeader fixedHeader;
+
+    fixedHeader.typeAndFlags = MQTT_MSG_PINGRESP << MQTT_MSG_TYPE_SHIFT;
+    if (send(connectionSocket, &fixedHeader, sizeof(fixedHeader), 0) < 0) {
+        return false;
+    }
+
+    if (!mqttWriteRemainingLength(connectionSocket, 0)) {
+        return false;
+    }
+
+    _messagesSent++;
+
+    return true;
 }
 
 const etl::istring &MQTTSession::name() const {
@@ -490,4 +632,24 @@ void MQTTSession::notifyConnectionLost() {
                      << id << eol;
         errorExit();
     }
+}
+
+uint32_t MQTTSession::messagesReceived() const {
+    return _messagesReceived;
+}
+
+uint32_t MQTTSession::messagesSent() const {
+    return _messagesSent;
+}
+
+uint32_t MQTTSession::publishMessagesReceived() const {
+    return _publishMessagesReceived;
+}
+
+uint32_t MQTTSession::publishMessagesSent() const {
+    return _publishMessagesSent;
+}
+
+uint32_t MQTTSession::publishMessagesDropped() const {
+    return _publishMessagesDropped;
 }

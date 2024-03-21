@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_SUBSCRIBE_ACK_MESSAGE_H
-#define MQTT_SUBSCRIBE_ACK_MESSAGE_H
+#include "NMEA.h"
 
-#include <stdint.h>
+#include "DataModel.h"
+#include "DataModelNode.h"
 
-struct MQTTSubscribeAckVariableHeader {
-    uint8_t packetIdMSB;
-    uint8_t packetIdLSB;
-};
+NMEA::NMEA(DataModel &dataModel)
+    : _nmeaNode("nmea", &dataModel.sysNode()) {
+}
 
-#define MQTT_SUBACK_FAILURE_FLAG 0x80
-
-#endif
+DataModelNode &NMEA::nmeaNode() {
+    return _nmeaNode;
+}

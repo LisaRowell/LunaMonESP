@@ -26,9 +26,12 @@ class DataModel;
 class NMEADBKMessage;
 class NMEADBSMessage;
 class NMEADBTMessage;
+class StatCounter;
 
 class NMEADepthBridge {
     private:
+        StatCounter &messagesBridgedCounter;
+
         DataModelNode depthNode;
         DataModelNode depthBelowSurfaceNode;
         DataModelTenthsUInt16Leaf depthBelowSurfaceFeetLeaf;
@@ -44,7 +47,7 @@ class NMEADepthBridge {
         DataModelTenthsUInt16Leaf depthBelowKeelFathomsLeaf;
 
     public:
-        NMEADepthBridge(DataModel &dataModel);
+        NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEADBKMessage(NMEADBKMessage *message);
         void bridgeNMEADBSMessage(NMEADBSMessage *message);
         void bridgeNMEADBTMessage(NMEADBTMessage *message);

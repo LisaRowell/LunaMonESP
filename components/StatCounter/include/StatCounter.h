@@ -16,26 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MQTTPingResponseMessage.h"
+#ifndef STAT_COUNTER_H
+#define STAT_COUNTER_H
 
-#include "MQTTMessage.h"
-#include "MQTTUtil.h"
+class DataModelLeaf;
 
-#include <sys/socket.h>
+#include <stdint.h>
 
-bool sendMQTTPingResponseMessage(int connectionSocket) {
-    MQTTFixedHeader fixedHeader;
+class StatCounter {
+    private:
+        uint32_t count;
+        uint32_t lastIntervalCount;
 
-    fixedHeader.typeAndFlags = MQTT_MSG_PINGRESP << MQTT_MSG_TYPE_SHIFT;
-    if (send(connectionSocket, &fixedHeader, sizeof(fixedHeader), 0) < 0) {
-        return false;
-    }
+    public:
+        StatCounter();
+        void increment();
+        StatCounter operator ++ (int);
+        void update(DataModelLeaf &countLeaf, DataModelLeaf &rateLeaf, uint32_t msElapsed);
+};
 
-    if (!mqttWriteRemainingLength(connectionSocket, 0)) {
-        return false;
-    }
-
-    // messagesSent++;
-
-    return true;
-}
+#endif // STAT_COUNTER_H

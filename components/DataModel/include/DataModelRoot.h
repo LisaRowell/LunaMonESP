@@ -35,12 +35,18 @@ class DataModelRoot : public DataModelNode {
                                          uint32_t cookie);
 
     public:
-        DataModelRoot();
+        DataModelRoot(DataModel *dataModel);
         void setDataModel(DataModel *dataModel);
         bool subscribe(const char *topicFilter, DataModelSubscriber &subscriber, uint32_t cookie);
         void unsubscribe(const char *topicFilter, DataModelSubscriber &subscriber);
         virtual bool subscribeAll(DataModelSubscriber &subscriber, uint32_t cookie) override;
         virtual void leafUpdated() override;
+        virtual void leafSubscribedTo() override;
+        virtual void leafUnsubscribedFrom() override;
+        virtual void valueRetained() override;
+        virtual void retainedValueCleared() override;
+        virtual void takeSubscriptionLock() override;
+        virtual void releaseSubscriptionLock() override;
         virtual void dump() override;
 };
 

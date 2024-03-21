@@ -26,6 +26,4 @@ struct MQTTUnsubscribeAckVariableHeader {
     uint8_t packetIdLSB;
 };
 
-bool sendMQTTUnsubscribeAckMessage(int connectionSocket, uint16_t packetId);
-
 #endif

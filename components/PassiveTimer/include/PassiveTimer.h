@@ -16,9 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_PING_RESPONSE_MESSAGE_H
-#define MQTT_PING_RESPONSE_MESSAGE_H
+#ifndef PASSIVE_TIMER_H
+#define PASSIVE_TIMER_H
 
-bool sendMQTTPingResponseMessage(int connectionSocket);
+#include <stdint.h>
 
-#endif // MQTT_PING_RESPONSE_MESSAGE_H
+class PassiveTimer {
+    private:
+        const uint32_t halfMilliTimerRange = 0x80000000;
+        uint32_t endTime;
+
+        uint32_t millis() const;
+
+    public:
+        void setMilliSeconds(uint32_t milliSeconds);
+        void setSeconds(uint32_t seconds);
+        void setNow();
+        void advanceMilliSeconds(uint32_t milliSeconds);
+        void advanceSeconds(uint32_t seconds);
+        bool expired();
+        uint32_t timeInMilliSeconds();
+        uint32_t elapsedTime();
+};
+
+#endif

@@ -26,8 +26,11 @@
 #include "DataModelNode.h"
 #include "DataModelTenthsUInt16Leaf.h"
 
-NMEADepthBridge::NMEADepthBridge(DataModel &dataModel)
-    : depthNode("depth", &dataModel.rootNode()),
+#include "StatCounter.h"
+
+NMEADepthBridge::NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+    : messagesBridgedCounter(messagesBridgedCounter),
+      depthNode("depth", &dataModel.rootNode()),
       depthBelowSurfaceNode("belowSurface", &depthNode),
       depthBelowSurfaceFeetLeaf("feet", &depthBelowSurfaceNode),
       depthBelowSurfaceMetersLeaf("meters", &depthBelowSurfaceNode),
@@ -48,7 +51,7 @@ void NMEADepthBridge::bridgeNMEADBKMessage(NMEADBKMessage *message) {
     message->depthMeters.publish(depthBelowKeelMetersLeaf);
     message->depthFathoms.publish(depthBelowKeelFathomsLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 void NMEADepthBridge::bridgeNMEADBSMessage(NMEADBSMessage *message) {
@@ -56,7 +59,7 @@ void NMEADepthBridge::bridgeNMEADBSMessage(NMEADBSMessage *message) {
     message->depthMeters.publish(depthBelowSurfaceMetersLeaf);
     message->depthFathoms.publish(depthBelowSurfaceFathomsLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }
 
 void NMEADepthBridge::bridgeNMEADBTMessage(NMEADBTMessage *message) {
@@ -64,5 +67,5 @@ void NMEADepthBridge::bridgeNMEADBTMessage(NMEADBTMessage *message) {
     message->depthMeters.publish(depthBelowTransducerMetersLeaf);
     message->depthFathoms.publish(depthBelowTransducerFathomsLeaf);
 
-//    messagesBridgedCounter++;
+    messagesBridgedCounter++;
 }

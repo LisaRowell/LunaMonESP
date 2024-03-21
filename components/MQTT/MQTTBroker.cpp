@@ -22,6 +22,8 @@
 
 #include "DataModel.h"
 
+#include "StatsManager.h"
+
 #include "Logger.h"
 
 #include "Error.h"
@@ -34,9 +36,38 @@
 
 #include <freertos/semphr.h>
 
-MQTTBroker::MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel)
+#include <stdint.h>
+
+MQTTBroker::MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel, StatsManager &statsManager)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
-      WiFiManagerClient(wifiManager) {
+      WiFiManagerClient(wifiManager),
+      clientsNode("clients", &dataModel.brokerNode()),
+      connectedClientsLeaf("connected", &clientsNode),
+      disconnectedClientsLeaf("disconnected", &clientsNode),
+      maximumClientsLeaf("maximum", &clientsNode),
+      totalClientsLeaf("total", &clientsNode),
+      messagesReceivedLeaf("received", &dataModel.messagesNode()),
+      messagesSentLeaf("sent", &dataModel.messagesNode()),
+      publishNode("publish", &dataModel.messagesNode()),
+      publishReceivedLeaf("received", &publishNode),
+      publishSentLeaf("sent", &publishNode),
+      publishDroppedLeaf("dropped", &publishNode),
+      connectionsNode("connections", &dataModel.brokerNode()),
+      connection1IDLeaf("1", &connectionsNode, connection1IDBuffer),
+      connection2IDLeaf("2", &connectionsNode, connection2IDBuffer),
+      connection3IDLeaf("3", &connectionsNode, connection3IDBuffer),
+      connection4IDLeaf("4", &connectionsNode, connection4IDBuffer),
+      connection5IDLeaf("5", &connectionsNode, connection5IDBuffer),
+      connectionLeaves { &connection1IDLeaf, &connection2IDLeaf, &connection3IDLeaf,
+                         &connection4IDLeaf, &connection5IDLeaf },
+      sessionsNode("sessions", &dataModel.brokerNode()),
+      session1IDLeaf("1", &sessionsNode, session1IDBuffer),
+      session2IDLeaf("2", &sessionsNode, session2IDBuffer),
+      session3IDLeaf("3", &sessionsNode, session3IDBuffer),
+      session4IDLeaf("4", &sessionsNode, session4IDBuffer),
+      session5IDLeaf("5", &sessionsNode, session5IDBuffer),
+      sessionLeaves { &session1IDLeaf, &session2IDLeaf, &session3IDLeaf, &session4IDLeaf,
+                      &session5IDLeaf } {
     if ((connectionLock = xSemaphoreCreateMutex()) == nullptr) {
         logger << logErrorMQTT << "Failed to create connectionLock mutex" << eol;
         errorExit();
@@ -78,6 +109,8 @@ MQTTBroker::MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel)
         session->start();
     }
     releaseSessionLock();
+
+    statsManager.addStatsHolder(*this);
 }
 
 MQTTConnection *MQTTBroker::connectionForId(uint8_t connectionId) const {
@@ -85,6 +118,8 @@ MQTTConnection *MQTTBroker::connectionForId(uint8_t connectionId) const {
 }
 
 void MQTTBroker::task() {
+    initClientStats();
+
     // We probably don't strictly need to do this, but there's little point in opening up the
     // server for business before WiFi is even connected.
     if (!wifiConnected()) {
@@ -177,7 +212,6 @@ void MQTTBroker::connectionGoingIdle(MQTTConnection &connection) {
 
     releaseConnectionLock();
 }
-        bool pairConnectionWithCleanSession(MQTTConnection *connection);
 
 MQTTSession *MQTTBroker::pairConnectionWithSession(MQTTConnection *connection, bool cleanSession) {
     if (cleanSession) {
@@ -302,6 +336,116 @@ void MQTTBroker::sessionLostConnection(MQTTSession &session) {
 void MQTTBroker::closeConnectionSocket(int connectionSocket) {
     shutdown(connectionSocket, SHUT_RDWR);
     close(connectionSocket);
+}
+
+void MQTTBroker::initClientStats() {
+    connectedClientsLeaf = 0;
+    disconnectedClientsLeaf = 0;
+    maximumClientsLeaf = 0;
+    totalClientsLeaf = 0;
+}
+
+void MQTTBroker::exportStats(uint32_t msElapsed) {
+    exportMessageStats();
+    exportConnectionInfo();
+    exportSessionInfo();
+}
+
+void MQTTBroker::exportMessageStats() {
+    uint32_t received = 0;
+    uint32_t sent = 0;
+    uint32_t publishReceived = 0;
+    uint32_t publishSent = 0;
+    uint32_t publishDropped = 0;
+
+    // We loop through both active and inactive connections and sessions when we gather sent message
+    // counts sine what we want is the accumulation since broker startup and not stats about active
+    // sessions.
+    takeConnectionLock();
+    for (MQTTConnection &activeConnection : activeConnections) {
+        sent += activeConnection.messagesSent();
+    }
+    for (MQTTConnection &idleConnection : idleConnections) {
+        sent += idleConnection.messagesSent();
+    }
+    releaseConnectionLock();
+
+    takeSessionLock();
+    for (MQTTSession &activeSession : activeSessions) {
+        received += activeSession.messagesReceived();
+        sent += activeSession.messagesSent();
+        publishReceived += activeSession.publishMessagesReceived();
+        publishSent += activeSession.publishMessagesSent();
+        publishDropped += activeSession.publishMessagesDropped();
+    }
+    for (MQTTSession &disconnectedSession : disconnectedSessions) {
+        received += disconnectedSession.messagesReceived();
+        sent += disconnectedSession.messagesSent();
+        publishReceived += disconnectedSession.publishMessagesReceived();
+        publishSent += disconnectedSession.publishMessagesSent();
+        publishDropped += disconnectedSession.publishMessagesDropped();
+    }
+    for (MQTTSession &freeSession : freeSessions) {
+        received += freeSession.messagesReceived();
+        sent += freeSession.messagesSent();
+        publishReceived += freeSession.publishMessagesReceived();
+        publishSent += freeSession.publishMessagesSent();
+        publishDropped += freeSession.publishMessagesDropped();
+    }
+    releaseSessionLock();
+
+    messagesReceivedLeaf = received;
+    messagesSentLeaf = sent;
+    publishReceivedLeaf = publishReceived;
+    publishSentLeaf = publishSent;
+    publishDroppedLeaf = publishDropped;
+}
+
+void MQTTBroker::exportConnectionInfo() {
+    takeConnectionLock();
+
+    unsigned connectionPos = 0;
+    for (MQTTConnection &connection : activeConnections) {
+        *connectionLeaves[connectionPos++] = connection.clientID();
+    }
+
+    for (; connectionPos < maxMQTTConnections; connectionPos++) {
+        *connectionLeaves[connectionPos] = "";
+    }
+
+    releaseConnectionLock();
+}
+
+void MQTTBroker::exportSessionInfo() {
+    uint8_t connectedClients = 0;
+    uint8_t disconnectedClients = 0;
+
+    takeSessionLock();
+
+    unsigned sessionPos = 0;
+    for (MQTTSession &activeSession : activeSessions) {
+        connectedClients++;
+        *sessionLeaves[sessionPos++] = activeSession.getClientID();
+    }
+
+    for (MQTTSession &disconnectedSession : disconnectedSessions) {
+        disconnectedClients++;
+        *sessionLeaves[sessionPos++] = disconnectedSession.getClientID();
+    }
+
+    releaseSessionLock();
+
+    for (; sessionPos < maxMQTTSessions; sessionPos++) {
+        *sessionLeaves[sessionPos] = "";
+    }
+
+    uint8_t totalClientsCount = connectedClients + disconnectedClients;
+    totalClientsLeaf = totalClientsCount;
+    connectedClientsLeaf = connectedClients;
+    disconnectedClientsLeaf = disconnectedClients;
+    if (totalClientsCount > maximumClientsLeaf) {
+        maximumClientsLeaf = totalClientsCount;
+    }
 }
 
 void MQTTBroker::takeConnectionLock() {

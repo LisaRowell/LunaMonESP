@@ -116,6 +116,34 @@ void DataModelNode::unsubscribeAll(DataModelSubscriber &subscriber) {
     }
 }
 
+void DataModelNode::leafUpdated() {
+    parent->leafUpdated();
+}
+
+void DataModelNode::leafSubscribedTo() {
+    parent->leafSubscribedTo();
+}
+
+void DataModelNode::leafUnsubscribedFrom() {
+    parent->leafUnsubscribedFrom();
+}
+
+void DataModelNode::valueRetained() {
+    parent->valueRetained();
+}
+
+void DataModelNode::retainedValueCleared() {
+    parent->retainedValueCleared();
+}
+
+void DataModelNode::takeSubscriptionLock() {
+    parent->takeSubscriptionLock();
+}
+
+void DataModelNode::releaseSubscriptionLock() {
+    parent->releaseSubscriptionLock();
+}
+
 void DataModelNode::dump() {
     DataModelElement::dump();
     for (DataModelElement &child : children) {

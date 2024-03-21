@@ -29,11 +29,23 @@
 #include "NMEARMCMessage.h"
 #include "NMEAVTGMessage.h"
 
+#include "StatCounter.h"
+
+#include "DataModel.h"
+#include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
+
+
 NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel)
-    : depthBridge(dataModel), gpsBridge(dataModel) {
+    : depthBridge(dataModel, messagesBridgedCounter),
+      gpsBridge(dataModel, messagesBridgedCounter),
+      nmeaDataModelBridgeNode("nmeaDataModelBridge", &dataModel.sysNode()),
+      messagesBridgedLeaf("messages", &nmeaDataModelBridgeNode),
+      messagesBridgedRateLeaf("messageRate", &nmeaDataModelBridgeNode) {
 }
 
 void NMEADataModelBridge::processMessage(NMEAMessage *message) {
+    if (0) {
     const NMEAMsgType msgType = message->type();
     switch (msgType) {
         case NMEA_MSG_TYPE_DBK:
@@ -87,4 +99,9 @@ void NMEADataModelBridge::processMessage(NMEAMessage *message) {
                          << nmeaMsgTypeName(msgType) << " message in NMEA->Data Model Bridge"
                          << eol;
     }
+    }
+}
+
+void NMEADataModelBridge::exportStats(uint32_t msElapsed) {
+    messagesBridgedCounter.update(messagesBridgedLeaf, messagesBridgedRateLeaf, msElapsed);
 }

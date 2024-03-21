@@ -17,4 +17,4 @@ idf_component_register(SRCS "DataModel.cpp"
                             "DataModelHundredthsUInt16Leaf.cpp"
                             "DataModelHundredthsUInt32Leaf.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES FixedPoint TaskObject Logger Error)
+                       REQUIRES StatCounter StatsManager FixedPoint TaskObject Logger Error)

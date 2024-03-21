@@ -16,16 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MQTT_SUBSCRIBE_ACK_MESSAGE_H
-#define MQTT_SUBSCRIBE_ACK_MESSAGE_H
+#ifndef TIME_CONSTANTS_H
+#define TIME_CONSTANTS_H
 
 #include <stdint.h>
 
-struct MQTTSubscribeAckVariableHeader {
-    uint8_t packetIdMSB;
-    uint8_t packetIdLSB;
-};
+static const uint32_t msInSecond = 1000;
 
-#define MQTT_SUBACK_FAILURE_FLAG 0x80
+static const uint32_t msInHalfSecond = msInSecond / 2;
 
-#endif
+#endif // TIME_CONSTANTS_H

@@ -31,6 +31,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/message_buffer.h>
 
+#include <stdint.h>
+
 class MQTTBroker;
 class MQTTConnection;
 class MQTTMessage;
@@ -65,6 +67,11 @@ class MQTTSession : public DataModelSubscriber, public TaskObject, public Sessio
         bool freshSession;
         int connectionSocket;
         MessageBufferHandle_t connectionMessageBuffer;
+        uint32_t _messagesReceived;
+        uint32_t _messagesSent;
+        uint32_t _publishMessagesReceived;
+        uint32_t _publishMessagesSent;
+        uint32_t _publishMessagesDropped;
 
         virtual void task() override;
         void newConnection(unsigned connectionId);
@@ -78,6 +85,12 @@ class MQTTSession : public DataModelSubscriber, public TaskObject, public Sessio
         void serverOnlyMsgReceivedError(MQTTMessage &message);
         void reservedMsgReceivedError(MQTTMessage &message);
         virtual void publish(const char *topic, const char *value, bool retainedValue) override;
+        uint8_t subscribeResult(bool success, uint8_t maxQoS);
+        bool sendSubscribeAckMessage(uint16_t packetId, uint8_t numberResults, uint8_t *results);
+        bool sendUnsubscribeAckMessage(uint16_t packetId);
+        bool sendPublishMessage(const char *topic, const char *value, bool dup, uint8_t qosLevel,
+                                bool retain, uint16_t packetId);
+        bool sendPingResponseMessage();
         virtual const etl::istring &name() const override;
         void resetKeepAliveTimer();
         void handleConnectionSendFailure();
@@ -88,10 +101,16 @@ class MQTTSession : public DataModelSubscriber, public TaskObject, public Sessio
         MQTTSession(MQTTBroker &broker, DataModel &dataModel, uint8_t id);
         void assignConnection(unsigned connectionId);
         void initiateShutdown();
+        const etl::istring &getClientID() const;
         bool isForClient(const etl::istring &clientID) const;
         MQTTConnection *connection() const;
         void notifyMessageReady();
         void notifyConnectionLost();
+        uint32_t messagesReceived() const;
+        uint32_t messagesSent() const;
+        uint32_t publishMessagesReceived() const;
+        uint32_t publishMessagesSent() const;
+        uint32_t publishMessagesDropped() const;
 };
 
 #endif //MQTT_SESSION_H

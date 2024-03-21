@@ -1,5 +1,5 @@
 idf_component_register(SRCS "main.cpp" "LunaMon.cpp"
-                       INCLUDE_DIRS "."
-                       REQUIRES NMEADataModelBridge DataModel MQTT I2CMaster WiFiManager
-                                NMEAWiFiSource EnvironmentalMon StatusLED Logger Error driver
-                                nvs_flash)
+                       INCLUDE_DIRS "."  "../etl/include"
+                       REQUIRES NMEADataModelBridge NMEA DataModel MQTT I2CMaster WiFiManager
+                                NMEAWiFiSource EnvironmentalMon StatusLED LogManager StatsManager
+                                Logger Error driver nvs_flash esp_timer)
