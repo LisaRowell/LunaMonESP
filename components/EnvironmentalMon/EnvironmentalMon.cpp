@@ -188,7 +188,7 @@ void EnvironmentalMon::pollENS160() {
     } else {
         logger << logDebugEnvironmentalMon << "No valid environmental data." << eol;
 
-        aqiDataModelLeaf.clear();
+        aqiDataModelLeaf.removeValue();
 
         statusLEDOff();
     }
