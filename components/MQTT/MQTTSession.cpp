@@ -42,6 +42,8 @@
 #include <freertos/task.h>
 
 #include <stdint.h>
+#include <errno.h>
+#include <string.h>
 
 MQTTSession::MQTTSession(MQTTBroker &broker, DataModel &dataModel, uint8_t id)
     : TaskObject("MQTTSession", LOGGER_LEVEL_DEBUG, stackSize),
@@ -325,8 +327,8 @@ void MQTTSession::subscribeMessageReceived(MQTTMessage &message) {
     logger << logDebugMQTT << "Sending SUBACK message with " << topicFilterCount
            << " results to Client '" << clientID << "'" << eol;
     if (!sendSubscribeAckMessage(subscribeMessage.packetId(), topicFilterCount, subscribeResults)) {
-        logger << logErrorMQTT << "Failed to send SUBACK message to Client '" << clientID << "'"
-               << eol;
+        logger << logErrorMQTT << "Failed to send SUBACK message to Client '" << clientID << "': "
+               << strerror(errno) << eol;
         handleConnectionSendFailure();
     }
 }
