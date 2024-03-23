@@ -377,7 +377,7 @@ void MQTTSession::unsubscribeMessageReceived(MQTTMessage &message) {
 }
 
 void MQTTSession::pingRequestMessageReceived(MQTTMessage &message) {
-    logger << logErrorMQTT << "Received ping request message from client " << clientID << "."
+    logger << logDebugMQTT << "Received ping request message from client " << clientID << "."
            << eol;
 
     MQTTPingRequestMessage pingRequestMessage(message);
