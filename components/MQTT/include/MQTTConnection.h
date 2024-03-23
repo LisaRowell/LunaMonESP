@@ -72,7 +72,7 @@ class MQTTConnection : public TaskObject, public ConnectionLink {
         // An alternative approach would be for the session to read messages after the connect
         // message itself.
         static constexpr size_t sessionMessageBufferSize = 2 * 1024;
-        static constexpr TickType_t sessionMessageBufferTimeout = pdMS_TO_TICKS(2000);
+        static constexpr TickType_t sessionMessageBufferTimeout = pdMS_TO_TICKS(10000);
         MessageBufferHandle_t sessionMessages;
 
         uint16_t keepAliveTime;
