@@ -32,6 +32,7 @@
 #include "StatsHolder.h"
 
 class DataModel;
+class StatsManager;
 
 class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
@@ -47,7 +48,7 @@ class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
         virtual void exportStats(uint32_t msElapsed) override;
 
     public:
-        NMEADataModelBridge(DataModel &dataModel);
+        NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager);
         virtual void processMessage(NMEAMessage *message) override;
 };
 

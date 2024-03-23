@@ -67,7 +67,7 @@ LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
       nmea(dataModel),
-      nmeaDataModelBridge(dataModel),
+      nmeaDataModelBridge(dataModel, statsManager),
       logManager(dataModel),
       logger(LOGGER_LEVEL_DEBUG),
       ic2Master(nullptr),

@@ -31,21 +31,23 @@
 
 #include "StatCounter.h"
 
+#include "StatsManager.h"
+
 #include "DataModel.h"
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
 
-NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel)
+NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager)
     : depthBridge(dataModel, messagesBridgedCounter),
       gpsBridge(dataModel, messagesBridgedCounter),
       nmeaDataModelBridgeNode("nmeaDataModelBridge", &dataModel.sysNode()),
       messagesBridgedLeaf("messages", &nmeaDataModelBridgeNode),
       messagesBridgedRateLeaf("messageRate", &nmeaDataModelBridgeNode) {
+    statsManager.addStatsHolder(*this);
 }
 
 void NMEADataModelBridge::processMessage(NMEAMessage *message) {
-    if (0) {
     const NMEAMsgType msgType = message->type();
     switch (msgType) {
         case NMEA_MSG_TYPE_DBK:
@@ -98,7 +100,6 @@ void NMEADataModelBridge::processMessage(NMEAMessage *message) {
             taskLogger() << logWarnNMEADataModelBridge << "Unhandled " << message->source() << " "
                          << nmeaMsgTypeName(msgType) << " message in NMEA->Data Model Bridge"
                          << eol;
-    }
     }
 }
 
