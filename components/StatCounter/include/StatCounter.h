@@ -19,7 +19,7 @@
 #ifndef STAT_COUNTER_H
 #define STAT_COUNTER_H
 
-class DataModelLeaf;
+class DataModelUInt32Leaf;
 
 #include <stdint.h>
 
@@ -32,7 +32,8 @@ class StatCounter {
         StatCounter();
         void increment();
         StatCounter operator ++ (int);
-        void update(DataModelLeaf &countLeaf, DataModelLeaf &rateLeaf, uint32_t msElapsed);
+        void update(DataModelUInt32Leaf &countLeaf, DataModelUInt32Leaf &rateLeaf,
+                    uint32_t msElapsed);
 };
 
 #endif // STAT_COUNTER_H

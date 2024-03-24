@@ -18,7 +18,7 @@
 
 #include "StatCounter.h"
 
-#include "DataModelLeaf.h"
+#include "DataModelUInt32Leaf.h"
 
 #include "TimeConstants.h"
 
@@ -39,8 +39,9 @@ StatCounter StatCounter::operator ++ (int) {
     return *this;
 }
 
-void StatCounter::update(DataModelLeaf &countLeaf, DataModelLeaf &rateLeaf, uint32_t msElapsed) {
-    countLeaf << count;
+void StatCounter::update(DataModelUInt32Leaf &countLeaf, DataModelUInt32Leaf &rateLeaf,
+                         uint32_t msElapsed) {
+    countLeaf = count;
 
     uint32_t countInInterval;
     if (count < lastIntervalCount) {
@@ -51,7 +52,7 @@ void StatCounter::update(DataModelLeaf &countLeaf, DataModelLeaf &rateLeaf, uint
     }
 
     const uint32_t eventsPerSecond = (countInInterval * msInSecond) / msElapsed;
-    rateLeaf << eventsPerSecond;
+    rateLeaf = eventsPerSecond;
 
     taskLogger() << logDebugStatsManager << "Harvested counter: " << count << " ms " << msElapsed
                  <<" " << eventsPerSecond << "/sec" << eol;
