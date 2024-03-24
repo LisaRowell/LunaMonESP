@@ -31,17 +31,11 @@
 
 DataModelLeaf::DataModelLeaf(const char *name, DataModelNode *parent)
     : DataModelElement(name, parent) {
-
-    unsigned subscriberPos;
-    for (subscriberPos = 0; subscriberPos < maxDataModelSubscribers; subscriberPos++) {
-        subscribers[subscriberPos] = NULL;
-    }
 }
 
 bool DataModelLeaf::isSubscribed(DataModelSubscriber &subscriber) {
-    unsigned subscriberPos;
-    for (subscriberPos = 0; subscriberPos < maxDataModelSubscribers; subscriberPos++) {
-        if (subscribers[subscriberPos] == &subscriber) {
+    for (DataModelLeaf::Subscription &subscription : subscriptions) {
+        if (subscription.subscriber == &subscriber) {
             return true;
         }
     }
@@ -50,27 +44,20 @@ bool DataModelLeaf::isSubscribed(DataModelSubscriber &subscriber) {
 }
 
 bool DataModelLeaf::addSubscriber(DataModelSubscriber &subscriber, uint32_t cookie) {
-    unsigned subscriberPos;
-    for (subscriberPos = 0; subscriberPos < maxDataModelSubscribers; subscriberPos++) {
-        if (subscribers[subscriberPos] == NULL) {
-            subscribers[subscriberPos] = &subscriber;
-            cookies[subscriberPos] = cookie;
-
-            parent->leafSubscribedTo();
-
-            return true;
-        }
+    if (!subscriptions.full()) {
+        subscriptions.push_back(Subscription(subscriber, cookie));
+        parent->leafSubscribedTo();
+        return true;
+    } else {
+        // This shouldn't happen if max sessions == max subscribers
+        return false;
     }
-
-    // This shouldn't happen if max sessions == max subscribers
-    return false;
 }
 
 bool DataModelLeaf::updateSubscriber(DataModelSubscriber &subscriber, uint32_t cookie) {
-    unsigned subscriberPos;
-    for (subscriberPos = 0; subscriberPos < maxDataModelSubscribers; subscriberPos++) {
-        if (subscribers[subscriberPos] == &subscriber) {
-            cookies[subscriberPos] = cookie;
+    for (DataModelLeaf::Subscription &subscription : subscriptions) {
+        if (subscription.subscriber == &subscriber) {
+            subscription.cookie = cookie;
             return true;
         }
     }
@@ -80,10 +67,10 @@ bool DataModelLeaf::updateSubscriber(DataModelSubscriber &subscriber, uint32_t c
 }
 
 void DataModelLeaf::unsubscribe(DataModelSubscriber &subscriber) {
-    unsigned subscriberPos;
-    for (subscriberPos = 0; subscriberPos < maxDataModelSubscribers; subscriberPos++) {
-        if (subscribers[subscriberPos] == &subscriber) {
-            subscribers[subscriberPos] = NULL;
+    for (auto subscriptionItr = subscriptions.begin(); subscriptionItr != subscriptions.end();) {
+        if (subscriptionItr->subscriber == &subscriber) {
+            subscriptions.erase(subscriptionItr);
+
             parent->leafUnsubscribedFrom();
 
             // We don't cache the full name of a topic, and instead store it in bits in the tree,
@@ -92,6 +79,8 @@ void DataModelLeaf::unsubscribe(DataModelSubscriber &subscriber) {
             logger() << logDebugDataModel << "Client '" << subscriber.name()
                      << "' unsubcribed from topic ending in '" << elementName() << "'" << eol;
             return;
+        } else {
+            subscriptionItr++;
         }
     }
 
@@ -139,14 +128,10 @@ DataModelLeaf & DataModelLeaf::operator << (const etl::istring &value) {
     // updates become threaded.
     parent->takeSubscriptionLock();
 
-    unsigned subscriberIndex;
-    for (subscriberIndex = 0; subscriberIndex < maxDataModelSubscribers; subscriberIndex++) {
-        DataModelSubscriber *subscriber = subscribers[subscriberIndex];
-        if (subscriber != NULL) {
-            // This could be made more efficent by building a topic name outside of this loop
-            // instead of down in the publish routine...
-            publishToSubscriber(*subscriber, value, false);
-        }
+    for (DataModelLeaf::Subscription subscription: subscriptions) {
+        // This could be made more efficent by building a topic name outside of this loop instead of
+        // down in the publish routine...
+        publishToSubscriber(*subscription.subscriber, value, false);
     }
 
     parent->releaseSubscriptionLock();
@@ -189,4 +174,8 @@ void DataModelLeaf::unsubscribeIfMatching(const char *topicFilter,
 
 void DataModelLeaf::unsubscribeAll(DataModelSubscriber &subscriber) {
     unsubscribe(subscriber);
+}
+
+DataModelLeaf::Subscription::Subscription(DataModelSubscriber &subscriber, uint32_t cookie)
+    : subscriber(&subscriber), cookie(cookie) {
 }

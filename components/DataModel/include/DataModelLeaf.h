@@ -24,6 +24,7 @@ class DataModelSubscriber;
 #include "DataModelElement.h"
 
 #include "etl/string.h"
+#include "etl/vector.h"
 
 #include <stdint.h>
 
@@ -31,8 +32,15 @@ class DataModelNode;
 
 class DataModelLeaf : public DataModelElement {
     private:
-        DataModelSubscriber *subscribers[maxDataModelSubscribers];
-        uint32_t cookies[maxDataModelSubscribers];
+        class Subscription {
+            public:
+                DataModelSubscriber *subscriber;
+                uint32_t cookie;
+
+                Subscription(DataModelSubscriber &subscriber, uint32_t cookie);
+        };
+
+        etl::vector<Subscription, maxDataModelSubscribers> subscriptions;
 
         bool addSubscriber(DataModelSubscriber &subscriber, uint32_t cookie);
 
