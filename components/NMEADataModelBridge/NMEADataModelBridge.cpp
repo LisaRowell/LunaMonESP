@@ -28,6 +28,7 @@
 #include "NMEAGSTMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEAVTGMessage.h"
+#include "NMEATXTMessage.h"
 
 #include "StatCounter.h"
 
@@ -86,8 +87,11 @@ void NMEADataModelBridge::processMessage(NMEAMessage *message) {
             gpsBridge.bridgeNMEAVTGMessage((NMEAVTGMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_GSV:
         case NMEA_MSG_TYPE_TXT:
+            logTXTMessage((NMEATXTMessage *)message);
+            break;
+
+        case NMEA_MSG_TYPE_GSV:
         case NMEA_MSG_TYPE_VDM:
         case NMEA_MSG_TYPE_VDO:
             // Currently not output to clients.
@@ -101,6 +105,15 @@ void NMEADataModelBridge::processMessage(NMEAMessage *message) {
                          << nmeaMsgTypeName(msgType) << " message in NMEA->Data Model Bridge"
                          << eol;
     }
+}
+
+void NMEADataModelBridge::logTXTMessage(NMEATXTMessage *message) {
+    // While we don't have a way of making TXT messages available in the DataModel, we output them
+    // as info log messages here to aid in debugging. Later we could trade some memory for a way to
+    // see these.
+    taskLogger() << logNotifyNMEADataModelBridge << message->source() << " TXT ("
+                 << message->sentenceNumber << "/" << message->totalSentences << ") id "
+                 << message->textIdentifier << ": " << message->text << eol;
 }
 
 void NMEADataModelBridge::exportStats(uint32_t msElapsed) {

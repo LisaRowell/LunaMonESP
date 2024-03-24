@@ -33,6 +33,8 @@
 
 class DataModel;
 class StatsManager;
+class NMEAMessage;
+class NMEATXTMessage;
 
 class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
@@ -45,6 +47,7 @@ class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
         DataModelUInt32Leaf messagesBridgedLeaf;
         DataModelUInt32Leaf messagesBridgedRateLeaf;
 
+        void logTXTMessage(NMEATXTMessage *message);
         virtual void exportStats(uint32_t msElapsed) override;
 
     public:
