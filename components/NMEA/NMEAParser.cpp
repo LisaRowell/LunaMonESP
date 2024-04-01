@@ -221,7 +221,7 @@ NMEAMessage *NMEAParser::parseVDMMessage(NMEATalker &talker, enum NMEAMsgType ms
     const size_t messageSizeInBits = decapsulator.messageBitLength();
 
     if (messageSizeInBits < 6) {
-        logger() << logNotifyNMEA << "Encapsulated VDM message from " << talker
+        logger() << logWarnNMEA << "Encapsulated VDM message from " << talker
                  << " that too small to be valid (" << messageSizeInBits << " bits)" << eol;
         return NULL;
     }
