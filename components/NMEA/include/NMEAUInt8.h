@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,17 +19,16 @@
 #ifndef NMEA_UINT8_H
 #define NMEA_UINT8_H
 
-#include "NMEALine.h"
-#include "NMEATalker.h"
-
-// #include "DataModel/DataModelUInt8Leaf.h"
-
 #include "LoggableItem.h"
-#include "Logger.h"
 
 #include "etl/string_view.h"
 
 #include <stdint.h>
+
+class NMEALine;
+class NMEATalker;
+class Logger;
+class DataModelUInt8Leaf;
 
 class NMEAUInt8 : public LoggableItem {
     private:
@@ -42,8 +41,9 @@ class NMEAUInt8 : public LoggableItem {
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false, uint8_t maxValue = 0xff);
         bool hasValue() const;
-//        void publish(DataModelUInt8Leaf &leaf) const;
+        operator uint8_t() const;
+        void publish(DataModelUInt8Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 
-#endif
+#endif // NMEA_UINT8_H

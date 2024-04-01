@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <lwip/sockets.h>
 
 #include <stdint.h>
+#include <stdio.h>
 
 Logger::Logger(LoggerLevel level)
     : logLevel(level), lineLevel(LOGGER_LEVEL_ERROR), lineModule(LOGGER_MODULE_MAIN),
@@ -309,6 +310,17 @@ Logger & Logger::operator << (bool value) {
 
     return *this;
 }
+
+Logger & Logger::operator << (float value) {
+    if (outputCurrentLine) {
+        char string[20];
+        snprintf(string, sizeof(string), "%f", value);
+        logString(string);
+    }
+
+    return *this;
+}
+
 
 Logger & Logger::operator << (esp_ip4_addr_t addr) {
     char addrStr[16];

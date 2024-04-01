@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +27,22 @@
 #include "NMEATXTMessage.h"
 #include "NMEAVDMVDOMessage.h"
 #include "NMEAVTGMessage.h"
+#include "NMEAVDMAidToNavigationMsg.h"
+
+#include "etl/algorithm.h"
 
 #include <stdint.h>
+#include <stddef.h>
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-
-#define NMEA_MESSAGE_BUFFER_SIZE \
-(MAX(MAX(MAX(MAX(sizeof(NMEAGGAMessage), sizeof(NMEAGSAMessage)), \
-             MAX(sizeof(NMEAGLLMessage), sizeof(NMEAGSTMessage))), \
-         MAX(MAX(sizeof(NMEAGSVMessage), sizeof(NMEARMCMessage)), \
-             MAX(sizeof(NMEATXTMessage), sizeof(NMEAVDMVDOMessage)))), \
-     sizeof(NMEAVTGMessage)))
+constexpr size_t NMEA_MESSAGE_BUFFER_SIZE = etl::multimax(sizeof(NMEAGGAMessage),
+                                                          sizeof(NMEAGSAMessage),
+                                                          sizeof(NMEAGLLMessage),
+                                                          sizeof(NMEAGSTMessage),
+                                                          sizeof(NMEAGSVMessage),
+                                                          sizeof(NMEARMCMessage),
+                                                          sizeof(NMEATXTMessage),
+                                                          sizeof(NMEAVDMVDOMessage),
+                                                          sizeof(NMEAVTGMessage),
+                                                          sizeof(NMEAVDMAidToNavigationMsg));
 
 uint8_t nmeaMessageBuffer[NMEA_MESSAGE_BUFFER_SIZE];

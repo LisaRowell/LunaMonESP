@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,6 @@ NMEADBSMessage::NMEADBSMessage(NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEADBSMessage::parse(NMEALine &nmeaLine) {
-    if (nmeaLine.isEncapsulatedData()) {
-        logger() << logWarnNMEA << talker << " DBS message in unsupported encapsulated format"
-                 << eol;
-        return false;
-    }
-
     if (!depthFeet.extract(nmeaLine, talker, "DBS", "Depth Feet", true)) {
         return false;
     }

@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,8 +146,10 @@ static const TalkerTableEntry talkerTable[] = {
     { "", NULL }
 };
 
-NMEATalker::NMEATalker(const etl::istring &talkerCode) {
+NMEATalker::NMEATalker() : talkerCode("??") {
+}
 
+NMEATalker::NMEATalker(const etl::istring &talkerCode) {
     if (talkerCode.is_truncated() || talkerCode.size() != 2) {
         fatalError("Bad parsing of the NMEA Talker Code");
     }
@@ -169,6 +171,10 @@ const char *NMEATalker::name() const {
     }
 
     return "Unknown";
+}
+
+bool NMEATalker::operator == (const NMEATalker &other) const {
+    return other.talkerCode == talkerCode;
 }
 
 void NMEATalker::log(Logger &logger) const {

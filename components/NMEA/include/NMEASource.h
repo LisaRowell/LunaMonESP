@@ -20,6 +20,7 @@
 #define NMEA_SOURCE_H
 
 #include "NMEALine.h"
+#include "NMEAParser.h"
 
 #include "StatCounter.h"
 
@@ -40,6 +41,7 @@ class NMEASource : StatsHolder {
         size_t remaining;
         bool carriageReturnFound;
         NMEALine inputLine;
+        NMEAParser parser;
         static const size_t maxMessageHandlers = 5;
         etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
 

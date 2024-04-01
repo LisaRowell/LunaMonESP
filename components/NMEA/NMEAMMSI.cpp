@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,28 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#include "NMEAMMSI.h"
 
-#include "NMEATalker.h"
-#include "NMEAMsgType.h"
+#include "Logger.h"
 
-class NMEALine;
+#include "etl/bit_stream.h"
+#include "etl/string.h"
 
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
+#include <stddef.h>
 
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+void NMEAMMSI::parse(etl::bit_stream_reader &streamReader) {
+    mmsi = etl::read_unchecked<uint32_t>(streamReader, 30);
+}
 
-    public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        virtual void log() const = 0;
-};
-
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
-
-#endif
+void NMEAMMSI::log(Logger &logger) const {
+    logger << mmsi;
+}

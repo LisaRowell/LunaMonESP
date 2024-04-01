@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,6 +168,7 @@ class Logger {
         Logger & operator << (int32_t value);
         Logger & operator << (int value);
         Logger & operator << (bool value);
+        Logger & operator << (float value);
         Logger & operator << (esp_ip4_addr_t addr);
         Logger & operator << (struct in_addr addr);
         Logger & operator << (struct sockaddr_in addr);

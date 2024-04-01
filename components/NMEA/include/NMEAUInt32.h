@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_UINT16_H
-#define NMEA_UINT16_H
+#ifndef NMEA_UINT32_H
+#define NMEA_UINT32_H
 
 #include "LoggableItem.h"
 
@@ -25,24 +25,24 @@
 
 class NMEALine;
 class NMEATalker;
-class DataModelUInt16Leaf;
+class DataModelUInt32Leaf;
 class Logger;
 
-class NMEAUInt16 : public LoggableItem {
+class NMEAUInt32 : public LoggableItem {
     private:
-        uint16_t value;
+        uint32_t value;
         bool valuePresent;
 
-        bool set(const etl::string_view &valueView, bool optional, uint16_t maxValue);
+        bool set(const etl::string_view &valueView, bool optional, uint32_t maxValue);
 
     public:
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
-                     const char *fieldName, bool optional = false, uint16_t maxValue = 0xffff);
+                     const char *fieldName, bool optional = false, uint32_t maxValue = 0xffffffff);
         bool hasValue() const;
-        operator uint16_t() const;
-        uint16_t getValue() const;
-        void publish(DataModelUInt16Leaf &leaf) const;
+        operator uint32_t() const;
+        uint32_t getValue() const;
+        void publish(DataModelUInt32Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 
-#endif
+#endif // NMEA_UINT32_H

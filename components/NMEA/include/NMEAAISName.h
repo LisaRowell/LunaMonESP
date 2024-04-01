@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_UINT16_H
-#define NMEA_UINT16_H
+#ifndef NMEA_AIS_NAME_H
+#define NMEA_AIS_NAME_H
 
 #include "LoggableItem.h"
 
-#include "etl/string_view.h"
+#include "etl/string.h"
+#include "etl/bit_stream.h"
 
-class NMEALine;
-class NMEATalker;
-class DataModelUInt16Leaf;
-class Logger;
+#include <stddef.h>
+#include <stdint.h>
 
-class NMEAUInt16 : public LoggableItem {
+class NMEAAISName : public LoggableItem {
     private:
-        uint16_t value;
-        bool valuePresent;
+        static constexpr size_t MAX_NAME_BASE_SIZE = 20;
+        static constexpr size_t MAX_NAME_EXTENSION_SIZE = 14;
+        static constexpr size_t MAX_NAME_SIZE = MAX_NAME_BASE_SIZE + MAX_NAME_EXTENSION_SIZE;
 
-        bool set(const etl::string_view &valueView, bool optional, uint16_t maxValue);
+        etl::string<MAX_NAME_SIZE> name;
+
+        char codeToChar(char sixBitCode) const;
+        virtual void log(Logger &logger) const override;
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
-                     const char *fieldName, bool optional = false, uint16_t maxValue = 0xffff);
-        bool hasValue() const;
-        operator uint16_t() const;
-        uint16_t getValue() const;
-        void publish(DataModelUInt16Leaf &leaf) const;
-        virtual void log(Logger &logger) const override;
+        NMEAAISName();
+        void parse(etl::bit_stream_reader &streamReader);
+        void parseExtension(etl::bit_stream_reader &streamReader, uint8_t characters);
 };
 
-#endif
+#endif // NMEA_AIS_NAME_H

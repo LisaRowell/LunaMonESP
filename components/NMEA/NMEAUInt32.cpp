@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
 
 #include "NMEALine.h"
 #include "NMEATalker.h"
-#include "NMEAUInt16.h"
+#include "NMEAUInt32.h"
 
-#include "DataModelUInt16Leaf.h"
+#include "DataModelUInt32Leaf.h"
 #include "Logger.h"
 #include "CharacterTools.h"
 #include "StringTools.h"
@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-bool NMEAUInt16::set(const etl::string_view &valueView, bool optional, uint16_t maxValue) {
+bool NMEAUInt32::set(const etl::string_view &valueView, bool optional, uint32_t maxValue) {
     const size_t length = valueView.size();
     if (length == 0) {
         if (!optional) {
@@ -43,7 +43,7 @@ bool NMEAUInt16::set(const etl::string_view &valueView, bool optional, uint16_t 
         return true;
     }
 
-    if (!extractUInt16FromStringView(valueView, 0, length, value, maxValue)) {
+    if (!extractUInt32FromStringView(valueView, 0, length, value, maxValue)) {
         valuePresent = false;
         return false;
     }
@@ -52,8 +52,8 @@ bool NMEAUInt16::set(const etl::string_view &valueView, bool optional, uint16_t 
     return true;
 }
 
-bool NMEAUInt16::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
-                         const char *fieldName, bool optional, uint16_t maxValue) {
+bool NMEAUInt32::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+                         const char *fieldName, bool optional, uint32_t maxValue) {
     etl::string_view valueView;
     if (!nmeaLine.getWord(valueView)) {
         if (!optional) {
@@ -76,27 +76,27 @@ bool NMEAUInt16::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msg
     return true;
 }
 
-bool NMEAUInt16::hasValue() const {
+bool NMEAUInt32::hasValue() const {
     return valuePresent;
 }
 
-NMEAUInt16::operator uint16_t() const {
+NMEAUInt32::operator uint32_t() const {
     if (!valuePresent) {
-        fatalError("Attempt to read value from NMEAUInt16 with value not present");
+        fatalError("Attempt to read value from NMEAUInt32 with value not present");
     }
 
     return value;
 }
 
-uint16_t NMEAUInt16::getValue() const {
+uint32_t NMEAUInt32::getValue() const {
     if (!valuePresent) {
-        fatalError("Attempt to read value from NMEAUInt16 with value not present");
+        fatalError("Attempt to read value from NMEAUInt32 with value not present");
     }
 
     return value;
 }
 
-void NMEAUInt16::publish(DataModelUInt16Leaf &leaf) const {
+void NMEAUInt32::publish(DataModelUInt32Leaf &leaf) const {
     if (valuePresent) {
         leaf = value;
     } else {
@@ -104,7 +104,7 @@ void NMEAUInt16::publish(DataModelUInt16Leaf &leaf) const {
     }
 }
 
-void NMEAUInt16::log(Logger &logger) const {
+void NMEAUInt32::log(Logger &logger) const {
     if (valuePresent) {
         logger << value;
     } else {

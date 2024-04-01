@@ -18,6 +18,7 @@
 
 #include "NMEASource.h"
 #include "NMEALine.h"
+#include "NMEAParser.h"
 #include "NMEAMessage.h"
 #include "NMEAMessageHandler.h"
 
@@ -161,7 +162,7 @@ void NMEASource::lineCompleted() {
         return;
     }
 
-    NMEAMessage *nmeaMessage = parseNMEAMessage(inputLine);
+    NMEAMessage *nmeaMessage = parser.parseLine(inputLine);
     if (nmeaMessage != NULL) {
         nmeaMessage->log();
 

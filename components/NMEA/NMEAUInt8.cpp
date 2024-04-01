@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "NMEALine.h"
+#include "NMEATalker.h"
 #include "NMEAUInt8.h"
+
+#include "DataModelUInt8Leaf.h"
 
 #include "Logger.h"
 #include "CharacterTools.h"
 #include "StringTools.h"
+#include "Error.h"
 
 #include "etl/string_view.h"
 #include "etl/to_arithmetic.h"
@@ -81,7 +86,14 @@ bool NMEAUInt8::hasValue() const {
     return valuePresent;
 }
 
-#if 0
+NMEAUInt8::operator uint8_t() const {
+    if (!valuePresent) {
+        fatalError("Attempt to read value from NMEAUInt8 with value not present");
+    }
+
+    return value;
+}
+
 void NMEAUInt8::publish(DataModelUInt8Leaf &leaf) const {
     if (valuePresent) {
         leaf = value;
@@ -89,7 +101,6 @@ void NMEAUInt8::publish(DataModelUInt8Leaf &leaf) const {
         leaf.removeValue();
     }
 }
-#endif
 
 void NMEAUInt8::log(Logger &logger) const {
     if (valuePresent) {

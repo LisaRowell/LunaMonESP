@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +31,6 @@ NMEAGSAMessage::NMEAGSAMessage(NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
-    if (nmeaLine.isEncapsulatedData()) {
-        logger() << logWarnNMEA << talker << " GSA message in unsupported encapsulated format"
-                 << eol;
-        return false;
-    }
-
     etl::string_view manualOrAutomaticModeView;
     if (!nmeaLine.getWord(manualOrAutomaticModeView)) {
         logger() << logWarnNMEA << talker
