@@ -67,8 +67,8 @@ enum NMEAMsgType NMEAVDMAidToNavigationMsg::type() const {
 }
 
 void NMEAVDMAidToNavigationMsg::log() const {
-    logger() << "VDM Aid-To-Navigation: Repeat " << repeatIndicator << " MMSI " << mmsi << " "
-             << navAidType << " " << name << " "
+    logger() << logDebugNMEA << "VDM Aid-To-Navigation: Repeat " << repeatIndicator << " MMSI "
+             << mmsi << " " << navAidType << " " << name << " "
              << (float)longitudeTenThousandsNM / 600000 << ","
              << (float)latitudeTenThousandsNM / 600000 << eol;
 }
