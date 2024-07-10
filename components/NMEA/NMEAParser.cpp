@@ -32,7 +32,6 @@
 #include "NMEAGSVMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEATXTMessage.h"
-#include "NMEAVDMVDOMessage.h"
 #include "NMEAVTGMessage.h"
 #include "NMEAAISMsgType.h"
 #include "NMEAVDMAidToNavigationMsg.h"
