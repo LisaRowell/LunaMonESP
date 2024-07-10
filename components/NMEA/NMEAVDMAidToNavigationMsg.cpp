@@ -39,8 +39,8 @@ bool NMEAVDMAidToNavigationMsg::parse(etl::bit_stream_reader &streamReader,
     navAidType.parse(streamReader);
     name.parse(streamReader);
     positionAccuracy = etl::read_unchecked<bool>(streamReader);
-    longitudeTenThousandsNM = etl::read_unchecked<int32_t>(streamReader, 28);
-    latitudeTenThousandsNM = etl::read_unchecked<int32_t>(streamReader, 27);
+    longitudeTenThousandsMin = etl::read_unchecked<int32_t>(streamReader, 28);
+    latitudeTenThousandsMin = etl::read_unchecked<int32_t>(streamReader, 27);
     dimensionToBowM = etl::read_unchecked<uint16_t>(streamReader, 9);
     dimensionToSternM = etl::read_unchecked<uint16_t>(streamReader, 9);
     dimensionToPortM = etl::read_unchecked<uint8_t>(streamReader, 6);
@@ -69,6 +69,6 @@ enum NMEAMsgType NMEAVDMAidToNavigationMsg::type() const {
 void NMEAVDMAidToNavigationMsg::log() const {
     logger() << logDebugNMEA << "VDM Aid-To-Navigation: Repeat " << repeatIndicator << " MMSI "
              << mmsi << " " << navAidType << " " << name << " "
-             << (float)longitudeTenThousandsNM / 600000 << ","
-             << (float)latitudeTenThousandsNM / 600000 << eol;
+             << (float)longitudeTenThousandsMin / 600000 << ","
+             << (float)latitudeTenThousandsMin / 600000 << eol;
 }

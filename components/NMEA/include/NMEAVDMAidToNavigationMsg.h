@@ -39,8 +39,8 @@ class NMEAVDMAidToNavigationMsg : public NMEAMessage {
         NMEANavAidType navAidType;
         NMEAAISName name;
         bool positionAccuracy;
-        int32_t longitudeTenThousandsNM;
-        int32_t latitudeTenThousandsNM;
+        int32_t longitudeTenThousandsMin;
+        int32_t latitudeTenThousandsMin;
         uint16_t dimensionToBowM;
         uint16_t dimensionToSternM;
         uint8_t dimensionToPortM;
