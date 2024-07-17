@@ -63,6 +63,7 @@ void NMEADecapsulator::addFragment(NMEATalker &talker, enum NMEAMsgType msgType,
         messageMsgType = msgType;
         messageFragmentCount = fragmentCount;
         messageID = messageIdOrZero;
+        decapsulationInProgress = true;
     }
 
     lastFragmentIndex = fragmentIndex;
