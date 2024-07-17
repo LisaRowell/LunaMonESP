@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#ifndef NMEA_VDO_MESSAGE_H
+#define NMEA_VDO_MESSAGE_H
 
-#include "NMEATalker.h"
+#include "NMEAVDMVDOMessage.h"
 #include "NMEAMsgType.h"
 
-class NMEALine;
+#include "etl/bit_stream.h"
 
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
+#include "stddef.h"
 
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+class NMEATalker;
 
+class NMEAVDOMessage : public NMEAVDMVDOMessage {
     public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
+        NMEAVDOMessage(NMEATalker &talker);
+        virtual enum NMEAMsgType type() const override;
+        virtual void log() const override;
 };
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
+extern NMEAVDOMessage *parseVDOMessage(NMEATalker &talker, etl::bit_stream_reader &streamReader,
+                                       size_t messageSizeInBits, AISContacts &aisContacts);  
 
-#endif
+#endif // NMEA_VDO_MESSAGE_H

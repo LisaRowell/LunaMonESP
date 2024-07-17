@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#ifndef AIS_CONTACT_H
+#define AIS_CONTACT_H
 
-#include "NMEATalker.h"
-#include "NMEAMsgType.h"
+#include "AISMMSI.h"
+#include "AISName.h"
+#include "AISShipType.h"
+#include "AISShipDimensions.h"
 
-class NMEALine;
-
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
-
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+class AISContact {
+    private:
+        AISMMSI mmsi;
+        AISName name;
+        AISShipType shipType;
+        AISShipDimensions dimensions;
 
     public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
+        AISContact(AISMMSI &mmsi);
+        void setName(AISName &name);
+        void setShipType(AISShipType &shipType);
+        void setDimensions(AISShipDimensions &dimensions);
+        void dump(Logger &logger) const;
 };
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
-
-#endif
+#endif // AIS_CONTACT_H

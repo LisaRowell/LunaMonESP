@@ -16,32 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_AIS_NAME_H
-#define NMEA_AIS_NAME_H
+#ifndef AIS_MMSI_H
+#define AIS_MMSI_H
 
-#include "LoggableItem.h"
-
-#include "etl/string.h"
 #include "etl/bit_stream.h"
 
-#include <stddef.h>
 #include <stdint.h>
 
-class NMEAAISName : public LoggableItem {
+class Logger;
+
+class AISMMSI {
     private:
-        static constexpr size_t MAX_NAME_BASE_SIZE = 20;
-        static constexpr size_t MAX_NAME_EXTENSION_SIZE = 14;
-        static constexpr size_t MAX_NAME_SIZE = MAX_NAME_BASE_SIZE + MAX_NAME_EXTENSION_SIZE;
-
-        etl::string<MAX_NAME_SIZE> name;
-
-        char codeToChar(char sixBitCode) const;
-        virtual void log(Logger &logger) const override;
+        uint32_t mmsi;
 
     public:
-        NMEAAISName();
-        void parse(etl::bit_stream_reader &streamReader);
-        void parseExtension(etl::bit_stream_reader &streamReader, uint8_t characters);
+        AISMMSI();
+        AISMMSI(uint32_t mmsi);
+        AISMMSI(etl::bit_stream_reader &streamReader);
+        void set(etl::bit_stream_reader &streamReader);
+        bool isSet() const;
+        bool isAuxiliaryCraft() const;
+        bool operator < (const AISMMSI &rhs) const;
+
+        friend Logger & operator << (Logger &logger, const AISMMSI &mmsi);
 };
 
-#endif // NMEA_AIS_NAME_H
+#endif // AIS_MMSI_H

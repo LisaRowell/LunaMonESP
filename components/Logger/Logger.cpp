@@ -47,6 +47,7 @@ Logger::Logger(LoggerLevel level)
     moduleDebugFlags[LOGGER_MODULE_NMEA_DATA_MODEL_BRIDGE]
         = CONFIG_LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_WIFI] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_WIFI_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_AIS] = CONFIG_LUNAMON_DEBUG_MODULE_AIS_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_WIFI_MANAGER] = CONFIG_LUNAMON_DEBUG_MODULE_WIFI_MANAGER_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_STATS_MANAGER]
         = CONFIG_LUNAMON_DEBUG_MODULE_STATS_MANAGER_ENABLED;
@@ -70,6 +71,10 @@ void Logger::enableModuleDebug(LoggerModule module) {
 
 void Logger::disableModuleDebug(LoggerModule module) {
     moduleDebugFlags[module] = false;
+}
+
+bool Logger::debugEnabled(LoggerModule module) {
+    return moduleDebugFlags[module];
 }
 
 __thread Logger *threadSpecificLogger;
@@ -393,6 +398,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "Data Model Bridge";
         case LOGGER_MODULE_NMEA_WIFI:
             return "NMEA WiFi";
+        case LOGGER_MODULE_AIS:
+            return "AIS";
         case LOGGER_MODULE_WIFI_MANAGER:
             return "WiFi Manager";
         case LOGGER_MODULE_STATS_MANAGER:

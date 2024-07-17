@@ -16,35 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_PARSER_H
-#define NMEA_PARSER_H
-
+#include "NMEAVDMVDOMessage.h"
+#include "NMEAMessage.h"
 #include "NMEATalker.h"
-#include "NMEAMsgType.h"
-#include "NMEADecapsulator.h"
+
+#include "Logger.h"
 
 #include "etl/bit_stream.h"
 
 #include <stddef.h>
 
-class AISContacts;
-class NMEAMessage;
-class NMEALine;
+NMEAVDMVDOMessage::NMEAVDMVDOMessage(NMEATalker &talker) : NMEAMessage(talker) {
+}
 
-class NMEAParser {
-    private:
-        NMEADecapsulator decapsulator;
-        AISContacts &aisContacts;
+bool NMEAVDMVDOMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeInBits,
+                              bool ownShip, AISContacts &aisContacts) {
+    if (!aisMessage.parse(streamReader, messageSizeInBits, ownShip, aisContacts)) {
+        logger() << logWarnNMEA << "Failed to parse " << source() << " " << typeName()
+                 << " message" << eol;
+        return false;
+    }
 
-        NMEAMessage *parseUnencapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
-                                             NMEALine &nmeaLine);
-        NMEAMessage *parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
-                                           NMEALine &nmeaLine);
-        NMEAMessage *parseEncapsulatedMessage(NMEATalker &talker, enum NMEAMsgType msgType);
+    return true;
+}
 
-    public:
-        NMEAParser(AISContacts &aisContacts);
-        NMEAMessage *parseLine(NMEALine &nmeaLine);
-};
-
-#endif // NMEA_PARSER_H
+void NMEAVDMVDOMessage::logAIS(const char *nmeaMsgTypeName) const{
+    aisMessage.log(nmeaMsgTypeName);
+}

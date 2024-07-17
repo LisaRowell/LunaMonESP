@@ -25,6 +25,8 @@
 #include "DataModelStringLeaf.h"
 #include "DataModelUInt32Leaf.h"
 
+#include "AISContacts.h"
+
 #include "WiFiManager.h"
 #include "MQTTBroker.h"
 #include "NMEA.h"
@@ -43,6 +45,7 @@ class LunaMon {
     private:
         StatsManager statsManager;
         DataModel dataModel;
+        AISContacts aisContacts;
         WiFiManager wifiManager;
         MQTTBroker mqttBroker;
         NMEA nmea;

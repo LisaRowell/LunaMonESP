@@ -1,3 +1,3 @@
 idf_component_register(SRCS "NMEAWiFiSource.cpp"
                        INCLUDE_DIRS "include"
-                       REQUIRES TaskObject WiFiManager NMEA DataModel Logger)
+                       REQUIRES TaskObject WiFiManager NMEA AIS DataModel Logger)

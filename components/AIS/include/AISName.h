@@ -16,35 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_PARSER_H
-#define NMEA_PARSER_H
+#ifndef AIS_NAME_H
+#define AIS_NAME_H
 
-#include "NMEATalker.h"
-#include "NMEAMsgType.h"
-#include "NMEADecapsulator.h"
+#include "LoggableItem.h"
 
+#include "etl/string.h"
 #include "etl/bit_stream.h"
 
 #include <stddef.h>
+#include <stdint.h>
 
-class AISContacts;
-class NMEAMessage;
-class NMEALine;
-
-class NMEAParser {
+class AISName : public LoggableItem {
     private:
-        NMEADecapsulator decapsulator;
-        AISContacts &aisContacts;
+        static constexpr size_t MAX_NAME_BASE_SIZE = 20;
+        static constexpr size_t MAX_NAME_EXTENSION_SIZE = 14;
+        static constexpr size_t MAX_NAME_SIZE = MAX_NAME_BASE_SIZE + MAX_NAME_EXTENSION_SIZE;
 
-        NMEAMessage *parseUnencapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
-                                             NMEALine &nmeaLine);
-        NMEAMessage *parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
-                                           NMEALine &nmeaLine);
-        NMEAMessage *parseEncapsulatedMessage(NMEATalker &talker, enum NMEAMsgType msgType);
+        etl::string<MAX_NAME_SIZE> name;
+
+        char codeToChar(char sixBitCode) const;
+        virtual void log(Logger &logger) const override;
 
     public:
-        NMEAParser(AISContacts &aisContacts);
-        NMEAMessage *parseLine(NMEALine &nmeaLine);
+        AISName();
+        AISName(etl::bit_stream_reader &streamReader);
+        void parse(etl::bit_stream_reader &streamReader);
+        void parseExtension(etl::bit_stream_reader &streamReader, uint8_t characters);
+        AISName & operator = (const AISName &other);
 };
 
-#endif // NMEA_PARSER_H
+#endif // AIS_NAME_H

@@ -16,17 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAAISName.h"
+#include "AISName.h"
 
 #include "Logger.h"
 
 #include "etl/string.h"
 #include "etl/bit_stream.h"
 
-NMEAAISName::NMEAAISName() : name("Unset") {
+AISName::AISName() : name("Unset") {
 }
 
-void NMEAAISName::parse(etl::bit_stream_reader &streamReader) {
+AISName::AISName(etl::bit_stream_reader &streamReader) {
+    parse(streamReader);
+}
+
+void AISName::parse(etl::bit_stream_reader &streamReader) {
     name.clear();
 
     for (unsigned characters = MAX_NAME_BASE_SIZE; characters; characters--) {
@@ -45,7 +49,7 @@ void NMEAAISName::parse(etl::bit_stream_reader &streamReader) {
     }
 }
 
-void NMEAAISName::parseExtension(etl::bit_stream_reader &streamReader, uint8_t characters) {
+void AISName::parseExtension(etl::bit_stream_reader &streamReader, uint8_t characters) {
     while (characters--) {
         const char sixBitCode = etl::read_unchecked<char>(streamReader, 6);
         const char character = codeToChar(sixBitCode);
@@ -60,7 +64,7 @@ void NMEAAISName::parseExtension(etl::bit_stream_reader &streamReader, uint8_t c
     }
 }
 
-char NMEAAISName::codeToChar(char sixBitCode) const {
+char AISName::codeToChar(char sixBitCode) const {
     if (sixBitCode < 32) {
         return sixBitCode + '@';
     } else {
@@ -68,6 +72,11 @@ char NMEAAISName::codeToChar(char sixBitCode) const {
     }
 }
 
-void NMEAAISName::log(Logger &logger) const {
+void AISName::log(Logger &logger) const {
     logger << name;
+}
+
+AISName &AISName::operator= (const AISName &other) {
+    this->name = other.name;
+    return *this;
 }

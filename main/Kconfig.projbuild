@@ -253,6 +253,16 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_DEBUG_MODULE_NMEA_WIFI
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_WIFI
 
+    config LUNAMON_DEBUG_MODULE_AIS
+            bool "Debug AIS"
+            help
+                Whether or not to debug the AIS module.
+
+        config LUNAMON_DEBUG_MODULE_AIS_ENABLED
+            int
+            default 1 if LUNAMON_DEBUG_MODULE_AIS
+            default 0 if !LUNAMON_DEBUG_MODULE_AIS
+
     config LUNAMON_DEBUG_MODULE_WIFI_MANAGER
         bool "Debug WiFiManager"
         help

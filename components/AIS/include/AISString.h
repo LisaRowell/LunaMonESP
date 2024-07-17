@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#ifndef AIS_STRING_H
+#define AIS_STRING_H
 
-#include "NMEATalker.h"
-#include "NMEAMsgType.h"
+#include "etl/string.h"
+#include "etl/bit_stream.h"
 
-class NMEALine;
+#include <stddef.h>
 
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
+class Logger;
 
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+class AISString {
+    private:
+        etl::string_ext string;
+
+        char codeToChar(char sixBitCode) const;
 
     public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
+        // Note that the size of the buffer must by at least maxLength+1 bytes.
+        AISString(char *buffer, size_t maxLength);
+        AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
+
+        friend Logger & operator << (Logger &logger, const AISString &aisString);
 };
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
-
-#endif
+#endif // AIS_STRING_H

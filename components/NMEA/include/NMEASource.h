@@ -30,6 +30,7 @@
 
 #include <stddef.h>
 
+class AISContacts;
 class NMEAMessageHandler;
 class DataModelUInt32Leaf;
 class StatsManager;
@@ -59,8 +60,8 @@ class NMEASource : StatsHolder {
         void processNMEAStream(int sock);
 
     public:
-        NMEASource(DataModelUInt32Leaf &messagesLeaf, DataModelUInt32Leaf &messageRateLeaf,
-                   StatsManager &statsManager);
+        NMEASource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,
+                   DataModelUInt32Leaf &messageRateLeaf, StatsManager &statsManager);
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 

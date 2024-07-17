@@ -36,11 +36,12 @@
 #include <string.h>
 #include <sys/socket.h>
 
-NMEASource::NMEASource(DataModelUInt32Leaf &messagesLeaf, DataModelUInt32Leaf &messageRateLeaf,
-                       StatsManager &statsManager)
+NMEASource::NMEASource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,
+                       DataModelUInt32Leaf &messageRateLeaf, StatsManager &statsManager)
     : bufferPos(0),
       remaining(0),
       carriageReturnFound(false),
+      parser(aisContacts),
       messageHandlers(),
       messagesLeaf(messagesLeaf),
       messageRateLeaf(messageRateLeaf) {

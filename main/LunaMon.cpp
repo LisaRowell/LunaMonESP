@@ -22,6 +22,7 @@
 #include "DataModel.h"
 #include "DataModelStringLeaf.h"
 #include "DataModelUInt32Leaf.h"
+#include "AISContacts.h"
 #include "NMEA.h"
 #include "NMEAWiFiSource.h"
 #include "NMEADataModelBridge.h"
@@ -89,7 +90,8 @@ LunaMon::LunaMon()
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
         nmeaWiFiSource = new NMEAWiFiSource(wifiManager, statsManager,
                                             CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
-                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT, nmea);
+                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT, nmea,
+                                            aisContacts);
         if (nmeaWiFiSource) {
             nmeaWiFiSource->addMessageHandler(nmeaDataModelBridge);
         } else {
@@ -114,6 +116,7 @@ void LunaMon::run() {
 
     statsManager.start();
     dataModel.start();
+    aisContacts.start();
     wifiManager.start();
     mqttBroker.start();
 

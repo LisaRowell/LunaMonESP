@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#include "AISContact.h"
 
-#include "NMEATalker.h"
-#include "NMEAMsgType.h"
+#include "Logger.h"
 
-class NMEALine;
+AISContact::AISContact(AISMMSI &mmsi) : mmsi(mmsi) {
+}
 
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
+void AISContact::setName(AISName &name) {
+    this->name = name;
+}
 
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+void AISContact::setShipType(AISShipType &shipType) {
+    this->shipType = shipType;
+}
 
-    public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
-};
+void AISContact::setDimensions(AISShipDimensions &dimensions) {
+    this->dimensions = dimensions;
+}
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
-
-#endif
+void AISContact::dump(Logger &logger) const {
+    logger << "    " << mmsi << " " << name << " " << shipType << " " << dimensions << eol;
+}

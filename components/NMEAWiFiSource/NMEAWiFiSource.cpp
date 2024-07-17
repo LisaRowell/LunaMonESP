@@ -24,6 +24,8 @@
 
 #include "NMEA.h"
 
+#include "AISContacts.h"
+
 #include "DataModelNode.h"
 #include "DataModelBoolLeaf.h"
 
@@ -38,10 +40,11 @@
 #include <string.h>
 
 NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsManager,
-                               const char *ipv4Addr, uint16_t tcpPort, NMEA &nmea)
+                               const char *ipv4Addr, uint16_t tcpPort, NMEA &nmea,
+                               AISContacts &aisContacts)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager),
-      NMEASource(messagesLeaf, messageRateLeaf, statsManager),
+      NMEASource(aisContacts, messagesLeaf, messageRateLeaf, statsManager),
       ipv4Addr(ipv4Addr), tcpPort(tcpPort),
       nmeaWiFiNode("wifi", &nmea.nmeaNode()),
       stateLeaf("state", &nmeaWiFiNode),

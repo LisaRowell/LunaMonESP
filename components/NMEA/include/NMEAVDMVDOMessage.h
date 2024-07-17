@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#ifndef NMEA_VDM_VDO_MESSAGE_H
+#define NMEA_VDM_VDO_MESSAGE_H
 
-#include "NMEATalker.h"
+#include "NMEAMessage.h"
 #include "NMEAMsgType.h"
 
-class NMEALine;
+#include "AISMessage.h"
 
-class NMEAMessage {
+#include "etl/bit_stream.h"
+
+#include "stddef.h"
+
+class NMEATalker;
+
+class NMEAVDMVDOMessage : public NMEAMessage {
+    private:
+        AISMessage aisMessage;
+
     protected:
-        NMEATalker talker;
-
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+        void logAIS(const char *nmeaMsgTypeName) const;
 
     public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
+        NMEAVDMVDOMessage(NMEATalker &talker);
+        bool parse(etl::bit_stream_reader &streamReader, size_t messageSizeInBits, bool ownShip,
+                   AISContacts &aisContacts);
 };
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
-
-#endif
+#endif // NMEA_VDM_VDO_MESSAGE_H

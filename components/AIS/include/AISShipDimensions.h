@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#ifndef AIS_SHIP_DIMENSIONS_H
+#define AIS_SHIP_DIMENSIONS_H
 
-#include "NMEATalker.h"
-#include "NMEAMsgType.h"
+#include "etl/bit_stream.h"
 
-class NMEALine;
+#include <stdint.h>
 
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
+class Logger;
 
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord);
+class AISShipDimensions {
+    private:
+        uint16_t _lengthM;
+        uint8_t _widthM;
+        static constexpr uint16_t LARGE_VESSEL_LENGTH = 511;
+        static constexpr uint8_t LARGE_VESSEL_WIDTH = 63;
 
     public:
-        NMEAMessage(NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
+        AISShipDimensions();
+        AISShipDimensions(etl::bit_stream_reader &streamReader);
+        void set(etl::bit_stream_reader &streamReader);
+        bool isSet() const;
+        uint16_t lengthM() const;
+        uint8_t widthM() const;
+
+        friend Logger & operator << (Logger &logger, const AISShipDimensions &dimensions);
 };
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
-
-#endif
+#endif // AIS_SHIP_DIMENSIONS_H

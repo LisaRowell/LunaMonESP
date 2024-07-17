@@ -16,76 +16,93 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAAISMsgType.h"
+#include "AISMsgType.h"
 
+#include "Logger.h"
+
+#include "etl/bit_stream.h"
+
+#include <stddef.h>
 #include <stdint.h>
 
-enum NMEAAISMsgType parseNMEAAISMsgType(uint8_t msgTypeCode) {
-    if (msgTypeCode < NMEA_AIS_MSG_TYPE_COUNT) {
-        return (enum NMEAAISMsgType)msgTypeCode;
+AISMsgType::AISMsgType() {
+    value = UNKNOWN;
+}
+
+void AISMsgType::parse(etl::bit_stream_reader &streamReader) {
+    const uint8_t messageTypeCode = etl::read_unchecked<uint8_t>(streamReader, 6);
+
+    if (messageTypeCode < COUNT) {
+        value = (enum AISMsgType::Value)messageTypeCode;
     } else {
-        return NMEA_AIS_MSG_TYPE_UNKNOWN;
+        value = UNKNOWN;
     }
 }
 
-const char *nmeaAISMsgTypeName(NMEAAISMsgType aisMsgType) {
-    switch (aisMsgType) {
-        case NMEA_AIS_MSG_TYPE_POS_REPORT_CLASS_A:
+const char *AISMsgType::name() const {
+    switch (value) {
+        case POS_REPORT_CLASS_A:
             return "Position Report Class A";
-        case NMEA_AIS_MSG_TYPE_POS_REPORT_CLASS_A_ASS_SCHED:
+        case POS_REPORT_CLASS_A_ASS_SCHED:
             return "Position Report Class A (Assigned schedule)";
-        case NMEA_AIS_MSG_TYPE_POS_REPORT_CLASS_A_RESPONSE:
+        case POS_REPORT_CLASS_A_RESPONSE:
             return "Position Report Class A (Response to interrogation)";
-        case NMEA_AIS_MSG_TYPE_BASE_STATION_REPORT:
+        case BASE_STATION_REPORT:
             return "Base Station Report";
-        case NMEA_AIS_MSG_TYPE_STATIC_AND_VOYAGE_DATA:
+        case STATIC_AND_VOYAGE_DATA:
             return "Static and Voyage Related Data";
-        case NMEA_AIS_MSG_TYPE_BINARY_ADDRESSED_MSG:
+        case BINARY_ADDRESSED_MSG:
             return "Binary Addressed Message";
-        case NMEA_AIS_MSG_TYPE_BINARY_ACKNOWLEDGE:
+        case BINARY_ACKNOWLEDGE:
             return "Binary Acknowledge";
-        case NMEA_AIS_MSG_TYPE_BINARY_BROADCAST_MSG:
+        case BINARY_BROADCAST_MSG:
             return "Binary Broadcast Message";
-        case NMEA_AIS_MSG_TYPE_STD_SAR_AIRCRAFT_POS_REPORT:
+        case STD_SAR_AIRCRAFT_POS_REPORT:
             return "Standard SAR Aircraft Position Report";
-        case NMEA_AIS_MSG_TYPE_UTC_AND_DATE_INQUIRY:
+        case UTC_AND_DATE_INQUIRY:
             return "UTC and Date Inquiry";
-        case NMEA_AIS_MSG_TYPE_UTC_AND_DATE_RESPONSE:
+        case UTC_AND_DATE_RESPONSE:
             return "UTC and Date Response";
-        case NMEA_AIS_MSG_TYPE_ADDRESSED_SAFETY_RELATED_MSG:
+        case ADDRESSED_SAFETY_RELATED_MSG:
             return "Addressed Safety Related Message";
-        case NMEA_AIS_MSG_TYPE_SAFETY_RELATED_ACKNOWLEDGEMENT:
+        case SAFETY_RELATED_ACKNOWLEDGEMENT:
             return "Safety Related Acknowledgement";
-        case NMEA_AIS_MSG_TYPE_SAFETY_RELATED_BROADCAST_MSG:
+        case SAFETY_RELATED_BROADCAST_MSG:
             return "Safety Related Broadcast Message";
-        case NMEA_AIS_MSG_TYPE_INTERROGATION:
+        case INTERROGATION:
             return "Interrogation";
-        case NMEA_AIS_MSG_TYPE_ASSIGNMENT_MODE_CMD:
+        case ASSIGNMENT_MODE_CMD:
             return "Assignment Mode Command";
-        case NMEA_AIS_MSG_TYPE_DGNSS_BINARY_BROADCAST_MSG:
+        case DGNSS_BINARY_BROADCAST_MSG:
             return "DGNSS Binary Broadcast Message";
-        case NMEA_AIS_MSG_TYPE_STANDARD_CLASS_B_POS_REPORT:
+        case STANDARD_CLASS_B_POS_REPORT:
             return "Standard Class B CS Position Report";
-        case NMEA_AIS_MSG_TYPE_EXTENDED_CLASS_B_POS_REPORT:
+        case EXTENDED_CLASS_B_POS_REPORT:
             return "Extended Class B Equipment Position Report";
-        case NMEA_AIS_MSG_TYPE_DATA_LINK_MANAGEMENT:
+        case DATA_LINK_MANAGEMENT:
             return "Data Link Management";
-        case NMEA_AIS_MSG_TYPE_AID_TO_NAVIGATION_REPORT:
+        case AID_TO_NAVIGATION_REPORT:
             return "Aid-to-Navigation Report";
-        case NMEA_AIS_MSG_TYPE_CHANNEL_MANAGEMENT:
+        case CHANNEL_MANAGEMENT:
             return "Channel Management";
-        case NMEA_AIS_MSG_TYPE_GROUP_ASSIGNMENT_CMD:
+        case GROUP_ASSIGNMENT_CMD:
             return "Group Assignment Command";
-        case NMEA_AIS_MSG_TYPE_STATIC_DATA_REPORT:
+        case STATIC_DATA_REPORT:
             return "Static Data Report";
-        case NMEA_AIS_MSG_TYPE_SINGLE_SLOT_BINARY_MSG:
+        case SINGLE_SLOT_BINARY_MSG:
             return "Single Slot Binary Message";
-        case NMEA_AIS_MSG_TYPE_MULTI_SLOT_BINARY_MSG:
+        case MULTI_SLOT_BINARY_MSG:
             return "Multiple Slot Binary Message With Communications State";
-        case NMEA_AIS_MSG_TYPE_POS_REPORT_LONG_RANGE_APPS:
+        case POS_REPORT_LONG_RANGE_APPS:
             return "Position Report For Long-Range Applications";
-        case NMEA_AIS_MSG_TYPE_UNKNOWN:
+        case UNKNOWN:
         default:
             return "Unknown";
     }
+}
+
+Logger & operator << (Logger &logger, const AISMsgType &aisMsgType) {
+    logger << aisMsgType.name();
+
+    return logger;
 }

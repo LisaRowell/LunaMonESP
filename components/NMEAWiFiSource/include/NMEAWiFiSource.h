@@ -33,6 +33,7 @@
 class WiFiManager;
 class StatsManager;
 class NMEA;
+class AISContacts;
 
 class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
     private:
@@ -53,7 +54,7 @@ class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
 
     public:
         NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsManager, const char *ipv4Addr,
-                       uint16_t tcpPort, NMEA &nmea);
+                       uint16_t tcpPort, NMEA &nmea, AISContacts &aisContacts);
 };
 
 #endif

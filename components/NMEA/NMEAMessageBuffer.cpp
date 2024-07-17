@@ -25,8 +25,9 @@
 #include "NMEAGSVMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEATXTMessage.h"
+#include "NMEAVDMMessage.h"
+#include "NMEAVDOMessage.h"
 #include "NMEAVTGMessage.h"
-#include "NMEAVDMAidToNavigationMsg.h"
 
 #include "etl/algorithm.h"
 
@@ -40,7 +41,8 @@ constexpr size_t NMEA_MESSAGE_BUFFER_SIZE = etl::multimax(sizeof(NMEAGGAMessage)
                                                           sizeof(NMEAGSVMessage),
                                                           sizeof(NMEARMCMessage),
                                                           sizeof(NMEATXTMessage),
-                                                          sizeof(NMEAVTGMessage),
-                                                          sizeof(NMEAVDMAidToNavigationMsg));
+                                                          sizeof(NMEAVDMMessage),
+                                                          sizeof(NMEAVDOMessage),
+                                                          sizeof(NMEAVTGMessage));
 
 uint8_t nmeaMessageBuffer[NMEA_MESSAGE_BUFFER_SIZE];

@@ -32,13 +32,15 @@
 #include "NMEAGSVMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEATXTMessage.h"
+#include "NMEAVDMMessage.h"
+#include "NMEAVDOMessage.h"
 #include "NMEAVTGMessage.h"
-#include "NMEAAISMsgType.h"
-#include "NMEAVDMAidToNavigationMsg.h"
 #include "NMEARadioChannelCode.h"
 #include "NMEAUInt8.h"
 #include "NMEAUInt32.h"
 #include "NMEAMessageBuffer.h"
+
+#include "AISContacts.h"
 
 #include "Logger.h"
 
@@ -47,7 +49,7 @@
 #include "etl/bit_stream.h"
 #include "etl/endianness.h"
 
-NMEAParser::NMEAParser() {
+NMEAParser::NMEAParser(AISContacts &aisContacts) : aisContacts(aisContacts) {
 }
 
 NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
@@ -198,59 +200,20 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
 }
 
 NMEAMessage *NMEAParser::parseEncapsulatedMessage(NMEATalker &talker, enum NMEAMsgType msgType) {
+    etl::bit_stream_reader streamReader((void *)decapsulator.messageData().data(),
+                                        decapsulator.messageByteLength(), etl::endian::big);
+    const size_t messageSizeInBits = decapsulator.messageBitLength();
+
     switch (msgType) {
         case NMEA_MSG_TYPE_VDM:
-            return parseVDMMessage(talker, msgType);
+            return parseVDMMessage(talker, streamReader, messageSizeInBits, aisContacts);
 
         case NMEA_MSG_TYPE_VDO:
-            logger() << logNotifyNMEA << "Ignoring " << decapsulator.messageBitLength()
-                     << " bit encapsulated NMEA VDO message from " << talker << eol;
-            return NULL;
+            return parseVDOMessage(talker, streamReader, messageSizeInBits, aisContacts);
 
         default: 
             logger() << logWarnNMEA << "Ignoring unsupport encapsulated "
                      << nmeaMsgTypeName(msgType) << " message from " << talker << eol;
             return NULL;
     }
-}
-
-NMEAMessage *NMEAParser::parseVDMMessage(NMEATalker &talker, enum NMEAMsgType msgType) {
-    etl::bit_stream_reader streamReader((void *)decapsulator.messageData().data(),
-                                        decapsulator.messageByteLength(), etl::endian::big);
-    const size_t messageSizeInBits = decapsulator.messageBitLength();
-
-    if (messageSizeInBits < 6) {
-        logger() << logWarnNMEA << "Encapsulated VDM message from " << talker
-                 << " that too small to be valid (" << messageSizeInBits << " bits)" << eol;
-        return NULL;
-    }
-
-    const uint8_t messageTypeCode = etl::read_unchecked<uint8_t>(streamReader, 6);
-    const enum NMEAAISMsgType aisMsgType = parseNMEAAISMsgType(messageTypeCode);
-
-    switch (aisMsgType) {
-        case NMEA_AIS_MSG_TYPE_AID_TO_NAVIGATION_REPORT:
-            return parseVDMAidToNavigationReportMessage(talker, streamReader, messageSizeInBits);
-        default:
-            logger() << logNotifyNMEA << "Ignoring " << talker << " "
-                     << decapsulator.messageBitLength() << " bit NMEA VDM "
-                     << nmeaAISMsgTypeName(aisMsgType) << " message" << eol;
-            return NULL;
-    }
-}
-
-NMEAMessage *NMEAParser::parseVDMAidToNavigationReportMessage(NMEATalker &talker,
-                                                              etl::bit_stream_reader &streamReader,
-                                                              size_t messageSizeInBits) {
-    NMEAVDMAidToNavigationMsg *message = new (nmeaMessageBuffer)NMEAVDMAidToNavigationMsg(talker);
-    if (!message) {
-        return NULL;
-    }
-
-    if (!message->parse(streamReader, messageSizeInBits)) {
-        // Since we use a static buffer and placement new for messages, we don't do a free here.
-        return NULL;
-    }
-
-    return message;
 }

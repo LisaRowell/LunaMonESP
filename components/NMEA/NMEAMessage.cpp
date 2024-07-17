@@ -33,6 +33,10 @@ const NMEATalker &NMEAMessage::source() const {
     return talker;
 }
 
+const char *NMEAMessage::typeName() const {
+    return nmeaMsgTypeName(type());
+}
+
 bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageType,
                                       const char *constantWord) {
     etl::string_view word;
