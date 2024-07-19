@@ -58,7 +58,7 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
 }
 
 void AISMessage::log(const char *nmeaMsgTypeName) const {
-    logger() << nmeaMsgTypeName << " AIS Message" << eol;
+    logger() << nmeaMsgTypeName << " AIS " << msgType << " message" << eol;
 }
 
 bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamReader,

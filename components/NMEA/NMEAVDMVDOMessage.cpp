@@ -41,5 +41,6 @@ bool NMEAVDMVDOMessage::parse(etl::bit_stream_reader &streamReader, size_t messa
 }
 
 void NMEAVDMVDOMessage::logAIS(const char *nmeaMsgTypeName) const{
+    logger() << logDebugNMEA;
     aisMessage.log(nmeaMsgTypeName);
 }
