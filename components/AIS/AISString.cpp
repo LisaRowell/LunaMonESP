@@ -33,7 +33,10 @@ AISString::AISString(char *buffer, size_t maxLength) : string(buffer, maxLength 
 AISString::AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader)
     : string(buffer, length + 1) {
     string.clear();
+    append(length, streamReader);
+}
 
+void AISString::append(size_t length, etl::bit_stream_reader &streamReader) {
     while (length--) {
         const char sixBitCode = etl::read_unchecked<char>(streamReader, 6);
         const char character = codeToChar(sixBitCode);
@@ -45,8 +48,8 @@ AISString::AISString(char *buffer, size_t length, etl::bit_stream_reader &stream
     }
 }
 
-void AISString::stringTrailingBlanks() {
-    while (!string.empty() && *string.end() == ' ') {
+void AISString::removeTrailingBlanks() {
+    while (!string.empty() && string.back() == ' ') {
         string.pop_back();
     }
 }

@@ -6,5 +6,6 @@ idf_component_register(SRCS "AISContacts.cpp"
                             "AISString.cpp"
                             "AISShipType.cpp"
                             "AISShipDimensions.cpp"
+                            "AISEPFDFixType.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
                        REQUIRES TaskObject Error Logger)

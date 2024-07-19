@@ -23,6 +23,7 @@
 #include "AISString.h"
 #include "AISShipType.h"
 #include "AISShipDimensions.h"
+#include "AISEPFDFixType.h"
 
 #include "Logger.h"
 
@@ -42,9 +43,12 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
     msgType.parse(streamReader);
 
     switch (msgType) {
+        case AISMsgType::STATIC_AND_VOYAGE_DATA:
+            return parseStaticAndVoyageRelatedData(streamReader, messageSizeInBits, ownShip,
+                                                   aisContacts);
+
         case AISMsgType::STATIC_DATA_REPORT:
-            parseStaticDataReport(streamReader, messageSizeInBits, ownShip, aisContacts);
-            return true;
+            return parseStaticDataReport(streamReader, messageSizeInBits, ownShip, aisContacts);
 
         default:
             logger() << logNotifyAIS << "Ignoring " << messageSizeInBits << " bit AIS "
@@ -55,6 +59,77 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
 
 void AISMessage::log(const char *nmeaMsgTypeName) const {
     logger() << nmeaMsgTypeName << " AIS Message" << eol;
+}
+
+bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamReader,
+                                                 size_t messageSizeInBits, bool ownShip,
+                                                 AISContacts &aisContacts) {
+    logger() << logDebugAIS << "Parsing " << messageSizeInBits
+             << " AIS Static and Voyage Related Data" << eol;
+
+    // While the message should be 424 bits, it's not uncommon for them to be truncated to 422 or
+    // even 420 bits.
+    if (messageSizeInBits != 424 && messageSizeInBits != 422 && messageSizeInBits != 420) {
+        logger() << logWarnAIS << "Static and Voyage Related Data Msg with bad length ("
+                 << messageSizeInBits << ")" << eol;
+        return false;
+    }
+
+    [[maybe_unused]] uint8_t repeatIndicator = etl::read_unchecked<uint8_t>(streamReader, 2);
+    AISMMSI mmsi(streamReader);
+    [[maybe_unused]] uint8_t aisVersion = etl::read_unchecked<uint8_t>(streamReader, 2);
+    [[maybe_unused]] uint32_t imoNumber = etl::read_unchecked<uint32_t>(streamReader, 30);
+    char callSignBuffer[7 + 1];
+    AISString callSign(callSignBuffer, 7, streamReader);
+    char vesselNameBuffer[20 + 1];
+    AISString vesselName(vesselNameBuffer, 20, streamReader);
+    vesselName.removeTrailingBlanks();
+    AISShipType shipType(streamReader);
+    AISShipDimensions dimensions(streamReader);
+    AISEPFDFixType epfdFixType(streamReader);
+    [[maybe_unused]] uint8_t etaMonth = etl::read_unchecked<uint8_t>(streamReader, 4);
+    [[maybe_unused]] uint8_t etaDay = etl::read_unchecked<uint8_t>(streamReader, 5);
+    [[maybe_unused]] uint8_t etaHour = etl::read_unchecked<uint8_t>(streamReader, 5);
+    [[maybe_unused]] uint8_t etaMinute = etl::read_unchecked<uint8_t>(streamReader, 6);
+    uint8_t draughtTensM = etl::read_unchecked<uint8_t>(streamReader, 8);
+    [[maybe_unused]] uint16_t draughtM = draughtTensM * 10;
+    char destinationBuffer[20 + 1];
+    AISString destination(destinationBuffer, 20);
+    if (messageSizeInBits > 420) {
+        destination.append(20, streamReader);
+    } else {
+        destination.append(18, streamReader);
+    }
+    destination.removeTrailingBlanks();
+    if (messageSizeInBits > 422) {
+        [[maybe_unused]] bool dataTerminalReady = etl::read_unchecked<bool>(streamReader);
+    }
+
+    Logger &currentLogger = logger();
+    currentLogger << logDebugAIS << "Static and Voyage Related Data MMSI: " << mmsi << " name: "
+                  << vesselName << " ship type: " << shipType << " call sign: " << callSign << " "
+                  << dimensions << " Fix: " << epfdFixType;
+    if (ownShip) {
+        currentLogger << " own ship";
+    }
+    currentLogger << eol;
+
+    if (!ownShip) {
+        aisContacts.takeContactsLock();
+        AISContact *contact = aisContacts.findOrCreateContact(mmsi);
+        if (contact == nullptr) {
+            createContactError("Static and Voyage Related Data", mmsi);
+        } else {
+            contact->setName(vesselName);
+            contact->setShipType(shipType);
+            if (dimensions.isSet()) {
+                contact->setDimensions(dimensions);
+            }
+        }
+        aisContacts.releaseContactsLock();
+    }
+
+    return true;
 }
 
 bool AISMessage::parseStaticDataReport(etl::bit_stream_reader &streamReader,
@@ -106,7 +181,7 @@ void AISMessage::parseStaticDataReportPartA(etl::bit_stream_reader &streamReader
 
     char vesselNameBuffer[20 + 1];
     AISString vesselName(vesselNameBuffer, 20, streamReader);
-    vesselName.stringTrailingBlanks();
+    vesselName.removeTrailingBlanks();
 
     Logger &currentLogger = logger();
     currentLogger << logDebugAIS << "Static Data Report Pt A MMSI: " << mmsi << " name: "
