@@ -18,12 +18,17 @@
 
 #include "AISContact.h"
 
+#include "AISMMSI.h"
+#include "AISString.h"
+#include "AISShipType.h"
+#include "AISShipDimensions.h"
+
 #include "Logger.h"
 
-AISContact::AISContact(AISMMSI &mmsi) : mmsi(mmsi) {
+AISContact::AISContact(AISMMSI &mmsi) : mmsi(mmsi), name(nameBuffer, maxNameLength) {
 }
 
-void AISContact::setName(AISName &name) {
+void AISContact::setName(AISString &name) {
     this->name = name;
 }
 

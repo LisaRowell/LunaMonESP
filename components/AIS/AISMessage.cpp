@@ -20,10 +20,9 @@
 #include "AISContacts.h"
 #include "AISMsgType.h"
 #include "AISMMSI.h"
-#include "AISName.h"
+#include "AISString.h"
 #include "AISShipType.h"
 #include "AISShipDimensions.h"
-#include "AISString.h"
 
 #include "Logger.h"
 
@@ -105,7 +104,9 @@ void AISMessage::parseStaticDataReportPartA(etl::bit_stream_reader &streamReader
         return;
     }
 
-    AISName vesselName(streamReader);
+    char vesselNameBuffer[20 + 1];
+    AISString vesselName(vesselNameBuffer, 20, streamReader);
+    vesselName.stringTrailingBlanks();
 
     Logger &currentLogger = logger();
     currentLogger << logDebugAIS << "Static Data Report Pt A MMSI: " << mmsi << " name: "

@@ -45,6 +45,18 @@ AISString::AISString(char *buffer, size_t length, etl::bit_stream_reader &stream
     }
 }
 
+void AISString::stringTrailingBlanks() {
+    while (!string.empty() && *string.end() == ' ') {
+        string.pop_back();
+    }
+}
+
+AISString & AISString::operator = (const AISString &other) {
+    string.assign(other.string);
+
+    return *this;
+}
+
 char AISString::codeToChar(char sixBitCode) const {
     if (sixBitCode < 32) {
         return sixBitCode + '@';

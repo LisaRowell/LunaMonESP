@@ -36,6 +36,8 @@ class AISString {
         // Note that the size of the buffer must by at least maxLength+1 bytes.
         AISString(char *buffer, size_t maxLength);
         AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
+        void stringTrailingBlanks();
+        AISString & operator = (const AISString &other);
 
         friend Logger & operator << (Logger &logger, const AISString &aisString);
 };

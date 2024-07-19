@@ -20,20 +20,25 @@
 #define AIS_CONTACT_H
 
 #include "AISMMSI.h"
-#include "AISName.h"
+#include "AISString.h"
 #include "AISShipType.h"
 #include "AISShipDimensions.h"
 
+#include <stddef.h>
+
 class AISContact {
     private:
+        static constexpr size_t maxNameLength = 34;
+
         AISMMSI mmsi;
-        AISName name;
+        char nameBuffer[maxNameLength + 1];
+        AISString name;
         AISShipType shipType;
         AISShipDimensions dimensions;
 
     public:
         AISContact(AISMMSI &mmsi);
-        void setName(AISName &name);
+        void setName(AISString &name);
         void setShipType(AISShipType &shipType);
         void setDimensions(AISShipDimensions &dimensions);
         void dump(Logger &logger) const;
