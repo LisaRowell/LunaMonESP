@@ -48,6 +48,10 @@ void AISString::append(size_t length, etl::bit_stream_reader &streamReader) {
     }
 }
 
+bool AISString::isEmpty() {
+    return string.empty();
+}
+
 void AISString::removeTrailingBlanks() {
     while (!string.empty() && string.back() == ' ') {
         string.pop_back();
@@ -56,6 +60,12 @@ void AISString::removeTrailingBlanks() {
 
 AISString & AISString::operator = (const AISString &other) {
     string.assign(other.string);
+
+    return *this;
+}
+
+AISString & AISString::operator = (const char *other) {
+    string.assign(other);
 
     return *this;
 }

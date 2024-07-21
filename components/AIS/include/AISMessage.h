@@ -32,6 +32,9 @@ class AISMessage {
     private:
         AISMsgType msgType;
 
+        bool parseCommonNavigationBlock(etl::bit_stream_reader &streamReader,
+                                        size_t messageSizeInBits, bool ownShip,
+                                        AISContacts &aisContacts);
         bool parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamReader,
                                              size_t messageSizeInBits, bool ownShip,
                                              AISContacts &aisContacts);
@@ -45,7 +48,7 @@ class AISMessage {
                                         size_t messageSizeInBits, bool ownShip,
                                         AISContacts &aisContacts, uint8_t repeatIndicator,
                                         AISMMSI &mmsi);
-        void createContactError(const char *messageTypeName, AISMMSI &mmsi);
+        void createContactError(AISMMSI &mmsi);
 
     public:
         bool parse(etl::bit_stream_reader &streamReader, size_t messageSizeInBits, bool ownShip,

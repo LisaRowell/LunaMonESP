@@ -16,33 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIS_STRING_H
-#define AIS_STRING_H
+#ifndef AIS_SPEED_OVER_GROUND_H
+#define AIS_SPEED_OVER_GROUND_H
 
-#include "etl/string.h"
 #include "etl/bit_stream.h"
 
-#include <stddef.h>
+#include <stdint.h>
 
 class Logger;
 
-class AISString {
+class AISSpeedOverGround {
     private:
-        etl::string_ext string;
+        static constexpr uint16_t SPEED_OVER_GROUND_OVER_102_KN = 1022;
+        static constexpr uint16_t SPEED_OVER_GROUND_NOT_AVAILABLE = 1023;
 
-        char codeToChar(char sixBitCode) const;
+        uint16_t speedCode;
 
     public:
-        // Note that the size of the buffer must by at least maxLength+1 bytes.
-        AISString(char *buffer, size_t maxLength);
-        AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
-        void append(size_t length, etl::bit_stream_reader &streamReader);
-        bool isEmpty();
-        void removeTrailingBlanks();
-        AISString & operator = (const AISString &other);
-        AISString & operator = (const char *other);
+        AISSpeedOverGround();
+        AISSpeedOverGround(etl::bit_stream_reader &streamReader);
 
-        friend Logger & operator << (Logger &logger, const AISString &aisString);
+        friend Logger & operator << (Logger &logger, const AISSpeedOverGround &speedOverGround);
 };
 
-#endif // AIS_STRING_H
+#endif // AIS_SPEED_OVER_GROUND_H

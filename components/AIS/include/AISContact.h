@@ -23,8 +23,14 @@
 #include "AISString.h"
 #include "AISShipType.h"
 #include "AISShipDimensions.h"
+#include "AISNavigationStatus.h"
+#include "AISCourseVector.h"
 
 #include <stddef.h>
+
+class AISPosition;
+class AISCourseOverGround;
+class AISSpeedOverGround;
 
 class AISContact {
     private:
@@ -35,12 +41,17 @@ class AISContact {
         AISString name;
         AISShipType shipType;
         AISShipDimensions dimensions;
+        AISNavigationStatus navigationStatus;
+        AISCourseVector courseVector;
 
     public:
         AISContact(AISMMSI &mmsi);
         void setName(AISString &name);
         void setShipType(AISShipType &shipType);
         void setDimensions(AISShipDimensions &dimensions);
+        void setNavigationStatus(AISNavigationStatus &navigationStatus);
+        void setCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
+                             AISSpeedOverGround &speedOverGround);
         void dump(Logger &logger) const;
 };
 

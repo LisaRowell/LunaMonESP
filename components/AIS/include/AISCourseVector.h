@@ -16,33 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIS_STRING_H
-#define AIS_STRING_H
+#ifndef AIS_COURSE_VECTOR_H
+#define AIS_COURSE_VECTOR_H
 
-#include "etl/string.h"
-#include "etl/bit_stream.h"
+#include "AISPosition.h"
+#include "AISCourseOverGround.h"
+#include "AISSpeedOverGround.h"
 
-#include <stddef.h>
-
-class Logger;
-
-class AISString {
+class AISCourseVector {
     private:
-        etl::string_ext string;
-
-        char codeToChar(char sixBitCode) const;
+        AISPosition position;
+        AISCourseOverGround courseOverGround;
+        AISSpeedOverGround speedOverGround;
 
     public:
-        // Note that the size of the buffer must by at least maxLength+1 bytes.
-        AISString(char *buffer, size_t maxLength);
-        AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
-        void append(size_t length, etl::bit_stream_reader &streamReader);
-        bool isEmpty();
-        void removeTrailingBlanks();
-        AISString & operator = (const AISString &other);
-        AISString & operator = (const char *other);
+        void set(AISPosition &position, AISCourseOverGround &courseOverGround,
+                 AISSpeedOverGround &speedOverGround);
 
-        friend Logger & operator << (Logger &logger, const AISString &aisString);
+        friend Logger & operator << (Logger &logger, const AISCourseVector &courseVector);
 };
 
-#endif // AIS_STRING_H
+#endif // AIS_COURSE_VECTOR_H

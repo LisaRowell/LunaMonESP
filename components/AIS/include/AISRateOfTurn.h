@@ -16,33 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIS_STRING_H
-#define AIS_STRING_H
+#ifndef AIS_RATE_OF_TURN_H
+#define AIS_RATE_OF_TURN_H
 
-#include "etl/string.h"
 #include "etl/bit_stream.h"
 
-#include <stddef.h>
+#include <stdint.h>
 
 class Logger;
 
-class AISString {
+class AISRateOfTurn {
     private:
-        etl::string_ext string;
+        static constexpr int8_t AIS_RATE_UNKNOWN = 128;
 
-        char codeToChar(char sixBitCode) const;
+        int8_t rateCode;
 
     public:
-        // Note that the size of the buffer must by at least maxLength+1 bytes.
-        AISString(char *buffer, size_t maxLength);
-        AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
-        void append(size_t length, etl::bit_stream_reader &streamReader);
-        bool isEmpty();
-        void removeTrailingBlanks();
-        AISString & operator = (const AISString &other);
-        AISString & operator = (const char *other);
+        AISRateOfTurn();
+        AISRateOfTurn(etl::bit_stream_reader &streamReader);
 
-        friend Logger & operator << (Logger &logger, const AISString &aisString);
+        friend Logger & operator << (Logger &logger, const AISRateOfTurn &rateOfTurn);
 };
 
-#endif // AIS_STRING_H
+#endif // AIS_RATE_OF_TURN_H

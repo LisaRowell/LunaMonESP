@@ -23,6 +23,7 @@
 
 #include "AISContact.h"
 #include "AISMMSI.h"
+#include "AISCourseVector.h"
 
 #include "etl/map.h"
 #include "etl/pool.h"
@@ -31,6 +32,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
+class AISPosition;
+class AISCourseOverGround;
+class AISSpeedOverGround;
 
 class AISContacts : public TaskObject {
     private:
@@ -42,6 +47,7 @@ class AISContacts : public TaskObject {
         SemaphoreHandle_t contactsLock;
         etl::map<AISMMSI, AISContact *, maxContacts> contacts;
         etl::pool<AISContact, maxContacts> freeContacts;
+        AISCourseVector ownShipCourseVector;
 
         virtual void task() override;
         void dumpContacts();
@@ -51,6 +57,8 @@ class AISContacts : public TaskObject {
         void takeContactsLock();
         void releaseContactsLock();
         AISContact *findOrCreateContact(AISMMSI &mmsi);
+        void setOwnShipCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
+                                    AISSpeedOverGround &speedOverGround);
 };
 
 #endif // AIS_CONTACTS_H

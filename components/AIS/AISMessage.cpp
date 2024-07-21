@@ -24,6 +24,10 @@
 #include "AISShipType.h"
 #include "AISShipDimensions.h"
 #include "AISEPFDFixType.h"
+#include "AISNavigationStatus.h"
+#include "AISRateOfTurn.h"
+#include "AISSpeedOverGround.h"
+#include "AISCourseOverGround.h"
 
 #include "Logger.h"
 
@@ -43,6 +47,12 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
     msgType.parse(streamReader);
 
     switch (msgType) {
+        case AISMsgType::POS_REPORT_CLASS_A:
+        case AISMsgType::POS_REPORT_CLASS_A_ASS_SCHED:
+        case AISMsgType::POS_REPORT_CLASS_A_RESPONSE:
+            return parseCommonNavigationBlock(streamReader, messageSizeInBits, ownShip,
+                                              aisContacts);
+
         case AISMsgType::STATIC_AND_VOYAGE_DATA:
             return parseStaticAndVoyageRelatedData(streamReader, messageSizeInBits, ownShip,
                                                    aisContacts);
@@ -61,11 +71,63 @@ void AISMessage::log(const char *nmeaMsgTypeName) const {
     logger() << nmeaMsgTypeName << " AIS " << msgType << " message" << eol;
 }
 
+bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader,
+                                            size_t messageSizeInBits, bool ownShip,
+                                            AISContacts &aisContacts) {
+    logger() << logDebugAIS << "Parsing " << messageSizeInBits << " bit AIS " << msgType << eol;
+
+    if (messageSizeInBits != 168) {
+        logger() << logWarnAIS << msgType << " Msg with bad length (" << messageSizeInBits << ")"
+                 << eol;
+        return false;
+    }
+
+    [[maybe_unused]] uint8_t repeatIndicator = etl::read_unchecked<uint8_t>(streamReader, 2);
+    AISMMSI mmsi(streamReader);
+    AISNavigationStatus navigationStatus(streamReader);
+    AISRateOfTurn rateOfTurn(streamReader);
+    AISSpeedOverGround speedOverGround(streamReader);
+    [[maybe_unused]] bool positionAccuracy = etl::read_unchecked<bool>(streamReader);
+    AISPosition position(streamReader);
+    AISCourseOverGround courseOverGround(streamReader);
+    [[maybe_unused]] uint16_t heading = etl::read_unchecked<uint16_t>(streamReader, 9);
+    [[maybe_unused]] uint8_t timeStampSeconds = read_unchecked<uint8_t>(streamReader, 6);
+    [[maybe_unused]] uint8_t maneuverIndicator = read_unchecked<uint8_t>(streamReader, 2);
+    streamReader.skip(3);
+    [[maybe_unused]] bool raimFlag = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] uint32_t radioStatus = etl::read_unchecked<uint32_t>(streamReader, 19);
+
+    Logger &currentLogger = logger();
+    currentLogger << logDebugAIS <<  msgType << " MMSI: " << mmsi << " NavStatus: "
+                  << navigationStatus << " " << position << " " << courseOverGround << " "
+                  << speedOverGround << " RateOfTurn " << rateOfTurn;
+    if (ownShip) {
+        currentLogger << " own ship";
+    }
+    currentLogger << eol;
+
+    if (ownShip) {
+        aisContacts.setOwnShipCourseVector(position, courseOverGround, speedOverGround);
+    } else {
+        aisContacts.takeContactsLock();
+        AISContact *contact = aisContacts.findOrCreateContact(mmsi);
+        if (contact == nullptr) {
+            createContactError(mmsi);
+        } else {
+            contact->setNavigationStatus(navigationStatus);
+            contact->setCourseVector(position, courseOverGround, speedOverGround);
+        }
+        aisContacts.releaseContactsLock();
+    }
+
+    return true;
+}
+
 bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamReader,
                                                  size_t messageSizeInBits, bool ownShip,
                                                  AISContacts &aisContacts) {
     logger() << logDebugAIS << "Parsing " << messageSizeInBits
-             << " AIS Static and Voyage Related Data" << eol;
+             << " bit AIS Static and Voyage Related Data" << eol;
 
     // While the message should be 424 bits, it's not uncommon for them to be truncated to 422 or
     // even 420 bits.
@@ -118,7 +180,7 @@ bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamR
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
         if (contact == nullptr) {
-            createContactError("Static and Voyage Related Data", mmsi);
+            createContactError(mmsi);
         } else {
             contact->setName(vesselName);
             contact->setShipType(shipType);
@@ -135,7 +197,8 @@ bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamR
 bool AISMessage::parseStaticDataReport(etl::bit_stream_reader &streamReader,
                                        size_t messageSizeInBits, bool ownShip,
                                        AISContacts &aisContacts) {
-    logger() << logDebugAIS << "Parsing " << messageSizeInBits << " AIS Static Data Report" << eol;
+    logger() << logDebugAIS << "Parsing " << messageSizeInBits << " bit AIS Static Data Report"
+             << eol;
 
     // Part A and Part B messages can differ in length. Make sure we have enough of a message to
     // read up to and including the part number.
@@ -195,7 +258,7 @@ void AISMessage::parseStaticDataReportPartA(etl::bit_stream_reader &streamReader
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
         if (contact == nullptr) {
-            createContactError("Static Data Report", mmsi);
+            createContactError(mmsi);
         } else {
             contact->setName(vesselName);
         }
@@ -248,7 +311,7 @@ void AISMessage::parseStaticDataReportPartB(etl::bit_stream_reader &streamReader
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
         if (contact == nullptr) {
-            createContactError("Static Data Report", mmsi);
+            createContactError(mmsi);
         } else {
             contact->setShipType(shipType);
             if (dimensions.isSet()) {
@@ -259,7 +322,7 @@ void AISMessage::parseStaticDataReportPartB(etl::bit_stream_reader &streamReader
     }
 }
 
-void AISMessage::createContactError(const char *messageTypeName, AISMMSI &mmsi) {
-    logger() << logWarnAIS << "Failed to create contact from " << messageTypeName
-             << " message from mmsi " << mmsi << ". Table contact full." << eol;
+void AISMessage::createContactError(AISMMSI &mmsi) {
+    logger() << logWarnAIS << "Failed to create contact from " << msgType << " message from mmsi "
+             << mmsi << ". Table contact full." << eol;
 }

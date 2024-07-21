@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIS_EPFD_FIX_TYPE_H
-#define AIS_EPFD_FIX_TYPE_H
+#ifndef AIS_NAVIGATION_STATUS_H
+#define AIS_NAVIGATION_STATUS_H
 
 #include "etl/bit_stream.h"
 
@@ -26,38 +26,38 @@
 
 class Logger;
 
-class AISEPFDFixType {
+class AISNavigationStatus {
     public:
         enum Value : uint8_t {
-            UNDEFINED,
-            GPS,
-            GLONASS,
-            COMBINED_GPS_GLONASS,
-            LORAN_C,
-            CHAYKA,
-            INTEGRATED_NAVIGATION_SYS,
-            SURVEYED,
-            GALILEO,
-            RESERVED_9,
-            RESERVED_10,
-            RESERVED_11,
-            RESERVED_12,
+            UNDER_WAY_USING_ENGINE,
+            AT_ANCHOR,
+            NOT_UNDER_COMMAND,
+            RESTRICTED_MANOUEUVERABILITY,
+            CONSTRAINED_BY_DRAUGHT,
+            MOORED,
+            AGROUND,
+            ENGAGED_IN_FISHING,
+            UNDER_WAY_SAILING,
+            RESERVED_HSC,
+            RESERVED_WIG,
+            POWER_DRIVEN_VESSEL_TOWING_ASTERN,
+            POWER_DRIVEN_VESSEL_PUSHING_AHEAD,
             RESERVED_13,
-            RESERVED_14,
-            INTERNAL_GNSS
+            AIS_SART_IS_ACTIVE,
+            UNDEFINED
         };
 
     private:
         Value value;
 
     public:
-        AISEPFDFixType();
-        AISEPFDFixType(etl::bit_stream_reader &streamReader);
+        AISNavigationStatus();
+        AISNavigationStatus(etl::bit_stream_reader &streamReader);
         constexpr operator Value() const { return value; }
         const char *name() const;
         explicit operator bool() const = delete;
 
-        friend Logger & operator << (Logger &logger, const AISEPFDFixType &shipType);
+        friend Logger & operator << (Logger &logger, const AISNavigationStatus &navigationStatus);
 };
 
-#endif // AIS_EPFD_FIX_TYPE_H
+#endif // AIS_NAVIGATION_STATUS_H

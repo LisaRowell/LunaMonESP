@@ -22,14 +22,24 @@
 #include "AISString.h"
 #include "AISShipType.h"
 #include "AISShipDimensions.h"
+#include "AISNavigationStatus.h"
+#include "AISCourseVector.h"
+#include "AISPosition.h"
+#include "AISCourseOverGround.h"
+#include "AISSpeedOverGround.h"
 
 #include "Logger.h"
 
 AISContact::AISContact(AISMMSI &mmsi) : mmsi(mmsi), name(nameBuffer, maxNameLength) {
+    this->name = "Unknown name";
 }
 
 void AISContact::setName(AISString &name) {
-    this->name = name;
+    if (name.isEmpty()) {
+        this->name = "Unknown name";
+    } else {
+        this->name = name;
+    }
 }
 
 void AISContact::setShipType(AISShipType &shipType) {
@@ -40,6 +50,16 @@ void AISContact::setDimensions(AISShipDimensions &dimensions) {
     this->dimensions = dimensions;
 }
 
+void AISContact::setNavigationStatus(AISNavigationStatus &navigationStatus) {
+    this->navigationStatus = navigationStatus;
+}
+
+void AISContact::setCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
+                                 AISSpeedOverGround &speedOverGround) {
+    courseVector.set(position, courseOverGround, speedOverGround);
+}
+
 void AISContact::dump(Logger &logger) const {
-    logger << "    " << mmsi << " " << name << " " << shipType << " " << dimensions << eol;
+    logger << "    " << mmsi << " " << name << " " << shipType << " " << dimensions << " "
+           << navigationStatus << " " << courseVector << eol;
 }

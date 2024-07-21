@@ -16,33 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIS_STRING_H
-#define AIS_STRING_H
+#ifndef AIS_POSITION_H
+#define AIS_POSITION_H
 
-#include "etl/string.h"
 #include "etl/bit_stream.h"
 
-#include <stddef.h>
+#include <stdint.h>
 
 class Logger;
 
-class AISString {
+class AISPosition {
     private:
-        etl::string_ext string;
+        static constexpr uint8_t MINUTES_PER_DEGREE = 60;
+        static constexpr int32_t LONGITUDE_UNKNOWN = 0x6791AC0;
+        static constexpr int32_t LATITUDE_UNKNOWN = 0x3412140;
 
-        char codeToChar(char sixBitCode) const;
+        int32_t longitudeTenThousandthsMinute;
+        int32_t latitudeTenThousandthsMinute;
 
     public:
-        // Note that the size of the buffer must by at least maxLength+1 bytes.
-        AISString(char *buffer, size_t maxLength);
-        AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
-        void append(size_t length, etl::bit_stream_reader &streamReader);
-        bool isEmpty();
-        void removeTrailingBlanks();
-        AISString & operator = (const AISString &other);
-        AISString & operator = (const char *other);
+        AISPosition();
+        AISPosition(etl::bit_stream_reader &streamReader);
 
-        friend Logger & operator << (Logger &logger, const AISString &aisString);
+        friend Logger & operator << (Logger &logger, const AISPosition &position);
 };
 
-#endif // AIS_STRING_H
+#endif // AIS_POSITION_H
