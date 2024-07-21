@@ -57,6 +57,10 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
             return parseStaticAndVoyageRelatedData(streamReader, messageSizeInBits, ownShip,
                                                    aisContacts);
 
+        case AISMsgType::STANDARD_CLASS_B_POS_REPORT:
+            return parseStandardClassBPositionReport(streamReader, messageSizeInBits, ownShip,
+                                                     aisContacts);
+
         case AISMsgType::STATIC_DATA_REPORT:
             return parseStaticDataReport(streamReader, messageSizeInBits, ownShip, aisContacts);
 
@@ -182,6 +186,58 @@ bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamR
             if (dimensions.isSet()) {
                 contact->setDimensions(dimensions);
             }
+        }
+        aisContacts.releaseContactsLock();
+    }
+
+    return true;
+}
+
+bool AISMessage::parseStandardClassBPositionReport(etl::bit_stream_reader &streamReader,
+                                                   size_t messageSizeInBits, bool ownShip,
+                                                   AISContacts &aisContacts) {
+    if (messageSizeInBits != 168) {
+        logger() << logWarnAIS << "Standard Class B Position Report Msg with bad length ("
+                 << messageSizeInBits << ")" << eol;
+        return false;
+    }
+
+    [[maybe_unused]] uint8_t repeatIndicator = etl::read_unchecked<uint8_t>(streamReader, 2);
+    AISMMSI mmsi(streamReader);
+    streamReader.skip(8);
+    AISSpeedOverGround speedOverGround(streamReader);
+    [[maybe_unused]] bool positionAccuracy = etl::read_unchecked<bool>(streamReader);
+    AISPosition position(streamReader);
+    AISCourseOverGround courseOverGround(streamReader);
+    [[maybe_unused]] uint16_t heading = etl::read_unchecked<uint16_t>(streamReader, 9);
+    [[maybe_unused]] uint8_t timeStampSeconds = read_unchecked<uint8_t>(streamReader, 6);
+    streamReader.skip(2);
+    [[maybe_unused]] bool csUnit = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool hasDisplay = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool hasDSC = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool bandIsChangable = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool supportsMessage22 = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool assignedMode = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool raimFlag = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] uint32_t radioStatus = etl::read_unchecked<uint32_t>(streamReader, 20);
+
+    Logger &currentLogger = logger();
+    currentLogger << logDebugAIS <<  msgType << " MMSI: " << mmsi << " " << position << " "
+                  << courseOverGround << " " << speedOverGround;
+    if (ownShip) {
+        currentLogger << " own ship";
+    }
+    currentLogger << eol;
+
+    if (ownShip) {
+        aisContacts.setOwnShipCourseVector(position, courseOverGround, speedOverGround);
+    } else {
+        aisContacts.takeContactsLock();
+        AISContact *contact = aisContacts.findOrCreateContact(mmsi);
+        if (contact == nullptr) {
+            createContactError(mmsi);
+        } else {
+            contact->setCourseVector(position, courseOverGround, speedOverGround);
         }
         aisContacts.releaseContactsLock();
     }
