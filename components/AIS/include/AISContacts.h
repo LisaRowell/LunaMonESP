@@ -56,9 +56,10 @@ class AISContacts : public TaskObject {
         AISContacts();
         void takeContactsLock();
         void releaseContactsLock();
-        AISContact *findOrCreateContact(AISMMSI &mmsi);
-        void setOwnCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
-                                AISSpeedOverGround &speedOverGround);
+        AISContact *findOrCreateContact(const AISMMSI &mmsi);
+        void setOwnCourseVector(const AISPosition &position,
+                                const AISCourseOverGround &courseOverGround,
+                                const AISSpeedOverGround &speedOverGround);
 };
 
 #endif // AIS_CONTACTS_H

@@ -37,7 +37,7 @@ class AISString {
         AISString(char *buffer, size_t maxLength);
         AISString(char *buffer, size_t length, etl::bit_stream_reader &streamReader);
         void append(size_t length, etl::bit_stream_reader &streamReader);
-        bool isEmpty();
+        bool isEmpty() const;
         void removeTrailingBlanks();
         AISString & operator = (const AISString &other);
         AISString & operator = (const char *other);

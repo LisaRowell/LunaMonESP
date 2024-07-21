@@ -58,14 +58,15 @@ class AISContact {
         AISCourseVector courseVector;
 
     public:
-        AISContact(AISMMSI &mmsi);
-        void setName(AISString &name);
-        void setShipType(AISShipType &shipType);
-        void setNavigationAidType(AISNavigationAidType navigationAidType);
-        void setDimensions(AISDimensions &dimensions);
-        void setNavigationStatus(AISNavigationStatus &navigationStatus);
-        void setCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
-                             AISSpeedOverGround &speedOverGround);
+        AISContact(const AISMMSI &mmsi);
+        void setName(const AISString &name);
+        void setShipType(const AISShipType &shipType);
+        void setNavigationAidType(const AISNavigationAidType navigationAidType);
+        void setDimensions(const AISDimensions &dimensions);
+        void setNavigationStatus(const AISNavigationStatus &navigationStatus);
+        void setCourseVector(const AISPosition &position,
+                             const AISCourseOverGround &courseOverGround,
+                             const AISSpeedOverGround &speedOverGround);
         void dump(Logger &logger) const;
 };
 

@@ -48,7 +48,7 @@ void AISString::append(size_t length, etl::bit_stream_reader &streamReader) {
     }
 }
 
-bool AISString::isEmpty() {
+bool AISString::isEmpty() const {
     return string.empty();
 }
 

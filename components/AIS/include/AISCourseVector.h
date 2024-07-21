@@ -30,8 +30,8 @@ class AISCourseVector {
         AISSpeedOverGround speedOverGround;
 
     public:
-        void set(AISPosition &position, AISCourseOverGround &courseOverGround,
-                 AISSpeedOverGround &speedOverGround);
+        void set(const AISPosition &position, const AISCourseOverGround &courseOverGround,
+                 const AISSpeedOverGround &speedOverGround);
 
         friend Logger & operator << (Logger &logger, const AISCourseVector &courseVector);
 };

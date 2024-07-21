@@ -24,8 +24,8 @@
 
 #include "Logger.h"
 
-void AISCourseVector::set(AISPosition &position, AISCourseOverGround &courseOverGround,
-                          AISSpeedOverGround &speedOverGround) {
+void AISCourseVector::set(const AISPosition &position, const AISCourseOverGround &courseOverGround,
+                          const AISSpeedOverGround &speedOverGround) {
     this->position = position;
     this->courseOverGround = courseOverGround;
     this->speedOverGround = speedOverGround;

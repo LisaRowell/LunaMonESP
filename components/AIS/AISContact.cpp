@@ -30,14 +30,14 @@
 
 #include "Logger.h"
 
-AISContact::AISContact(AISMMSI &mmsi)
+AISContact::AISContact(const AISMMSI &mmsi)
     : mmsi(mmsi),
       name(nameBuffer, maxNameLength),
       contactType(UNKNOWN) {
     this->name = "Unknown name";
 }
 
-void AISContact::setName(AISString &name) {
+void AISContact::setName(const AISString &name) {
     if (name.isEmpty()) {
         this->name = "Unknown name";
     } else {
@@ -45,7 +45,7 @@ void AISContact::setName(AISString &name) {
     }
 }
 
-void AISContact::setShipType(AISShipType &shipType) {
+void AISContact::setShipType(const AISShipType &shipType) {
     if (contactType == NAVIGATION_AID) {
         logger() << logWarnAIS << "Contact type for MMSI " << mmsi
                  << " changed from navigation aid to ship" << eol;
@@ -54,7 +54,7 @@ void AISContact::setShipType(AISShipType &shipType) {
     perContactTypeInfo.shipType = shipType;
 }
 
-void AISContact::setNavigationAidType(AISNavigationAidType navigationAidType) {
+void AISContact::setNavigationAidType(const AISNavigationAidType navigationAidType) {
     if (contactType == SHIP) {
         logger() << logWarnAIS << "Contact type for MMSI " << mmsi
                  << " changed from ship to navigation aid" << eol;
@@ -63,16 +63,17 @@ void AISContact::setNavigationAidType(AISNavigationAidType navigationAidType) {
     perContactTypeInfo.navigationAidType = navigationAidType;
 }
 
-void AISContact::setDimensions(AISDimensions &dimensions) {
+void AISContact::setDimensions(const AISDimensions &dimensions) {
     this->dimensions = dimensions;
 }
 
-void AISContact::setNavigationStatus(AISNavigationStatus &navigationStatus) {
+void AISContact::setNavigationStatus(const AISNavigationStatus &navigationStatus) {
     this->navigationStatus = navigationStatus;
 }
 
-void AISContact::setCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
-                                 AISSpeedOverGround &speedOverGround) {
+void AISContact::setCourseVector(const AISPosition &position,
+                                 const AISCourseOverGround &courseOverGround,
+                                 const AISSpeedOverGround &speedOverGround) {
     courseVector.set(position, courseOverGround, speedOverGround);
 }
 

@@ -64,7 +64,7 @@ void AISContacts::releaseContactsLock() {
 }
 
 // Must be called with the contacts lock taken
-AISContact *AISContacts::findOrCreateContact(AISMMSI &mmsi) {
+AISContact *AISContacts::findOrCreateContact(const AISMMSI &mmsi) {
     auto contactIterator = contacts.find(mmsi);
     if (contactIterator == contacts.end()) {
         AISContact *contact = new (freeContacts.allocate()) AISContact(mmsi);
@@ -82,7 +82,8 @@ AISContact *AISContacts::findOrCreateContact(AISMMSI &mmsi) {
     }
 }
 
-void AISContacts::setOwnCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
-                                     AISSpeedOverGround &speedOverGround) {
+void AISContacts::setOwnCourseVector(const AISPosition &position,
+                                     const AISCourseOverGround &courseOverGround,
+                                     const AISSpeedOverGround &speedOverGround) {
     ownCourseVector.set(position, courseOverGround, speedOverGround);
 }
