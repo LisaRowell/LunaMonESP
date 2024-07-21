@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AISShipDimensions.h"
+#include "AISDimensions.h"
 
 #include "Logger.h"
 
@@ -24,14 +24,14 @@
 
 #include <stdint.h>
 
-AISShipDimensions::AISShipDimensions() : _lengthM(0), _widthM(0) {
+AISDimensions::AISDimensions() : _lengthM(0), _widthM(0) {
 }
 
-AISShipDimensions::AISShipDimensions(etl::bit_stream_reader &streamReader) {
+AISDimensions::AISDimensions(etl::bit_stream_reader &streamReader) {
     set(streamReader);
 }
 
-void AISShipDimensions::set(etl::bit_stream_reader &streamReader) {
+void AISDimensions::set(etl::bit_stream_reader &streamReader) {
     // Per gitlab:
     //    Ship dimensions will be 0 if not available. For the dimensions to bow and stern, the
     //    special value 511 indicates 511 meters or greater; for the dimensions to port and
@@ -59,19 +59,19 @@ void AISShipDimensions::set(etl::bit_stream_reader &streamReader) {
     }
 }
 
-bool AISShipDimensions::isSet() const {
+bool AISDimensions::isSet() const {
     return _lengthM != 0 && _widthM != 0;
 }
 
-uint16_t AISShipDimensions::lengthM() const {
+uint16_t AISDimensions::lengthM() const {
     return _lengthM;
 }
 
-uint8_t AISShipDimensions::widthM() const {
+uint8_t AISDimensions::widthM() const {
     return _widthM;
 }
 
-Logger & operator << (Logger &logger, const AISShipDimensions &dimensions) {
+Logger & operator << (Logger &logger, const AISDimensions &dimensions) {
     if (dimensions._lengthM == 0) {
         logger << "?";
     } else if (dimensions._lengthM == dimensions.LARGE_VESSEL_LENGTH) {

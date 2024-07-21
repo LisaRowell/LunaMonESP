@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEANavAidType.h"
+#include "AISNavigationAidType.h"
 
 #include "Logger.h"
 
@@ -24,14 +24,22 @@
 
 #include <stdint.h>
 
-void NMEANavAidType::parse(etl::bit_stream_reader &streamReader) {
-        type = (enum NavAidTypeEnum)etl::read_unchecked<uint8_t>(streamReader, 5);
+AISNavigationAidType::AISNavigationAidType() {
+    value = NAV_AID_TYPE_UNSPECIFIED;
 }
 
-const char *NMEANavAidType::toString() const {
-    switch (type) {
-        case NAV_AID_TYPE_UNSPECIFIED:
-            return "Unspecified";
+AISNavigationAidType::AISNavigationAidType(etl::bit_stream_reader &streamReader) {
+    const uint8_t navigationAidTypeCode = etl::read_unchecked<uint8_t>(streamReader, 5);
+
+    if (navigationAidTypeCode < COUNT) {
+        value = (enum AISNavigationAidType::Value)navigationAidTypeCode;
+    } else {
+        value = NAV_AID_TYPE_UNSPECIFIED;
+    }
+}
+
+const char *AISNavigationAidType::name() const {
+    switch (value) {
         case NAV_AID_TYPE_REFERENCE_POINT:
             return "Reference point";
         case NAV_AID_TYPE_RACON:
@@ -94,11 +102,14 @@ const char *NMEANavAidType::toString() const {
             return "Special Mark";
         case NAV_AID_TYPE_LIGHT_VESSEL:
             return "Light Vessel";
+        case NAV_AID_TYPE_UNSPECIFIED:
         default:
-            return "Unknown";
+            return "Unspecified";
     }
 }
 
-void NMEANavAidType::log(Logger &logger) const {
-    logger << toString();
+Logger & operator << (Logger &logger, const AISNavigationAidType &navigationAidType) {
+    logger << navigationAidType.name();
+
+    return logger;
 }

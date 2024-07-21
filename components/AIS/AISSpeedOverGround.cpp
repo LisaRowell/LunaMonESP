@@ -28,6 +28,10 @@ AISSpeedOverGround::AISSpeedOverGround() {
     speedCode = SPEED_OVER_GROUND_NOT_AVAILABLE;
 }
 
+AISSpeedOverGround::AISSpeedOverGround(uint8_t speedKn) {
+    speedCode = speedKn * 10;
+}
+
 AISSpeedOverGround::AISSpeedOverGround(etl::bit_stream_reader &streamReader) {
     speedCode = etl::read_unchecked<uint16_t>(streamReader, 10);
 }

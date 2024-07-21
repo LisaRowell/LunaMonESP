@@ -22,12 +22,13 @@
 #include "AISMMSI.h"
 #include "AISString.h"
 #include "AISShipType.h"
-#include "AISShipDimensions.h"
+#include "AISDimensions.h"
 #include "AISEPFDFixType.h"
 #include "AISNavigationStatus.h"
 #include "AISRateOfTurn.h"
 #include "AISSpeedOverGround.h"
 #include "AISCourseOverGround.h"
+#include "AISNavigationAidType.h"
 
 #include "Logger.h"
 
@@ -60,6 +61,10 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
         case AISMsgType::STANDARD_CLASS_B_POS_REPORT:
             return parseStandardClassBPositionReport(streamReader, messageSizeInBits, ownShip,
                                                      aisContacts);
+
+        case AISMsgType::AID_TO_NAVIGATION_REPORT:
+            return parseAidToNavigationReport(streamReader, messageSizeInBits, ownShip,
+                                              aisContacts);
 
         case AISMsgType::STATIC_DATA_REPORT:
             return parseStaticDataReport(streamReader, messageSizeInBits, ownShip, aisContacts);
@@ -109,7 +114,7 @@ bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader
     currentLogger << eol;
 
     if (ownShip) {
-        aisContacts.setOwnShipCourseVector(position, courseOverGround, speedOverGround);
+        aisContacts.setOwnCourseVector(position, courseOverGround, speedOverGround);
     } else {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
@@ -146,7 +151,7 @@ bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamR
     AISString vesselName(vesselNameBuffer, 20, streamReader);
     vesselName.removeTrailingBlanks();
     AISShipType shipType(streamReader);
-    AISShipDimensions dimensions(streamReader);
+    AISDimensions dimensions(streamReader);
     AISEPFDFixType epfdFixType(streamReader);
     [[maybe_unused]] uint8_t etaMonth = etl::read_unchecked<uint8_t>(streamReader, 4);
     [[maybe_unused]] uint8_t etaDay = etl::read_unchecked<uint8_t>(streamReader, 5);
@@ -230,13 +235,76 @@ bool AISMessage::parseStandardClassBPositionReport(etl::bit_stream_reader &strea
     currentLogger << eol;
 
     if (ownShip) {
-        aisContacts.setOwnShipCourseVector(position, courseOverGround, speedOverGround);
+        aisContacts.setOwnCourseVector(position, courseOverGround, speedOverGround);
     } else {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
         if (contact == nullptr) {
             createContactError(mmsi);
         } else {
+            contact->setCourseVector(position, courseOverGround, speedOverGround);
+        }
+        aisContacts.releaseContactsLock();
+    }
+
+    return true;
+}
+
+bool AISMessage::parseAidToNavigationReport(etl::bit_stream_reader &streamReader,
+                                            size_t messageSizeInBits, bool ownShip,
+                                            AISContacts &aisContacts) {
+    if (messageSizeInBits < 272 || messageSizeInBits > 360) {
+        logger() << logWarnAIS << "Aid to Navigation Report with bad length ("
+                 << messageSizeInBits << ")" << eol;
+        return false;
+    }
+    [[maybe_unused]] uint8_t repeatIndicator = etl::read_unchecked<uint8_t>(streamReader, 2);
+    AISMMSI mmsi = etl::read_unchecked<uint32_t>(streamReader, 30);
+    AISNavigationAidType navigationAidType(streamReader);
+    char nameBuffer[20 + 14 + 1];
+    AISString name(nameBuffer, 20, streamReader);
+    [[maybe_unused]] bool positionAccuracy = etl::read_unchecked<bool>(streamReader);
+    AISPosition position(streamReader);
+    AISDimensions dimensions(streamReader);
+    [[maybe_unused]] AISEPFDFixType epfdFixType(streamReader);
+    [[maybe_unused]] uint8_t timeStampSeconds = read_unchecked<uint8_t>(streamReader, 6);
+    [[maybe_unused]] bool offPosition = etl::read_unchecked<bool>(streamReader);
+    streamReader.skip(8);
+    [[maybe_unused]] bool raimFlag = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool virtualAid = etl::read_unchecked<bool>(streamReader);
+    [[maybe_unused]] bool assignedMode = etl::read_unchecked<bool>(streamReader);
+    streamReader.skip(1);
+
+    // Note that something is fishy with this as messages seem to have 8 bits of name extension,
+    // which is wonky given each character is 6 bits.
+    uint8_t nameExtensionLength = (messageSizeInBits - 272) / 6;
+    name.append(nameExtensionLength, streamReader);
+    name.removeTrailingBlanks();
+
+    Logger &currentLogger = logger();
+    currentLogger << logDebugAIS << "Aid to Navigation Report MMSI: " << mmsi << " name: " << name
+                  << " aid type: " << navigationAidType << " " << dimensions << " " << position;
+    if (ownShip) {
+        currentLogger << " own ship";
+    }
+    currentLogger << eol;
+
+    // Since this is a report for objects that, at least in theory, don't move, it doesn't include
+    // course or speed information, the former being undefined and the later inferred to be 0.
+    AISCourseOverGround courseOverGround;
+    AISSpeedOverGround speedOverGround(0);
+
+    if (ownShip) {
+        aisContacts.setOwnCourseVector(position, courseOverGround, speedOverGround);
+    } else {
+        aisContacts.takeContactsLock();
+        AISContact *contact = aisContacts.findOrCreateContact(mmsi);
+        if (contact == nullptr) {
+            createContactError(mmsi);
+        } else {
+            contact->setName(name);
+            contact->setNavigationAidType(navigationAidType);
+            contact->setDimensions(dimensions);
             contact->setCourseVector(position, courseOverGround, speedOverGround);
         }
         aisContacts.releaseContactsLock();
@@ -335,7 +403,7 @@ void AISMessage::parseStaticDataReportPartB(etl::bit_stream_reader &streamReader
     // The rest of the message has two different formats based on whether or not the report is for
     // a mothership or for an auxilliary craft
     AISMMSI mothershipMMSI;
-    AISShipDimensions dimensions;
+    AISDimensions dimensions;
     if (!mmsi.isAuxiliaryCraft()) {
         dimensions.set(streamReader);
     } else {

@@ -47,7 +47,7 @@ class AISContacts : public TaskObject {
         SemaphoreHandle_t contactsLock;
         etl::map<AISMMSI, AISContact *, maxContacts> contacts;
         etl::pool<AISContact, maxContacts> freeContacts;
-        AISCourseVector ownShipCourseVector;
+        AISCourseVector ownCourseVector;
 
         virtual void task() override;
         void dumpContacts();
@@ -57,8 +57,8 @@ class AISContacts : public TaskObject {
         void takeContactsLock();
         void releaseContactsLock();
         AISContact *findOrCreateContact(AISMMSI &mmsi);
-        void setOwnShipCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
-                                    AISSpeedOverGround &speedOverGround);
+        void setOwnCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
+                                AISSpeedOverGround &speedOverGround);
 };
 
 #endif // AIS_CONTACTS_H

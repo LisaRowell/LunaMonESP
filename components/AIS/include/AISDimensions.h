@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIS_SHIP_DIMENSIONS_H
-#define AIS_SHIP_DIMENSIONS_H
+#ifndef AIS_DIMENSIONS_H
+#define AIS_DIMENSIONS_H
 
 #include "etl/bit_stream.h"
 
@@ -25,7 +25,7 @@
 
 class Logger;
 
-class AISShipDimensions {
+class AISDimensions {
     private:
         uint16_t _lengthM;
         uint8_t _widthM;
@@ -33,14 +33,14 @@ class AISShipDimensions {
         static constexpr uint8_t LARGE_VESSEL_WIDTH = 63;
 
     public:
-        AISShipDimensions();
-        AISShipDimensions(etl::bit_stream_reader &streamReader);
+        AISDimensions();
+        AISDimensions(etl::bit_stream_reader &streamReader);
         void set(etl::bit_stream_reader &streamReader);
         bool isSet() const;
         uint16_t lengthM() const;
         uint8_t widthM() const;
 
-        friend Logger & operator << (Logger &logger, const AISShipDimensions &dimensions);
+        friend Logger & operator << (Logger &logger, const AISDimensions &dimensions);
 };
 
-#endif // AIS_SHIP_DIMENSIONS_H
+#endif // AIS_DIMENSIONS_H

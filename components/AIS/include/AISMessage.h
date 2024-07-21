@@ -43,6 +43,9 @@ class AISMessage {
                                                AISContacts &aisContacts);
         bool parseStaticDataReport(etl::bit_stream_reader &streamReader, size_t messageSizeInBits,
                                    bool ownShip, AISContacts &aisContacts);
+        bool parseAidToNavigationReport(etl::bit_stream_reader &streamReader,
+                                        size_t messageSizeInBits, bool ownShip,
+                                        AISContacts &aisContacts);
         void parseStaticDataReportPartA(etl::bit_stream_reader &streamReader,
                                         size_t messageSizeInBits, bool ownShip,
                                         AISContacts &aisContacts, uint8_t repeatIndicator,

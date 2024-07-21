@@ -41,9 +41,6 @@ idf_component_register(SRCS "NMEA.cpp"
                             "NMEATenthsUInt16.cpp"
                             "NMEAHundredthsUInt8.cpp"
                             "NMEAHundredthsUInt16.cpp"
-                            "NMEAMMSI.cpp"
-                            "NMEANavAidType.cpp"
-                            "NMEAEPFDFixType.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
                        REQUIRES AIS DataModel StatCounter StatsManager FixedPoint CharacterTools
                                 StringTools Logger Error)

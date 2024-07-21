@@ -21,7 +21,7 @@
 #include "AISMMSI.h"
 #include "AISString.h"
 #include "AISShipType.h"
-#include "AISShipDimensions.h"
+#include "AISDimensions.h"
 #include "AISNavigationStatus.h"
 #include "AISCourseVector.h"
 #include "AISPosition.h"
@@ -30,7 +30,10 @@
 
 #include "Logger.h"
 
-AISContact::AISContact(AISMMSI &mmsi) : mmsi(mmsi), name(nameBuffer, maxNameLength) {
+AISContact::AISContact(AISMMSI &mmsi)
+    : mmsi(mmsi),
+      name(nameBuffer, maxNameLength),
+      contactType(UNKNOWN) {
     this->name = "Unknown name";
 }
 
@@ -43,10 +46,24 @@ void AISContact::setName(AISString &name) {
 }
 
 void AISContact::setShipType(AISShipType &shipType) {
-    this->shipType = shipType;
+    if (contactType == NAVIGATION_AID) {
+        logger() << logWarnAIS << "Contact type for MMSI " << mmsi
+                 << " changed from navigation aid to ship" << eol;
+    }
+    contactType = SHIP;
+    perContactTypeInfo.shipType = shipType;
 }
 
-void AISContact::setDimensions(AISShipDimensions &dimensions) {
+void AISContact::setNavigationAidType(AISNavigationAidType navigationAidType) {
+    if (contactType == SHIP) {
+        logger() << logWarnAIS << "Contact type for MMSI " << mmsi
+                 << " changed from ship to navigation aid" << eol;
+    }
+    contactType = NAVIGATION_AID;
+    perContactTypeInfo.navigationAidType = navigationAidType;
+}
+
+void AISContact::setDimensions(AISDimensions &dimensions) {
     this->dimensions = dimensions;
 }
 
@@ -60,6 +77,20 @@ void AISContact::setCourseVector(AISPosition &position, AISCourseOverGround &cou
 }
 
 void AISContact::dump(Logger &logger) const {
-    logger << "    " << mmsi << " " << name << " " << shipType << " " << dimensions << " "
+    logger << "    " << mmsi << " " << name << " ";
+
+    switch (contactType) {
+        case UNKNOWN:
+            logger << "?";
+            break;
+        case SHIP:
+            logger << perContactTypeInfo.shipType;
+            break;
+        case NAVIGATION_AID:
+            logger << perContactTypeInfo.navigationAidType;
+            break;
+    }
+
+    logger << " " << dimensions << " "
            << navigationStatus << " " << courseVector << eol;
 }

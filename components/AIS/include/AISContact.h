@@ -22,7 +22,8 @@
 #include "AISMMSI.h"
 #include "AISString.h"
 #include "AISShipType.h"
-#include "AISShipDimensions.h"
+#include "AISNavigationAidType.h"
+#include "AISDimensions.h"
 #include "AISNavigationStatus.h"
 #include "AISCourseVector.h"
 
@@ -34,13 +35,25 @@ class AISSpeedOverGround;
 
 class AISContact {
     private:
+        enum ContactType {
+            UNKNOWN,
+            SHIP,
+            NAVIGATION_AID
+        };
         static constexpr size_t maxNameLength = 34;
 
         AISMMSI mmsi;
         char nameBuffer[maxNameLength + 1];
         AISString name;
-        AISShipType shipType;
-        AISShipDimensions dimensions;
+        ContactType contactType;
+        union PerContactTypeUnion {
+            AISShipType shipType;
+            AISNavigationAidType navigationAidType;
+
+            PerContactTypeUnion() {};
+        } perContactTypeInfo;
+
+        AISDimensions dimensions;
         AISNavigationStatus navigationStatus;
         AISCourseVector courseVector;
 
@@ -48,7 +61,8 @@ class AISContact {
         AISContact(AISMMSI &mmsi);
         void setName(AISString &name);
         void setShipType(AISShipType &shipType);
-        void setDimensions(AISShipDimensions &dimensions);
+        void setNavigationAidType(AISNavigationAidType navigationAidType);
+        void setDimensions(AISDimensions &dimensions);
         void setNavigationStatus(AISNavigationStatus &navigationStatus);
         void setCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
                              AISSpeedOverGround &speedOverGround);

@@ -82,8 +82,7 @@ AISContact *AISContacts::findOrCreateContact(AISMMSI &mmsi) {
     }
 }
 
-void AISContacts::setOwnShipCourseVector(AISPosition &position,
-                                         AISCourseOverGround &courseOverGround,
-                                         AISSpeedOverGround &speedOverGround) {
-    ownShipCourseVector.set(position, courseOverGround, speedOverGround);
+void AISContacts::setOwnCourseVector(AISPosition &position, AISCourseOverGround &courseOverGround,
+                                     AISSpeedOverGround &speedOverGround) {
+    ownCourseVector.set(position, courseOverGround, speedOverGround);
 }

@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_NAV_AID_TYPE_H
-#define NMEA_NAV_AID_TYPE_H
-
-#include "LoggableItem.h"
+#ifndef AIS_NAVIGATION_AID_TYPE_H
+#define AIS_NAVIGATION_AID_TYPE_H
 
 #include "etl/bit_stream.h"
 
-class NMEANavAidType : public LoggableItem {
-    private:
-        enum NavAidTypeEnum {
+class Logger;
+
+class AISNavigationAidType {
+    public:
+        enum Value : uint8_t {
             NAV_AID_TYPE_UNSPECIFIED,
             NAV_AID_TYPE_REFERENCE_POINT,
             NAV_AID_TYPE_RACON,
@@ -57,16 +57,22 @@ class NMEANavAidType : public LoggableItem {
             NAV_AID_TYPE_ISOLATED_DANGER,
             NAV_AID_TYPE_SAFE_WATER,
             NAV_AID_TYPE_SPECIAL_MARK,
-            NAV_AID_TYPE_LIGHT_VESSEL
+            NAV_AID_TYPE_LIGHT_VESSEL,
+            COUNT
         };
 
-        enum NavAidTypeEnum type;
-
-        virtual void log(Logger &logger) const override;
-        const char *toString() const;
+    private:
+        Value value;
 
     public:
-        void parse(etl::bit_stream_reader &streamReader);
+        AISNavigationAidType();
+        AISNavigationAidType(etl::bit_stream_reader &streamReader);
+        constexpr operator Value() const { return value; }
+        const char *name() const;
+        explicit operator bool() const = delete;
+
+        friend Logger & operator << (Logger &logger,
+                                     const AISNavigationAidType &navigationAidType);
 };
 
-#endif // NMEA_NAV_AID_TYPE_H
+#endif // AIS_NAVIGATION_AID_TYPE_H
