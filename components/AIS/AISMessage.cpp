@@ -74,8 +74,6 @@ void AISMessage::log(const char *nmeaMsgTypeName) const {
 bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader,
                                             size_t messageSizeInBits, bool ownShip,
                                             AISContacts &aisContacts) {
-    logger() << logDebugAIS << "Parsing " << messageSizeInBits << " bit AIS " << msgType << eol;
-
     if (messageSizeInBits != 168) {
         logger() << logWarnAIS << msgType << " Msg with bad length (" << messageSizeInBits << ")"
                  << eol;
@@ -126,9 +124,6 @@ bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader
 bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamReader,
                                                  size_t messageSizeInBits, bool ownShip,
                                                  AISContacts &aisContacts) {
-    logger() << logDebugAIS << "Parsing " << messageSizeInBits
-             << " bit AIS Static and Voyage Related Data" << eol;
-
     // While the message should be 424 bits, it's not uncommon for them to be truncated to 422 or
     // even 420 bits.
     if (messageSizeInBits != 424 && messageSizeInBits != 422 && messageSizeInBits != 420) {
@@ -197,9 +192,6 @@ bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamR
 bool AISMessage::parseStaticDataReport(etl::bit_stream_reader &streamReader,
                                        size_t messageSizeInBits, bool ownShip,
                                        AISContacts &aisContacts) {
-    logger() << logDebugAIS << "Parsing " << messageSizeInBits << " bit AIS Static Data Report"
-             << eol;
-
     // Part A and Part B messages can differ in length. Make sure we have enough of a message to
     // read up to and including the part number.
     if (messageSizeInBits < 40) {
