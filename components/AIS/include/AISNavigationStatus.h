@@ -21,7 +21,6 @@
 
 #include "etl/bit_stream.h"
 
-#include <stddef.h>
 #include <stdint.h>
 
 class Logger;
