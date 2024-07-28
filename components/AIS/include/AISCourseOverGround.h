@@ -34,6 +34,7 @@ class AISCourseOverGround {
     public:
         AISCourseOverGround();
         AISCourseOverGround(etl::bit_stream_reader &streamReader);
+        bool isValid() const;
 
         friend Logger & operator << (Logger &logger, const AISCourseOverGround &courseOverGround);
 };

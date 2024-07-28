@@ -33,10 +33,17 @@ class AISPosition {
 
         int32_t longitudeTenThousandthsMinute;
         int32_t latitudeTenThousandthsMinute;
+        // Temporary code
+        float longitude() const;
+        float latitude() const;
+        float degreesToRadians(float degrees) const;
 
     public:
         AISPosition();
         AISPosition(etl::bit_stream_reader &streamReader);
+        bool isValid() const;
+        // Temporary code
+        float distance(const AISPosition &other) const;
 
         friend Logger & operator << (Logger &logger, const AISPosition &position);
 };

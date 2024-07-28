@@ -32,6 +32,8 @@ class AISCourseVector {
     public:
         void set(const AISPosition &position, const AISCourseOverGround &courseOverGround,
                  const AISSpeedOverGround &speedOverGround);
+        bool isValid() const;
+        float distance(const AISCourseVector &other) const;
 
         friend Logger & operator << (Logger &logger, const AISCourseVector &courseVector);
 };

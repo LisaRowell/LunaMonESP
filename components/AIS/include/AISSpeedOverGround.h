@@ -35,6 +35,8 @@ class AISSpeedOverGround {
     public:
         AISSpeedOverGround();
         AISSpeedOverGround(uint8_t speedKn);
+        bool isValid() const;
+        bool isZero() const;
         AISSpeedOverGround(etl::bit_stream_reader &streamReader);
 
         friend Logger & operator << (Logger &logger, const AISSpeedOverGround &speedOverGround);

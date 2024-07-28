@@ -23,6 +23,7 @@
 #include "etl/bit_stream.h"
 
 #include <stdint.h>
+#include <stdint.h>
 
 AISPosition::AISPosition() {
     longitudeTenThousandthsMinute = LONGITUDE_UNKNOWN;
@@ -32,6 +33,44 @@ AISPosition::AISPosition() {
 AISPosition::AISPosition(etl::bit_stream_reader &streamReader) {
     longitudeTenThousandthsMinute = etl::read_unchecked<int32_t>(streamReader, 28);
     latitudeTenThousandthsMinute = etl::read_unchecked<int32_t>(streamReader, 27);
+}
+
+bool AISPosition::isValid() const {
+    return longitudeTenThousandthsMinute != LONGITUDE_UNKNOWN &&
+               latitudeTenThousandthsMinute != LATITUDE_UNKNOWN;
+}
+
+// Note that the following calculation is based on the Earth being a sphere, an not a spheroid.
+// This is deemed to be a reasonable approximation taken in favor of reduced computation time.
+float AISPosition::distance(const AISPosition &other) const {
+    // Note that the radius we use is the average radius of the earth, which is not the same as
+    // the radius at the equator as the earth is not a perfect sphere.
+    constexpr uint16_t earthRadiusNM = 3440;
+
+    float longitudinalAngleRadians = degreesToRadians(other.longitude() - longitude());
+    float latitudinalAngleRadians = degreesToRadians(other.latitude() - latitude());
+
+    float latitude1Radians = degreesToRadians(latitude());
+    float latitude2Radians = degreesToRadians(other.latitude());
+
+    float a = sin(latitudinalAngleRadians / 2) * sin(latitudinalAngleRadians / 2) +
+              sin(longitudinalAngleRadians / 2) * sin(longitudinalAngleRadians / 2) *
+              cos(latitude1Radians) * cos(latitude2Radians); 
+    float c = 2 * atan2(sqrt(a), sqrt(1 - a)); 
+
+    return earthRadiusNM * c;
+}
+
+float AISPosition::longitude() const {
+    return (float)longitudeTenThousandthsMinute / (10000 * 60);
+}
+
+float AISPosition::latitude() const {
+    return (float)latitudeTenThousandthsMinute / (10000 * 60);
+}
+
+float AISPosition::degreesToRadians(float degrees) const {
+    return degrees * M_PI / 180;
 }
 
 Logger & operator << (Logger &logger, const AISPosition &position) {

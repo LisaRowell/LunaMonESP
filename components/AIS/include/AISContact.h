@@ -45,6 +45,7 @@ class AISContact {
         AISMMSI mmsi;
         char nameBuffer[maxNameLength + 1];
         AISString name;
+
         ContactType contactType;
         union PerContactTypeUnion {
             AISShipType shipType;
@@ -56,6 +57,8 @@ class AISContact {
         AISDimensions dimensions;
         AISNavigationStatus navigationStatus;
         AISCourseVector courseVector;
+        bool distanceKnown;
+        float distance;
 
     public:
         AISContact(const AISMMSI &mmsi);
@@ -67,6 +70,7 @@ class AISContact {
         void setCourseVector(const AISPosition &position,
                              const AISCourseOverGround &courseOverGround,
                              const AISSpeedOverGround &speedOverGround);
+        void updateDistance(const AISCourseVector &ownCourseVector);
         void dump(Logger &logger) const;
 };
 

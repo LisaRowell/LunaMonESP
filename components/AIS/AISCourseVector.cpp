@@ -31,6 +31,15 @@ void AISCourseVector::set(const AISPosition &position, const AISCourseOverGround
     this->speedOverGround = speedOverGround;
 }
 
+bool AISCourseVector::isValid() const {
+    return position.isValid() && speedOverGround.isValid() &&
+               (courseOverGround.isValid() || speedOverGround.isZero());
+}
+
+float AISCourseVector::distance(const AISCourseVector &other) const {
+    return position.distance(other.position);
+}
+
 Logger & operator << (Logger &logger, const AISCourseVector &courseVector) {
     logger << courseVector.position << " " << courseVector.courseOverGround << " "
            << courseVector.speedOverGround;

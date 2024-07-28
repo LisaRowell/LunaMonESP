@@ -87,3 +87,10 @@ void AISContacts::setOwnCourseVector(const AISPosition &position,
                                      const AISSpeedOverGround &speedOverGround) {
     ownCourseVector.set(position, courseOverGround, speedOverGround);
 }
+
+// Caller must be holding the Contacts Lock.
+void AISContacts::contactCourseVectorChanged(AISContact &contact) {
+    if (ownCourseVector.isValid()) {
+        contact.updateDistance(ownCourseVector);
+    }
+}

@@ -33,7 +33,8 @@
 AISContact::AISContact(const AISMMSI &mmsi)
     : mmsi(mmsi),
       name(nameBuffer, maxNameLength),
-      contactType(UNKNOWN) {
+      contactType(UNKNOWN),
+      distanceKnown(false) {
     this->name = "Unknown name";
 }
 
@@ -77,6 +78,11 @@ void AISContact::setCourseVector(const AISPosition &position,
     courseVector.set(position, courseOverGround, speedOverGround);
 }
 
+void AISContact::updateDistance(const AISCourseVector &ownCourseVector) {
+    distance = courseVector.distance(ownCourseVector);
+    distanceKnown = true;
+}
+
 void AISContact::dump(Logger &logger) const {
     logger << "    " << mmsi << " " << name << " ";
 
@@ -93,5 +99,13 @@ void AISContact::dump(Logger &logger) const {
     }
 
     logger << " " << dimensions << " "
-           << navigationStatus << " " << courseVector << eol;
+           << navigationStatus << " " << courseVector;
+
+    logger << " ";
+    if (distanceKnown) {
+        logger << distance;
+    } else {
+        logger << "?";
+    }
+    logger << "NM" << eol;
 }

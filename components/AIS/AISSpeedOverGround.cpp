@@ -36,6 +36,14 @@ AISSpeedOverGround::AISSpeedOverGround(etl::bit_stream_reader &streamReader) {
     speedCode = etl::read_unchecked<uint16_t>(streamReader, 10);
 }
 
+bool AISSpeedOverGround::isValid() const {
+    return speedCode != SPEED_OVER_GROUND_NOT_AVAILABLE;
+}
+
+bool AISSpeedOverGround::isZero() const {
+    return speedCode == 0;
+}
+
 Logger & operator << (Logger &logger, const AISSpeedOverGround &speedOverGround) {
     switch (speedOverGround.speedCode) {
         case AISSpeedOverGround::SPEED_OVER_GROUND_NOT_AVAILABLE:

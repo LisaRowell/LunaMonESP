@@ -32,6 +32,10 @@ AISCourseOverGround::AISCourseOverGround(etl::bit_stream_reader &streamReader) {
     courseCode = etl::read_unchecked<uint16_t>(streamReader, 12);
 }
 
+bool AISCourseOverGround::isValid() const {
+    return courseCode != COURSE_OVER_GROUND_NOT_AVAILABLE;
+}
+
 Logger & operator << (Logger &logger, const AISCourseOverGround &courseOverGround) {
     if (courseOverGround.courseCode == AISCourseOverGround::COURSE_OVER_GROUND_NOT_AVAILABLE) {
         logger << "?";

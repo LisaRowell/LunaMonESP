@@ -60,6 +60,8 @@ class AISContacts : public TaskObject {
         void setOwnCourseVector(const AISPosition &position,
                                 const AISCourseOverGround &courseOverGround,
                                 const AISSpeedOverGround &speedOverGround);
+        // Caller must be holding the Contacts Lock.
+        void contactCourseVectorChanged(AISContact &contact);
 };
 
 #endif // AIS_CONTACTS_H

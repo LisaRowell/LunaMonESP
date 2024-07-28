@@ -123,6 +123,7 @@ bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader
         } else {
             contact->setNavigationStatus(navigationStatus);
             contact->setCourseVector(position, courseOverGround, speedOverGround);
+            aisContacts.contactCourseVectorChanged(*contact);
         }
         aisContacts.releaseContactsLock();
     }
@@ -243,6 +244,7 @@ bool AISMessage::parseStandardClassBPositionReport(etl::bit_stream_reader &strea
             createContactError(mmsi);
         } else {
             contact->setCourseVector(position, courseOverGround, speedOverGround);
+            aisContacts.contactCourseVectorChanged(*contact);
         }
         aisContacts.releaseContactsLock();
     }
@@ -306,6 +308,7 @@ bool AISMessage::parseAidToNavigationReport(etl::bit_stream_reader &streamReader
             contact->setNavigationAidType(navigationAidType);
             contact->setDimensions(dimensions);
             contact->setCourseVector(position, courseOverGround, speedOverGround);
+            aisContacts.contactCourseVectorChanged(*contact);
         }
         aisContacts.releaseContactsLock();
     }
