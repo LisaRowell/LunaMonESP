@@ -164,7 +164,7 @@ void NMEASource::lineCompleted() {
     }
 
     NMEAMessage *nmeaMessage = parser.parseLine(inputLine);
-    if (nmeaMessage != NULL) {
+    if (nmeaMessage != nullptr) {
         nmeaMessage->log();
 
         for (NMEAMessageHandler *messageHandler : messageHandlers) {

@@ -91,12 +91,12 @@ void NMEARMCMessage::log() const {
 NMEARMCMessage *parseNMEARMCMessage(NMEATalker &talker, NMEALine &nmeaLine) {
     NMEARMCMessage *message = new (nmeaMessageBuffer)NMEARMCMessage(talker);
     if (!message) {
-        return NULL;
+        return nullptr;
     }
 
     if (!message->parse(nmeaLine)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
-        return NULL;
+        return nullptr;
     }
 
     return message;

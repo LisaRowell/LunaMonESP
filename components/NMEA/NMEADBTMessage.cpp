@@ -69,12 +69,12 @@ void NMEADBTMessage::log() const {
 NMEADBTMessage *parseNMEADBTMessage(NMEATalker &talker, NMEALine &nmeaLine) {
     NMEADBTMessage *message = new (nmeaMessageBuffer)NMEADBTMessage(talker);
     if (!message) {
-        return NULL;
+        return nullptr;
     }
 
     if (!message->parse(nmeaLine)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
-        return NULL;
+        return nullptr;
     }
 
     return message;

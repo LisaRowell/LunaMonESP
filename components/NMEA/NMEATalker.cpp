@@ -143,7 +143,7 @@ static const TalkerTableEntry talkerTable[] = {
     { "ZC", "Timekeeper - Chronometer" },
     { "ZQ", "Timekeeper - Quartz" },
     { "ZV", "Timekeeper - Radio Update, WWV or WWVH" },
-    { "", NULL }
+    { "", nullptr }
 };
 
 NMEATalker::NMEATalker() : talkerCode("??") {

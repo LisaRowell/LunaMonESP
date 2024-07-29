@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 DataModelRoot::DataModelRoot(DataModel *dataModel)
-    : DataModelNode(NULL, NULL), dataModel(dataModel) {
+    : DataModelNode(nullptr, nullptr), dataModel(dataModel) {
 }
 
 void DataModelRoot::setDataModel(DataModel *dataModel) {

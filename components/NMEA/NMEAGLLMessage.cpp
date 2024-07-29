@@ -73,12 +73,12 @@ void NMEAGLLMessage::log() const {
 NMEAGLLMessage *parseNMEAGLLMessage(NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAGLLMessage *message = new (nmeaMessageBuffer)NMEAGLLMessage(talker);
     if (!message) {
-        return NULL;
+        return nullptr;
     }
 
     if (!message->parse(nmeaLine)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
-        return NULL;
+        return nullptr;
     }
 
     return message;

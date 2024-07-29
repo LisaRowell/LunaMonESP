@@ -121,12 +121,12 @@ void NMEAVTGMessage::log() const {
 NMEAVTGMessage *parseNMEAVTGMessage(NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAVTGMessage *message = new (nmeaMessageBuffer)NMEAVTGMessage(talker);
     if (!message) {
-        return NULL;
+        return nullptr;
     }
 
     if (!message->parse(nmeaLine)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
-        return NULL;
+        return nullptr;
     }
 
     return message;

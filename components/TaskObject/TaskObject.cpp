@@ -33,7 +33,7 @@ TaskObject::TaskObject(const char *name, LoggerLevel level, size_t stackSize)
 void TaskObject::start() {
     BaseType_t created = xTaskCreate(startTask, name, stackSize, this,
                                      tskIDLE_PRIORITY, &_task);
-    if (created != pdPASS || _task == NULL) {
+    if (created != pdPASS || _task == nullptr) {
         logger << logErrorTaskObject << "Failed to create " << name << " task" << eol;
         errorExit();
     }
@@ -54,5 +54,5 @@ void TaskObject::startTask(void *taskPtr) {
     task->task();
 
     logger << logErrorTaskObject << "Task " << task->name << " returned. Deleting task..." << eol;
-    vTaskDelete(NULL);
+    vTaskDelete(nullptr);
 }

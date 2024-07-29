@@ -70,13 +70,13 @@ void WiFiManager::start() {
     }
 
     if ((error = esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandler,
-                                                     this, NULL)) != ESP_OK) {
+                                                     this, nullptr)) != ESP_OK) {
         logger << logErrorWiFiManager << "Failed to register event handler for WiFi events: "
                << ESPError(error) << eol;
         errorExit();
     }
     if ((error = esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandler,
-                                                     this, NULL)) != ESP_OK) {
+                                                     this, nullptr)) != ESP_OK) {
         logger << logErrorWiFiManager << "Failed to register event handler for got IP event: "
                << ESPError(error) << eol;
         errorExit();

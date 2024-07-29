@@ -56,11 +56,11 @@ NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
     etl::string_view tagView;
     if (!nmeaLine.getWord(tagView)) {
         logger() << logWarnNMEA << "NMEA message missing tag" << eol;
-        return NULL;
+        return nullptr;
     }
     if (tagView.size() != 5) {
         logger() << logWarnNMEA << "Bad NMEA tag '" << tagView << "'" << eol;
-        return NULL;
+        return nullptr;
     }
 
     etl::string<2> talkerCode(tagView.begin(), 2);
@@ -113,7 +113,7 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(NMEATalker &talker, enum NMEAMs
         case NMEA_MSG_TYPE_VDO:
             logger() << logWarnNMEA << "Unsupported unencapsulated " << nmeaMsgTypeName(msgType)
                      << " message from " << talker << eol;
-            return NULL;
+            return nullptr;
 
         case NMEA_MSG_TYPE_VTG:
             return parseNMEAVTGMessage(talker, nmeaLine);
@@ -122,7 +122,7 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(NMEATalker &talker, enum NMEAMs
         default:
             logger() << logWarnNMEA << "Unknown NMEA message type (" << nmeaMsgTypeName(msgType)
                      << ") from " << talker << eol;
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -131,31 +131,31 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
     NMEAUInt8 fragmentCount;
     if (!fragmentCount.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Fragment Count")) {
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
     if (fragmentCount == 0) {
         logger() << logWarnNMEA << "Encapsulated NMEA " << nmeaMsgTypeName(msgType)
                  << " message from " << talker << " with 0 fragment count" << eol;
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
 
     NMEAUInt8 fragmentIndex;
     if (!fragmentIndex.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Fragment Index")) {
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
     if (fragmentIndex == 0) {
         logger() << logWarnNMEA << "Encapsulated NMEA " << nmeaMsgTypeName(msgType)
                  << " message from " << talker << " with 0 fragment index" << eol;
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
 
     NMEAUInt32 messageID;
     if (!messageID.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Message ID", true)) {
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
     // We assume that all messages that are fragmented will contain a message id. This may need to
     // be revisited if it turns out that there are some talkers out there that don't send the id.
@@ -163,14 +163,14 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
         logger() << logWarnNMEA << "Encapsulated multi-fragment NMEA " << nmeaMsgTypeName(msgType)
                  << " message from " << talker << " without a message id" << eol;
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
     const uint32_t messageIdOrZero = messageID.hasValue() ? messageID : 0;
 
     NMEARadioChannelCode radioChannelCode;
     if (!radioChannelCode.extract(nmeaLine, talker, nmeaMsgTypeName(msgType))) {
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
 
     etl::string_view payloadView;
@@ -178,13 +178,13 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
         logger() << logWarnNMEA << "NMEA " << nmeaMsgTypeName(msgType) << " message from " << talker
                  << " missing payload" << eol;
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
 
     NMEAUInt8 fillBits;
     if (!fillBits.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Fill Bits", false, 5)) {
         decapsulator.reset();
-        return NULL;
+        return nullptr;
     }
 
     decapsulator.addFragment(talker, msgType, fragmentCount, fragmentIndex, messageIdOrZero,
@@ -195,7 +195,7 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
         decapsulator.reset();
         return message;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -214,6 +214,6 @@ NMEAMessage *NMEAParser::parseEncapsulatedMessage(NMEATalker &talker, enum NMEAM
         default: 
             logger() << logWarnNMEA << "Ignoring unsupport encapsulated "
                      << nmeaMsgTypeName(msgType) << " message from " << talker << eol;
-            return NULL;
+            return nullptr;
     }
 }

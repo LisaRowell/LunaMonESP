@@ -115,7 +115,7 @@ Logger & Logger::operator << (char character) {
 
 Logger & Logger::operator << (const char *string) {
     if (outputCurrentLine) {
-        if (string != NULL) {
+        if (string != nullptr) {
             logString(string);
         } else {
             logString("(nil)");
