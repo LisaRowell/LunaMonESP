@@ -37,9 +37,6 @@ class StatsManager;
 
 class NMEASource : StatsHolder {
     private:
-        char buffer[maxNMEALineLength];
-        size_t bufferPos;
-        size_t remaining;
         bool carriageReturnFound;
         NMEALine inputLine;
         NMEAParser parser;
@@ -50,14 +47,15 @@ class NMEASource : StatsHolder {
         DataModelUInt32Leaf &messagesLeaf;
         DataModelUInt32Leaf &messageRateLeaf;
 
-        bool scanForCarriageReturn(size_t &carriageReturnPos);
-        bool readAvailableInput(int sock);
-        bool processBuffer();
+        bool scanForCarriageReturn(size_t &carriageReturnPos, const char *buffer,
+                                   size_t &bufferPos, size_t &remaining);
+        bool processBufferToEndOfLine(const char *buffer, size_t &bufferPos, size_t &remaining);
         void lineCompleted();
         virtual void exportStats(uint32_t msElapsed) override;
 
     protected:
-        void processNMEAStream(int sock);
+        void sourceReset();
+        void processBuffer(const char *buffer, size_t length);
 
     public:
         NMEASource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,

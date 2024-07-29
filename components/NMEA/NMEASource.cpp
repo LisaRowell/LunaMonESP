@@ -34,19 +34,22 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <sys/socket.h>
 
 NMEASource::NMEASource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,
                        DataModelUInt32Leaf &messageRateLeaf, StatsManager &statsManager)
-    : bufferPos(0),
-      remaining(0),
-      carriageReturnFound(false),
+    : carriageReturnFound(false),
       parser(aisContacts),
       messageHandlers(),
       messagesLeaf(messagesLeaf),
       messageRateLeaf(messageRateLeaf) {
     statsManager.addStatsHolder(*this);
 }
+
+void NMEASource::sourceReset() {
+    carriageReturnFound = false;
+    inputLine.reset();
+}
+
 
 void NMEASource::addMessageHandler(NMEAMessageHandler &messageHandler) {
     if (messageHandlers.full()) {
@@ -57,7 +60,8 @@ void NMEASource::addMessageHandler(NMEAMessageHandler &messageHandler) {
 }
 
 
-bool NMEASource::scanForCarriageReturn(size_t &carriageReturnPos) {
+bool NMEASource::scanForCarriageReturn(size_t &carriageReturnPos, const char *buffer,
+                                       size_t &bufferPos, size_t &remaining) {
     size_t scanRemaining;
     size_t scanPos;
 
@@ -73,7 +77,8 @@ bool NMEASource::scanForCarriageReturn(size_t &carriageReturnPos) {
     return false;
 }
 
-bool NMEASource::processBuffer() {
+bool NMEASource::processBufferToEndOfLine(const char *buffer, size_t &bufferPos,
+                                          size_t &remaining) {
     // Since NMEA 0183 has CR/LF terminated lines, if the last thing we looked at was a carriage
     // return, we should be looking at a line feed.
     if (carriageReturnFound) {
@@ -93,7 +98,7 @@ bool NMEASource::processBuffer() {
     }
 
     size_t carriageReturnPos;
-    if (scanForCarriageReturn(carriageReturnPos)) {
+    if (scanForCarriageReturn(carriageReturnPos, buffer, bufferPos, remaining)) {
         // We have a CR, move the characters up to that point into the line.
         inputLine.append(buffer, bufferPos, carriageReturnPos);
         remaining -= carriageReturnPos - bufferPos + 1;
@@ -115,7 +120,7 @@ bool NMEASource::processBuffer() {
                 remaining--;
                 bufferPos++;
                 if (remaining) {
-                    return processBuffer();
+                    return processBufferToEndOfLine(buffer, bufferPos, remaining);
                 } else {
                     bufferPos = 0;
                     return false;
@@ -136,19 +141,15 @@ bool NMEASource::processBuffer() {
     }
 }
 
-bool NMEASource::readAvailableInput(int sock) {
-    ssize_t count = recv(sock, buffer, maxNMEALineLength, 0);
-    if (count == 0) {
-        logger() << logWarnNMEA << "NMEA source closed connection." << eol;
-        return false;
-    } else if (count < 0) {
-        logger() << logWarnNMEA << "NMEA source read failed:" << strerror(errno) << "(" << errno
-                 << ")" << eol;
-        return false;
-    } else {
-        remaining = count;
-        bufferPos = 0;
-        return true;
+void NMEASource::processBuffer(const char *buffer, size_t length) {
+    size_t bufferPos = 0;
+    size_t remaining = length;
+
+    while (remaining) {
+        if (processBufferToEndOfLine(buffer, bufferPos, remaining)) {
+            lineCompleted();
+            inputLine.reset();
+        }
     }
 }
 
@@ -175,26 +176,6 @@ void NMEASource::lineCompleted() {
 
         // While we're done with the nmeaMessage, we don't do a free here
         // since it was allocated with a static buffer and placement new.
-    }
-}
-
-void NMEASource::processNMEAStream(int sock) {
-    bufferPos = 0;
-    remaining = 0;
-    carriageReturnFound = false;
-    inputLine.reset();
-
-    while (true) {
-        if (!readAvailableInput(sock)) {
-            return;
-        }
-
-        while (remaining) {
-            if (processBuffer()) {
-                lineCompleted();
-                inputLine.reset();
-            }
-        }
     }
 }
 

@@ -1,5 +1,6 @@
 idf_component_register(SRCS "NMEA.cpp"
                             "NMEASource.cpp"
+                            "NMEASockSource.cpp"
                             "NMEAParser.cpp"
                             "NMEADecapsulator.cpp"
                             "NMEALine.cpp"

@@ -44,7 +44,7 @@ NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsMana
                                AISContacts &aisContacts)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager),
-      NMEASource(aisContacts, messagesLeaf, messageRateLeaf, statsManager),
+      NMEASockSource(aisContacts, messagesLeaf, messageRateLeaf, statsManager),
       ipv4Addr(ipv4Addr), tcpPort(tcpPort),
       nmeaWiFiNode("wifi", &nmea.nmeaNode()),
       stateLeaf("state", &nmeaWiFiNode),

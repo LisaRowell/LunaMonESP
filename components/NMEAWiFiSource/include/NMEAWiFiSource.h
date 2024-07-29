@@ -21,7 +21,7 @@
 
 #include "TaskObject.h"
 #include "WiFiManagerClient.h"
-#include "NMEASource.h"
+#include "NMEASockSource.h"
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -35,7 +35,7 @@ class StatsManager;
 class NMEA;
 class AISContacts;
 
-class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
+class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASockSource {
     private:
         const char *ipv4Addr;
         uint16_t tcpPort;
