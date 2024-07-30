@@ -52,7 +52,7 @@ I2CMaster::I2CMaster(i2c_port_t instance, gpio_num_t sclIOPin, gpio_num_t sdaIOP
                  << eol;
         errorExit();
     }
-    
+
     error = i2c_driver_install(instance, I2C_MODE_MASTER, 0, 0, 0);
     if (error != ESP_OK) {
         logger() << logErrorI2CMaster << "Failed to install i2c driver: " << ESPError(error) << eol;
