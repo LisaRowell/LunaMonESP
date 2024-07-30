@@ -21,6 +21,7 @@
 #include "Error.h"
 
 #include <freertos/semphr.h>
+#include <freertos/task.h>
 
 #include <stddef.h>
 
