@@ -25,6 +25,7 @@
 #include "AISContacts.h"
 #include "NMEA.h"
 #include "NMEAWiFiSource.h"
+#include "NMEAUARTSource.h"
 #include "NMEADataModelBridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
@@ -36,6 +37,7 @@
 
 #include "driver/gpio.h"
 #include "driver/i2c.h"
+#include "driver/uart.h"
 #include "nvs_flash.h"
 #include "esp_timer.h"
 #include "esp_err.h"
@@ -62,6 +64,30 @@
 #define I2C_MASTER_NUM      (I2C_NUM_0)
 #define I2C_MASTER_SCL_IO   (GPIO_NUM_0)
 #define I2C_MASTER_SDA_IO   (GPIO_NUM_0)
+#endif
+
+#if CONFIG_LUNAMON_NMEA_UART1_ENABLED
+#define NMEA_UART1_BAUD_RATE    (CONFIG_LUNAMON_NMEA_UART1_BAUD_RATE)
+#define NMEA_UART1_RX_PIN       (CONFIG_LUNAMON_NMEA_UART1_RX_PIN)
+#define NMEA_UART1_TX_PIN       (CONFIG_LUNAMON_NMEA_UART1_TX_PIN)
+#define NMEA_UART1_RTS_PIN      (CONFIG_LUNAMON_NMEA_UART1_RTS_PIN)
+#else
+#define NMEA_UART1_BAUD_RATE    (0)
+#define NMEA_UART1_RX_PIN       (GPIO_NUM_0)
+#define NMEA_UART1_TX_PIN       (GPIO_NUM_0)
+#define NMEA_UART1_RTS_PIN      (GPIO_NUM_0)
+#endif
+
+#if CONFIG_LUNAMON_NMEA_UART2_ENABLED
+#define NMEA_UART2_BAUD_RATE    (CONFIG_LUNAMON_NMEA_UART2_BAUD_RATE)
+#define NMEA_UART2_RX_PIN       (CONFIG_LUNAMON_NMEA_UART2_RX_PIN)
+#define NMEA_UART2_TX_PIN       (CONFIG_LUNAMON_NMEA_UART2_TX_PIN)
+#define NMEA_UART2_RTS_PIN      (CONFIG_LUNAMON_NMEA_UART2_RTS_PIN)
+#else
+#define NMEA_UART2_BAUD_RATE    (0)
+#define NMEA_UART2_RX_PIN       (GPIO_NUM_0)
+#define NMEA_UART2_TX_PIN       (GPIO_NUM_0)
+#define NMEA_UART2_RTS_PIN      (GPIO_NUM_0)
 #endif
 
 LunaMon::LunaMon()
@@ -101,6 +127,34 @@ LunaMon::LunaMon()
         nmeaWiFiSource = nullptr;
     }
 
+    if (CONFIG_LUNAMON_NMEA_UART1_ENABLED) {
+        nmeaUART1Source = new NMEAUARTSource("uart1", UART_NUM_1, NMEA_UART1_RX_PIN,
+                                             NMEA_UART1_TX_PIN, NMEA_UART1_RTS_PIN,
+                                             NMEA_UART1_BAUD_RATE, statsManager, nmea,
+                                             aisContacts);
+        if (nmeaUART1Source) {
+            nmeaUART1Source->addMessageHandler(nmeaDataModelBridge);
+        } else {
+            logger << logErrorMain << "Failed to allocate UART1 NMEA source." << eol;
+        }
+    } else {
+        nmeaUART1Source = nullptr;
+    }
+
+    if (CONFIG_LUNAMON_NMEA_UART2_ENABLED) {
+        nmeaUART2Source = new NMEAUARTSource("uart2", UART_NUM_2, NMEA_UART2_RX_PIN,
+                                             NMEA_UART2_TX_PIN, NMEA_UART2_RTS_PIN,
+                                             NMEA_UART2_BAUD_RATE, statsManager, nmea,
+                                             aisContacts);
+        if (nmeaUART2Source) {
+            nmeaUART2Source->addMessageHandler(nmeaDataModelBridge);
+        } else {
+            logger << logErrorMain << "Failed to allocate UART2 NMEA source." << eol;
+        }
+    } else {
+        nmeaUART2Source = nullptr;
+    }
+
     if (CONFIG_LUNAMON_I2C_ENABLED) {
         ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
     }
@@ -122,6 +176,12 @@ void LunaMon::run() {
 
     if (nmeaWiFiSource) {
         nmeaWiFiSource->start();
+    }
+    if (nmeaUART1Source) {
+        nmeaUART1Source->start();
+    }
+    if (nmeaUART2Source) {
+        nmeaUART2Source->start();
     }
 
     if (environmentalMon) {

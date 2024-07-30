@@ -37,6 +37,7 @@
 #include "etl/string.h"
 
 class NMEAWiFiSource;
+class NMEAUARTSource;
 class StatusLED;
 class I2CMaster;
 class EnvironmentalMon;
@@ -53,6 +54,8 @@ class LunaMon {
         LogManager logManager;
         Logger logger;
         NMEAWiFiSource *nmeaWiFiSource;
+        NMEAUARTSource *nmeaUART1Source;
+        NMEAUARTSource *nmeaUART2Source;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
