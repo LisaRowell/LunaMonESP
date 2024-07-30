@@ -36,6 +36,9 @@ void NMEALine::reset() {
 
 void NMEALine::append(const char *srcBuffer, size_t start, size_t end) {
     line.append(srcBuffer + start, end - start);
+    if (line.is_truncated()) {
+        logger() << logWarnNMEA << "NMEA line exceeded maximum length, truncated" << eol;
+    }
     remaining = line;
 }
 
