@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,34 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_HUNDREDTHS_UINT8_H
-#define NMEA_HUNDREDTHS_UINT8_H
+#ifndef NMEA_DPT_MESSAGE_H
+#define NMEA_DPT_MESSAGE_H
 
-#include "HundredthsUInt8.h"
+#include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 
-#include "LoggableItem.h"
+#include "NMEATenthsInt16.h"
+#include "NMEATenthsUInt16.h"
 
-#include "etl/string_view.h"
-
-#include <stdint.h>
-
-class NMEALine;
 class NMEATalker;
-class DataModelHundredthsUInt8Leaf;
-class Logger;
+class NMEALine;
 
-class NMEAHundredthsUInt8 : public LoggableItem {
+class NMEADPTMessage : public NMEAMessage {
     private:
-        HundredthsUInt8 value;
-
-        bool set(const etl::string_view &decimalString);
+        NMEATenthsUInt16 depthBelowTransducerMeters;
+        NMEATenthsInt16 transducerOffsetMeters;
+        NMEATenthsUInt16 maxRangeScaleMeters;
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
-                     const char *fieldName);
-        constexpr operator HundredthsUInt8() const { return value; }
-        void publish(DataModelHundredthsUInt8Leaf &leaf) const;
-        virtual void log(Logger &logger) const override;
+        NMEADPTMessage(const NMEATalker &talker);
+        bool parse(NMEALine &nmeaLine);
+        virtual NMEAMsgType::Value type() const override;
+        virtual void log() const override;
+
+    friend class NMEADepthBridge;
 };
 
-#endif
+extern NMEADPTMessage *parseNMEADPTMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+
+#endif // NMEA_DPT_MESSAGE_H

@@ -18,7 +18,7 @@
 
 #include "NMEADBKMessage.h"
 
-#include "NMEATenthsUInt16.h"
+#include "NMEATenthsInt16.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 #include "NMEALine.h"

@@ -17,6 +17,7 @@
  */
 
 #include "TenthsInt16.h"
+#include "TenthsUInt16.h"
 
 #include "Logger.h"
 
@@ -65,6 +66,30 @@ TenthsInt16 TenthsInt16::operator/(uint32_t divider) {
     uint32_t tenths = (remainder * 10 + _tenths) / divider;
     return TenthsInt16(integer, tenths);
 }
+
+TenthsUInt16 TenthsInt16::abs() const {
+    uint16_t integer = _integer < 0 ? _integer * -1 : _integer;
+    return TenthsUInt16(integer, _tenths);
+}
+
+bool TenthsInt16::operator <(int16_t value) {
+    if (_integer < value) {
+        return true;
+    } else if (_integer > value) {
+        return false;
+    } else {
+        if (_tenths == 0) {
+            return false;
+        } else {
+            if (_integer < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
 
 void TenthsInt16::toString(etl::istring &string) const {
     etl::string_stream stringStream(string);

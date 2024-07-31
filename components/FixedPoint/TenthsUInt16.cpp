@@ -17,6 +17,7 @@
  */
 
 #include "TenthsUInt16.h"
+#include "TenthsInt16.h"
 
 #include "Logger.h"
 
@@ -49,6 +50,33 @@ void TenthsUInt16::setFromTenths(uint32_t tenths) {
 
 TenthsUInt16 TenthsUInt16::operator+(uint32_t adder) {
     return TenthsUInt16(_wholeNumber + adder, _tenths);
+}
+
+TenthsUInt16 TenthsUInt16::operator+(const TenthsUInt16 &other) const {
+    uint8_t tenths = _tenths + other._tenths;
+    uint16_t wholeNumber = _wholeNumber + other._wholeNumber;
+
+    if (tenths > 10) {
+        tenths -= 10;
+        wholeNumber += 1;
+    }
+
+    return TenthsUInt16(wholeNumber, tenths);
+}
+
+TenthsInt16 TenthsUInt16::operator-(const TenthsUInt16 &other) const {
+    int16_t integer;
+    uint8_t tenths;
+
+    if (_tenths < other._tenths) {
+        tenths = 10 + _tenths - other._tenths;
+        integer = _wholeNumber - 1 - other._wholeNumber;
+    } else {
+        tenths = _tenths - other._tenths;
+        integer = _wholeNumber - other._wholeNumber;
+    }
+
+    return TenthsInt16(integer, tenths);
 }
 
 TenthsUInt16 TenthsUInt16::operator*(uint32_t multiplier) {

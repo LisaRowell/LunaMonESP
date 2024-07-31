@@ -40,6 +40,7 @@ class NMEAHundredthsUInt16 : public LoggableItem {
     public:
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
                      const char *fieldName);
+        constexpr operator HundredthsUInt16() const { return value; }
         void publish(DataModelHundredthsUInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };

@@ -21,7 +21,7 @@
 
 #include "NMEAMessage.h"
 #include "NMEAMsgType.h"
-#include "NMEATenthsUInt16.h"
+#include "NMEATenthsInt16.h"
 #include "NMEALine.h"
 
 class NMEATalker;
@@ -29,9 +29,9 @@ class NMEALine;
 
 class NMEADBKMessage : public NMEAMessage {
     private:
-        NMEATenthsUInt16 depthFeet;
-        NMEATenthsUInt16 depthMeters;
-        NMEATenthsUInt16 depthFathoms;
+        NMEATenthsInt16 depthFeet;
+        NMEATenthsInt16 depthMeters;
+        NMEATenthsInt16 depthFathoms;
 
     public:
         NMEADBKMessage(const NMEATalker &talker);

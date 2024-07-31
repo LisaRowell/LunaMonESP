@@ -21,10 +21,13 @@
 #include "NMEADBKMessage.h"
 #include "NMEADBSMessage.h"
 #include "NMEADBTMessage.h"
+#include "NMEADPTMessage.h"
 
 #include "DataModel.h"
 #include "DataModelNode.h"
 #include "DataModelTenthsUInt16Leaf.h"
+
+#include "TenthsInt16.h"
 
 #include "StatCounter.h"
 
@@ -66,6 +69,27 @@ void NMEADepthBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
     message->depthFeet.publish(depthBelowTransducerFeetLeaf);
     message->depthMeters.publish(depthBelowTransducerMetersLeaf);
     message->depthFathoms.publish(depthBelowTransducerFathomsLeaf);
+
+    messagesBridgedCounter++;
+}
+
+void NMEADepthBridge::bridgeNMEADPTMessage(const NMEADPTMessage *message) {
+    message->depthBelowTransducerMeters.publish(depthBelowTransducerMetersLeaf);
+
+    // The transducer offset field in this message is a little wonky as it can indicate either
+    // a distance from the transducer to the keel or a distance from the transducer to the water
+    // line, indicated by the sign.
+    TenthsUInt16 depthBelowTransducerMeters = message->depthBelowTransducerMeters;
+    TenthsInt16 transducerOffsetMeters = message->transducerOffsetMeters;
+    if (transducerOffsetMeters < 0) {
+        TenthsInt16 depthBelowKeelMeters;
+        depthBelowKeelMeters = depthBelowTransducerMeters - transducerOffsetMeters.abs();
+        depthBelowKeelMetersLeaf = depthBelowKeelMeters;
+    } else {
+        TenthsUInt16 depthBelowSurfaceMeters;
+        depthBelowSurfaceMeters = depthBelowTransducerMeters + transducerOffsetMeters.abs();
+        depthBelowSurfaceMetersLeaf = depthBelowSurfaceMeters;
+    }
 
     messagesBridgedCounter++;
 }

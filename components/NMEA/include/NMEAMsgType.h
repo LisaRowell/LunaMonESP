@@ -32,6 +32,7 @@ class NMEAMsgType {
             DBK,
             DBS,
             DBT,
+            DPT,
             GGA,
             GLL,
             GSA,

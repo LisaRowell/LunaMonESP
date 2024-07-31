@@ -40,6 +40,8 @@ void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
         value = DBS;
     } else if (msgTypeStr == "DBT") {
         value = DBT;
+    } else if (msgTypeStr == "DPT") {
+        value = DPT;
     } else if (msgTypeStr == "GGA") {
         value = GGA;
     } else if (msgTypeStr == "GLL") {
@@ -77,6 +79,8 @@ const char *NMEAMsgType::name() const {
             return "DBS";
         case DBT:
             return "DBT";
+        case DPT:
+            return "DPT";
         case GGA:
             return "GGA";
         case GLL:

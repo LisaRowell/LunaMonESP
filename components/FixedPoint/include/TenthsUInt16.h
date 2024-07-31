@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+class TenthsInt16;
+
 class TenthsUInt16 : public LoggableItem {
     private:
         uint16_t _wholeNumber;
@@ -38,6 +40,8 @@ class TenthsUInt16 : public LoggableItem {
         bool operator == (const TenthsUInt16 &right) const;
         void setFromTenths(uint32_t tenths);
         TenthsUInt16 operator+(uint32_t adder);
+        TenthsUInt16 operator+(const TenthsUInt16 &other) const;
+        TenthsInt16 operator-(const TenthsUInt16 &other) const;
         TenthsUInt16 operator*(uint32_t multiplier);
         TenthsUInt16 operator/(uint32_t divider);
         void toString(etl::istring &string) const;

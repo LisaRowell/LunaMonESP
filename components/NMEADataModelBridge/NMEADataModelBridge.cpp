@@ -64,6 +64,10 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
             depthBridge.bridgeNMEADBTMessage((NMEADBTMessage *)message);
             break;
 
+        case NMEAMsgType::DPT:
+            depthBridge.bridgeNMEADPTMessage((NMEADPTMessage *)message);
+            break;
+
         case NMEAMsgType::GGA:
             gpsBridge.bridgeNMEAGGAMessage((NMEAGGAMessage *)message);
             break;

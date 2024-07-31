@@ -25,6 +25,7 @@
 #include "NMEADBKMessage.h"
 #include "NMEADBSMessage.h"
 #include "NMEADBTMessage.h"
+#include "NMEADPTMessage.h"
 #include "NMEAGGAMessage.h"
 #include "NMEAGLLMessage.h"
 #include "NMEAGSAMessage.h"
@@ -93,6 +94,9 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
 
         case NMEAMsgType::DBT:
             return parseNMEADBTMessage(talker, nmeaLine);
+
+        case NMEAMsgType::DPT:
+            return parseNMEADPTMessage(talker, nmeaLine);
 
         case NMEAMsgType::GGA:
             return parseNMEAGGAMessage(talker, nmeaLine);

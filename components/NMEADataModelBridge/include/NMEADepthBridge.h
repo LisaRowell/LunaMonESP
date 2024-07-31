@@ -20,12 +20,14 @@
 #define NMEA_DEPTH_BRIDGE_H
 
 #include "DataModelNode.h"
+#include "DataModelTenthsInt16Leaf.h"
 #include "DataModelTenthsUInt16Leaf.h"
 
 class DataModel;
 class NMEADBKMessage;
 class NMEADBSMessage;
 class NMEADBTMessage;
+class NMEADPTMessage;
 class StatCounter;
 
 class NMEADepthBridge {
@@ -42,15 +44,16 @@ class NMEADepthBridge {
         DataModelTenthsUInt16Leaf depthBelowTransducerMetersLeaf;
         DataModelTenthsUInt16Leaf depthBelowTransducerFathomsLeaf;
         DataModelNode depthBelowKeelNode;
-        DataModelTenthsUInt16Leaf depthBelowKeelFeetLeaf;
-        DataModelTenthsUInt16Leaf depthBelowKeelMetersLeaf;
-        DataModelTenthsUInt16Leaf depthBelowKeelFathomsLeaf;
+        DataModelTenthsInt16Leaf depthBelowKeelFeetLeaf;
+        DataModelTenthsInt16Leaf depthBelowKeelMetersLeaf;
+        DataModelTenthsInt16Leaf depthBelowKeelFathomsLeaf;
 
     public:
         NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEADBKMessage(const NMEADBKMessage *message);
         void bridgeNMEADBSMessage(const NMEADBSMessage *message);
         void bridgeNMEADBTMessage(const NMEADBTMessage *message);
+        void bridgeNMEADPTMessage(const NMEADPTMessage *message);
 };
 
 #endif // NMEA_DEPTH_BRIDGE_H
