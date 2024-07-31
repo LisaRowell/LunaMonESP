@@ -20,6 +20,7 @@
 #define NMEA_RMC_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 #include "NMEATime.h"
 #include "NMEADataValid.h"
 #include "NMEALatitude.h"
@@ -28,8 +29,9 @@
 #include "NMEADate.h"
 #include "NMEAMagneticVariation.h"
 #include "NMEAFAAModeIndicator.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEARMCMessage : public NMEAMessage {
     private:
@@ -44,14 +46,14 @@ class NMEARMCMessage : public NMEAMessage {
         NMEAFAAModeIndicator faaModeIndicator;
 
     public:
-        NMEARMCMessage(NMEATalker &talker);
+        NMEARMCMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEAGPSBridge;
 };
 
-extern NMEARMCMessage *parseNMEARMCMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEARMCMessage *parseNMEARMCMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

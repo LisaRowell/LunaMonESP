@@ -35,7 +35,7 @@ NMEADecapsulator::NMEADecapsulator() : messageBitStream(messageDataArray.data(),
     reset();
 }
 
-void NMEADecapsulator::addFragment(NMEATalker &talker, enum NMEAMsgType msgType,
+void NMEADecapsulator::addFragment(const NMEATalker &talker, const NMEAMsgType &msgType,
                                    uint8_t fragmentCount, uint8_t fragmentIndex,
                                    uint32_t messageIdOrZero, etl::string_view &payloadView,
                                    uint8_t fillBits) {
@@ -53,7 +53,7 @@ void NMEADecapsulator::addFragment(NMEATalker &talker, enum NMEAMsgType msgType,
         if (fragmentIndex != 1) {
             // We came into the middle of a message's fragment stream so we should discard this
             // fragment as it's useless without the preceeding ones.
-            logger() << logWarnNMEA << "Discarding encapsulated NMEA " << nmeaMsgTypeName(msgType)
+            logger() << logWarnNMEA << "Discarding encapsulated NMEA " << msgType
                      << " message fragment from " << talker
                      << " that is missing preceeding fragments" << eol;
             return;
@@ -73,7 +73,7 @@ void NMEADecapsulator::addFragment(NMEATalker &talker, enum NMEAMsgType msgType,
     }
 }
 
-bool NMEADecapsulator::fragmentIsNext(NMEATalker &talker, enum NMEAMsgType msgType,
+bool NMEADecapsulator::fragmentIsNext(const NMEATalker &talker, const NMEAMsgType &msgType,
                                       uint8_t fragmentCount, uint8_t fragmentIndex,
                                       uint32_t messageIdOrZero) {
     return messageTalker == talker &&

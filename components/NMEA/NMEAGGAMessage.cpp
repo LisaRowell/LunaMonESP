@@ -24,13 +24,14 @@
 #include "NMEAHundredthsUInt16.h"
 #include "NMEATenthsInt16.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAMessageBuffer.h"
 
 #include "StringTools.h"
 #include "Logger.h"
 
-NMEAGGAMessage::NMEAGGAMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAGGAMessage::NMEAGGAMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGGAMessage::parse(NMEALine &nmeaLine) {
@@ -87,8 +88,8 @@ bool NMEAGGAMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEAGGAMessage::type() const {
-    return NMEA_MSG_TYPE_GGA;
+NMEAMsgType::Value NMEAGGAMessage::type() const {
+    return NMEAMsgType::GGA;
 }
 
 void NMEAGGAMessage::log() const {
@@ -107,7 +108,7 @@ void NMEAGGAMessage::log() const {
     logger() << eol;
 }
 
-NMEAGGAMessage *parseNMEAGGAMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGGAMessage *parseNMEAGGAMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAGGAMessage *message = new (nmeaMessageBuffer)NMEAGGAMessage(talker);
     if (!message) {
         return nullptr;

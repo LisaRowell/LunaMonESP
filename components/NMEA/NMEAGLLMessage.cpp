@@ -21,6 +21,7 @@
 #include "NMEAMessage.h"
 #include "NMEALine.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALatitude.h"
 #include "NMEALongitude.h"
 #include "NMEATime.h"
@@ -30,7 +31,7 @@
 
 #include "Logger.h"
 
-NMEAGLLMessage::NMEAGLLMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAGLLMessage::NMEAGLLMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGLLMessage::parse(NMEALine &nmeaLine) {
@@ -57,8 +58,8 @@ bool NMEAGLLMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEAGLLMessage::type() const {
-    return NMEA_MSG_TYPE_GLL;
+NMEAMsgType::Value NMEAGLLMessage::type() const {
+    return NMEAMsgType::GLL;
 }
 
 void NMEAGLLMessage::log() const {
@@ -70,7 +71,7 @@ void NMEAGLLMessage::log() const {
     logger() << eol;
 }
 
-NMEAGLLMessage *parseNMEAGLLMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAGLLMessage *message = new (nmeaMessageBuffer)NMEAGLLMessage(talker);
     if (!message) {
         return nullptr;

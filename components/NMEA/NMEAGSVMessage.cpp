@@ -19,6 +19,7 @@
 #include "NMEAGSVMessage.h"
 #include "NMEAMsgType.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAUInt8.h"
 #include "NMEAMessageBuffer.h"
@@ -26,7 +27,7 @@
 #include "StringTools.h"
 #include "Logger.h"
 
-NMEAGSVMessage::NMEAGSVMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAGSVMessage::NMEAGSVMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGSVMessage::parse(NMEALine &nmeaLine) {
@@ -55,8 +56,8 @@ bool NMEAGSVMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEAGSVMessage::type() const {
-    return NMEA_MSG_TYPE_GSV;
+NMEAMsgType::Value NMEAGSVMessage::type() const {
+    return NMEAMsgType::GSV;
 }
 
 void NMEAGSVMessage::log() const {
@@ -71,7 +72,7 @@ void NMEAGSVMessage::log() const {
     logger() << eol;
 }
 
-NMEAGSVMessage *parseNMEAGSVMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAGSVMessage *message = new (nmeaMessageBuffer)NMEAGSVMessage(talker);
     if (!message) {
         return nullptr;

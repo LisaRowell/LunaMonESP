@@ -27,15 +27,17 @@
 #include "stddef.h"
 
 class NMEATalker;
+class NMEAMsgType;
 
 class NMEAVDOMessage : public NMEAVDMVDOMessage {
     public:
-        NMEAVDOMessage(NMEATalker &talker);
-        virtual enum NMEAMsgType type() const override;
+        NMEAVDOMessage(const NMEATalker &talker);
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 };
 
-extern NMEAVDOMessage *parseVDOMessage(NMEATalker &talker, etl::bit_stream_reader &streamReader,
+extern NMEAVDOMessage *parseVDOMessage(const NMEATalker &talker,
+                                       etl::bit_stream_reader &streamReader,
                                        size_t messageSizeInBits, AISContacts &aisContacts);  
 
 #endif // NMEA_VDO_MESSAGE_H

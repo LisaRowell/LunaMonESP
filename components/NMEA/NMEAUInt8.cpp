@@ -19,6 +19,7 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 #include "NMEAUInt8.h"
+#include "NMEAMsgType.h"
 
 #include "DataModelUInt8Leaf.h"
 
@@ -59,12 +60,12 @@ bool NMEAUInt8::set(const etl::string_view &valueView, bool optional, uint8_t ma
     return true;
 }
 
-bool NMEAUInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+bool NMEAUInt8::extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgTypeName,
                         const char *fieldName, bool optional, uint8_t maxValue) {
     etl::string_view valueView;
     if (!nmeaLine.getWord(valueView)) {
         if (!optional) {
-            logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
+            logger() << logWarnNMEA << talker << " " << msgTypeName << " message missing " << fieldName
                      << " field" << eol;
             return false;
         }
@@ -74,7 +75,7 @@ bool NMEAUInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgT
     }
 
     if (!set(valueView, optional, maxValue)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message with bad " << fieldName
+        logger() << logWarnNMEA << talker << " " << msgTypeName << " message with bad " << fieldName
                  << " field '" << valueView << "'" << eol;
         return false;
     }

@@ -17,10 +17,10 @@
  */
 
 #include "NMEATXTMessage.h"
-#include "NMEAMsgType.h"
 #include "NMEAMessage.h"
 #include "NMEALine.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
@@ -28,7 +28,7 @@
 #include "etl/string_view.h"
 #include "etl/to_arithmetic.h"
 
-NMEATXTMessage::NMEATXTMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEATXTMessage::NMEATXTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEATXTMessage::parse(NMEALine &nmeaLine) {
@@ -72,8 +72,8 @@ bool NMEATXTMessage::getTwoDigitField(NMEALine &nmeaLine, uint8_t &value, const 
     return true;
 }
 
-enum NMEAMsgType NMEATXTMessage::type() const {
-    return NMEA_MSG_TYPE_TXT;
+NMEAMsgType::Value NMEATXTMessage::type() const {
+    return NMEAMsgType::TXT;
 }
 
 void NMEATXTMessage::log() const {
@@ -81,7 +81,7 @@ void NMEATXTMessage::log() const {
              << sentenceNumber << " TextId " << textIdentifier << " " << text << eol;
 }
 
-NMEATXTMessage *parseNMEATXTMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEATXTMessage *message = new (nmeaMessageBuffer)NMEATXTMessage(talker);
     if (!message) {
         return nullptr;

@@ -26,7 +26,7 @@
 
 #include "etl/string_view.h"
 
-NMEAMessage::NMEAMessage(NMEATalker &talker) : talker(talker) {
+NMEAMessage::NMEAMessage(const NMEATalker &talker) : talker(talker) {
 }
 
 const NMEATalker &NMEAMessage::source() const {
@@ -34,7 +34,8 @@ const NMEATalker &NMEAMessage::source() const {
 }
 
 const char *NMEAMessage::typeName() const {
-    return nmeaMsgTypeName(type());
+    NMEAMsgType msgType(type());
+    return msgType.name();
 }
 
 bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageType,

@@ -36,11 +36,12 @@ class NMEAParser {
         NMEADecapsulator decapsulator;
         AISContacts &aisContacts;
 
-        NMEAMessage *parseUnencapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
+        NMEAMessage *parseUnencapsulatedLine(const NMEATalker &talker, const NMEAMsgType &msgType,
                                              NMEALine &nmeaLine);
-        NMEAMessage *parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
+        NMEAMessage *parseEncapsulatedLine(const NMEATalker &talker, const NMEAMsgType &msgType,
                                            NMEALine &nmeaLine);
-        NMEAMessage *parseEncapsulatedMessage(NMEATalker &talker, enum NMEAMsgType msgType);
+        NMEAMessage *parseEncapsulatedMessage(const NMEATalker &talker,
+                                              const NMEAMsgType &msgType);
 
     public:
         NMEAParser(AISContacts &aisContacts);

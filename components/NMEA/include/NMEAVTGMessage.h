@@ -20,10 +20,12 @@
 #define NMEA_VTG_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEAFAAModeIndicator.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEAVTGMessage : public NMEAMessage {
     private:
@@ -36,14 +38,14 @@ class NMEAVTGMessage : public NMEAMessage {
         bool wordIsT(const etl::string_view &word);
 
     public:
-        NMEAVTGMessage(NMEATalker &talker);
+        NMEAVTGMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEAGPSBridge;
 };
 
-extern NMEAVTGMessage *parseNMEAVTGMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAVTGMessage *parseNMEAVTGMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

@@ -20,14 +20,14 @@
 #define NMEA_RADIO_CHANNEL_CODE_H
 
 #include "NMEALine.h"
-#include "NMEATalker.h"
-
-// #include "DataModel/DataModelStringLeaf.h"
-
 #include "LoggableItem.h"
-#include "Logger.h"
 
 #include "etl/string_view.h"
+
+class NMEATalker;
+class NMEAMsgType;
+class DataModelStringLeaf;
+class Logger;
 
 class NMEARadioChannelCode : public LoggableItem {
     private:
@@ -40,8 +40,8 @@ class NMEARadioChannelCode : public LoggableItem {
         bool set(const etl::string_view &radioChannelCodeView);
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
-//        void publish(DataModelStringLeaf &leaf) const;
+        bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const NMEAMsgType &msgType);
+        void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 

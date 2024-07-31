@@ -19,6 +19,7 @@
 #include "NMEAGSAMessage.h"
 #include "NMEAGPSFixMode.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAMessageBuffer.h"
 
@@ -27,7 +28,7 @@
 
 #include "etl/string_view.h"
 
-NMEAGSAMessage::NMEAGSAMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAGSAMessage::NMEAGSAMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
@@ -80,8 +81,8 @@ bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEAGSAMessage::type() const {
-    return NMEA_MSG_TYPE_GSA;
+NMEAMsgType::Value NMEAGSAMessage::type() const {
+    return NMEAMsgType::GSA;
 }
 
 void NMEAGSAMessage::log() const {
@@ -103,7 +104,7 @@ void NMEAGSAMessage::log() const {
     logger() << "PDOP " << pdop << " HDOP " << hdop << " VDOP " << vdop << eol;
 }
 
-NMEAGSAMessage *parseNMEAGSAMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAGSAMessage *message = new (nmeaMessageBuffer)NMEAGSAMessage(talker);
     if (!message) {
         return nullptr;

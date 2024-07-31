@@ -38,7 +38,7 @@ class NMEAVDMVDOMessage : public NMEAMessage {
         void logAIS(const char *nmeaMsgTypeName) const;
 
     public:
-        NMEAVDMVDOMessage(NMEATalker &talker);
+        NMEAVDMVDOMessage(const NMEATalker &talker);
         bool parse(etl::bit_stream_reader &streamReader, size_t messageSizeInBits, bool ownShip,
                    AISContacts &aisContacts);
 };

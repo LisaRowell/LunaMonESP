@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,24 +21,43 @@
 
 #include "etl/string.h"
 
-enum NMEAMsgType {
-    NMEA_MSG_TYPE_UNKNOWN,
-    NMEA_MSG_TYPE_DBK,
-    NMEA_MSG_TYPE_DBS,
-    NMEA_MSG_TYPE_DBT,
-    NMEA_MSG_TYPE_GGA,
-    NMEA_MSG_TYPE_GLL,
-    NMEA_MSG_TYPE_GSA,
-    NMEA_MSG_TYPE_GST,
-    NMEA_MSG_TYPE_GSV,
-    NMEA_MSG_TYPE_RMC,
-    NMEA_MSG_TYPE_TXT,
-    NMEA_MSG_TYPE_VDM,
-    NMEA_MSG_TYPE_VDO,
-    NMEA_MSG_TYPE_VTG
-};
+#include <stdint.h>
 
-enum NMEAMsgType parseNMEAMsgType(const etl::istring &msgTypeStr);
-const char *nmeaMsgTypeName(NMEAMsgType msgType);
+class Logger;
+
+class NMEAMsgType {
+    public:
+        enum Value : uint8_t {
+            UNKNOWN,
+            DBK,
+            DBS,
+            DBT,
+            GGA,
+            GLL,
+            GSA,
+            GST,
+            GSV,
+            RMC,
+            TXT,
+            VDM,
+            VDO,
+            VTG,
+            COUNT
+        };
+
+    private:
+        Value value;
+
+    public:
+        NMEAMsgType();
+        NMEAMsgType(Value value);
+        NMEAMsgType(const etl::istring &msgTypeStr);
+        constexpr operator Value() const { return value; }
+        void parse(const etl::istring &msgTypeStr);
+        const char *name() const;
+        explicit operator bool() const = delete;
+
+        friend Logger & operator << (Logger &logger, const NMEAMsgType &nmeaMsgType);
+};
 
 #endif

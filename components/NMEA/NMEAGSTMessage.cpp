@@ -19,6 +19,7 @@
 #include "NMEAGSTMessage.h"
 #include "NMEAMsgType.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEATime.h"
 #include "NMEATenthsUInt16.h"
@@ -27,7 +28,7 @@
 #include "StringTools.h"
 #include "Logger.h"
 
-NMEAGSTMessage::NMEAGSTMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAGSTMessage::NMEAGSTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGSTMessage::parse(NMEALine &nmeaLine) {
@@ -78,8 +79,8 @@ bool NMEAGSTMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEAGSTMessage::type() const {
-    return NMEA_MSG_TYPE_GST;
+NMEAMsgType::Value NMEAGSTMessage::type() const {
+    return NMEAMsgType::GST;
 }
 
 void NMEAGSTMessage::log() const {
@@ -93,7 +94,7 @@ void NMEAGSTMessage::log() const {
              << standardDeviationOfAltitudeError << "m" << eol;
 }
 
-NMEAGSTMessage *parseNMEAGSTMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAGSTMessage *message = new (nmeaMessageBuffer)NMEAGSTMessage(talker);
     if (!message) {
         return nullptr;

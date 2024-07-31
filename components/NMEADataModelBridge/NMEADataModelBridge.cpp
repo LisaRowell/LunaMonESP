@@ -48,62 +48,60 @@ NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel, StatsManager &sta
     statsManager.addStatsHolder(*this);
 }
 
-void NMEADataModelBridge::processMessage(NMEAMessage *message) {
+void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
     const NMEAMsgType msgType = message->type();
     switch (msgType) {
-        case NMEA_MSG_TYPE_DBK:
+        case NMEAMsgType::DBK:
             depthBridge.bridgeNMEADBKMessage((NMEADBKMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_DBS:
+        case NMEAMsgType::DBS:
             depthBridge.bridgeNMEADBSMessage((NMEADBSMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_DBT:
+        case NMEAMsgType::DBT:
             depthBridge.bridgeNMEADBTMessage((NMEADBTMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_GGA:
+        case NMEAMsgType::GGA:
             gpsBridge.bridgeNMEAGGAMessage((NMEAGGAMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_GLL:
+        case NMEAMsgType::GLL:
             gpsBridge.bridgeNMEAGLLMessage((NMEAGLLMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_GSA:
+        case NMEAMsgType::GSA:
             gpsBridge.bridgeNMEAGSAMessage((NMEAGSAMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_GST:
+        case NMEAMsgType::GST:
             gpsBridge.bridgeNMEAGSTMessage((NMEAGSTMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_RMC:
+        case NMEAMsgType::RMC:
             gpsBridge.bridgeNMEARMCMessage((NMEARMCMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_VTG:
+        case NMEAMsgType::VTG:
             gpsBridge.bridgeNMEAVTGMessage((NMEAVTGMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_TXT:
+        case NMEAMsgType::TXT:
             logTXTMessage((NMEATXTMessage *)message);
             break;
 
-        case NMEA_MSG_TYPE_GSV:
-        case NMEA_MSG_TYPE_VDM:
-        case NMEA_MSG_TYPE_VDO:
+        case NMEAMsgType::GSV:
+        case NMEAMsgType::VDM:
+        case NMEAMsgType::VDO:
             // Currently not output to clients.
             taskLogger() << logDebugNMEADataModelBridge << "Ignoring " << message->source() << " "
-                         << nmeaMsgTypeName(msgType) << " message in NMEA->Data Model Bridge"
-                        << eol;
+                         << msgType << " message in NMEA->Data Model Bridge" << eol;
             break;
 
         default:
             taskLogger() << logWarnNMEADataModelBridge << "Unhandled " << message->source() << " "
-                         << nmeaMsgTypeName(msgType) << " message in NMEA->Data Model Bridge"
-                         << eol;
+                         << msgType << " message in NMEA->Data Model Bridge" << eol;
     }
 }
 

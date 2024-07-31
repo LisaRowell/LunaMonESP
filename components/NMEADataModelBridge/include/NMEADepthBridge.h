@@ -48,9 +48,9 @@ class NMEADepthBridge {
 
     public:
         NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
-        void bridgeNMEADBKMessage(NMEADBKMessage *message);
-        void bridgeNMEADBSMessage(NMEADBSMessage *message);
-        void bridgeNMEADBTMessage(NMEADBTMessage *message);
+        void bridgeNMEADBKMessage(const NMEADBKMessage *message);
+        void bridgeNMEADBSMessage(const NMEADBSMessage *message);
+        void bridgeNMEADBTMessage(const NMEADBTMessage *message);
 };
 
 #endif // NMEA_DEPTH_BRIDGE_H

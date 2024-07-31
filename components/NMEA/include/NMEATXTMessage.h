@@ -20,12 +20,14 @@
 #define NMEA_TXT_MESSAGE_H
 
 #include "NMEAMessage.h"
-#include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 
 #include "etl/string.h"
 
 #include <stdint.h>
+
+class NMEATalker;
 
 class NMEATXTMessage : public NMEAMessage {
     private:
@@ -37,14 +39,14 @@ class NMEATXTMessage : public NMEAMessage {
         bool getTwoDigitField(NMEALine &nmeaLine, uint8_t &value, const char *fieldName);
 
     public:
-        NMEATXTMessage(NMEATalker &talker);
+        NMEATXTMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEADataModelBridge;
 };
 
-extern NMEATXTMessage *parseNMEATXTMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

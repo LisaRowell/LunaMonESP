@@ -26,7 +26,7 @@
 
 #include <stddef.h>
 
-NMEAVDMVDOMessage::NMEAVDMVDOMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAVDMVDOMessage::NMEAVDMVDOMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAVDMVDOMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeInBits,

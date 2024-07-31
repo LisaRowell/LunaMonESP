@@ -19,6 +19,7 @@
 #include "NMEAVDOMessage.h"
 #include "NMEAVDMVDOMessage.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
@@ -27,18 +28,18 @@
 
 #include "stddef.h"
 
-NMEAVDOMessage::NMEAVDOMessage(NMEATalker &talker) : NMEAVDMVDOMessage(talker) {
+NMEAVDOMessage::NMEAVDOMessage(const NMEATalker &talker) : NMEAVDMVDOMessage(talker) {
 }
 
-enum NMEAMsgType NMEAVDOMessage::type() const {
-    return NMEA_MSG_TYPE_VDO;
+NMEAMsgType::Value NMEAVDOMessage::type() const {
+    return NMEAMsgType::VDO;
 }
 
 void NMEAVDOMessage::log() const {
     logAIS("VDO");
 }
 
-NMEAVDOMessage *parseVDOMessage(NMEATalker &talker, etl::bit_stream_reader &streamReader,
+NMEAVDOMessage *parseVDOMessage(const NMEATalker &talker, etl::bit_stream_reader &streamReader,
                                 size_t messageSizeInBits, AISContacts &aisContacts) {
     NMEAVDOMessage *message = new (nmeaMessageBuffer)NMEAVDOMessage(talker);
     if (!message) {

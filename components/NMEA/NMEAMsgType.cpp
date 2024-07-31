@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,73 +18,90 @@
 
 #include "NMEAMsgType.h"
 
+#include "Logger.h"
 #include "Error.h"
 
 #include "etl/string.h"
 
-enum NMEAMsgType parseNMEAMsgType(const etl::istring &msgTypeStr) {
+NMEAMsgType::NMEAMsgType() : value(UNKNOWN) {
+}
+
+NMEAMsgType::NMEAMsgType(Value value) : value(value) {
+}
+
+NMEAMsgType::NMEAMsgType(const etl::istring &msgTypeStr) {
+    parse(msgTypeStr);
+}
+
+void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
     if (msgTypeStr == "DBK") {
-        return NMEA_MSG_TYPE_DBK;
+        value = DBK;
     } else if (msgTypeStr == "DBS") {
-        return NMEA_MSG_TYPE_DBS;
+        value = DBS;
     } else if (msgTypeStr == "DBT") {
-        return NMEA_MSG_TYPE_DBT;
+        value = DBT;
     } else if (msgTypeStr == "GGA") {
-        return NMEA_MSG_TYPE_GGA;
+        value = GGA;
     } else if (msgTypeStr == "GLL") {
-        return NMEA_MSG_TYPE_GLL;
+        value = GLL;
     } else if (msgTypeStr == "GSA") {
-        return NMEA_MSG_TYPE_GSA;
+        value = GSA;
     } else if (msgTypeStr == "GST") {
-        return NMEA_MSG_TYPE_GST;
+        value = GST;
     } else if (msgTypeStr == "GSV") {
-        return NMEA_MSG_TYPE_GSV;
+        value = GSV;
     } else if (msgTypeStr == "RMC") {
-        return NMEA_MSG_TYPE_RMC;
+        value = RMC;
     } else if (msgTypeStr == "TXT") {
-        return NMEA_MSG_TYPE_TXT;
+        value = TXT;
     } else if (msgTypeStr == "VDM") {
-        return NMEA_MSG_TYPE_VDM;
+        value = VDM;
     } else if (msgTypeStr == "VDO") {
-        return NMEA_MSG_TYPE_VDO;
+        value = VDO;
     } else if (msgTypeStr == "VTG") {
-        return NMEA_MSG_TYPE_VTG;
+        value = VTG;
     } else {
-        return NMEA_MSG_TYPE_UNKNOWN;
+        value = UNKNOWN;
     }
 }
 
-const char *nmeaMsgTypeName(NMEAMsgType msgType) {
-    switch (msgType) {
-        case NMEA_MSG_TYPE_UNKNOWN:
+const char *NMEAMsgType::name() const {
+    switch (value) {
+        case UNKNOWN:
             return "Unknown";
-        case NMEA_MSG_TYPE_DBK:
+        case DBK:
             return "DBK";
-        case NMEA_MSG_TYPE_DBS:
+        case DBS:
             return "DBS";
-        case NMEA_MSG_TYPE_DBT:
+        case DBT:
             return "DBT";
-        case NMEA_MSG_TYPE_GGA:
+        case GGA:
             return "GGA";
-        case NMEA_MSG_TYPE_GLL:
+        case GLL:
             return "GLL";
-        case NMEA_MSG_TYPE_GSA:
+        case GSA:
             return "GSA";
-        case NMEA_MSG_TYPE_GST:
+        case GST:
             return "GST";
-        case NMEA_MSG_TYPE_GSV:
+        case GSV:
             return "GSV";
-        case NMEA_MSG_TYPE_RMC:
+        case RMC:
             return "RMC";
-        case NMEA_MSG_TYPE_TXT:
+        case TXT:
             return "TXT";
-        case NMEA_MSG_TYPE_VDM:
+        case VDM:
             return "VDM";
-        case NMEA_MSG_TYPE_VDO:
+        case VDO:
             return "VDO";
-        case NMEA_MSG_TYPE_VTG:
+        case VTG:
             return "VTG";
         default:
             fatalError("Missing NMEA message type in name function");
     }
+}
+
+Logger & operator << (Logger &logger, const NMEAMsgType &nmeaMsgType) {
+    logger << nmeaMsgType.name();
+
+    return logger;
 }

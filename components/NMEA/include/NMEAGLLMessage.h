@@ -20,13 +20,15 @@
 #define NMEA_GLL_MESSAGE_H
 
 #include "NMEAMessage.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+#include "NMEAMsgType.h"
 #include "NMEALatitude.h"
 #include "NMEALongitude.h"
 #include "NMEATime.h"
 #include "NMEADataValid.h"
 #include "NMEAFAAModeIndicator.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEAGLLMessage : public NMEAMessage {
     private:
@@ -37,14 +39,14 @@ class NMEAGLLMessage : public NMEAMessage {
         NMEAFAAModeIndicator faaModeIndicator;
 
     public:
-        NMEAGLLMessage(NMEATalker &talker);
+        NMEAGLLMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEAGPSBridge;
 };
 
-extern NMEAGLLMessage *parseNMEAGLLMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

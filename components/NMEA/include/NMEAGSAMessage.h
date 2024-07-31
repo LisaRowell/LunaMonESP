@@ -20,11 +20,13 @@
 #define NMEA_GSA_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 #include "NMEAGPSFixMode.h"
 #include "NMEAUInt16.h"
 #include "NMEAHundredthsUInt8.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEAGSAMessage : public NMEAMessage {
     private:
@@ -36,14 +38,14 @@ class NMEAGSAMessage : public NMEAMessage {
         NMEAHundredthsUInt8 vdop;
 
     public:
-        NMEAGSAMessage(NMEATalker &talker);
+        NMEAGSAMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEAGPSBridge;
 };
 
-extern NMEAGSAMessage *parseNMEAGSAMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

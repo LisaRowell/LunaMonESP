@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,12 @@
 #define NMEA_GSV_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 #include "NMEAUInt8.h"
 #include "NMEAGSVSatelitteInfo.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEAGSVMessage : public NMEAMessage {
     private:
@@ -34,14 +36,14 @@ class NMEAGSVMessage : public NMEAMessage {
         NMEAGSVSatelitteInfo satelittes[4];
 
     public:
-        NMEAGSVMessage(NMEATalker &talker);
+        NMEAGSVMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEADataModelBridge;
 };
 
-extern NMEAGSVMessage *parseNMEAGSVMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

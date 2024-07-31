@@ -46,7 +46,7 @@ NMEADepthBridge::NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBrid
 {
 }
 
-void NMEADepthBridge::bridgeNMEADBKMessage(NMEADBKMessage *message) {
+void NMEADepthBridge::bridgeNMEADBKMessage(const NMEADBKMessage *message) {
     message->depthFeet.publish(depthBelowKeelFeetLeaf);
     message->depthMeters.publish(depthBelowKeelMetersLeaf);
     message->depthFathoms.publish(depthBelowKeelFathomsLeaf);
@@ -54,7 +54,7 @@ void NMEADepthBridge::bridgeNMEADBKMessage(NMEADBKMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEADepthBridge::bridgeNMEADBSMessage(NMEADBSMessage *message) {
+void NMEADepthBridge::bridgeNMEADBSMessage(const NMEADBSMessage *message) {
     message->depthFeet.publish(depthBelowSurfaceFeetLeaf);
     message->depthMeters.publish(depthBelowSurfaceMetersLeaf);
     message->depthFathoms.publish(depthBelowSurfaceFathomsLeaf);
@@ -62,7 +62,7 @@ void NMEADepthBridge::bridgeNMEADBSMessage(NMEADBSMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEADepthBridge::bridgeNMEADBTMessage(NMEADBTMessage *message) {
+void NMEADepthBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
     message->depthFeet.publish(depthBelowTransducerFeetLeaf);
     message->depthMeters.publish(depthBelowTransducerMetersLeaf);
     message->depthFathoms.publish(depthBelowTransducerFathomsLeaf);

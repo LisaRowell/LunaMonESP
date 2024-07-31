@@ -52,7 +52,7 @@ class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
 
     public:
         NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager);
-        virtual void processMessage(NMEAMessage *message) override;
+        virtual void processMessage(const NMEAMessage *message) override;
 };
 
 #endif // NMEA_DATA_MODEL_BRIDGE_H

@@ -20,6 +20,7 @@
 #define NMEA_GGA_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 #include "NMEATime.h"
 #include "NMEADataValid.h"
 #include "NMEALatitude.h"
@@ -29,8 +30,9 @@
 #include "NMEATenthsInt16.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEAUInt16.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEAGGAMessage : public NMEAMessage {
     private:
@@ -46,14 +48,14 @@ class NMEAGGAMessage : public NMEAMessage {
         NMEAUInt16 differentialReferenceStation;
 
     public:
-        NMEAGGAMessage(NMEATalker &talker);
+        NMEAGGAMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEAGPSBridge;
 };
 
-extern NMEAGGAMessage *parseNMEAGGAMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGGAMessage *parseNMEAGGAMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

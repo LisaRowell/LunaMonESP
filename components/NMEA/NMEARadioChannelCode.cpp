@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
  */
 
 #include "NMEARadioChannelCode.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelStringLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "Logger.h"
 
@@ -44,7 +45,8 @@ bool NMEARadioChannelCode::set(const etl::string_view &radioChannelCodeView) {
     }
 }
 
-bool NMEARadioChannelCode::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEARadioChannelCode::extract(NMEALine &nmeaLine, const NMEATalker &talker,
+                                   const NMEAMsgType &msgType) {
     etl::string_view radioChannelCodeView;
     if (!nmeaLine.getWord(radioChannelCodeView)) {
         logger() << logWarnNMEA << talker << " " << msgType
@@ -61,7 +63,6 @@ bool NMEARadioChannelCode::extract(NMEALine &nmeaLine, NMEATalker &talker, const
     return true;
 }
 
-#if 0
 void NMEARadioChannelCode::publish(DataModelStringLeaf &leaf) const {
     switch (radioChannelCode) {
         case RADIO_CHANNEL_87B:
@@ -72,7 +73,6 @@ void NMEARadioChannelCode::publish(DataModelStringLeaf &leaf) const {
             leaf = "88B";
     }
 }
-#endif
 
 void NMEARadioChannelCode::log(Logger &logger) const {
     switch (radioChannelCode) {

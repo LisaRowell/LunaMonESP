@@ -25,6 +25,7 @@
 
 class NMEALine;
 class NMEATalker;
+class NMEAMsgType;
 class DataModelUInt32Leaf;
 class Logger;
 
@@ -36,7 +37,7 @@ class NMEAUInt32 : public LoggableItem {
         bool set(const etl::string_view &valueView, bool optional, uint32_t maxValue);
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgTypeName,
                      const char *fieldName, bool optional = false, uint32_t maxValue = 0xffffffff);
         bool hasValue() const;
         operator uint32_t() const;

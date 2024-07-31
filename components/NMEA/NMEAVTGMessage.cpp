@@ -20,6 +20,7 @@
 #include "NMEATenthsUInt16.h"
 #include "NMEAFAAModeIndicator.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAMessageBuffer.h"
 
@@ -27,7 +28,7 @@
 
 #include "etl/string_view.h"
 
-NMEAVTGMessage::NMEAVTGMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEAVTGMessage::NMEAVTGMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAVTGMessage::parse(NMEALine &nmeaLine) {
@@ -103,8 +104,8 @@ bool NMEAVTGMessage::wordIsT(const etl::string_view &word) {
     }
 }
 
-enum NMEAMsgType NMEAVTGMessage::type() const {
-    return NMEA_MSG_TYPE_VTG;
+NMEAMsgType::Value NMEAVTGMessage::type() const {
+    return NMEAMsgType::VTG;
 }
 
 void NMEAVTGMessage::log() const {
@@ -118,7 +119,7 @@ void NMEAVTGMessage::log() const {
     logger() << eol;
 }
 
-NMEAVTGMessage *parseNMEAVTGMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAVTGMessage *parseNMEAVTGMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEAVTGMessage *message = new (nmeaMessageBuffer)NMEAVTGMessage(talker);
     if (!message) {
         return nullptr;

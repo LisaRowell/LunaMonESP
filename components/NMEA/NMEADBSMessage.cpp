@@ -20,13 +20,14 @@
 
 #include "NMEATenthsUInt16.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAMessageBuffer.h"
 
 #include "StringTools.h"
 #include "Logger.h"
 
-NMEADBSMessage::NMEADBSMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEADBSMessage::NMEADBSMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEADBSMessage::parse(NMEALine &nmeaLine) {
@@ -57,8 +58,8 @@ bool NMEADBSMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEADBSMessage::type() const {
-    return NMEA_MSG_TYPE_DBS;
+NMEAMsgType::Value NMEADBSMessage::type() const {
+    return NMEAMsgType::DBS;
 }
 
 void NMEADBSMessage::log() const {
@@ -66,7 +67,7 @@ void NMEADBSMessage::log() const {
              << " m, " << depthFathoms << " ftm" << eol;
 }
 
-NMEADBSMessage *parseNMEADBSMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEADBSMessage *parseNMEADBSMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEADBSMessage *message = new (nmeaMessageBuffer)NMEADBSMessage(talker);
     if (!message) {
         return nullptr;

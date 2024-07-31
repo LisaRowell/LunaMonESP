@@ -26,12 +26,13 @@
 #include "NMEAMagneticVariation.h"
 #include "NMEAFAAModeIndicator.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
-NMEARMCMessage::NMEARMCMessage(NMEATalker &talker) : NMEAMessage(talker) {
+NMEARMCMessage::NMEARMCMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEARMCMessage::parse(NMEALine &nmeaLine) {
@@ -74,8 +75,8 @@ bool NMEARMCMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-enum NMEAMsgType NMEARMCMessage::type() const {
-    return NMEA_MSG_TYPE_RMC;
+NMEAMsgType::Value NMEARMCMessage::type() const {
+    return NMEAMsgType::RMC;
 }
 
 void NMEARMCMessage::log() const {
@@ -88,7 +89,7 @@ void NMEARMCMessage::log() const {
     logger() << eol;
 }
 
-NMEARMCMessage *parseNMEARMCMessage(NMEATalker &talker, NMEALine &nmeaLine) {
+NMEARMCMessage *parseNMEARMCMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
     NMEARMCMessage *message = new (nmeaMessageBuffer)NMEARMCMessage(talker);
     if (!message) {
         return nullptr;

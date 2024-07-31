@@ -32,9 +32,9 @@ class NMEAMessage {
                                  const char *constantWord);
 
     public:
-        NMEAMessage(NMEATalker &talker);
+        NMEAMessage(const NMEATalker &talker);
         const NMEATalker &source() const;
-        virtual enum NMEAMsgType type() const = 0;
+        virtual NMEAMsgType::Value type() const = 0;
         const char *typeName() const;
         virtual void log() const = 0;
 };

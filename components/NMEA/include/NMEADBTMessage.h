@@ -20,10 +20,12 @@
 #define NMEA_DBT_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 
 #include "NMEATenthsUInt16.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEADBTMessage : public NMEAMessage {
     private:
@@ -32,14 +34,14 @@ class NMEADBTMessage : public NMEAMessage {
         NMEATenthsUInt16 depthFathoms;
 
     public:
-        NMEADBTMessage(NMEATalker &talker);
+        NMEADBTMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEADepthBridge;
 };
 
-extern NMEADBTMessage *parseNMEADBTMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEADBTMessage *parseNMEADBTMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif //NMEA_DBT_MESSAGE_H

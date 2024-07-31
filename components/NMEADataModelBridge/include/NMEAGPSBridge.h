@@ -94,12 +94,12 @@ class NMEAGPSBridge {
 
     public:
         NMEAGPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
-        void bridgeNMEAGGAMessage(NMEAGGAMessage *message);
-        void bridgeNMEAGLLMessage(NMEAGLLMessage *message);
-        void bridgeNMEAGSAMessage(NMEAGSAMessage *message);
-        void bridgeNMEAGSTMessage(NMEAGSTMessage *message);
-        void bridgeNMEARMCMessage(NMEARMCMessage *message);
-        void bridgeNMEAVTGMessage(NMEAVTGMessage *message);
+        void bridgeNMEAGGAMessage(const NMEAGGAMessage *message);
+        void bridgeNMEAGLLMessage(const NMEAGLLMessage *message);
+        void bridgeNMEAGSAMessage(const NMEAGSAMessage *message);
+        void bridgeNMEAGSTMessage(const NMEAGSTMessage *message);
+        void bridgeNMEARMCMessage(const NMEARMCMessage *message);
+        void bridgeNMEAVTGMessage(const NMEAVTGMessage *message);
 };
 
 #endif // NMEA_GPS_BRIDGE_H

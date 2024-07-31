@@ -20,10 +20,12 @@
 #define NMEA_GST_MESSAGE_H
 
 #include "NMEAMessage.h"
+#include "NMEAMsgType.h"
 #include "NMEATime.h"
 #include "NMEATenthsUInt16.h"
-#include "NMEATalker.h"
-#include "NMEALine.h"
+
+class NMEATalker;
+class NMEALine;
 
 class NMEAGSTMessage : public NMEAMessage {
     private:
@@ -37,14 +39,14 @@ class NMEAGSTMessage : public NMEAMessage {
         NMEATenthsUInt16 standardDeviationOfAltitudeError;
 
     public:
-        NMEAGSTMessage(NMEATalker &talker);
+        NMEAGSTMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
-        virtual enum NMEAMsgType type() const override;
+        virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEAGPSBridge;
 };
 
-extern NMEAGSTMessage *parseNMEAGSTMessage(NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
 #endif

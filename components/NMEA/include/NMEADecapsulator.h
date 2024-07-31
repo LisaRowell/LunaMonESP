@@ -19,8 +19,8 @@
 #ifndef NMEA_DECAPSULATOR_H
 #define NMEA_DECAPSULATOR_H
 
-#include "NMEAMsgType.h"
 #include "NMEATalker.h"
+#include "NMEAMsgType.h"
 
 #include "etl/array.h"
 #include "etl/bit_stream.h"
@@ -29,30 +29,29 @@
 #include <stdint.h>
 #include <stddef.h>
 
-class NMEATalker;
-
 constexpr size_t maxNMEAEncapsulatedMessageSize = 256;
 
 class NMEADecapsulator {
     private:
         bool decapsulationInProgress;
         NMEATalker messageTalker;
-        enum NMEAMsgType messageMsgType;
+        NMEAMsgType messageMsgType;
         uint8_t messageFragmentCount;
         uint8_t lastFragmentIndex;
         uint32_t messageID;
         etl::array<uint8_t, maxNMEAEncapsulatedMessageSize> messageDataArray;
         etl::bit_stream_writer messageBitStream;
 
-        bool fragmentIsNext(NMEATalker &talker, enum NMEAMsgType msgType, uint8_t fragmentCount,
-                            uint8_t fragmentIndex, uint32_t messageIdOrZero);
+        bool fragmentIsNext(const NMEATalker &talker, const NMEAMsgType &msgType,
+                            uint8_t fragmentCount, uint8_t fragmentIndex,
+                            uint32_t messageIdOrZero);
         bool addFragmentPayload(etl::string_view &payloadView, uint8_t fillBits);
         uint8_t payloadCharValue(char payloadChar);
 
     public:
         NMEADecapsulator();
-        void addFragment(NMEATalker &talker, enum NMEAMsgType msgType, uint8_t fragmentCount,
-                         uint8_t fragmentIndex, uint32_t messageIdOrZero,
+        void addFragment(const NMEATalker &talker, const NMEAMsgType &msgType,
+                         uint8_t fragmentCount, uint8_t fragmentIndex, uint32_t messageIdOrZero,
                          etl::string_view &payloadView, uint8_t fillBits);
         bool isComplete() const;
         const etl::array<uint8_t, maxNMEAEncapsulatedMessageSize> &messageData() const;

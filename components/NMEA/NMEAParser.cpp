@@ -67,9 +67,9 @@ NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
     NMEATalker talker(talkerCode);
 
     etl::string<3> msgTypeStr(tagView.begin() + 2, 3);
-    enum NMEAMsgType msgType = parseNMEAMsgType(msgTypeStr);
-    if (msgType == NMEA_MSG_TYPE_UNKNOWN) {
-        logger() << logWarnNMEA << "NMEA message with unknow type (" << msgTypeStr << ")" << eol;
+    NMEAMsgType msgType(msgTypeStr);
+    if (msgType == NMEAMsgType::UNKNOWN) {
+        logger() << logWarnNMEA << "NMEA message with unknown type (" << msgTypeStr << ")" << eol;
     }
 
     if (!nmeaLine.isEncapsulatedData()) {
@@ -79,91 +79,92 @@ NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
     }
 }
 
-NMEAMessage *NMEAParser::parseUnencapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
-                                                 NMEALine &nmeaLine) {
+NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
+                                                 const NMEAMsgType &msgType, NMEALine &nmeaLine) {
     switch (msgType) {
-        case NMEA_MSG_TYPE_DBK:
+        case NMEAMsgType::DBK:
             return parseNMEADBKMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_DBS:
+        case NMEAMsgType::DBS:
             return parseNMEADBSMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_DBT:
+        case NMEAMsgType::DBT:
             return parseNMEADBTMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_GGA:
+        case NMEAMsgType::GGA:
             return parseNMEAGGAMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_GLL:
+        case NMEAMsgType::GLL:
             return parseNMEAGLLMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_GSA:
+        case NMEAMsgType::GSA:
             return parseNMEAGSAMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_GST:
+        case NMEAMsgType::GST:
             return parseNMEAGSTMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_GSV:
+        case NMEAMsgType::GSV:
             return parseNMEAGSVMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_RMC:
+        case NMEAMsgType::RMC:
             return parseNMEARMCMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_TXT:
+        case NMEAMsgType::TXT:
             return parseNMEATXTMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_VDM:
-        case NMEA_MSG_TYPE_VDO:
-            logger() << logWarnNMEA << "Unsupported unencapsulated " << nmeaMsgTypeName(msgType)
-                     << " message from " << talker << eol;
+        case NMEAMsgType::VDM:
+        case NMEAMsgType::VDO:
+            logger() << logWarnNMEA << "Unsupported unencapsulated " << msgType << " message from "
+                     << talker << eol;
             return nullptr;
 
-        case NMEA_MSG_TYPE_VTG:
+        case NMEAMsgType::VTG:
             return parseNMEAVTGMessage(talker, nmeaLine);
 
-        case NMEA_MSG_TYPE_UNKNOWN:
+        case NMEAMsgType::UNKNOWN:
         default:
-            logger() << logWarnNMEA << "Handled NMEA message type (" << nmeaMsgTypeName(msgType)
-                     << ") from " << talker << eol;
+            logger() << logWarnNMEA << "Handled NMEA message type (" << msgType << ") from "
+                     << talker << eol;
             return nullptr;
     }
 }
 
-NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgType msgType,
+NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker,
+                                               const NMEAMsgType &msgType,
                                                NMEALine &nmeaLine) {
     NMEAUInt8 fragmentCount;
-    if (!fragmentCount.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Fragment Count")) {
+    if (!fragmentCount.extract(nmeaLine, talker, msgType.name(), "Fragment Count")) {
         decapsulator.reset();
         return nullptr;
     }
     if (fragmentCount == 0) {
-        logger() << logWarnNMEA << "Encapsulated NMEA " << nmeaMsgTypeName(msgType)
-                 << " message from " << talker << " with 0 fragment count" << eol;
+        logger() << logWarnNMEA << "Encapsulated NMEA " << msgType << " message from " << talker
+                 << " with 0 fragment count" << eol;
         decapsulator.reset();
         return nullptr;
     }
 
     NMEAUInt8 fragmentIndex;
-    if (!fragmentIndex.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Fragment Index")) {
+    if (!fragmentIndex.extract(nmeaLine, talker, msgType.name(), "Fragment Index")) {
         decapsulator.reset();
         return nullptr;
     }
     if (fragmentIndex == 0) {
-        logger() << logWarnNMEA << "Encapsulated NMEA " << nmeaMsgTypeName(msgType)
-                 << " message from " << talker << " with 0 fragment index" << eol;
+        logger() << logWarnNMEA << "Encapsulated NMEA " << msgType << " message from " << talker
+                 << " with 0 fragment index" << eol;
         decapsulator.reset();
         return nullptr;
     }
 
     NMEAUInt32 messageID;
-    if (!messageID.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Message ID", true)) {
+    if (!messageID.extract(nmeaLine, talker, msgType.name(), "Message ID", true)) {
         decapsulator.reset();
         return nullptr;
     }
     // We assume that all messages that are fragmented will contain a message id. This may need to
     // be revisited if it turns out that there are some talkers out there that don't send the id.
     if (fragmentCount > 1 && !messageID.hasValue()) {
-        logger() << logWarnNMEA << "Encapsulated multi-fragment NMEA " << nmeaMsgTypeName(msgType)
+        logger() << logWarnNMEA << "Encapsulated multi-fragment NMEA " << msgType
                  << " message from " << talker << " without a message id" << eol;
         decapsulator.reset();
         return nullptr;
@@ -171,21 +172,21 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
     const uint32_t messageIdOrZero = messageID.hasValue() ? messageID : 0;
 
     NMEARadioChannelCode radioChannelCode;
-    if (!radioChannelCode.extract(nmeaLine, talker, nmeaMsgTypeName(msgType))) {
+    if (!radioChannelCode.extract(nmeaLine, talker, msgType)) {
         decapsulator.reset();
         return nullptr;
     }
 
     etl::string_view payloadView;
     if (!nmeaLine.getWord(payloadView)) {
-        logger() << logWarnNMEA << "NMEA " << nmeaMsgTypeName(msgType) << " message from " << talker
+        logger() << logWarnNMEA << "NMEA " << msgType << " message from " << talker
                  << " missing payload" << eol;
         decapsulator.reset();
         return nullptr;
     }
 
     NMEAUInt8 fillBits;
-    if (!fillBits.extract(nmeaLine, talker, nmeaMsgTypeName(msgType), "Fill Bits", false, 5)) {
+    if (!fillBits.extract(nmeaLine, talker, msgType.name(), "Fill Bits", false, 5)) {
         decapsulator.reset();
         return nullptr;
     }
@@ -202,21 +203,22 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(NMEATalker &talker, enum NMEAMsgT
     }
 }
 
-NMEAMessage *NMEAParser::parseEncapsulatedMessage(NMEATalker &talker, enum NMEAMsgType msgType) {
+NMEAMessage *NMEAParser::parseEncapsulatedMessage(const NMEATalker &talker,
+                                                  const NMEAMsgType &msgType) {
     etl::bit_stream_reader streamReader((void *)decapsulator.messageData().data(),
                                         decapsulator.messageByteLength(), etl::endian::big);
     const size_t messageSizeInBits = decapsulator.messageBitLength();
 
     switch (msgType) {
-        case NMEA_MSG_TYPE_VDM:
+        case NMEAMsgType::VDM:
             return parseVDMMessage(talker, streamReader, messageSizeInBits, aisContacts);
 
-        case NMEA_MSG_TYPE_VDO:
+        case NMEAMsgType::VDO:
             return parseVDOMessage(talker, streamReader, messageSizeInBits, aisContacts);
 
         default: 
-            logger() << logWarnNMEA << "Ignoring unsupport encapsulated "
-                     << nmeaMsgTypeName(msgType) << " message from " << talker << eol;
+            logger() << logWarnNMEA << "Ignoring unsupport encapsulated " << msgType
+                     << " message from " << talker << eol;
             return nullptr;
     }
 }
