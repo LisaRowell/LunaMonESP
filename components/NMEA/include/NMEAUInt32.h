@@ -37,6 +37,7 @@ class NMEAUInt32 : public LoggableItem {
         bool set(const etl::string_view &valueView, bool optional, uint32_t maxValue);
 
     public:
+        NMEAUInt32();
         bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgTypeName,
                      const char *fieldName, bool optional = false, uint32_t maxValue = 0xffffffff);
         bool hasValue() const;

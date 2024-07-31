@@ -37,6 +37,7 @@ class NMEAMagneticVariation : public LoggableItem {
         bool set(const etl::string_view &directionView, const etl::string_view &eastOrWestView);
 
     public:
+        NMEAMagneticVariation();
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
         void publish(DataModelTenthsInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;

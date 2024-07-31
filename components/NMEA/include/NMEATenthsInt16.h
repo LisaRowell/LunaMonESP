@@ -40,6 +40,7 @@ class NMEATenthsInt16 : public LoggableItem {
         bool set(const etl::string_view &valueView, bool optional);
 
     public:
+        NMEATenthsInt16();
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false);
         void publish(DataModelTenthsInt16Leaf &leaf) const;

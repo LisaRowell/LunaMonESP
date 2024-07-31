@@ -31,6 +31,9 @@
 #include "etl/string_view.h"
 #include "etl/to_arithmetic.h"
 
+NMEAMagneticVariation::NMEAMagneticVariation() : hasValue(false) {
+}
+
 bool NMEAMagneticVariation::set(const etl::string_view &directionView,
                                 const etl::string_view &eastOrWestView) {
     if (directionView.size() == 0 || eastOrWestView.size() == 0) {

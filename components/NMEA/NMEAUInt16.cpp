@@ -32,6 +32,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
+NMEAUInt16::NMEAUInt16() : valuePresent(false) {
+}
+
 bool NMEAUInt16::set(const etl::string_view &valueView, bool optional, uint16_t maxValue) {
     const size_t length = valueView.size();
     if (length == 0) {

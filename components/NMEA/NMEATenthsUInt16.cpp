@@ -34,6 +34,9 @@
 
 #include <stdint.h>
 
+NMEATenthsUInt16::NMEATenthsUInt16() : valuePresent(false) {
+}
+
 bool NMEATenthsUInt16::set(const etl::string_view &valueView, bool optional) {
     uint16_t wholeNumber;
     uint8_t tenths;

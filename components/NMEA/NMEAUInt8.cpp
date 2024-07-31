@@ -34,6 +34,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
+NMEAUInt8::NMEAUInt8() : valuePresent(false) {
+}
+
 bool NMEAUInt8::set(const etl::string_view &valueView, bool optional, uint8_t maxValue) {
     const size_t length = valueView.size();
     if (length == 0) {

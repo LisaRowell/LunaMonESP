@@ -33,6 +33,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
+NMEAUInt32::NMEAUInt32() : valuePresent(false) {
+}
+
 bool NMEAUInt32::set(const etl::string_view &valueView, bool optional, uint32_t maxValue) {
     const size_t length = valueView.size();
     if (length == 0) {

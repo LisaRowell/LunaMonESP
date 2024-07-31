@@ -28,6 +28,9 @@
 #include "etl/string_view.h"
 #include "etl/to_arithmetic.h"
 
+NMEATenthsInt16::NMEATenthsInt16() : valuePresent(false) {
+}
+
 bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
     int16_t integer;
     uint8_t tenths;
