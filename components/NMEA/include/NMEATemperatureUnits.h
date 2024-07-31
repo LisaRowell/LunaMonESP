@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,50 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MSG_TYPE_H
-#define NMEA_MSG_TYPE_H
+#ifndef NMEA_TEMPERATURE_UNITS_H
+#define NMEA_TEMPERATURE_UNITS_H
 
-#include "etl/string.h"
+#include "LoggableItem.h"
 
-#include <stdint.h>
+#include "etl/string_view.h"
 
+class NMEALine;
+class NMEATalker;
 class Logger;
 
-class NMEAMsgType {
+class NMEATemperatureUnits : public LoggableItem {
     public:
         enum Value : uint8_t {
             UNKNOWN,
-            DBK,
-            DBS,
-            DBT,
-            DPT,
-            GGA,
-            GLL,
-            GSA,
-            GST,
-            GSV,
-            MTW,
-            MWV,
-            RMC,
-            TXT,
-            VDM,
-            VDO,
-            VTG
+            CELSIUS,
+            FAHRENHEIT
         };
 
     private:
         Value value;
 
-    public:
-        NMEAMsgType();
-        NMEAMsgType(Value value);
-        NMEAMsgType(const etl::istring &msgTypeStr);
-        constexpr operator Value() const { return value; }
-        void parse(const etl::istring &msgTypeStr);
-        const char *name() const;
-        explicit operator bool() const = delete;
+        bool set(etl::string_view &temperatureUnitsView);
 
-        friend Logger & operator << (Logger &logger, const NMEAMsgType &nmeaMsgType);
+    public:
+        NMEATemperatureUnits();
+        bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgType);
+        constexpr operator Value() const { return value; }
+        virtual void log(Logger &logger) const override;
 };
 
-#endif
+#endif // NMEA_TEMPERATURE_UNITS_H

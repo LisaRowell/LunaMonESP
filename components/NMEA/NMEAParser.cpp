@@ -31,6 +31,7 @@
 #include "NMEAGSAMessage.h"
 #include "NMEAGSTMessage.h"
 #include "NMEAGSVMessage.h"
+#include "NMEAMTWMessage.h"
 #include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEATXTMessage.h"
@@ -112,6 +113,9 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
 
         case NMEAMsgType::GSV:
             return parseNMEAGSVMessage(talker, nmeaLine);
+
+        case NMEAMsgType::MTW:
+            return parseNMEAMTWMessage(talker, nmeaLine);
 
         case NMEAMsgType::MWV:
             return parseNMEAMWVMessage(talker, nmeaLine);

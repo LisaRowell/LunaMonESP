@@ -18,6 +18,9 @@
 
 #include "NMEADataModelBridge.h"
 #include "NMEADepthBridge.h"
+#include "NMEAGPSBridge.h"
+#include "NMEAWaterBridge.h"
+#include "NMEAWindBridge.h"
 
 #include "NMEADBKMessage.h"
 #include "NMEADBSMessage.h"
@@ -26,6 +29,8 @@
 #include "NMEAGLLMessage.h"
 #include "NMEAGSAMessage.h"
 #include "NMEAGSTMessage.h"
+#include "NMEAMTWMessage.h"
+#include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEAVTGMessage.h"
 #include "NMEATXTMessage.h"
@@ -42,6 +47,7 @@
 NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager)
     : depthBridge(dataModel, messagesBridgedCounter),
       gpsBridge(dataModel, messagesBridgedCounter),
+      waterBridge(dataModel, messagesBridgedCounter),
       windBridge(dataModel, messagesBridgedCounter),
       nmeaDataModelBridgeNode("nmeaDataModelBridge", &dataModel.sysNode()),
       messagesBridgedLeaf("messages", &nmeaDataModelBridgeNode),
@@ -82,6 +88,10 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
 
         case NMEAMsgType::GST:
             gpsBridge.bridgeNMEAGSTMessage((NMEAGSTMessage *)message);
+            break;
+
+        case NMEAMsgType::MTW:
+            waterBridge.bridgeNMEAMTWMessage((NMEAMTWMessage *)message);
             break;
 
         case NMEAMsgType::MWV:
