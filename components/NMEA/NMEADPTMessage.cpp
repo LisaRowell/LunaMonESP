@@ -31,8 +31,6 @@ NMEADPTMessage::NMEADPTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEADPTMessage::parse(NMEALine &nmeaLine) {
-    nmeaLine.logLine();
-
     if (!depthBelowTransducerMeters.extract(nmeaLine, talker, "DPT", "Depth")) {
         return false;
     }
