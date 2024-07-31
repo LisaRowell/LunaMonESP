@@ -23,6 +23,7 @@
 
 #include "NMEADepthBridge.h"
 #include "NMEAGPSBridge.h"
+#include "NMEAWindBridge.h"
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -40,6 +41,7 @@ class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
         NMEADepthBridge depthBridge;
         NMEAGPSBridge gpsBridge;
+        NMEAWindBridge windBridge;
 
         StatCounter messagesBridgedCounter;
 

@@ -30,6 +30,7 @@
 #include "NMEAGSAMessage.h"
 #include "NMEAGSTMessage.h"
 #include "NMEAGSVMessage.h"
+#include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
 #include "NMEATXTMessage.h"
 #include "NMEAVDMMessage.h"
@@ -107,6 +108,9 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
 
         case NMEAMsgType::GSV:
             return parseNMEAGSVMessage(talker, nmeaLine);
+
+        case NMEAMsgType::MWV:
+            return parseNMEAMWVMessage(talker, nmeaLine);
 
         case NMEAMsgType::RMC:
             return parseNMEARMCMessage(talker, nmeaLine);

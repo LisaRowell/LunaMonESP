@@ -42,6 +42,7 @@
 NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager)
     : depthBridge(dataModel, messagesBridgedCounter),
       gpsBridge(dataModel, messagesBridgedCounter),
+      windBridge(dataModel, messagesBridgedCounter),
       nmeaDataModelBridgeNode("nmeaDataModelBridge", &dataModel.sysNode()),
       messagesBridgedLeaf("messages", &nmeaDataModelBridgeNode),
       messagesBridgedRateLeaf("messageRate", &nmeaDataModelBridgeNode) {
@@ -77,6 +78,10 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
 
         case NMEAMsgType::GST:
             gpsBridge.bridgeNMEAGSTMessage((NMEAGSTMessage *)message);
+            break;
+
+        case NMEAMsgType::MWV:
+            windBridge.bridgeNMEAMWVMessage((NMEAMWVMessage *)message);
             break;
 
         case NMEAMsgType::RMC:

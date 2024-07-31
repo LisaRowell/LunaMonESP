@@ -50,6 +50,8 @@ void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
         value = GST;
     } else if (msgTypeStr == "GSV") {
         value = GSV;
+    } else if (msgTypeStr == "MWV") {
+        value = MWV;
     } else if (msgTypeStr == "RMC") {
         value = RMC;
     } else if (msgTypeStr == "TXT") {
@@ -85,6 +87,8 @@ const char *NMEAMsgType::name() const {
             return "GST";
         case GSV:
             return "GSV";
+        case MWV:
+            return "MWV";
         case RMC:
             return "RMC";
         case TXT:
@@ -95,9 +99,8 @@ const char *NMEAMsgType::name() const {
             return "VDO";
         case VTG:
             return "VTG";
-        default:
-            fatalError("Missing NMEA message type in name function");
     }
+    fatalError("Missing NMEAMsgType in name function");
 }
 
 Logger & operator << (Logger &logger, const NMEAMsgType &nmeaMsgType) {
