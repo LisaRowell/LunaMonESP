@@ -69,7 +69,9 @@ NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
     etl::string<3> msgTypeStr(tagView.begin() + 2, 3);
     NMEAMsgType msgType(msgTypeStr);
     if (msgType == NMEAMsgType::UNKNOWN) {
-        logger() << logWarnNMEA << "NMEA message with unknown type (" << msgTypeStr << ")" << eol;
+        logger() << logWarnNMEA << "NMEA message with unknown type (" << msgTypeStr << ")"
+                 << " from " << talker << ". Ignored." << eol;
+        return nullptr;
     }
 
     if (!nmeaLine.isEncapsulatedData()) {
@@ -123,7 +125,7 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
 
         case NMEAMsgType::UNKNOWN:
         default:
-            logger() << logWarnNMEA << "Handled NMEA message type (" << msgType << ") from "
+            logger() << logWarnNMEA << "Unhandled NMEA message type (" << msgType << ") from "
                      << talker << eol;
             return nullptr;
     }
