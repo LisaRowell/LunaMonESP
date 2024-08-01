@@ -21,9 +21,11 @@
 
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
+#include "DataModelTenthsUInt16Leaf.h"
 
 class DataModel;
 class NMEARSAMessage;
+class NMEAHDGMessage;
 class StatCounter;
 
 class NMEAAutoPilotBridge {
@@ -31,12 +33,17 @@ class NMEAAutoPilotBridge {
         StatCounter &messagesBridgedCounter;
 
         DataModelNode autoPilotNode;
+        DataModelNode autoPilotHeadingNode;
+        DataModelTenthsUInt16Leaf autoPilotHeadingSensorLeaf;
+        DataModelTenthsInt16Leaf autoPilotHeadingDeviationLeaf;
+        DataModelTenthsInt16Leaf autoPilotHeadingVariationLeaf;
         DataModelNode autoPilotRudderNode;
         DataModelTenthsInt16Leaf autopilotRudderStarboardLeaf;
         DataModelTenthsInt16Leaf autopilotRudderPortLeaf;
 
     public:
         NMEAAutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        void bridgeNMEAHDGMessage(const NMEAHDGMessage *message);
         void bridgeNMEARSAMessage(const NMEARSAMessage *message);
 };
 

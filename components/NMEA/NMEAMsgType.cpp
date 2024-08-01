@@ -52,6 +52,8 @@ void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
         value = GST;
     } else if (msgTypeStr == "GSV") {
         value = GSV;
+    } else if (msgTypeStr == "HDG") {
+        value = HDG;
     } else if (msgTypeStr == "MTW") {
         value = MTW;
     } else if (msgTypeStr == "MWV") {
@@ -97,6 +99,8 @@ const char *NMEAMsgType::name() const {
             return "GST";
         case GSV:
             return "GSV";
+        case HDG:
+            return "HDG";
         case MTW:
             return "MTW";
         case MWV:

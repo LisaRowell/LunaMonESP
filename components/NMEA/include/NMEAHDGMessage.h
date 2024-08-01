@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,44 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_RMC_MESSAGE_H
-#define NMEA_RMC_MESSAGE_H
+#ifndef NMEA_HDG_MESSAGE_H
+#define NMEA_HDG_MESSAGE_H
 
 #include "NMEAMessage.h"
 #include "NMEAMsgType.h"
-#include "NMEATime.h"
-#include "NMEADataValid.h"
-#include "NMEALatitude.h"
-#include "NMEALongitude.h"
 #include "NMEATenthsUInt16.h"
-#include "NMEADate.h"
 #include "NMEAHeadingOffset.h"
-#include "NMEAFAAModeIndicator.h"
 
 class NMEATalker;
 class NMEALine;
 
-class NMEARMCMessage : public NMEAMessage {
+class NMEAHDGMessage : public NMEAMessage {
     private:
-        NMEATime time;
-        NMEADataValid dataValid;
-        NMEALatitude latitude;
-        NMEALongitude longitude;
-        NMEATenthsUInt16 speedOverGround;
-        NMEATenthsUInt16 trackMadeGood;
-        NMEADate date;
+        NMEATenthsUInt16 magneticSensorHeading;
+        NMEAHeadingOffset magneticDeviation;
         NMEAHeadingOffset magneticVariation;
-        NMEAFAAModeIndicator faaModeIndicator;
 
     public:
-        NMEARMCMessage(const NMEATalker &talker);
+        NMEAHDGMessage(const NMEATalker &talker);
         bool parse(NMEALine &nmeaLine);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
-    friend class NMEAGPSBridge;
+    friend class NMEAAutoPilotBridge;
 };
 
-extern NMEARMCMessage *parseNMEARMCMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
-#endif
+#endif // NMEA_HDG_MESSAGE_H

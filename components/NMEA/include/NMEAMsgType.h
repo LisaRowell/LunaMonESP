@@ -38,6 +38,7 @@ class NMEAMsgType {
             GSA,
             GST,
             GSV,
+            HDG,
             MTW,
             MWV,
             RMC,

@@ -19,6 +19,7 @@
 #include "NMEAAutoPilotBridge.h"
 
 #include "NMEARSAMessage.h"
+#include "NMEAHDGMessage.h"
 
 #include "DataModel.h"
 #include "DataModelNode.h"
@@ -29,9 +30,21 @@
 NMEAAutoPilotBridge::NMEAAutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       autoPilotNode("autoPilot", &dataModel.rootNode()),
+      autoPilotHeadingNode("heading", &autoPilotNode),
+      autoPilotHeadingSensorLeaf("sensor", &autoPilotHeadingNode),
+      autoPilotHeadingDeviationLeaf("deviation", &autoPilotHeadingNode),
+      autoPilotHeadingVariationLeaf("variation", &autoPilotHeadingNode),
       autoPilotRudderNode("rudder", &autoPilotNode),
       autopilotRudderStarboardLeaf("starboard", &autoPilotRudderNode),
       autopilotRudderPortLeaf("port", &autoPilotRudderNode) {
+}
+
+void NMEAAutoPilotBridge::bridgeNMEAHDGMessage(const NMEAHDGMessage *message) {
+    message->magneticSensorHeading.publish(autoPilotHeadingSensorLeaf);
+    message->magneticDeviation.publish(autoPilotHeadingDeviationLeaf);
+    message->magneticVariation.publish(autoPilotHeadingVariationLeaf);
+
+    messagesBridgedCounter++;
 }
 
 void NMEAAutoPilotBridge::bridgeNMEARSAMessage(const NMEARSAMessage *message) {

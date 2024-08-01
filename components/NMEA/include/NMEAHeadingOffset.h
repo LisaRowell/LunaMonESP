@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MAGNETIC_VARIATION_H
-#define NMEA_MAGNETIC_VARIATION_H
+#ifndef NMEA_HEADING_OFFSET_H
+#define NMEA_HEADING_OFFSET_H
 
 #include "LoggableItem.h"
 
@@ -28,7 +28,7 @@ class NMEATalker;
 class DataModelTenthsInt16Leaf;
 class Logger;
 
-class NMEAMagneticVariation : public LoggableItem {
+class NMEAHeadingOffset : public LoggableItem {
     private:
         int16_t direction;
         uint8_t tenths;
@@ -37,10 +37,11 @@ class NMEAMagneticVariation : public LoggableItem {
         bool set(const etl::string_view &directionView, const etl::string_view &eastOrWestView);
 
     public:
-        NMEAMagneticVariation();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+        NMEAHeadingOffset();
+        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+                     const char *fieldName);
         void publish(DataModelTenthsInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 
-#endif
+#endif // NMEA_HEADING_OFFSET_H

@@ -23,7 +23,7 @@
 #include "NMEALongitude.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEADate.h"
-#include "NMEAMagneticVariation.h"
+#include "NMEAHeadingOffset.h"
 #include "NMEAFAAModeIndicator.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
@@ -64,7 +64,7 @@ bool NMEARMCMessage::parse(NMEALine &nmeaLine) {
         return false;
     }
 
-    if (!magneticVariation.extract(nmeaLine, talker, "RMC")) {
+    if (!magneticVariation.extract(nmeaLine, talker, "RMC", "Magnetic Variation")) {
         return false;
     }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAMagneticVariation.h"
+#include "NMEAHeadingOffset.h"
 #include "NMEALine.h"
 #include "NMEATalker.h"
 
@@ -31,11 +31,11 @@
 #include "etl/string_view.h"
 #include "etl/to_arithmetic.h"
 
-NMEAMagneticVariation::NMEAMagneticVariation() : hasValue(false) {
+NMEAHeadingOffset::NMEAHeadingOffset() : hasValue(false) {
 }
 
-bool NMEAMagneticVariation::set(const etl::string_view &directionView,
-                                const etl::string_view &eastOrWestView) {
+bool NMEAHeadingOffset::set(const etl::string_view &directionView,
+                            const etl::string_view &eastOrWestView) {
     if (directionView.size() == 0 || eastOrWestView.size() == 0) {
         hasValue = false;
         return true;
@@ -100,25 +100,26 @@ bool NMEAMagneticVariation::set(const etl::string_view &directionView,
     return true;
 }
 
-bool NMEAMagneticVariation::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEAHeadingOffset::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+                                const char *fieldName) {
     etl::string_view directionView;
     if (!nmeaLine.getWord(directionView)) {
         logger() << logWarnNMEA << talker << " " << msgType
-                 << " message missing Magnetic Variation direction field" << eol;
+                 << " message missing " << fieldName << " direction field" << eol;
         hasValue = false;
         return false;
     }
     etl::string_view eastOrWestView;
     if (!nmeaLine.getWord(eastOrWestView)) {
         logger() << logWarnNMEA << talker << " " << msgType
-                 << " message missing Magnetic Variation E/W field" << eol;
+                 << " message missing " << fieldName << " E/W field" << eol;
         hasValue = false;
         return false;
     }
 
     if (!set(directionView, eastOrWestView)) {
         logger() << logWarnNMEA << talker << " " << msgType
-                 << " message with bad Magnetic Variation field '" << directionView << ","
+                 << " message with bad " << fieldName << " field '" << directionView << ","
                  << eastOrWestView << "'" << eol;
         return false;
     }
@@ -126,7 +127,7 @@ bool NMEAMagneticVariation::extract(NMEALine &nmeaLine, NMEATalker &talker, cons
     return true;
 }
 
-void NMEAMagneticVariation::publish(DataModelTenthsInt16Leaf &leaf) const {
+void NMEAHeadingOffset::publish(DataModelTenthsInt16Leaf &leaf) const {
     if (hasValue) {
         leaf = TenthsInt16(direction, tenths);
     } else {
@@ -134,7 +135,7 @@ void NMEAMagneticVariation::publish(DataModelTenthsInt16Leaf &leaf) const {
     }
 }
 
-void NMEAMagneticVariation::log(Logger &logger) const {
+void NMEAHeadingOffset::log(Logger &logger) const {
     if (hasValue) {
         logger << direction << "." << tenths << "\xC2\xB0";
     } else {

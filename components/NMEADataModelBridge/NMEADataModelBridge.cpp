@@ -30,6 +30,7 @@
 #include "NMEAGLLMessage.h"
 #include "NMEAGSAMessage.h"
 #include "NMEAGSTMessage.h"
+#include "NMEAHDGMessage.h"
 #include "NMEAMTWMessage.h"
 #include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
@@ -92,6 +93,10 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
 
         case NMEAMsgType::GST:
             gpsBridge.bridgeNMEAGSTMessage((NMEAGSTMessage *)message);
+            break;
+
+        case NMEAMsgType::HDG:
+            autoPilotBridge.bridgeNMEAHDGMessage((NMEAHDGMessage *)message);
             break;
 
         case NMEAMsgType::MTW:
