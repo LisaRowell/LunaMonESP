@@ -19,6 +19,7 @@
 #include "NMEAWaterBridge.h"
 
 #include "NMEAMTWMessage.h"
+#include "NMEAVHWMessage.h"
 #include "NMEATemperatureUnits.h"
 #include "NMEATenthsInt16.h"
 
@@ -33,6 +34,12 @@
 NMEAWaterBridge::NMEAWaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       waterNode("water", &dataModel.rootNode()),
+      waterHeadingNode("heading", &waterNode),
+      waterHeadingTrueLeaf("true", &waterHeadingNode),
+      waterHeadingMagneticLeaf("magnetic", &waterHeadingNode),
+      waterSpeedNode("speed", &waterNode),
+      waterSpeedKnotsLeaf("knots", &waterSpeedNode),
+      waterSpeedKMPHLeaf("kmph", &waterSpeedNode),
       waterTemperatureNode("temperature", &waterNode),
       waterTemperatureCelsiusLeaf("celsius", &waterTemperatureNode),
       waterTemperatureFahrenheitLeaf("fahrenheit", &waterTemperatureNode) {
@@ -52,6 +59,15 @@ void NMEAWaterBridge::bridgeNMEAMTWMessage(const NMEAMTWMessage *message) {
             logger() << logWarnNMEADataModelBridge << "Unhandled water temperature units ("
                      << message->waterTemperatureUnits << ") in NMEA MTW message" << eol;
     }
+
+    messagesBridgedCounter++;
+}
+
+void NMEAWaterBridge::bridgeNMEAVHWMessage(const NMEAVHWMessage *message) {
+    message->waterHeadingTrue.publish(waterHeadingTrueLeaf);
+    message->waterHeadingMagnetic.publish(waterHeadingMagneticLeaf);
+    message->waterSpeedKnots.publish(waterSpeedKnotsLeaf);
+    message->waterSpeedKMPH.publish(waterSpeedKMPHLeaf);
 
     messagesBridgedCounter++;
 }

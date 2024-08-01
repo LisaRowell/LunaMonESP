@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_MESSAGE_H
-#define NMEA_MESSAGE_H
+#ifndef NMEA_VHW_MESSAGE_H
+#define NMEA_VHW_MESSAGE_H
 
-#include "NMEATalker.h"
+#include "NMEAMessage.h"
 #include "NMEAMsgType.h"
+#include "NMEATenthsUInt16.h"
+#include "NMEATenthsInt16.h"
 
+class NMEATalker;
 class NMEALine;
 
-class NMEAMessage {
-    protected:
-        NMEATalker talker;
-
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                 const char *constantWord, bool optional = false);
+class NMEAVHWMessage : public NMEAMessage {
+    private:
+        NMEATenthsUInt16 waterHeadingTrue;
+        NMEATenthsUInt16 waterHeadingMagnetic;
+        NMEATenthsInt16 waterSpeedKnots;
+        NMEATenthsInt16 waterSpeedKMPH;
 
     public:
-        NMEAMessage(const NMEATalker &talker);
-        const NMEATalker &source() const;
-        virtual NMEAMsgType::Value type() const = 0;
-        const char *typeName() const;
-        virtual void log() const = 0;
+        NMEAVHWMessage(const NMEATalker &talker);
+        bool parse(NMEALine &nmeaLine);
+        virtual NMEAMsgType::Value type() const override;
+        virtual void log() const override;
+
+    friend class NMEAWaterBridge;
 };
 
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
+extern NMEAVHWMessage *parseNMEAVHWMessage(const NMEATalker &talker, NMEALine &nmeaLine);
 
-#endif
+#endif // NMEA_VHW_MESSAGE_H

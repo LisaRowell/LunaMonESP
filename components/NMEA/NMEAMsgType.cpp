@@ -64,6 +64,8 @@ void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
         value = VDM;
     } else if (msgTypeStr == "VDO") {
         value = VDO;
+    } else if (msgTypeStr == "VHW") {
+        value = VHW;
     } else if (msgTypeStr == "VTG") {
         value = VTG;
     } else {
@@ -105,6 +107,8 @@ const char *NMEAMsgType::name() const {
             return "VDM";
         case VDO:
             return "VDO";
+        case VHW:
+            return "VHW";
         case VTG:
             return "VTG";
     }

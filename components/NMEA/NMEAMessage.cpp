@@ -39,7 +39,7 @@ const char *NMEAMessage::typeName() const {
 }
 
 bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageType,
-                                      const char *constantWord) {
+                                      const char *constantWord, bool optional) {
     etl::string_view word;
     if (!nmeaLine.getWord(word)) {
         logger() << logErrorNMEA << talker << " " << messageType << " message missing "
@@ -47,7 +47,7 @@ bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageTyp
         return false;
     }
 
-    if (word != constantWord) {
+    if ((word != constantWord) && !(word.length() == 0 && optional)) {
         logger() << logErrorNMEA << talker << " " << messageType << " message with bad "
                  << constantWord << " field" << eol;
         return false;

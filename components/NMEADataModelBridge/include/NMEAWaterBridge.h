@@ -21,9 +21,11 @@
 
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
+#include "DataModelTenthsUInt16Leaf.h"
 
 class DataModel;
 class NMEAMTWMessage;
+class NMEAVHWMessage;
 class StatCounter;
 
 class NMEAWaterBridge {
@@ -31,6 +33,12 @@ class NMEAWaterBridge {
         StatCounter &messagesBridgedCounter;
 
         DataModelNode waterNode;
+        DataModelNode waterHeadingNode;
+        DataModelTenthsUInt16Leaf waterHeadingTrueLeaf;
+        DataModelTenthsUInt16Leaf waterHeadingMagneticLeaf;
+        DataModelNode waterSpeedNode;
+        DataModelTenthsInt16Leaf waterSpeedKnotsLeaf;
+        DataModelTenthsInt16Leaf waterSpeedKMPHLeaf;
         DataModelNode waterTemperatureNode;
         DataModelTenthsInt16Leaf waterTemperatureCelsiusLeaf;
         DataModelTenthsInt16Leaf waterTemperatureFahrenheitLeaf;
@@ -38,6 +46,7 @@ class NMEAWaterBridge {
     public:
         NMEAWaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEAMTWMessage(const NMEAMTWMessage *message);
+        void bridgeNMEAVHWMessage(const NMEAVHWMessage *message);
 };
 
 #endif // NMEA_WATER_BRIDGE_H

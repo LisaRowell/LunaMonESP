@@ -37,6 +37,7 @@
 #include "NMEATXTMessage.h"
 #include "NMEAVDMMessage.h"
 #include "NMEAVDOMessage.h"
+#include "NMEAVHWMessage.h"
 #include "NMEAVTGMessage.h"
 #include "NMEARadioChannelCode.h"
 #include "NMEAUInt8.h"
@@ -131,6 +132,9 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
             logger() << logWarnNMEA << "Unsupported unencapsulated " << msgType << " message from "
                      << talker << eol;
             return nullptr;
+
+        case NMEAMsgType::VHW:
+            return parseNMEAVHWMessage(talker, nmeaLine);
 
         case NMEAMsgType::VTG:
             return parseNMEAVTGMessage(talker, nmeaLine);

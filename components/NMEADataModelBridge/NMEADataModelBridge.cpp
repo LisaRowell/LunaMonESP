@@ -32,6 +32,7 @@
 #include "NMEAMTWMessage.h"
 #include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
+#include "NMEAVHWMessage.h"
 #include "NMEAVTGMessage.h"
 #include "NMEATXTMessage.h"
 
@@ -100,6 +101,10 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
 
         case NMEAMsgType::RMC:
             gpsBridge.bridgeNMEARMCMessage((NMEARMCMessage *)message);
+            break;
+
+        case NMEAMsgType::VHW:
+            waterBridge.bridgeNMEAVHWMessage((NMEAVHWMessage *)message);
             break;
 
         case NMEAMsgType::VTG:

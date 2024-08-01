@@ -44,6 +44,7 @@ class NMEAMsgType {
             TXT,
             VDM,
             VDO,
+            VHW,
             VTG
         };
 
