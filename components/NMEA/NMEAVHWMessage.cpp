@@ -31,9 +31,6 @@ NMEAVHWMessage::NMEAVHWMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAVHWMessage::parse(NMEALine &nmeaLine) {
-    nmeaLine.logLine();
-//$IIVHW,,,,,00.0,N,00.0,K*4C
-
     if (!waterHeadingTrue.extract(nmeaLine, talker, "VHW", "Water Heading True", true)) {
         return false;
     }
