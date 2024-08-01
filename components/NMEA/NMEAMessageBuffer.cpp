@@ -30,6 +30,7 @@
 #include "NMEAMTWMessage.h"
 #include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
+#include "NMEARSAMessage.h"
 #include "NMEATXTMessage.h"
 #include "NMEAVDMMessage.h"
 #include "NMEAVDOMessage.h"
@@ -53,6 +54,7 @@ constexpr size_t NMEA_MESSAGE_BUFFER_SIZE = etl::multimax(sizeof(NMEADBKMessage)
                                                           sizeof(NMEAMTWMessage),
                                                           sizeof(NMEAMWVMessage),
                                                           sizeof(NMEARMCMessage),
+                                                          sizeof(NMEARSAMessage),
                                                           sizeof(NMEATXTMessage),
                                                           sizeof(NMEAVDMMessage),
                                                           sizeof(NMEAVDOMessage),

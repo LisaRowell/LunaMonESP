@@ -112,6 +112,10 @@ bool NMEATenthsInt16::extract(NMEALine &nmeaLine, NMEATalker &talker, const char
     return true;
 }
 
+bool NMEATenthsInt16::hasValue() const {
+    return valuePresent;
+}
+
 void NMEATenthsInt16::publish(DataModelTenthsInt16Leaf &leaf) const {
     if (valuePresent) {
         leaf = value;

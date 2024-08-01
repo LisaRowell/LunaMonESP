@@ -41,6 +41,7 @@ class NMEAMsgType {
             MTW,
             MWV,
             RMC,
+            RSA,
             TXT,
             VDM,
             VDO,

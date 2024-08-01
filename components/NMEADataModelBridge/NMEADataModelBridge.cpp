@@ -17,6 +17,7 @@
  */
 
 #include "NMEADataModelBridge.h"
+#include "NMEAAutoPilotBridge.h"
 #include "NMEADepthBridge.h"
 #include "NMEAGPSBridge.h"
 #include "NMEAWaterBridge.h"
@@ -32,6 +33,7 @@
 #include "NMEAMTWMessage.h"
 #include "NMEAMWVMessage.h"
 #include "NMEARMCMessage.h"
+#include "NMEARSAMessage.h"
 #include "NMEAVHWMessage.h"
 #include "NMEAVTGMessage.h"
 #include "NMEATXTMessage.h"
@@ -46,7 +48,8 @@
 
 
 NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager)
-    : depthBridge(dataModel, messagesBridgedCounter),
+    : autoPilotBridge(dataModel, messagesBridgedCounter),
+      depthBridge(dataModel, messagesBridgedCounter),
       gpsBridge(dataModel, messagesBridgedCounter),
       waterBridge(dataModel, messagesBridgedCounter),
       windBridge(dataModel, messagesBridgedCounter),
@@ -101,6 +104,10 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
 
         case NMEAMsgType::RMC:
             gpsBridge.bridgeNMEARMCMessage((NMEARMCMessage *)message);
+            break;
+
+        case NMEAMsgType::RSA:
+            autoPilotBridge.bridgeNMEARSAMessage((NMEARSAMessage *)message);
             break;
 
         case NMEAMsgType::VHW:

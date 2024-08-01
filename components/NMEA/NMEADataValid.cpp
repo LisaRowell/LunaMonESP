@@ -29,7 +29,11 @@
 NMEADataValid::NMEADataValid() : valid(false) {
 }
 
-bool NMEADataValid::set(etl::string_view &dataValidView) {
+bool NMEADataValid::set(etl::string_view &dataValidView, bool optional) {
+    if (dataValidView.size() == 0 && optional) {
+        valid = false;
+        return true;
+    }
     if (dataValidView.size() != 1) {
         return false;
     }
@@ -48,14 +52,20 @@ bool NMEADataValid::set(etl::string_view &dataValidView) {
     }
 }
 
-bool NMEADataValid::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEADataValid::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+                            bool optional) {
     etl::string_view dataValidView;
     if (!nmeaLine.getWord(dataValidView)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message missing Data Valid field"
-                 << eol;
-        return false;
+        if (!optional) {
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing Data Valid field"
+                     << eol;
+            return false;
+        } else {
+            valid = false;
+            return true;
+        }
     }
-    if (!set(dataValidView)) {
+    if (!set(dataValidView, optional)) {
         logger() << logWarnNMEA << talker << " " << msgType
                  << " message with bad Data Valid field '" << dataValidView << "'" << eol;
         return false;

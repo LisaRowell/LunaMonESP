@@ -1,4 +1,5 @@
 idf_component_register(SRCS "NMEADataModelBridge.cpp"
+                            "NMEAAutoPilotBridge.cpp"
                             "NMEADepthBridge.cpp"
                             "NMEAGPSBridge.cpp"
                             "NMEAWaterBridge.cpp"

@@ -58,6 +58,8 @@ void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
         value = MWV;
     } else if (msgTypeStr == "RMC") {
         value = RMC;
+    } else if (msgTypeStr == "RSA") {
+        value = RSA;
     } else if (msgTypeStr == "TXT") {
         value = TXT;
     } else if (msgTypeStr == "VDM") {
@@ -101,6 +103,8 @@ const char *NMEAMsgType::name() const {
             return "MWV";
         case RMC:
             return "RMC";
+        case RSA:
+            return "RSA";
         case TXT:
             return "TXT";
         case VDM:

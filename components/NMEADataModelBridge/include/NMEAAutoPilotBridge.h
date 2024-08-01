@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,31 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_DATA_VALID_H
-#define NMEA_DATA_VALID_H
+#ifndef NMEA_AUTO_PILOT_BRIDGE_H
+#define NMEA_AUTO_PILOT_BRIDGE_H
 
-#include "LoggableItem.h"
+#include "DataModelNode.h"
+#include "DataModelTenthsInt16Leaf.h"
 
-#include "etl/string_view.h"
+class DataModel;
+class NMEARSAMessage;
+class StatCounter;
 
-class NMEALine;
-class NMEATalker;
-class DataModelBoolLeaf;
-class Logger;
-
-class NMEADataValid : public LoggableItem {
+class NMEAAutoPilotBridge {
     private:
-        bool valid;
+        StatCounter &messagesBridgedCounter;
 
-        bool set(etl::string_view &dataValidView, bool optional);
+        DataModelNode autoPilotNode;
+        DataModelNode autoPilotRudderNode;
+        DataModelTenthsInt16Leaf autopilotRudderStarboardLeaf;
+        DataModelTenthsInt16Leaf autopilotRudderPortLeaf;
 
     public:
-        NMEADataValid();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
-                     bool optional = false);
-        void publish(DataModelBoolLeaf &leaf) const;
-        constexpr operator bool() const { return valid; }
-        virtual void log(Logger &logger) const override;
+        NMEAAutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        void bridgeNMEARSAMessage(const NMEARSAMessage *message);
 };
 
-#endif
+#endif // NMEA_AUTO_PILOT_BRIDGE_H

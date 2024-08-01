@@ -21,6 +21,7 @@
 
 #include "NMEAMessageHandler.h"
 
+#include "NMEAAutoPilotBridge.h"
 #include "NMEADepthBridge.h"
 #include "NMEAGPSBridge.h"
 #include "NMEAWaterBridge.h"
@@ -40,6 +41,7 @@ class NMEATXTMessage;
 
 class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
+        NMEAAutoPilotBridge autoPilotBridge;
         NMEADepthBridge depthBridge;
         NMEAGPSBridge gpsBridge;
         NMEAWaterBridge waterBridge;

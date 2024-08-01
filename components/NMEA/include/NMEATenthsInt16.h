@@ -43,6 +43,7 @@ class NMEATenthsInt16 : public LoggableItem {
         NMEATenthsInt16();
         bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false);
+        bool hasValue() const;
         constexpr operator TenthsInt16() const { return value; }
         void publish(DataModelTenthsInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
