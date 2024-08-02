@@ -70,24 +70,20 @@
 #define NMEA_UART1_BAUD_RATE    (CONFIG_LUNAMON_NMEA_UART1_BAUD_RATE)
 #define NMEA_UART1_RX_PIN       (CONFIG_LUNAMON_NMEA_UART1_RX_PIN)
 #define NMEA_UART1_TX_PIN       (CONFIG_LUNAMON_NMEA_UART1_TX_PIN)
-#define NMEA_UART1_RTS_PIN      (CONFIG_LUNAMON_NMEA_UART1_RTS_PIN)
 #else
 #define NMEA_UART1_BAUD_RATE    (0)
 #define NMEA_UART1_RX_PIN       (GPIO_NUM_0)
 #define NMEA_UART1_TX_PIN       (GPIO_NUM_0)
-#define NMEA_UART1_RTS_PIN      (GPIO_NUM_0)
 #endif
 
 #if CONFIG_LUNAMON_NMEA_UART2_ENABLED
 #define NMEA_UART2_BAUD_RATE    (CONFIG_LUNAMON_NMEA_UART2_BAUD_RATE)
 #define NMEA_UART2_RX_PIN       (CONFIG_LUNAMON_NMEA_UART2_RX_PIN)
 #define NMEA_UART2_TX_PIN       (CONFIG_LUNAMON_NMEA_UART2_TX_PIN)
-#define NMEA_UART2_RTS_PIN      (CONFIG_LUNAMON_NMEA_UART2_RTS_PIN)
 #else
 #define NMEA_UART2_BAUD_RATE    (0)
 #define NMEA_UART2_RX_PIN       (GPIO_NUM_0)
 #define NMEA_UART2_TX_PIN       (GPIO_NUM_0)
-#define NMEA_UART2_RTS_PIN      (GPIO_NUM_0)
 #endif
 
 LunaMon::LunaMon()
@@ -129,9 +125,8 @@ LunaMon::LunaMon()
 
     if (CONFIG_LUNAMON_NMEA_UART1_ENABLED) {
         nmeaUART1Source = new NMEAUARTSource("uart1", UART_NUM_1, NMEA_UART1_RX_PIN,
-                                             NMEA_UART1_TX_PIN, NMEA_UART1_RTS_PIN,
-                                             NMEA_UART1_BAUD_RATE, statsManager, nmea,
-                                             aisContacts);
+                                             NMEA_UART1_TX_PIN,NMEA_UART1_BAUD_RATE, statsManager,
+                                             nmea, aisContacts);
         if (nmeaUART1Source) {
             nmeaUART1Source->addMessageHandler(nmeaDataModelBridge);
         } else {
@@ -143,9 +138,8 @@ LunaMon::LunaMon()
 
     if (CONFIG_LUNAMON_NMEA_UART2_ENABLED) {
         nmeaUART2Source = new NMEAUARTSource("uart2", UART_NUM_2, NMEA_UART2_RX_PIN,
-                                             NMEA_UART2_TX_PIN, NMEA_UART2_RTS_PIN,
-                                             NMEA_UART2_BAUD_RATE, statsManager, nmea,
-                                             aisContacts);
+                                             NMEA_UART2_TX_PIN, NMEA_UART2_BAUD_RATE, statsManager,
+                                             nmea, aisContacts);
         if (nmeaUART2Source) {
             nmeaUART2Source->addMessageHandler(nmeaDataModelBridge);
         } else {

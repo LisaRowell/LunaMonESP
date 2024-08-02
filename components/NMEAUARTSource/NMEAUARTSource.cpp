@@ -38,14 +38,13 @@
 #include <stddef.h>
 
 NMEAUARTSource::NMEAUARTSource(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                               int rtsPin, int baudRate, StatsManager &statsManager, NMEA &nmea,
+                               int baudRate, StatsManager &statsManager, NMEA &nmea,
                                AISContacts &aisContacts)
     : TaskObject("NMEAUARTSource", LOGGER_LEVEL_DEBUG, stackSize),
       NMEASource(aisContacts, messagesLeaf, messageRateLeaf, statsManager),
       uartNumber(uartNumber),
       rxPin(rxPin),
       txPin(txPin),
-      rtsPin(rtsPin),
       baudRate(baudRate),
       nmeaUARTNode(name, &nmea.nmeaNode()),
       messagesLeaf("messages", &nmeaUARTNode),
@@ -54,7 +53,7 @@ NMEAUARTSource::NMEAUARTSource(const char *name, uart_port_t uartNumber, int rxP
 
 void NMEAUARTSource::task() {
     logger << logDebugNMEAUART << "Configuring UART " << uartNumber << " for " << baudRate
-           << " baud, rx pin " << rxPin << " tx pin " << txPin << " RTS pin " << rtsPin << eol;
+           << " baud, rx pin " << rxPin << " tx pin " << txPin << eol;
 
     sourceReset();
 
@@ -72,7 +71,7 @@ void NMEAUARTSource::task() {
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .rx_flow_ctrl_thresh = 122,
+        .rx_flow_ctrl_thresh = 1,
         .source_clk = UART_SCLK_DEFAULT,
     };
     error = uart_param_config(uartNumber, &uart_config);
@@ -82,21 +81,21 @@ void NMEAUARTSource::task() {
         errorExit();
     }
 
-    error = uart_set_pin(uartNumber, txPin, rxPin, rtsPin, UART_PIN_NO_CHANGE);
+    error = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     if (error != ESP_OK) {
         logger << logErrorNMEAUART << "Failed to assign UART " << uartNumber << " pins: "
                << ESPError(error) << eol;
         errorExit();
     }
 
-    error = uart_set_mode(uartNumber, UART_MODE_RS485_HALF_DUPLEX);
+    error = uart_set_mode(uartNumber, UART_MODE_UART);
     if (error != ESP_OK) {
         logger << logErrorNMEAUART << "Failed to set UART " << uartNumber << " mode: "
                << ESPError(error) << eol;
         errorExit();
     }
 
-    error = uart_set_rx_timeout(uartNumber, 0);
+    error = uart_set_rx_timeout(uartNumber, rxTimeoutInChars);
     if (error != ESP_OK) {
         logger << logErrorNMEAUART << "Failed to set UART " << uartNumber << " RX timeout: "
                << ESPError(error) << eol;

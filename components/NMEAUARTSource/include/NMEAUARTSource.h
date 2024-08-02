@@ -39,11 +39,11 @@ class NMEAUARTSource : public TaskObject, public NMEASource {
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
         static constexpr uint32_t noDataDelayMs = 20;
+        static constexpr uint8_t rxTimeoutInChars = 2;
 
         uart_port_t uartNumber;
         int rxPin;
         int txPin;
-        int rtsPin;
         int baudRate;
         DataModelNode nmeaUARTNode;
         DataModelUInt32Leaf messagesLeaf;
@@ -52,9 +52,8 @@ class NMEAUARTSource : public TaskObject, public NMEASource {
         virtual void task() override;
 
     public:
-        NMEAUARTSource(const char *name, uart_port_t uartNumber, int rxPin, int txPin, int rtsPin,
-                       int baudRate, StatsManager &statsManager, NMEA &nmea,
-                       AISContacts &aisContacts);
+        NMEAUARTSource(const char *name, uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
+                       StatsManager &statsManager, NMEA &nmea, AISContacts &aisContacts);
 };
 
 #endif // NMEA_UART_SOURCE_H

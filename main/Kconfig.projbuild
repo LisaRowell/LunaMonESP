@@ -72,13 +72,6 @@ menu "Luna Mon Configuration"
                 Pin number to use for the UART1's TX pin. Consult your board documentation for
                 information on which pin to use.
 
-        config LUNAMON_NMEA_UART1_RTS_PIN
-            int "UART1 RTS Pin"
-            default 15
-            help
-                Pin number to use for the UART1's RTS pin. Consult your board documentation for
-                information on which pin to use.
-
         choice
             prompt "UART1 Baud Rate"
             default LUNAMON_NMEA_UART1_BAUD_RATE_4800
@@ -127,13 +120,6 @@ menu "Luna Mon Configuration"
             default 25
             help
                 Pin number to use for the UART2's TX pin. Consult your board documentation for
-                information on which pin to use.
-
-        config LUNAMON_NMEA_UART2_RTS_PIN
-            int "UART2 RTS Pin"
-            default 4
-            help
-                Pin number to use for the UART2's RTS pin. Consult your board documentation for
                 information on which pin to use.
 
         choice
