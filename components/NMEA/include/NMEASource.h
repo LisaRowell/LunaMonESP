@@ -22,17 +22,19 @@
 #include "NMEALine.h"
 #include "NMEAParser.h"
 
-#include "StatCounter.h"
+#include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
 
+#include "StatCounter.h"
 #include "StatsHolder.h"
 
 #include "etl/vector.h"
 
 #include <stddef.h>
 
+class NMEA;
 class AISContacts;
 class NMEAMessageHandler;
-class DataModelUInt32Leaf;
 class StatsManager;
 
 class NMEASource : StatsHolder {
@@ -44,8 +46,9 @@ class NMEASource : StatsHolder {
         etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
 
         StatCounter messagesCounter;
-        DataModelUInt32Leaf &messagesLeaf;
-        DataModelUInt32Leaf &messageRateLeaf;
+        DataModelNode _sourceNode;
+        DataModelUInt32Leaf messagesLeaf;
+        DataModelUInt32Leaf messageRateLeaf;
 
         bool scanForCarriageReturn(size_t &carriageReturnPos, const char *buffer,
                                    size_t &bufferPos, size_t &remaining);
@@ -54,12 +57,13 @@ class NMEASource : StatsHolder {
         virtual void exportStats(uint32_t msElapsed) override;
 
     protected:
+        DataModelNode &sourceNode();
         void sourceReset();
         void processBuffer(const char *buffer, size_t length);
 
     public:
-        NMEASource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,
-                   DataModelUInt32Leaf &messageRateLeaf, StatsManager &statsManager);
+        NMEASource(const char *name, NMEA &nmea, AISContacts &aisContacts,
+                   StatsManager &statsManager);
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 

@@ -42,10 +42,7 @@ class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASockSour
         struct sockaddr_in sourceAddr;
         bool sourceAddrValid;
 
-        DataModelNode nmeaWiFiNode;
         DataModelBoolLeaf stateLeaf;
-        DataModelUInt32Leaf messagesLeaf;
-        DataModelUInt32Leaf messageRateLeaf;
 
         virtual void task() override;
 
@@ -53,8 +50,9 @@ class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASockSour
         static constexpr uint32_t reconnectDelayMs = 1000;
 
     public:
-        NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsManager, const char *ipv4Addr,
-                       uint16_t tcpPort, NMEA &nmea, AISContacts &aisContacts);
+        NMEAWiFiSource(const char *name, WiFiManager &wifiManager, StatsManager &statsManager,
+                       const char *ipv4Addr, uint16_t tcpPort, NMEA &nmea,
+                       AISContacts &aisContacts);
 };
 
 #endif

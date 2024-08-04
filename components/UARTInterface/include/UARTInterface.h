@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,22 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_SOCK_SOURCE_H
-#define NMEA_SOCK_SOURCE_H
+#ifndef UART_INTERFACE_H
+#define UART_INTERFACE_H
 
-#include "NMEASource.h"
+#include "Interface.h"
 
-class NMEA;
-class AISContacts;
-class StatsManager;
+#include "driver/uart.h"
 
-class NMEASockSource : public NMEASource {
-    protected:
-        void processNMEAStream(int sock);
+#include <stddef.h>
+
+class UARTInterface : public Interface {
+    private:
+        static constexpr uint8_t rxTimeoutInChars = 2;
+
+        uart_port_t _uartNumber;
+        int rxPin;
+        int txPin;
+        int baudRate;
+        size_t rxBufferSize;
 
     public:
-        NMEASockSource(const char *name, NMEA &nmea, AISContacts &aisContacts,
-                       StatsManager &statsManager);
+        UARTInterface(const char *name, enum InterfaceProtocol protocol, uart_port_t uartNumber,
+                      int rxPin, int txPin, int baudRate, size_t rxBufferSize, size_t stackSize);
+        void startUART();
+        uart_port_t uartNumber() const;
+        size_t readToBuffer(void *buffer, size_t rxBufferSize);
 };
 
-#endif // NMEA_SOCK_SOURCE_H
+#endif // UART_INTERFACE_H
+

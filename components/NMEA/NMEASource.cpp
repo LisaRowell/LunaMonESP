@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "NMEA.h"
 #include "NMEASource.h"
 #include "NMEALine.h"
 #include "NMEAParser.h"
 #include "NMEAMessage.h"
 #include "NMEAMessageHandler.h"
 
+#include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
 #include "StatsManager.h"
@@ -35,14 +37,19 @@
 #include <stddef.h>
 #include <string.h>
 
-NMEASource::NMEASource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,
-                       DataModelUInt32Leaf &messageRateLeaf, StatsManager &statsManager)
+NMEASource::NMEASource(const char *name, NMEA &nmea, AISContacts &aisContacts,
+                       StatsManager &statsManager)
     : carriageReturnFound(false),
       parser(aisContacts),
       messageHandlers(),
-      messagesLeaf(messagesLeaf),
-      messageRateLeaf(messageRateLeaf) {
+      _sourceNode(name, &nmea.nmeaNode()),
+      messagesLeaf("message", &_sourceNode),
+      messageRateLeaf("messageRate", &_sourceNode) {
     statsManager.addStatsHolder(*this);
+}
+
+DataModelNode &NMEASource::sourceNode() {
+    return _sourceNode;
 }
 
 void NMEASource::sourceReset() {

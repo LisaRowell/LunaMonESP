@@ -16,14 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_UART_SOURCE_H
-#define NMEA_UART_SOURCE_H
+#ifndef NMEA_UART_INTERFACE_H
+#define NMEA_UART_INTERFACE_H
 
-#include "TaskObject.h"
+#include "UARTInterface.h"
+#include "InterfaceProtocol.h"
 #include "NMEASource.h"
-
-#include "DataModelNode.h"
-#include "DataModelUInt32Leaf.h"
+#include "NMEALine.h"
 
 #include "driver/uart.h"
 
@@ -34,26 +33,19 @@ class StatsManager;
 class NMEA;
 class AISContacts;
 
-class NMEAUARTSource : public TaskObject, public NMEASource {
+class NMEAUARTInterface : public UARTInterface, public NMEASource {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
         static constexpr uint32_t noDataDelayMs = 20;
-        static constexpr uint8_t rxTimeoutInChars = 2;
 
-        uart_port_t uartNumber;
-        int rxPin;
-        int txPin;
-        int baudRate;
-        DataModelNode nmeaUARTNode;
-        DataModelUInt32Leaf messagesLeaf;
-        DataModelUInt32Leaf messageRateLeaf;
-
+        char buffer[rxBufferSize];
         virtual void task() override;
 
     public:
-        NMEAUARTSource(const char *name, uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
-                       StatsManager &statsManager, NMEA &nmea, AISContacts &aisContacts);
+        NMEAUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
+                          int baudRate, StatsManager &statsManager, NMEA &nmea,
+                          AISContacts &aisContacts);
 };
 
-#endif // NMEA_UART_SOURCE_H
+#endif // NMEA_UART_INTERFACE_H

@@ -48,6 +48,7 @@ Logger::Logger(LoggerLevel level)
         = CONFIG_LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_WIFI] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_WIFI_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_UART] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_UART_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_UART] = CONFIG_LUNAMON_DEBUG_MODULE_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_AIS] = CONFIG_LUNAMON_DEBUG_MODULE_AIS_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_WIFI_MANAGER] = CONFIG_LUNAMON_DEBUG_MODULE_WIFI_MANAGER_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_STATS_MANAGER]
@@ -401,6 +402,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "NMEA WiFi";
         case LOGGER_MODULE_NMEA_UART:
             return "NMEA UART";
+        case LOGGER_MODULE_UART:
+            return "UART";
         case LOGGER_MODULE_AIS:
             return "AIS";
         case LOGGER_MODULE_WIFI_MANAGER:

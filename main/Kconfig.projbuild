@@ -45,27 +45,42 @@ menu "Luna Mon Configuration"
 
     endif
 
-    config LUNAMON_HAS_NMEA_UART1_SOURCE
-        bool "Has a NMEA serial source connected for UART1"
+    config LUNAMON_HAS_UART1_SOURCE
+        bool "Has a serial source connected for UART1"
         default n
         help
-            Whether or not there's a NMEA serial source connected to be configured as UART1.
+            Whether or not there's a serial source connected to be configured as UART1.
 
-    config LUNAMON_NMEA_UART1_ENABLED
+    config LUNAMON_UART1_ENABLED
         int
-        default 1 if LUNAMON_HAS_NMEA_UART1_SOURCE
-        default 0 if !LUNAMON_HAS_NMEA_UART1_SOURCE
+        default 1 if LUNAMON_HAS_UART1_SOURCE
+        default 0 if !LUNAMON_HAS_UART1_SOURCE
 
-    if LUNAMON_HAS_NMEA_UART1_SOURCE
+    if LUNAMON_HAS_UART1_SOURCE
+        choice
+            prompt "UART1 Protocol"
+            default LUNAMON_UART1_NMEA_0183
+            help
+                Luna Mon supports interfaces with either NMEA 0183 messages or $STALK messages.
+                NMEA 0183 is what is typically put out by older, non-Raymarine devices. SeaTalk
+                is a proprietary protocol used by AutoHelm and Raymarine devices. $STALK is a
+                packaging of SeaTalk messages into a NMEA 0183 message structure typically outputed
+                by bridging devices such as the Digital Yachts ST-NMEA.
 
-        config LUNAMON_NMEA_UART1_RX_PIN
+            config LUNAMON_UART1_NMEA_0183
+                bool "NMEA 0183"
+            config LUNAMON_UART1_STALK
+                bool "$STALK"
+        endchoice
+
+        config LUNAMON_UART1_RX_PIN
             int "UART1 RX Pin"
             default 16
             help
                 Pin number to use for the UART1's RX pin. Consult your board documentation for
                 information on which pin to use.
 
-        config LUNAMON_NMEA_UART1_TX_PIN
+        config LUNAMON_UART1_TX_PIN
             int "UART1 TX Pin"
             default 17
             help
@@ -74,74 +89,91 @@ menu "Luna Mon Configuration"
 
         choice
             prompt "UART1 Baud Rate"
-            default LUNAMON_NMEA_UART1_BAUD_RATE_4800
+            default LUNAMON_UART1_BAUD_RATE_4800
             help
                 There are two baud rates used by NMEA 0183 devices, 4800 and 38400. Most devices
                 use the former while AIS transceivers typically use the later. Since these are
                 incompatible to directly connect, vessels would usually either run one of each to
-                each MFD, or use a divice (often the AIS) to bridge the slower feed onto the faster.
+                each MFD, or use a device (often the AIS) to bridge the slower feed onto the faster.
+                SeaTalk runs native 4800 while a $STALK translation device might be 4800 or 38400.
                 Select the speed of what's connected to UART1.
 
-            config LUNAMON_NMEA_UART1_BAUD_RATE_4800
+            config LUNAMON_UART1_BAUD_RATE_4800
                 bool "4800"
-            config LUNAMON_NMEA_UART1_BAUD_RATE_38400
+            config LUNAMON_UART1_BAUD_RATE_38400
                 bool "38400"
         endchoice
 
-        config LUNAMON_NMEA_UART1_BAUD_RATE
+        config LUNAMON_UART1_BAUD_RATE
             int
-            default 4800 if LUNAMON_NMEA_UART1_BAUD_RATE_4800
-            default 38400 if LUNAMON_NMEA_UART1_BAUD_RATE_38400
+            default 4800 if LUNAMON_UART1_BAUD_RATE_4800
+            default 38400 if LUNAMON_UART1_BAUD_RATE_38400
 
     endif
 
-    config LUNAMON_HAS_NMEA_UART2_SOURCE
-        bool "Has a NMEA serial source connected for UART2"
+    config LUNAMON_HAS_UART2_SOURCE
+        bool "Has a serial source connected for UART2"
         default n
         help
-            Whether or not there's a NMEA serial source connected to be configured as UART2.
+            Whether or not there's a serial source connected to be configured as UART2.
 
-    config LUNAMON_NMEA_UART2_ENABLED
+    config LUNAMON_UART2_ENABLED
         int
-        default 1 if LUNAMON_HAS_NMEA_UART2_SOURCE
-        default 0 if !LUNAMON_HAS_NMEA_UART2_SOURCE
+        default 1 if LUNAMON_HAS_UART2_SOURCE
+        default 0 if !LUNAMON_HAS_UART2_SOURCE
 
-    if LUNAMON_HAS_NMEA_UART2_SOURCE
+    if LUNAMON_HAS_UART2_SOURCE
+        choice
+            prompt "UART2 Protocol"
+            default LUNAMON_UART2_NMEA_0183
+            help
+                Luna Mon supports interfaces with either NMEA 0183 messages or $STALK messages.
+                NMEA 0183 is what is typically put out by older, non-Raymarine devices. SeaTalk
+                is a proprietary protocol used by AutoHelm and Raymarine devices. $STALK is a
+                packaging of SeaTalk messages into a NMEA 0183 message structure typically outputed
+                by bridging devices such as the Digital Yachts ST-NMEA.
 
-        config LUNAMON_NMEA_UART2_RX_PIN
+            config LUNAMON_UART2_NMEA_0183
+                bool "NMEA 0183"
+            config LUNAMON_UART2_STALK
+                bool "$STALK"
+        endchoice
+
+        config LUNAMON_UART2_RX_PIN
             int "UART2 RX Pin"
-            default 26
+            default 5
             help
                 Pin number to use for the UART2's RX pin. Consult your board documentation for
                 information on which pin to use.
 
-        config LUNAMON_NMEA_UART2_TX_PIN
+        config LUNAMON_UART2_TX_PIN
             int "UART1 TX Pin"
-            default 25
+            default 4
             help
                 Pin number to use for the UART2's TX pin. Consult your board documentation for
                 information on which pin to use.
 
         choice
             prompt "UART2 Baud Rate"
-            default LUNAMON_NMEA_UART2_BAUD_RATE_4800
+            default LUNAMON_UART2_BAUD_RATE_4800
             help
                 There are two baud rates used by NMEA 0183 devices, 4800 and 38400. Most devices
                 use the former while AIS transceivers typically use the later. Since these are
                 incompatible to directly connect, vessels would usually either run one of each to
-                each MFD, or use a divice (often the AIS) to bridge the slower feed onto the faster.
+                each MFD, or use a device (often the AIS) to bridge the slower feed onto the faster.
+                SeaTalk runs native 4800 while a $STALK translation device might be 4800 or 38400.
                 Select the speed of what's connected to UART2.
 
-            config LUNAMON_NMEA_UART2_BAUD_RATE_4800
+            config LUNAMON_UART2_BAUD_RATE_4800
                 bool "4800"
-            config LUNAMON_NMEA_UART2_BAUD_RATE_38400
+            config LUNAMON_UART2_BAUD_RATE_38400
                 bool "38400"
         endchoice
 
         config LUNAMON_UART2_BAUD_RATE
             int
-            default 4800 if LUNAMON_NMEA_UART2_BAUD_RATE_4800
-            default 38400 if LUNAMON_NMEA_UART2_BAUD_RATE_38400
+            default 4800 if LUNAMON_UART2_BAUD_RATE_4800
+            default 38400 if LUNAMON_UART2_BAUD_RATE_38400
 
     endif
 
@@ -354,14 +386,24 @@ menu "Luna Mon Configuration"
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_WIFI
 
     config LUNAMON_DEBUG_MODULE_NMEA_UART
-        bool "Debug NMEAUART"
+        bool "Debug NMEA UART"
         help
-            Whether or not to debug the NMEAUART module.
+            Whether or not to debug the NMEA UART module.
 
     config LUNAMON_DEBUG_MODULE_NMEA_UART_ENABLED
         int
         default 1 if LUNAMON_DEBUG_MODULE_NMEA_UART
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_UART
+
+    config LUNAMON_DEBUG_MODULE_UART
+        bool "Debug UART"
+        help
+            Whether or not to debug the UART module.
+
+    config LUNAMON_DEBUG_MODULE_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_UART
 
     config LUNAMON_DEBUG_MODULE_AIS
         bool "Debug AIS"

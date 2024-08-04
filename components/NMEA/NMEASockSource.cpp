@@ -27,9 +27,9 @@
 #include <stddef.h>
 #include <sys/socket.h>
 
-NMEASockSource::NMEASockSource(AISContacts &aisContacts, DataModelUInt32Leaf &messagesLeaf,
-                                DataModelUInt32Leaf &messageRateLeaf, StatsManager &statsManager)
-    : NMEASource(aisContacts, messagesLeaf, messageRateLeaf, statsManager) {
+NMEASockSource::NMEASockSource(const char *name, NMEA &nmea, AISContacts &aisContacts,
+                               StatsManager &statsManager)
+    : NMEASource(name, nmea, aisContacts, statsManager) {
 }
 
 void NMEASockSource::processNMEAStream(int sock) {

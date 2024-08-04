@@ -31,16 +31,22 @@
 #include "MQTTBroker.h"
 #include "NMEA.h"
 #include "NMEADataModelBridge.h"
+#include "STALK.h"
+#include "InterfaceProtocol.h"
 #include "LogManager.h"
 #include "Logger.h"
 
 #include "etl/string.h"
+
+#include "driver/uart.h"
 
 class NMEAWiFiSource;
 class NMEAUARTSource;
 class StatusLED;
 class I2CMaster;
 class EnvironmentalMon;
+class UARTInterface;
+class NMEAUARTInterface;
 
 class LunaMon {
     private:
@@ -50,11 +56,13 @@ class LunaMon {
         WiFiManager wifiManager;
         MQTTBroker mqttBroker;
         NMEA nmea;
+        STALK stalk;
         NMEADataModelBridge nmeaDataModelBridge;
         LogManager logManager;
         Logger logger;
         NMEAWiFiSource *nmeaWiFiSource;
-        NMEAUARTSource *nmeaUART1Source;
+        UARTInterface *uart1Interface;
+        UARTInterface *uart2Interface;
         NMEAUARTSource *nmeaUART2Source;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
@@ -65,6 +73,11 @@ class LunaMon {
         DataModelUInt32Leaf uptimeLeaf;
 
         void initNVS();
+        UARTInterface *createUARTInterface(enum InterfaceProtocol protocol, const char *name,
+                                           uart_port_t uartNumber, int rxPin, int txPin,
+                                           int baudRate);
+        NMEAUARTInterface *createNMEAUARTInterface(const char *name, uart_port_t uartNumber,
+                                                   int rxPin, int txPin, int baudRate);
 
     public:
         LunaMon();

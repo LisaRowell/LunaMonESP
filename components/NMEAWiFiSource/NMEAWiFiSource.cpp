@@ -39,17 +39,14 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-NMEAWiFiSource::NMEAWiFiSource(WiFiManager &wifiManager, StatsManager &statsManager,
-                               const char *ipv4Addr, uint16_t tcpPort, NMEA &nmea,
-                               AISContacts &aisContacts)
+NMEAWiFiSource::NMEAWiFiSource(const char *name, WiFiManager &wifiManager,
+                               StatsManager &statsManager, const char *ipv4Addr, uint16_t tcpPort,
+                               NMEA &nmea, AISContacts &aisContacts)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager),
-      NMEASockSource(aisContacts, messagesLeaf, messageRateLeaf, statsManager),
+      NMEASockSource(name, nmea, aisContacts, statsManager),
       ipv4Addr(ipv4Addr), tcpPort(tcpPort),
-      nmeaWiFiNode("wifi", &nmea.nmeaNode()),
-      stateLeaf("state", &nmeaWiFiNode),
-      messagesLeaf("messages", &nmeaWiFiNode),
-      messageRateLeaf("messageRate", &nmeaWiFiNode) {
+      stateLeaf("state", &sourceNode()) {
     if (inet_pton(AF_INET, ipv4Addr, &sourceAddr.sin_addr) == 1) {
         sourceAddrValid = true;
         sourceAddr.sin_family = AF_INET;

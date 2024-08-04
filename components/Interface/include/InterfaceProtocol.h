@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,22 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_SOCK_SOURCE_H
-#define NMEA_SOCK_SOURCE_H
+#ifndef INTERFACE_PROTOCOL_H
+#define INTERFACE_PROTOCOL_H
 
-#include "NMEASource.h"
-
-class NMEA;
-class AISContacts;
-class StatsManager;
-
-class NMEASockSource : public NMEASource {
-    protected:
-        void processNMEAStream(int sock);
-
-    public:
-        NMEASockSource(const char *name, NMEA &nmea, AISContacts &aisContacts,
-                       StatsManager &statsManager);
+enum InterfaceProtocol {
+    INTERFACE_OFFLINE,
+    INTERFACE_NMEA_O183,
+    INTERFACE_STALK
 };
 
-#endif // NMEA_SOCK_SOURCE_H
+#endif // INTERFACE_PROTOCOL_H
