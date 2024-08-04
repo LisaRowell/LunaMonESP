@@ -44,6 +44,7 @@ class NMEAGSVMessage : public NMEAMessage {
     friend class NMEADataModelBridge;
 };
 
-extern NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif

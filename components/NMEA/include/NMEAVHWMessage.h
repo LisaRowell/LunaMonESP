@@ -43,6 +43,7 @@ class NMEAVHWMessage : public NMEAMessage {
     friend class NMEAWaterBridge;
 };
 
-extern NMEAVHWMessage *parseNMEAVHWMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAVHWMessage *parseNMEAVHWMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_VHW_MESSAGE_H

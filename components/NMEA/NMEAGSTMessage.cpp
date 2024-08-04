@@ -23,7 +23,6 @@
 #include "NMEALine.h"
 #include "NMEATime.h"
 #include "NMEATenthsUInt16.h"
-#include "NMEAMessageBuffer.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -94,7 +93,8 @@ void NMEAGSTMessage::log() const {
              << standardDeviationOfAltitudeError << "m" << eol;
 }
 
-NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAGSTMessage *message = new (nmeaMessageBuffer)NMEAGSTMessage(talker);
     if (!message) {
         return nullptr;

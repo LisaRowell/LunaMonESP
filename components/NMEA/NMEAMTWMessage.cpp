@@ -22,7 +22,6 @@
 #include "NMEALine.h"
 #include "NMEATenthsInt16.h"
 #include "NMEATemperatureUnits.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -50,7 +49,8 @@ void NMEAMTWMessage::log() const {
              << waterTemperatureUnits << eol;
 }
 
-NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAMTWMessage *message = new (nmeaMessageBuffer)NMEAMTWMessage(talker);
     if (!message) {
         return nullptr;

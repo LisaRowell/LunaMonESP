@@ -43,6 +43,7 @@ class NMEARSAMessage : public NMEAMessage {
     friend class NMEAAutoPilotBridge;
 };
 
-extern NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_RSA_MESSAGE_H

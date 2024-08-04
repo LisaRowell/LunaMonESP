@@ -47,6 +47,7 @@ class NMEATXTMessage : public NMEAMessage {
     friend class NMEADataModelBridge;
 };
 
-extern NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif

@@ -22,7 +22,6 @@
 #include "NMEALine.h"
 #include "NMEATenthsInt16.h"
 #include "NMEADataValid.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -71,7 +70,8 @@ void NMEARSAMessage::log() const {
     logger() << eol;
 }
 
-NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEARSAMessage *message = new (nmeaMessageBuffer)NMEARSAMessage(talker);
     if (!message) {
         return nullptr;

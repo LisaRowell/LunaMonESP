@@ -23,7 +23,6 @@
 #include "NMEATenthsUInt16.h"
 #include "NMEARelativeIndicator.h"
 #include "NMEASpeedUnits.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -64,7 +63,8 @@ void NMEAMWVMessage::log() const {
              << eol;
 }
 
-NMEAMWVMessage *parseNMEAMWVMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAMWVMessage *parseNMEAMWVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAMWVMessage *message = new (nmeaMessageBuffer)NMEAMWVMessage(talker);
     if (!message) {
         return nullptr;

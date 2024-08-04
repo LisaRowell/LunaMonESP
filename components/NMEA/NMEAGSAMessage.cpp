@@ -21,7 +21,6 @@
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 #include "NMEALine.h"
-#include "NMEAMessageBuffer.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -104,7 +103,8 @@ void NMEAGSAMessage::log() const {
     logger() << "PDOP " << pdop << " HDOP " << hdop << " VDOP " << vdop << eol;
 }
 
-NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAGSAMessage *message = new (nmeaMessageBuffer)NMEAGSAMessage(talker);
     if (!message) {
         return nullptr;

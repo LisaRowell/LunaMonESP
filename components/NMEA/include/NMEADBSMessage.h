@@ -41,6 +41,7 @@ class NMEADBSMessage : public NMEAMessage {
     friend class NMEADepthBridge;
 };
 
-extern NMEADBSMessage *parseNMEADBSMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEADBSMessage *parseNMEADBSMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif //NMEA_DBS_MESSAGE_H

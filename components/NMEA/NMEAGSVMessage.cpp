@@ -22,7 +22,6 @@
 #include "NMEAMsgType.h"
 #include "NMEALine.h"
 #include "NMEAUInt8.h"
-#include "NMEAMessageBuffer.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -72,7 +71,8 @@ void NMEAGSVMessage::log() const {
     logger() << eol;
 }
 
-NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAGSVMessage *message = new (nmeaMessageBuffer)NMEAGSVMessage(talker);
     if (!message) {
         return nullptr;

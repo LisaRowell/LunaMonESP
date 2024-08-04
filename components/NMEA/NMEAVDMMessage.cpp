@@ -20,7 +20,6 @@
 #include "NMEAVDMVDOMessage.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -40,7 +39,8 @@ void NMEAVDMMessage::log() const {
 }
 
 NMEAVDMMessage *parseVDMMessage(const NMEATalker &talker, etl::bit_stream_reader &streamReader,
-                                size_t messageSizeInBits, AISContacts &aisContacts) {
+                                size_t messageSizeInBits, AISContacts &aisContacts,
+                                uint8_t *nmeaMessageBuffer) {
     NMEAVDMMessage *message = new (nmeaMessageBuffer)NMEAVDMMessage(talker);
     if (!message) {
         return nullptr;

@@ -47,6 +47,7 @@ class NMEAGLLMessage : public NMEAMessage {
     friend class NMEAGPSBridge;
 };
 
-extern NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif

@@ -22,7 +22,6 @@
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 #include "NMEALine.h"
-#include "NMEAMessageBuffer.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -67,7 +66,8 @@ void NMEADBKMessage::log() const {
              << " m, " << depthFathoms << " ftm" << eol;
 }
 
-NMEADBKMessage *parseNMEADBKMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEADBKMessage *parseNMEADBKMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEADBKMessage *message = new (nmeaMessageBuffer)NMEADBKMessage(talker);
     if (!message) {
         return nullptr;

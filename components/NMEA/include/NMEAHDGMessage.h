@@ -42,6 +42,7 @@ class NMEAHDGMessage : public NMEAMessage {
     friend class NMEAAutoPilotBridge;
 };
 
-extern NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine);
+extern NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                           uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_HDG_MESSAGE_H

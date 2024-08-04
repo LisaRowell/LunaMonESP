@@ -27,7 +27,6 @@
 #include "NMEATime.h"
 #include "NMEADataValid.h"
 #include "NMEAFAAModeIndicator.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -71,7 +70,8 @@ void NMEAGLLMessage::log() const {
     logger() << eol;
 }
 
-NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAGLLMessage *message = new (nmeaMessageBuffer)NMEAGLLMessage(talker);
     if (!message) {
         return nullptr;

@@ -21,7 +21,6 @@
 #include "NMEALine.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -81,7 +80,8 @@ void NMEATXTMessage::log() const {
              << sentenceNumber << " TextId " << textIdentifier << " " << text << eol;
 }
 
-NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEATXTMessage *message = new (nmeaMessageBuffer)NMEATXTMessage(talker);
     if (!message) {
         return nullptr;

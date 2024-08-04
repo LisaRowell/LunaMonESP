@@ -19,8 +19,49 @@
 #ifndef NMEA_MESSAGE_BUFFER_H
 #define NMEA_MESSAGE_BUFFER_H
 
-#include <stdint.h>
+#include "NMEADBKMessage.h"
+#include "NMEADBSMessage.h"
+#include "NMEADBTMessage.h"
+#include "NMEADPTMessage.h"
+#include "NMEAGGAMessage.h"
+#include "NMEAGLLMessage.h"
+#include "NMEAGSAMessage.h"
+#include "NMEAGSTMessage.h"
+#include "NMEAGSVMessage.h"
+#include "NMEAHDGMessage.h"
+#include "NMEAMTWMessage.h"
+#include "NMEAMWVMessage.h"
+#include "NMEARMCMessage.h"
+#include "NMEARSAMessage.h"
+#include "NMEATXTMessage.h"
+#include "NMEAVDMMessage.h"
+#include "NMEAVDOMessage.h"
+#include "NMEAVHWMessage.h"
+#include "NMEAVTGMessage.h"
 
-extern uint8_t nmeaMessageBuffer[];
+#include "etl/algorithm.h"
+
+#include <stddef.h>
+
+constexpr size_t NMEA_MESSAGE_BUFFER_SIZE = etl::multimax(sizeof(NMEADBKMessage),
+                                                          sizeof(NMEADBSMessage),
+                                                          sizeof(NMEADBTMessage),
+                                                          sizeof(NMEADPTMessage),
+                                                          sizeof(NMEAGGAMessage),
+                                                          sizeof(NMEAGSAMessage),
+                                                          sizeof(NMEAGLLMessage),
+                                                          sizeof(NMEAGSTMessage),
+                                                          sizeof(NMEAGSVMessage),
+                                                          sizeof(NMEAHDGMessage),
+                                                          sizeof(NMEAMTWMessage),
+                                                          sizeof(NMEAMWVMessage),
+                                                          sizeof(NMEARMCMessage),
+                                                          sizeof(NMEARSAMessage),
+                                                          sizeof(NMEATXTMessage),
+                                                          sizeof(NMEAVDMMessage),
+                                                          sizeof(NMEAVDOMessage),
+                                                          sizeof(NMEAVHWMessage),
+                                                          sizeof(NMEAVTGMessage));
+
 
 #endif

@@ -22,7 +22,6 @@
 #include "NMEALine.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEAHeadingOffset.h"
-#include "NMEAMessageBuffer.h"
 
 #include "Logger.h"
 
@@ -54,7 +53,8 @@ void NMEAHDGMessage::log() const {
              << " Deviation " << magneticDeviation << " Variation " << magneticVariation << eol;
 }
 
-NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine) {
+NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+                                    uint8_t *nmeaMessageBuffer) {
     NMEAHDGMessage *message = new (nmeaMessageBuffer)NMEAHDGMessage(talker);
     if (!message) {
         return nullptr;

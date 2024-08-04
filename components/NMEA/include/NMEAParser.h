@@ -21,6 +21,7 @@
 
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
+#include "NMEAMessageBuffer.h"
 #include "NMEADecapsulator.h"
 
 #include "etl/bit_stream.h"
@@ -33,6 +34,7 @@ class NMEALine;
 
 class NMEAParser {
     private:
+        uint8_t nmeaMessageBuffer[NMEA_MESSAGE_BUFFER_SIZE];
         NMEADecapsulator decapsulator;
         AISContacts &aisContacts;
 

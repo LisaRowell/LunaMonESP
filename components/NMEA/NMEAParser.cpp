@@ -91,49 +91,49 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
                                                  const NMEAMsgType &msgType, NMEALine &nmeaLine) {
     switch (msgType) {
         case NMEAMsgType::DBK:
-            return parseNMEADBKMessage(talker, nmeaLine);
+            return parseNMEADBKMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::DBS:
-            return parseNMEADBSMessage(talker, nmeaLine);
+            return parseNMEADBSMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::DBT:
-            return parseNMEADBTMessage(talker, nmeaLine);
+            return parseNMEADBTMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::DPT:
-            return parseNMEADPTMessage(talker, nmeaLine);
+            return parseNMEADPTMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::GGA:
-            return parseNMEAGGAMessage(talker, nmeaLine);
+            return parseNMEAGGAMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::GLL:
-            return parseNMEAGLLMessage(talker, nmeaLine);
+            return parseNMEAGLLMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::GSA:
-            return parseNMEAGSAMessage(talker, nmeaLine);
+            return parseNMEAGSAMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::GST:
-            return parseNMEAGSTMessage(talker, nmeaLine);
+            return parseNMEAGSTMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::GSV:
-            return parseNMEAGSVMessage(talker, nmeaLine);
+            return parseNMEAGSVMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::HDG:
-            return parseNMEAHDGMessage(talker, nmeaLine);
+            return parseNMEAHDGMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::MTW:
-            return parseNMEAMTWMessage(talker, nmeaLine);
+            return parseNMEAMTWMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::MWV:
-            return parseNMEAMWVMessage(talker, nmeaLine);
+            return parseNMEAMWVMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::RMC:
-            return parseNMEARMCMessage(talker, nmeaLine);
+            return parseNMEARMCMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::RSA:
-            return parseNMEARSAMessage(talker, nmeaLine);
+            return parseNMEARSAMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::TXT:
-            return parseNMEATXTMessage(talker, nmeaLine);
+            return parseNMEATXTMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::VDM:
         case NMEAMsgType::VDO:
@@ -142,10 +142,10 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
             return nullptr;
 
         case NMEAMsgType::VHW:
-            return parseNMEAVHWMessage(talker, nmeaLine);
+            return parseNMEAVHWMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::VTG:
-            return parseNMEAVTGMessage(talker, nmeaLine);
+            return parseNMEAVTGMessage(talker, nmeaLine, nmeaMessageBuffer);
 
         case NMEAMsgType::UNKNOWN:
         default:
@@ -237,10 +237,12 @@ NMEAMessage *NMEAParser::parseEncapsulatedMessage(const NMEATalker &talker,
 
     switch (msgType) {
         case NMEAMsgType::VDM:
-            return parseVDMMessage(talker, streamReader, messageSizeInBits, aisContacts);
+            return parseVDMMessage(talker, streamReader, messageSizeInBits, aisContacts,
+                                   nmeaMessageBuffer);
 
         case NMEAMsgType::VDO:
-            return parseVDOMessage(talker, streamReader, messageSizeInBits, aisContacts);
+            return parseVDOMessage(talker, streamReader, messageSizeInBits, aisContacts,
+                                   nmeaMessageBuffer);
 
         default: 
             logger() << logWarnNMEA << "Ignoring unsupport encapsulated " << msgType

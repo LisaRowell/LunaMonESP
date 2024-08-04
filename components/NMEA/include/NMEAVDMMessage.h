@@ -38,6 +38,7 @@ class NMEAVDMMessage : public NMEAVDMVDOMessage {
 
 extern NMEAVDMMessage *parseVDMMessage(const NMEATalker &talker,
                                        etl::bit_stream_reader &streamReader,
-                                       size_t messageSizeInBits, AISContacts &aisContacts);  
+                                       size_t messageSizeInBits, AISContacts &aisContacts,
+                                       uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_VDM_MESSAGE_H
