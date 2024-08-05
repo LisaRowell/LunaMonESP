@@ -1,9 +1,7 @@
 idf_component_register(SRCS "NMEA.cpp"
-                            "NMEASource.cpp"
-                            "NMEASockSource.cpp"
                             "NMEAParser.cpp"
+                            "NMEASource.cpp"
                             "NMEADecapsulator.cpp"
-                            "NMEALine.cpp"
                             "NMEAMessage.cpp"
                             "NMEAMsgType.cpp"
                             "NMEADBKMessage.cpp"
@@ -51,5 +49,5 @@ idf_component_register(SRCS "NMEA.cpp"
                             "NMEAHundredthsUInt8.cpp"
                             "NMEAHundredthsUInt16.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES AIS DataModel StatCounter StatsManager FixedPoint CharacterTools
-                                StringTools Logger Error)
+                       REQUIRES NMEALineSource AIS DataModel StatCounter StatsManager FixedPoint
+                                Logger Error)

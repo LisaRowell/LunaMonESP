@@ -16,22 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_SOCK_SOURCE_H
-#define NMEA_SOCK_SOURCE_H
+#ifndef NMEA_LINE_SOURCE_H
+#define NMEA_LINE_SOURCE_H
 
-#include "NMEASource.h"
+#include "NMEALine.h"
 
-class NMEA;
-class AISContacts;
-class StatsManager;
+#include "etl/vector.h"
 
-class NMEASockSource : public NMEASource {
+#include <stddef.h>
+
+class NMEALineSource {
+    private:
+        bool carriageReturnFound;
+        NMEALine inputLine;
+
+        bool scanForCarriageReturn(size_t &carriageReturnPos, const char *buffer,
+                                   size_t &bufferPos, size_t &remaining);
+        bool processBufferToEndOfLine(const char *buffer, size_t &bufferPos, size_t &remaining);
+        void lineCompleted();
+
     protected:
-        void processNMEAStream(int sock);
+        void sourceReset();
+        void processBuffer(const char *buffer, size_t length);
+        virtual void handleLine(NMEALine &inputLine) = 0;
 
     public:
-        NMEASockSource(const char *name, NMEA &nmea, AISContacts &aisContacts,
-                       StatsManager &statsManager);
+        NMEALineSource();
 };
 
-#endif // NMEA_SOCK_SOURCE_H
+#endif // NMEA_LINE_SOURCE_H

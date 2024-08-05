@@ -44,7 +44,7 @@ NMEAWiFiSource::NMEAWiFiSource(const char *name, WiFiManager &wifiManager,
                                NMEA &nmea, AISContacts &aisContacts)
     : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager),
-      NMEASockSource(name, nmea, aisContacts, statsManager),
+      NMEASource(name, nmea, aisContacts, statsManager),
       ipv4Addr(ipv4Addr), tcpPort(tcpPort),
       stateLeaf("state", &sourceNode()) {
     if (inet_pton(AF_INET, ipv4Addr, &sourceAddr.sin_addr) == 1) {
@@ -94,5 +94,25 @@ void NMEAWiFiSource::task() {
         }
 
         vTaskDelay(pdMS_TO_TICKS(reconnectDelayMs));
+    }
+}
+
+// Move this to a WiFiInterface
+void NMEAWiFiSource::processNMEAStream(int sock) {
+    sourceReset();
+
+    while (true) {
+        char buffer[maxNMEALineLength];
+        ssize_t count = recv(sock, buffer, maxNMEALineLength, 0);
+        if (count == 0) {
+            logger << logWarnNMEA << "NMEA source closed connection." << eol;
+            return;
+        } else if (count < 0) {
+            logger << logWarnNMEA << "NMEA source read failed:" << strerror(errno) << "(" << errno
+                   << ")" << eol;
+            return;
+        } else {
+            processBuffer(buffer, count);
+        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class NMEALine {
     private:
         etl::string<maxNMEALineLength> line;
         etl::string_view remaining;
-        // This flag is used to indentify the lines which are in the encapsulated encoding scheme
+        // This flag is used to identify the lines which are in the encapsulated encoding scheme
         // used for AIS messages (and possibly others), versus the normal style NMEA 0183 CSV data.
         bool encapsulatedData;
 
@@ -50,4 +50,4 @@ class NMEALine {
         void logLine();
 };
 
-#endif
+#endif // NMEA_LINE_H

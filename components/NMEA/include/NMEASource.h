@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #include "NMEALine.h"
 #include "NMEAParser.h"
 
+#include "NMEALineSource.h"
+
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
@@ -37,10 +39,8 @@ class AISContacts;
 class NMEAMessageHandler;
 class StatsManager;
 
-class NMEASource : StatsHolder {
+class NMEASource : public NMEALineSource, StatsHolder {
     private:
-        bool carriageReturnFound;
-        NMEALine inputLine;
         NMEAParser parser;
         static const size_t maxMessageHandlers = 5;
         etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
@@ -55,11 +55,10 @@ class NMEASource : StatsHolder {
         bool processBufferToEndOfLine(const char *buffer, size_t &bufferPos, size_t &remaining);
         void lineCompleted();
         virtual void exportStats(uint32_t msElapsed) override;
+        virtual void handleLine(NMEALine &inputLine) override;
 
     protected:
         DataModelNode &sourceNode();
-        void sourceReset();
-        void processBuffer(const char *buffer, size_t length);
 
     public:
         NMEASource(const char *name, NMEA &nmea, AISContacts &aisContacts,
@@ -67,4 +66,4 @@ class NMEASource : StatsHolder {
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 
-#endif
+#endif // NMEA_SOURCE_H
