@@ -27,13 +27,12 @@
 
 #include "Error.h"
 
-NMEASource::NMEASource(const char *name, NMEA &nmea, AISContacts &aisContacts,
+NMEASource::NMEASource(const char *name, DataModelNode &interfaceNode, AISContacts &aisContacts,
                        StatsManager &statsManager)
     : parser(aisContacts),
       messageHandlers(),
-      _sourceNode(name, &nmea.nmeaNode()),
-      messagesLeaf("message", &_sourceNode),
-      messageRateLeaf("messageRate", &_sourceNode) {
+      messagesLeaf("messages", &interfaceNode),
+      messageRateLeaf("messageRate", &interfaceNode) {
     statsManager.addStatsHolder(*this);
 }
 
@@ -59,10 +58,6 @@ void NMEASource::handleLine(NMEALine &inputLine) {
         // While we're done with the nmeaMessage, we don't do a free here
         // since it was allocated with a static buffer and placement new.
     }
-}
-
-DataModelNode &NMEASource::sourceNode() {
-    return _sourceNode;
 }
 
 void NMEASource::exportStats(uint32_t msElapsed) {

@@ -16,33 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_SOURCE_H
-#define NMEA_SOURCE_H
-
-#include "NMEALine.h"
-#include "NMEAParser.h"
+#ifndef STALK_SOURCE_H
+#define STALK_SOURCE_H
 
 #include "NMEALineSource.h"
-
+#include "StatsHolder.h"
+#include "STALKParser.h"
+#include "StatCounter.h"
 #include "DataModelUInt32Leaf.h"
 
-#include "StatCounter.h"
-#include "StatsHolder.h"
+#include <stdint.h>
 
-#include "etl/vector.h"
-
-#include <stddef.h>
-
-class AISContacts;
-class NMEAMessageHandler;
-class StatsManager;
+class NMEALine;
 class DataModelNode;
+class StatsManager;
 
-class NMEASource : public NMEALineSource, StatsHolder {
+class STALKSource : public NMEALineSource, StatsHolder {
     private:
-        NMEAParser parser;
-        static const size_t maxMessageHandlers = 5;
-        etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
+        STALKParser parser;
 
         StatCounter messagesCounter;
         DataModelUInt32Leaf messagesLeaf;
@@ -52,9 +43,7 @@ class NMEASource : public NMEALineSource, StatsHolder {
         virtual void handleLine(NMEALine &inputLine) override;
 
     public:
-        NMEASource(const char *name, DataModelNode &interfaceNode, AISContacts &aisContacts,
-                   StatsManager &statsManager);
-        void addMessageHandler(NMEAMessageHandler &messageHandler);
+        STALKSource(const char *name, DataModelNode &interfaceNode, StatsManager &statsManager);
 };
 
-#endif // NMEA_SOURCE_H
+#endif // STALK_SOURCE_H

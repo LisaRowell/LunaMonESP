@@ -16,35 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UART_INTERFACE_H
-#define UART_INTERFACE_H
+#ifndef STALK_UART_INTERFACE_H
+#define STALK_UART_INTERFACE_H
 
-#include "Interface.h"
+#include "UARTInterface.h"
+#include "InterfaceProtocol.h"
+#include "STALKSource.h"
+#include "NMEALine.h"
 
 #include "driver/uart.h"
 
 #include <stddef.h>
+#include <stdint.h>
 
-class DataModelNode;
+class StatsManager;
+class STALK;
 
-class UARTInterface : public Interface {
+class STALKUARTInterface : public UARTInterface, public STALKSource {
     private:
-        static constexpr uint8_t rxTimeoutInChars = 2;
+        static constexpr size_t stackSize = (1024 * 8);
+        static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
+        static constexpr uint32_t noDataDelayMs = 20;
 
-        uart_port_t _uartNumber;
-        int rxPin;
-        int txPin;
-        int baudRate;
-        size_t rxBufferSize;
+        char buffer[rxBufferSize];
+
+        virtual void task() override;
 
     public:
-        UARTInterface(const char *name, enum InterfaceProtocol protocol,
-                      DataModelNode &protocolNode, uart_port_t uartNumber, int rxPin, int txPin,
-                      int baudRate, size_t rxBufferSize, size_t stackSize);
-        void startUART();
-        uart_port_t uartNumber() const;
-        size_t readToBuffer(void *buffer, size_t rxBufferSize);
+        STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
+                           int baudRate, StatsManager &statsManager, STALK &stalk);
 };
 
-#endif // UART_INTERFACE_H
-
+#endif // STALK_UART_INTERFACE_H

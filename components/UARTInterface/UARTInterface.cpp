@@ -31,9 +31,9 @@
 #include <stddef.h>
 
 UARTInterface::UARTInterface(const char *name, enum InterfaceProtocol protocol,
-                             uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
-                             size_t rxBufferSize, size_t stackSize)
-    : Interface(name, protocol, stackSize),
+                             DataModelNode &protocolNode, uart_port_t uartNumber, int rxPin,
+                             int txPin, int baudRate, size_t rxBufferSize, size_t stackSize)
+    : Interface(name, protocol, protocolNode, stackSize),
       _uartNumber(uartNumber),
       rxPin(rxPin),
       txPin(txPin),

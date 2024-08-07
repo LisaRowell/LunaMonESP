@@ -16,29 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAUARTInterface.h"
+#include "STALKUARTInterface.h"
 #include "UARTInterface.h"
 #include "InterfaceProtocol.h"
-#include "NMEA.h"
-#include "NMEASource.h"
+#include "STALK.h"
+#include "STALKSource.h"
 
 #include "driver/uart.h"
 
 #include <stdint.h>
 
-NMEAUARTInterface::NMEAUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                                     int baudRate, StatsManager &statsManager, NMEA &nmea,
-                                     AISContacts &aisContacts)
-    : UARTInterface(name, INTERFACE_NMEA_O183, nmea.nmeaNode(), uartNumber, rxPin, txPin, baudRate,
+STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin,
+                                       int txPin, int baudRate, StatsManager &statsManager,
+                                       STALK &stalk)
+    : UARTInterface(name, INTERFACE_STALK, stalk.stalkNode(), uartNumber, rxPin, txPin, baudRate,
                     rxBufferSize, stackSize),
-      NMEASource(name, interfaceNode(), aisContacts, statsManager) {
+      STALKSource(name, interfaceNode(), statsManager) {
 }
 
-void NMEAUARTInterface::task() {
+void STALKUARTInterface::task() {
     sourceReset();
     startUART();
 
-    logger << logDebugNMEAUART << "Starting receive on UART " << uartNumber() << "..." << eol;
+    logger << logDebugSTALKUART << "Starting receive on UART " << uartNumber() << "..." << eol;
 
     while (true) {
         // Currently we read by polling to see if there are characters in the UART's RC buffer,

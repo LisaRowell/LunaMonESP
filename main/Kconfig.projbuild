@@ -395,6 +395,36 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_DEBUG_MODULE_NMEA_UART
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_UART
 
+    config LUNAMON_DEBUG_MODULE_STALK
+        bool "Debug STALK"
+        help
+            Whether or not to debug the STALK module.
+
+    config LUNAMON_DEBUG_MODULE_STALK_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STALK
+        default 0 if !LUNAMON_DEBUG_MODULE_STALK
+
+    config LUNAMON_DEBUG_MODULE_STALK_UART
+        bool "Debug STALK UART"
+        help
+            Whether or not to debug the STALK UART module.
+
+    config LUNAMON_DEBUG_MODULE_STALK_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STALK_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_STALK_UART
+
+    config LUNAMON_DEBUG_MODULE_NMEA_LINE
+        bool "Debug UART"
+        help
+            Whether or not to debug the NMEA Line module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_LINE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_LINE
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_LINE
+
     config LUNAMON_DEBUG_MODULE_UART
         bool "Debug UART"
         help
@@ -414,6 +444,16 @@ menu "Luna Mon Configuration"
         int
         default 1 if LUNAMON_DEBUG_MODULE_AIS
         default 0 if !LUNAMON_DEBUG_MODULE_AIS
+
+    config LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
+        bool "Debug WiFiInterface"
+        help
+            Whether or not to debug the WiFiInterface module.
+
+    config LUNAMON_DEBUG_MODULE_WIFI_INTERFACE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
+        default 0 if !LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
 
     config LUNAMON_DEBUG_MODULE_WIFI_MANAGER
         bool "Debug WiFiManager"

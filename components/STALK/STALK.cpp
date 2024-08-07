@@ -16,26 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#include "STALK.h"
 
-#include "TaskObject.h"
-#include "InterfaceProtocol.h"
-
+#include "DataModel.h"
 #include "DataModelNode.h"
 
-#include <stddef.h>
+STALK::STALK(DataModel &dataModel)
+    : _stalkNode("stalk", &dataModel.sysNode()) {
+}
 
-class Interface : public TaskObject {
-    private:
-        const char *name;
-        enum InterfaceProtocol protocol;
-        DataModelNode _interfaceNode;
-
-    public:
-        Interface(const char *name, enum InterfaceProtocol protocol, DataModelNode &protocolNode,
-                  size_t stackSize);
-        DataModelNode &interfaceNode();
-};
-
-#endif // INTERFACE_H
+DataModelNode &STALK::stalkNode() {
+    return _stalkNode;
+}

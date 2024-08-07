@@ -24,6 +24,8 @@
 
 #include <stddef.h>
 
+class Logger;
+
 const size_t maxNMEALineLength = 82;
 
 class NMEALine {
@@ -48,6 +50,8 @@ class NMEALine {
         bool getWord(etl::string_view &word);
         bool atEndOfLine();
         void logLine();
+
+    friend Logger & operator << (Logger &logger, const NMEALine &nmeaLine);
 };
 
 #endif // NMEA_LINE_H

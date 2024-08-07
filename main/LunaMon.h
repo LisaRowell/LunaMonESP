@@ -40,13 +40,13 @@
 
 #include "driver/uart.h"
 
-class NMEAWiFiSource;
-class NMEAUARTSource;
 class StatusLED;
 class I2CMaster;
 class EnvironmentalMon;
 class UARTInterface;
+class NMEAWiFiInterface;
 class NMEAUARTInterface;
+class STALKUARTInterface;
 
 class LunaMon {
     private:
@@ -60,10 +60,9 @@ class LunaMon {
         NMEADataModelBridge nmeaDataModelBridge;
         LogManager logManager;
         Logger logger;
-        NMEAWiFiSource *nmeaWiFiSource;
+        NMEAWiFiInterface *nmeaWiFiInterface;
         UARTInterface *uart1Interface;
         UARTInterface *uart2Interface;
-        NMEAUARTSource *nmeaUART2Source;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
@@ -78,6 +77,8 @@ class LunaMon {
                                            int baudRate);
         NMEAUARTInterface *createNMEAUARTInterface(const char *name, uart_port_t uartNumber,
                                                    int rxPin, int txPin, int baudRate);
+        STALKUARTInterface *createSTALKUARTInterface(const char *name, uart_port_t uartNumber,
+                                                     int rxPin, int txPin, int baudRate);
 
     public:
         LunaMon();

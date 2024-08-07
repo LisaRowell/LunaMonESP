@@ -24,11 +24,13 @@
 #include "DataModelUInt32Leaf.h"
 #include "AISContacts.h"
 #include "NMEA.h"
-#include "NMEAWiFiSource.h"
+#include "STALK.h"
 #include "InterfaceProtocol.h"
+#include "NMEAWiFiInterface.h"
 #include "UARTInterface.h"
 #include "NMEAUARTInterface.h"
 #include "NMEADataModelBridge.h"
+#include "STALKUARTInterface.h"
 #include "LogManager.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
@@ -129,17 +131,16 @@ LunaMon::LunaMon()
     }
 
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
-        nmeaWiFiSource = new NMEAWiFiSource("wifi", wifiManager, statsManager,
-                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
-                                            CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT, nmea,
-                                            aisContacts);
-        if (nmeaWiFiSource) {
-            nmeaWiFiSource->addMessageHandler(nmeaDataModelBridge);
+        nmeaWiFiInterface = new NMEAWiFiInterface("wifi", CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
+                                                  CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT,
+                                                  wifiManager, statsManager, nmea, aisContacts);
+        if (nmeaWiFiInterface) {
+            nmeaWiFiInterface->addMessageHandler(nmeaDataModelBridge);
         } else {
-            logger << logErrorMain << "Failed to allocate WiFi NMEA source." << eol;
+            logger << logErrorMain << "Failed to allocate WiFi NMEA interface." << eol;
         }
     } else {
-        nmeaWiFiSource = nullptr;
+        nmeaWiFiInterface = nullptr;
     }
 
     uart1Interface = createUARTInterface(UART1_PROTOCOL, "uart1", (uart_port_t)1, UART1_RX_PIN,
@@ -167,6 +168,10 @@ UARTInterface *LunaMon::createUARTInterface(enum InterfaceProtocol protocol, con
             uartInterface = createNMEAUARTInterface(name, uartNumber, rxPin, txPin, baudRate);
             break;
 
+        case INTERFACE_STALK:
+            uartInterface = createSTALKUARTInterface(name, uartNumber, rxPin, txPin, baudRate);
+            break;
+
         case INTERFACE_OFFLINE:
         default:
             uartInterface = nullptr;
@@ -191,6 +196,20 @@ NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, uart_port_
     return nmeaUARTInterface;
 }
 
+STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, uart_port_t uartNumber,
+                                                      int rxPin, int txPin, int baudRate) {
+    STALKUARTInterface *stalkUARTInterface;
+
+    stalkUARTInterface = new STALKUARTInterface(name, uartNumber, rxPin, txPin, baudRate,
+                                                statsManager, stalk);
+    if (!stalkUARTInterface) {
+        logger << logErrorMain << "Failed to allocate " << name << " STALK interface for UART "
+                << uartNumber << "." << eol;
+    }
+
+    return stalkUARTInterface;
+}
+
 void LunaMon::run() {
     initNVS();
 
@@ -200,8 +219,8 @@ void LunaMon::run() {
     wifiManager.start();
     mqttBroker.start();
 
-    if (nmeaWiFiSource) {
-        nmeaWiFiSource->start();
+    if (nmeaWiFiInterface) {
+        nmeaWiFiInterface->start();
     }
     if (uart1Interface) {
         uart1Interface->start();

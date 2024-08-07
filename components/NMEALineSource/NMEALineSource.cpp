@@ -66,7 +66,7 @@ bool NMEALineSource::processBufferToEndOfLine(const char *buffer, size_t &buffer
         } else {
             // We had a carriage return without the associated line feed. Toss out any characters
             // that we had accumulated in the line and move on, processing the buffer.
-            logger() << logWarnNMEA << "NMEA line with CR, but no LF. Ignoring." << eol;
+            logger() << logWarnNMEALine << "NMEA line with CR, but no LF. Ignoring." << eol;
             inputLine.reset();
             carriageReturnFound = false;
         }
@@ -90,7 +90,7 @@ bool NMEALineSource::processBufferToEndOfLine(const char *buffer, size_t &buffer
                 // We had a carriage return without the associated line feed. Toss out any
                 // characters that we had accumulated in the line. If we still have characters in
                 // the buffer, recursively process those.
-                logger() << logWarnNMEA << "NMEA line with CR, but no LF. Ignoring." << eol;
+                logger() << logWarnNMEALine << "NMEA line with CR, but no LF. Ignoring." << eol;
                 inputLine.reset();
                 remaining--;
                 bufferPos++;

@@ -16,44 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_WIFI_SOURCE_H
-#define NMEA_WIFI_SOURCE_H
+#ifndef NMEA_WIFI_INTERFACE_H
+#define NMEA_WIFI_INTERFACE_H
 
-#include "TaskObject.h"
-#include "WiFiManagerClient.h"
+#include "WiFiInterface.h"
 #include "NMEASource.h"
-
-#include "DataModelNode.h"
-#include "DataModelUInt32Leaf.h"
-#include "DataModelBoolLeaf.h"
+#include "InterfaceProtocol.h"
 
 #include <stddef.h>
-#include <netdb.h>
 
 class WiFiManager;
 class StatsManager;
 class NMEA;
 class AISContacts;
 
-class NMEAWiFiSource : public TaskObject, WiFiManagerClient, public NMEASource {
+class NMEAWiFiInterface : public WiFiInterface, public NMEASource {
     private:
-        const char *ipv4Addr;
-        uint16_t tcpPort;
-        struct sockaddr_in sourceAddr;
-        bool sourceAddrValid;
-
-        DataModelBoolLeaf stateLeaf;
+        static constexpr size_t stackSize = (1024 * 8);
 
         virtual void task() override;
-
-        static constexpr size_t stackSize = (1024 * 8);
-        static constexpr uint32_t reconnectDelayMs = 1000;
+        void processStream();
 
     public:
-        NMEAWiFiSource(const char *name, WiFiManager &wifiManager, StatsManager &statsManager,
-                       const char *ipv4Addr, uint16_t tcpPort, NMEA &nmea,
-                       AISContacts &aisContacts);
-        void processNMEAStream(int sock);
+        NMEAWiFiInterface(const char *name, const char *ipv4Addr, uint16_t tcpPort,
+                          WiFiManager &wifiManager, StatsManager &statsManager, NMEA &nmea,
+                          AISContacts &aisContacts);
 };
 
-#endif
+#endif // NMEA_WIFI_INTERFACE_H

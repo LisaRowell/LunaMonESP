@@ -16,26 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#include "STALKSource.h"
 
-#include "TaskObject.h"
-#include "InterfaceProtocol.h"
-
+#include "NMEALine.h"
+#include "StatCounter.h"
+#include "StatsManager.h"
 #include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
+#include "Logger.h"
 
-#include <stddef.h>
+#include <stdint.h>
 
-class Interface : public TaskObject {
-    private:
-        const char *name;
-        enum InterfaceProtocol protocol;
-        DataModelNode _interfaceNode;
+STALKSource::STALKSource(const char *name, DataModelNode &interfaceNode,
+                         StatsManager &statsManager)
+    : messagesLeaf("messages", &interfaceNode),
+      messageRateLeaf("messageRate", &interfaceNode) {
+    statsManager.addStatsHolder(*this);
+}
 
-    public:
-        Interface(const char *name, enum InterfaceProtocol protocol, DataModelNode &protocolNode,
-                  size_t stackSize);
-        DataModelNode &interfaceNode();
-};
+void STALKSource::handleLine(NMEALine &inputLine) {
+    logger() << logDebugSTALK << inputLine << eol;
+}
 
-#endif // INTERFACE_H
+void STALKSource::exportStats(uint32_t msElapsed) {
+    messagesCounter.update(messagesLeaf, messageRateLeaf, msElapsed);
+}

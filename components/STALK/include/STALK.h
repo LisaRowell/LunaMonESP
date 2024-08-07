@@ -16,35 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UART_INTERFACE_H
-#define UART_INTERFACE_H
+#ifndef STALK_H
+#define STALK_H
 
-#include "Interface.h"
+#include "DataModelNode.h"
 
-#include "driver/uart.h"
+class DataModel;
 
-#include <stddef.h>
-
-class DataModelNode;
-
-class UARTInterface : public Interface {
+class STALK {
     private:
-        static constexpr uint8_t rxTimeoutInChars = 2;
-
-        uart_port_t _uartNumber;
-        int rxPin;
-        int txPin;
-        int baudRate;
-        size_t rxBufferSize;
+        DataModelNode _stalkNode;
 
     public:
-        UARTInterface(const char *name, enum InterfaceProtocol protocol,
-                      DataModelNode &protocolNode, uart_port_t uartNumber, int rxPin, int txPin,
-                      int baudRate, size_t rxBufferSize, size_t stackSize);
-        void startUART();
-        uart_port_t uartNumber() const;
-        size_t readToBuffer(void *buffer, size_t rxBufferSize);
+        STALK(DataModel &dataModel);
+        DataModelNode &stalkNode();
 };
 
-#endif // UART_INTERFACE_H
-
+#endif // STALK_H

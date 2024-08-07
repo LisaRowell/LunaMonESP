@@ -37,7 +37,7 @@ void NMEALine::reset() {
 void NMEALine::append(const char *srcBuffer, size_t start, size_t end) {
     line.append(srcBuffer + start, end - start);
     if (line.is_truncated()) {
-        logger() << logWarnNMEA << "NMEA line exceeded maximum length, truncated" << eol;
+        logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
     }
     remaining = line;
 }
@@ -54,7 +54,7 @@ bool NMEALine::sanityCheck() {
     char msgStart;
 
     if (!extractChar(msgStart)) {
-        logger() << logWarnNMEA << "Empty NMEA message" << eol;
+        logger() << logWarnNMEALine << "Empty NMEA message" << eol;
         return false;
     }
 
@@ -68,13 +68,13 @@ bool NMEALine::sanityCheck() {
             break;
 
         default:
-            logger() << logWarnNMEA << "NMEA message missing leading '$'" << eol;
+            logger() << logWarnNMEALine << "NMEA message missing leading '$'" << eol;
             logLine();
             return false;
     }
 
     if (!checkParity()) {
-        logger() << logWarnNMEA << "NMEA line with bad parity: " << line << eol;
+        logger() << logWarnNMEALine << "NMEA line with bad parity: " << line << eol;
         return false;
     }
     stripParity();
@@ -142,5 +142,11 @@ bool NMEALine::checkParity() {
 }
 
 void NMEALine::logLine() {
-    logger() << logDebugNMEA << line << eol;
+    logger() << logDebugNMEALine << line << eol;
+}
+
+Logger & operator << (Logger &logger, const NMEALine &nmeaLine) {
+    logger << nmeaLine.line;
+
+    return logger;
 }
