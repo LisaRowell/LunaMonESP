@@ -23,6 +23,7 @@
 #include "InterfaceProtocol.h"
 #include "STALKSource.h"
 #include "NMEALine.h"
+#include "PassiveTimer.h"
 
 #include "driver/uart.h"
 
@@ -37,10 +38,16 @@ class STALKUARTInterface : public UARTInterface, public STALKSource {
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
         static constexpr uint32_t noDataDelayMs = 20;
+        static constexpr uint32_t digitalYachtsStartTimeSec = 5;
+        static constexpr uint32_t digitalYachtsResendTimeSec = 30;
 
         char buffer[rxBufferSize];
+        PassiveTimer digitalYachtsWorkaroundTimer;
+        bool firstDigitalYachtsWorkaroundSent;
 
         virtual void task() override;
+        void workAroundDigitalYachtsBugs();
+        void sendDigitalYachtsSTALKConfig();
 
     public:
         STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,

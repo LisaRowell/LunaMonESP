@@ -21,7 +21,6 @@
 
 #include "NMEALineSource.h"
 #include "StatsHolder.h"
-#include "STALKParser.h"
 #include "StatCounter.h"
 #include "DataModelUInt32Leaf.h"
 
@@ -33,17 +32,20 @@ class StatsManager;
 
 class STALKSource : public NMEALineSource, StatsHolder {
     private:
-        STALKParser parser;
-
         StatCounter messagesCounter;
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
+        uint32_t illformedMessages;
+        DataModelUInt32Leaf illformedMessagesLeaf;
+        bool _lastMessageIllformed;
 
         virtual void exportStats(uint32_t msElapsed) override;
         virtual void handleLine(NMEALine &inputLine) override;
+        bool parseLine(NMEALine &nmeaLine);
 
     public:
         STALKSource(const char *name, DataModelNode &interfaceNode, StatsManager &statsManager);
+        bool lastMessageIllformed() const;
 };
 
 #endif // STALK_SOURCE_H

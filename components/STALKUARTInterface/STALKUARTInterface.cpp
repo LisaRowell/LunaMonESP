@@ -31,7 +31,9 @@ STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber,
                                        STALK &stalk)
     : UARTInterface(name, INTERFACE_STALK, stalk.stalkNode(), uartNumber, rxPin, txPin, baudRate,
                     rxBufferSize, stackSize),
-      STALKSource(name, interfaceNode(), statsManager) {
+      STALKSource(name, interfaceNode(), statsManager),
+      firstDigitalYachtsWorkaroundSent(false) {
+    digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsStartTimeSec);
 }
 
 void STALKUARTInterface::task() {
@@ -47,8 +49,37 @@ void STALKUARTInterface::task() {
         size_t bytesRead = readToBuffer(buffer, rxBufferSize);
         if (bytesRead) {
             processBuffer(buffer, bytesRead);
+
+            // To get around bugs in Digitial Yachts' ST-NMEA (ISO) converters which prevented some
+            // units from having configuration messages stored in NVRAM, we can reconfigure them on
+            // the fly.
+            if (CONFIG_LUNAMON_DIGITAL_YACHTS_STALK_WORKAROUND_ENABLED) {
+                workAroundDigitalYachtsBugs();
+            }
         } else {
             vTaskDelay(pdMS_TO_TICKS(noDataDelayMs));
         }
     }
+}
+
+// To get around bugs in Digitial Yachts' ST-NMEA (ISO) converters which prevented some units from
+// having configuration messages stored in NVRAM, we can reconfigure them on the fly.
+void STALKUARTInterface::workAroundDigitalYachtsBugs() {
+    if (lastMessageIllformed()) {
+        // We use a passive timer to keep from spamming the d
+        if (digitalYachtsWorkaroundTimer.expired()) {
+            sendDigitalYachtsSTALKConfig();
+            digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsResendTimeSec);
+        }
+    }
+}
+
+void STALKUARTInterface::sendDigitalYachtsSTALKConfig() {
+    if (!firstDigitalYachtsWorkaroundSent) {
+        // The Digital Yachts ST-NMEA device's serial input doesn't do a great job of syncing on the
+        // first character it receives. Before sending the first config, try sending a blank line.
+        send("\r\n");
+        firstDigitalYachtsWorkaroundSent = 1;
+    }
+    send("$PDGY,STalk,On\r\n");
 }

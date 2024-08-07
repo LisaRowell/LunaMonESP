@@ -29,6 +29,7 @@
 #include "esp_err.h"
 
 #include <stddef.h>
+#include <string.h>
 
 UARTInterface::UARTInterface(const char *name, enum InterfaceProtocol protocol,
                              DataModelNode &protocolNode, uart_port_t uartNumber, int rxPin,
@@ -114,4 +115,10 @@ size_t UARTInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
     } else {
         return 0;
     }
+}
+
+void UARTInterface::send(const char *string) {
+    size_t length = strlen(string);
+    logger << logDebugUART << "Writing " << length << " bytes to UART " << _uartNumber << eol;
+    uart_write_bytes(_uartNumber, string, length);
 }

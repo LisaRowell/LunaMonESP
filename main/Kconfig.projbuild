@@ -525,4 +525,17 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_DEBUG_MODULE_TASK_OBJECT
         default 0 if !LUNAMON_DEBUG_MODULE_TASK_OBJECT
 
+    config LUNAMON_ENABLE_DIGITAL_YACHTS_STALK_WORKAROUND
+        bool "Enable Digital Yachts $STALK workaround"
+        help
+            Certain version of Digital Yachts ST-NEMA (ISO) Converter have a bug which causes
+            their command to turn on $STALK output to not be saved in non-volatile memory. This
+            option, when enabled, will cause Luna Mon to detect when normal NMEA 0183 messages are
+            being received on a STALK interface and try to reconfigure the device on the fly.
+
+    config LUNAMON_DIGITAL_YACHTS_STALK_WORKAROUND_ENABLED
+        int
+        default 1 if LUNAMON_ENABLE_DIGITAL_YACHTS_STALK_WORKAROUND
+        default 0 if !LUNAMON_ENABLE_DIGITAL_YACHTS_STALK_WORKAROUND
+
 endmenu

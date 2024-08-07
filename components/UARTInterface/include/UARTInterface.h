@@ -44,6 +44,7 @@ class UARTInterface : public Interface {
         void startUART();
         uart_port_t uartNumber() const;
         size_t readToBuffer(void *buffer, size_t rxBufferSize);
+        void send(const char *string);
 };
 
 #endif // UART_INTERFACE_H
