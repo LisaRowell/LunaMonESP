@@ -38,6 +38,13 @@ uint8_t HundredthsUInt16::hundredths() {
     return _hundredths;
 }
 
+HundredthsUInt16 & HundredthsUInt16::operator = (uint16_t wholeNumber) {
+    _wholeNumber = wholeNumber;
+    _hundredths = 0;
+
+    return *this;
+}
+
 bool HundredthsUInt16::operator == (const HundredthsUInt16 &right) const {
     return _wholeNumber == right._wholeNumber && _hundredths == right._hundredths;
 }
@@ -46,6 +53,11 @@ void HundredthsUInt16::setFromQ22Dot10(uint32_t q22Dot10) {
     _wholeNumber = q22Dot10 / 1024;
     uint16_t fractional1024ths = q22Dot10 % 1024;
     _hundredths = (fractional1024ths * 100) / 1024;
+}
+
+void HundredthsUInt16::setFromHundredths(uint32_t hundredths) {
+    _wholeNumber = hundredths / 100;
+    _hundredths = hundredths % 100;
 }
 
 void HundredthsUInt16::toString(etl::istring &string) const {

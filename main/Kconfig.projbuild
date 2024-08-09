@@ -415,8 +415,18 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_DEBUG_MODULE_STALK_UART
         default 0 if !LUNAMON_DEBUG_MODULE_STALK_UART
 
+    config LUNAMON_DEBUG_MODULE_SEATALK
+        bool "Debug SeaTalk"
+        help
+            Whether or not to debug the SeaTalk module.
+
+    config LUNAMON_DEBUG_MODULE_SEATALK_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_SEATALK
+        default 0 if !LUNAMON_DEBUG_MODULE_SEATALK
+
     config LUNAMON_DEBUG_MODULE_NMEA_LINE
-        bool "Debug UART"
+        bool "Debug NMEA Line"
         help
             Whether or not to debug the NMEA Line module.
 

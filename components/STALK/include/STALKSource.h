@@ -19,6 +19,7 @@
 #ifndef STALK_SOURCE_H
 #define STALK_SOURCE_H
 
+#include "SeaTalkParser.h"
 #include "NMEALineSource.h"
 #include "StatsHolder.h"
 #include "StatCounter.h"
@@ -32,6 +33,7 @@ class StatsManager;
 
 class STALKSource : public NMEALineSource, StatsHolder {
     private:
+        SeaTalkParser seaTalkParser;
         StatCounter messagesCounter;
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;

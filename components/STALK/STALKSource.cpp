@@ -18,12 +18,18 @@
 
 #include "STALKSource.h"
 
+#include "SeaTalkLine.h"
+#include "SeaTalkParser.h"
 #include "NMEALine.h"
 #include "StatCounter.h"
 #include "StatsManager.h"
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 #include "Logger.h"
+
+#include "etl/string_view.h"
+#include "etl/vector.h"
+#include "etl/to_arithmetic.h"
 
 #include <stdint.h>
 
@@ -53,6 +59,7 @@ void STALKSource::handleLine(NMEALine &inputLine) {
 // $TALK lines are essentially a NMEA 0183 message with an "ST" talker and "ALK" message code
 // containing a SeaTalk message encoded as comma separated ASCII versions of the bytes in the
 // message with the ninth bit discarded.
+// Returns false iff the NMEA message wasn't a $STALK message at all.
 bool STALKSource::parseLine(NMEALine &nmeaLine) {
     etl::string_view tagView;
     if (!nmeaLine.getWord(tagView)) {
@@ -66,6 +73,32 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
                  << eol;
         return false;
     }
+
+    SeaTalkLine seaTalkLine;
+    while (!nmeaLine.atEndOfLine()) {
+        etl::string_view msgByteView;
+        if (!nmeaLine.getWord(msgByteView)) {
+            logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
+                     << eol;
+            return true;
+        }
+
+        int result = etl::to_arithmetic<int>(msgByteView, etl::radix::hex);
+        if (result < 0 || result > 0xff) {
+            logger() << logWarnSTALK << "$STALK message with bad byte encoding (" << msgByteView
+                     << "): " << nmeaLine << eol;
+            return true;
+        }
+        seaTalkLine.append((uint8_t)result);
+    }
+
+    if (seaTalkLine.wasOverrun()) {
+        logger() << logWarnSTALK << "$STALK message longer than max allowed SeaTalk message: "
+               << nmeaLine << eol;
+        return true;
+    }
+
+    seaTalkParser.parseLine(seaTalkLine);
 
     return true;
 }
