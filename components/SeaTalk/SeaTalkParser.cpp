@@ -21,6 +21,12 @@
 #include "SeaTalkLine.h"
 #include "SeaTalkLampIntensity.h"
 
+#include "StatCounter.h"
+#include "StatsHolder.h"
+#include "StatsManager.h"
+#include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
+
 #include "TenthsInt16.h"
 #include "TenthsUInt16.h"
 #include "HundredthsUInt16.h"
@@ -30,12 +36,22 @@
 #include <stddef.h>
 #include <stdint.h>
 
-SeaTalkParser::SeaTalkParser()
-    : commands(0),
+SeaTalkParser::SeaTalkParser(DataModelNode &interfaceNode, StatsManager &statsManager)
+    : commandsReceivedCounter(),
       ignoredCommands(0),
       unknownCommands(0),
       commandLengthErrors(0),
-      commandFormatErrors(0) {
+      commandFormatErrors(0),
+      seaTalkNode("seatalk", &interfaceNode),
+      receivedNode("received", &seaTalkNode),
+      commandsReceivedLeaf("commands", &receivedNode),
+      commandseceiveRateLeaf("commandRate", &receivedNode),
+      ignoredCommandsLeaf("ignoredCommands", &receivedNode),
+      unknownCommandsLeaf("unknownCommands", &receivedNode),
+      commandLengthErrorsLeaf("commandLengthErrors", &receivedNode),
+      commandFormatErrorsLeaf("commandFormatErrors", &receivedNode)
+ {
+    statsManager.addStatsHolder(*this);
 }
 
 void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
@@ -79,7 +95,7 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
             unknownCommand(command, seaTalkLine);
     }
 
-    commands++;
+    commandsReceivedCounter++;
 }
 
 void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
@@ -330,4 +346,12 @@ bool SeaTalkParser::checkAttribute(const SeaTalkLine &seaTalkLine, uint8_t expec
     }
 
     return true;
+}
+
+void SeaTalkParser::exportStats(uint32_t msElapsed) {
+    commandsReceivedCounter.update(commandsReceivedLeaf, commandseceiveRateLeaf, msElapsed);
+    ignoredCommandsLeaf = ignoredCommands;
+    unknownCommandsLeaf = unknownCommands;
+    commandLengthErrorsLeaf = commandLengthErrors;
+    commandFormatErrorsLeaf = commandFormatErrors;
 }

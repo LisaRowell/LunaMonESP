@@ -24,6 +24,7 @@
 
 #include "NMEALineSource.h"
 
+#include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
 #include "StatCounter.h"
@@ -36,15 +37,15 @@
 class AISContacts;
 class NMEAMessageHandler;
 class StatsManager;
-class DataModelNode;
 
 class NMEASource : public NMEALineSource, StatsHolder {
     private:
-        NMEAParser parser;
         static const size_t maxMessageHandlers = 5;
-        etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
 
+        NMEAParser parser;
+        etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
         StatCounter messagesCounter;
+        DataModelNode nmeaNode;
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
 
@@ -52,7 +53,7 @@ class NMEASource : public NMEALineSource, StatsHolder {
         virtual void handleLine(NMEALine &inputLine) override;
 
     public:
-        NMEASource(const char *name, DataModelNode &interfaceNode, AISContacts &aisContacts,
+        NMEASource(DataModelNode &interfaceNode, AISContacts &aisContacts,
                    StatsManager &statsManager);
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };

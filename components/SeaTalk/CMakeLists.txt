@@ -3,4 +3,4 @@ idf_component_register(SRCS "SeaTalkParser.cpp"
                             "SeaTalkLine.cpp"
                             "SeaTalkLampIntensity.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES FixedPoint Logger)
+                       REQUIRES StatsManager StatCounter DataModel FixedPoint Logger)

@@ -33,12 +33,15 @@
 
 #include <stdint.h>
 
-STALKSource::STALKSource(const char *name, DataModelNode &interfaceNode,
-                         StatsManager &statsManager)
-    : messagesLeaf("messages", &interfaceNode),
-      messageRateLeaf("messageRate", &interfaceNode),
+STALKSource::STALKSource(DataModelNode &interfaceNode, StatsManager &statsManager)
+    : seaTalkParser(interfaceNode, statsManager),
+      messagesCounter(),
       illformedMessages(0),
-      illformedMessagesLeaf("illformedMessages", &interfaceNode) {
+      _lastMessageIllformed(false),
+      stalkNode("stalk", &interfaceNode),
+      messagesLeaf("messages", &stalkNode),
+      messageRateLeaf("messageRate", &stalkNode),
+      illformedMessagesLeaf("illformedMessages", &stalkNode) {
     statsManager.addStatsHolder(*this);
 }
 
@@ -46,7 +49,6 @@ void STALKSource::handleLine(NMEALine &inputLine) {
     logger() << logDebugSTALK << inputLine << eol;
 
     if (!parseLine(inputLine)) {
-        illformedMessages++;
         // We keep track of whether or not the last message was a valid $STALK message so that
         // the work around for Digitial Yachts' ST-NMEA (ISO) device not saving its config can be
         // applied.
@@ -65,12 +67,14 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
     if (!nmeaLine.getWord(tagView)) {
         logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
                  << eol;
+        illformedMessages++;
         return false;
     }
 
     if (tagView != "STALK") {
         logger() << logWarnSTALK << "Non $STALK message (" << tagView << ") on STALK interface"
                  << eol;
+        illformedMessages++;
         return false;
     }
 
@@ -80,6 +84,7 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
         if (!nmeaLine.getWord(msgByteView)) {
             logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
                      << eol;
+            illformedMessages++;
             return true;
         }
 
@@ -87,6 +92,7 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
         if (result < 0 || result > 0xff) {
             logger() << logWarnSTALK << "$STALK message with bad byte encoding (" << msgByteView
                      << "): " << nmeaLine << eol;
+            illformedMessages++;
             return true;
         }
         seaTalkLine.append((uint8_t)result);
@@ -95,9 +101,11 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
     if (seaTalkLine.wasOverrun()) {
         logger() << logWarnSTALK << "$STALK message longer than max allowed SeaTalk message: "
                << nmeaLine << eol;
+        illformedMessages++;
         return true;
     }
 
+    messagesCounter++;
     seaTalkParser.parseLine(seaTalkLine);
 
     return true;

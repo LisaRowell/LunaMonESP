@@ -23,8 +23,6 @@
 #include "DataModelStringLeaf.h"
 #include "DataModelUInt32Leaf.h"
 #include "AISContacts.h"
-#include "NMEA.h"
-#include "STALK.h"
 #include "InterfaceProtocol.h"
 #include "NMEAWiFiInterface.h"
 #include "UARTInterface.h"
@@ -109,8 +107,6 @@ Make sure and run menuconfig!
 LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
-      nmea(dataModel),
-      stalk(dataModel),
       nmeaDataModelBridge(dataModel, statsManager),
       logManager(dataModel),
       logger(LOGGER_LEVEL_DEBUG),
@@ -133,7 +129,8 @@ LunaMon::LunaMon()
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
         nmeaWiFiInterface = new NMEAWiFiInterface("wifi", CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR,
                                                   CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT,
-                                                  wifiManager, statsManager, nmea, aisContacts);
+                                                  wifiManager, statsManager, aisContacts,
+                                                  dataModel);
         if (nmeaWiFiInterface) {
             nmeaWiFiInterface->addMessageHandler(nmeaDataModelBridge);
         } else {
@@ -185,7 +182,7 @@ NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, uart_port_
     NMEAUARTInterface *nmeaUARTInterface;
 
     nmeaUARTInterface = new NMEAUARTInterface(name, uartNumber, rxPin, txPin, baudRate,
-                                              statsManager, nmea, aisContacts);
+                                              statsManager, aisContacts, dataModel);
     if (nmeaUARTInterface) {
         nmeaUARTInterface->addMessageHandler(nmeaDataModelBridge);
     } else {
@@ -201,7 +198,7 @@ STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, uart_por
     STALKUARTInterface *stalkUARTInterface;
 
     stalkUARTInterface = new STALKUARTInterface(name, uartNumber, rxPin, txPin, baudRate,
-                                                statsManager, stalk);
+                                                statsManager, dataModel);
     if (!stalkUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name << " STALK interface for UART "
                 << uartNumber << "." << eol;

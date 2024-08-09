@@ -17,7 +17,6 @@
  */
 
 #include "NMEASource.h"
-#include "NMEA.h"
 #include "NMEAMessageHandler.h"
 
 #include "DataModelNode.h"
@@ -27,12 +26,13 @@
 
 #include "Error.h"
 
-NMEASource::NMEASource(const char *name, DataModelNode &interfaceNode, AISContacts &aisContacts,
+NMEASource::NMEASource(DataModelNode &interfaceNode, AISContacts &aisContacts,
                        StatsManager &statsManager)
     : parser(aisContacts),
       messageHandlers(),
-      messagesLeaf("messages", &interfaceNode),
-      messageRateLeaf("messageRate", &interfaceNode) {
+      nmeaNode("nmea", &interfaceNode),
+      messagesLeaf("messages", &nmeaNode),
+      messageRateLeaf("messageRate", &nmeaNode) {
     statsManager.addStatsHolder(*this);
 }
 

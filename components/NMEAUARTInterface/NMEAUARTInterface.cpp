@@ -19,7 +19,6 @@
 #include "NMEAUARTInterface.h"
 #include "UARTInterface.h"
 #include "InterfaceProtocol.h"
-#include "NMEA.h"
 #include "NMEASource.h"
 
 #include "driver/uart.h"
@@ -27,11 +26,11 @@
 #include <stdint.h>
 
 NMEAUARTInterface::NMEAUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                                     int baudRate, StatsManager &statsManager, NMEA &nmea,
-                                     AISContacts &aisContacts)
-    : UARTInterface(name, INTERFACE_NMEA_O183, nmea.nmeaNode(), uartNumber, rxPin, txPin, baudRate,
-                    rxBufferSize, stackSize),
-      NMEASource(name, interfaceNode(), aisContacts, statsManager) {
+                                     int baudRate, StatsManager &statsManager,
+                                     AISContacts &aisContacts, DataModel &dataModel)
+    : UARTInterface(name, INTERFACE_NMEA_O183, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
+                    dataModel, stackSize),
+      NMEASource(interfaceNode(), aisContacts, statsManager) {
 }
 
 void NMEAUARTInterface::task() {

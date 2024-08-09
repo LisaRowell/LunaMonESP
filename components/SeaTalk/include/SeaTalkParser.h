@@ -19,19 +19,33 @@
 #ifndef SEATALK_PARSER_H
 #define SEATALK_PARSER_H
 
+#include "StatsHolder.h"
+#include "StatCounter.h"
+#include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
 class SeaTalkLine;
 class SeaTalkCommand;
+class StatsManager;
 
-class SeaTalkParser {
+class SeaTalkParser : StatsHolder {
     private:
-        uint32_t commands;
+        StatCounter commandsReceivedCounter;
         uint32_t ignoredCommands;
         uint32_t unknownCommands;
         uint32_t commandLengthErrors;
         uint32_t commandFormatErrors;
+        DataModelNode seaTalkNode;
+        DataModelNode receivedNode;
+        DataModelUInt32Leaf commandsReceivedLeaf;
+        DataModelUInt32Leaf commandseceiveRateLeaf;
+        DataModelUInt32Leaf ignoredCommandsLeaf;
+        DataModelUInt32Leaf unknownCommandsLeaf;
+        DataModelUInt32Leaf commandLengthErrorsLeaf;
+        DataModelUInt32Leaf commandFormatErrorsLeaf;
 
         void parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine);
         void parseApparentWindAngle(const SeaTalkLine &seaTalkLine);
@@ -46,9 +60,10 @@ class SeaTalkParser {
         bool checkLength(size_t expectedLength, const SeaTalkLine &seaTalkLine);
         bool checkAttribute(const SeaTalkLine &seaTalkLine, uint8_t expectedAttribute,
                             uint8_t mask = 0xff);
+        virtual void exportStats(uint32_t msElapsed) override;
 
     public:
-        SeaTalkParser();
+        SeaTalkParser(DataModelNode &interfaceNode, StatsManager &statsManager);
         void parseLine(const SeaTalkLine &seaTalkLine);
 };
 

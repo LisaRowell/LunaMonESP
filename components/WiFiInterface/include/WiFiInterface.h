@@ -52,9 +52,9 @@ class WiFiInterface : public Interface, WiFiManagerClient {
         void sourceDisconnected();
 
     public:
-        WiFiInterface(const char *name, enum InterfaceProtocol protocol,
-                      DataModelNode &protocolNode, const char *ipv4Addr, uint16_t tcpPort,
-                      WiFiManager &wifiManager, size_t stackSize);
+        WiFiInterface(const char *name, enum InterfaceProtocol protocol, const char *ipv4Addr,
+                      uint16_t tcpPort, WiFiManager &wifiManager, DataModel &dataModel,
+                      size_t stackSize);
 };
 
 #endif // WIFI_INTERFACE_H

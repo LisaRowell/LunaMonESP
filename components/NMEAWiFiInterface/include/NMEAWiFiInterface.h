@@ -27,8 +27,8 @@
 
 class WiFiManager;
 class StatsManager;
-class NMEA;
 class AISContacts;
+class DataModel;
 
 class NMEAWiFiInterface : public WiFiInterface, public NMEASource {
     private:
@@ -39,8 +39,8 @@ class NMEAWiFiInterface : public WiFiInterface, public NMEASource {
 
     public:
         NMEAWiFiInterface(const char *name, const char *ipv4Addr, uint16_t tcpPort,
-                          WiFiManager &wifiManager, StatsManager &statsManager, NMEA &nmea,
-                          AISContacts &aisContacts);
+                          WiFiManager &wifiManager, StatsManager &statsManager,
+                          AISContacts &aisContacts, DataModel &dataModel);
 };
 
 #endif // NMEA_WIFI_INTERFACE_H

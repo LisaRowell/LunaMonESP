@@ -30,8 +30,8 @@
 #include <stdint.h>
 
 class StatsManager;
-class NMEA;
 class AISContacts;
+class DataModel;
 
 class NMEAUARTInterface : public UARTInterface, public NMEASource {
     private:
@@ -44,8 +44,8 @@ class NMEAUARTInterface : public UARTInterface, public NMEASource {
 
     public:
         NMEAUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                          int baudRate, StatsManager &statsManager, NMEA &nmea,
-                          AISContacts &aisContacts);
+                          int baudRate, StatsManager &statsManager, AISContacts &aisContacts,
+                          DataModel &dataModel);
 };
 
 #endif // NMEA_UART_INTERFACE_H

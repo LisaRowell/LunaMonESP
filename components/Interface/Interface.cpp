@@ -19,17 +19,18 @@
 #include "Interface.h"
 #include "InterfaceProtocol.h"
 
+#include "DataModel.h"
 #include "DataModelNode.h"
 #include "TaskObject.h"
 
 #include <stddef.h>
 
-Interface::Interface(const char *name, enum InterfaceProtocol protocol, DataModelNode &protocolNode,
+Interface::Interface(const char *name, enum InterfaceProtocol protocol, DataModel &dataModel,
                      size_t stackSize)
     : TaskObject(name, LOGGER_LEVEL_DEBUG, stackSize),
       name(name),
       protocol(protocol),
-      _interfaceNode(name, &protocolNode) {
+      _interfaceNode(name, &dataModel.sysNode()) {
 }
 
 DataModelNode &Interface::interfaceNode() {

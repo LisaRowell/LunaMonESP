@@ -33,9 +33,9 @@
 #include <string.h>
 
 WiFiInterface::WiFiInterface(const char *name, enum InterfaceProtocol protocol,
-                             DataModelNode &protocolNode, const char *ipv4Addr, uint16_t tcpPort,
-                             WiFiManager &wifiManager, size_t stackSize)
-    : Interface(name, protocol, protocolNode, stackSize),
+                             const char *ipv4Addr, uint16_t tcpPort, WiFiManager &wifiManager,
+                             DataModel &dataModel, size_t stackSize)
+    : Interface(name, protocol, dataModel, stackSize),
       WiFiManagerClient(wifiManager),
       ipv4Addr(ipv4Addr),
       tcpPort(tcpPort),

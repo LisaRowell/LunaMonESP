@@ -23,30 +23,31 @@
 #include "NMEALineSource.h"
 #include "StatsHolder.h"
 #include "StatCounter.h"
+#include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
 #include <stdint.h>
 
 class NMEALine;
-class DataModelNode;
 class StatsManager;
 
 class STALKSource : public NMEALineSource, StatsHolder {
     private:
         SeaTalkParser seaTalkParser;
         StatCounter messagesCounter;
+        uint32_t illformedMessages;
+        bool _lastMessageIllformed;
+        DataModelNode stalkNode;
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
-        uint32_t illformedMessages;
         DataModelUInt32Leaf illformedMessagesLeaf;
-        bool _lastMessageIllformed;
 
         virtual void exportStats(uint32_t msElapsed) override;
         virtual void handleLine(NMEALine &inputLine) override;
         bool parseLine(NMEALine &nmeaLine);
 
     public:
-        STALKSource(const char *name, DataModelNode &interfaceNode, StatsManager &statsManager);
+        STALKSource(DataModelNode &interfaceNode, StatsManager &statsManager);
         bool lastMessageIllformed() const;
 };
 

@@ -26,6 +26,8 @@
 
 #include <stddef.h>
 
+class DataModel;
+
 class Interface : public TaskObject {
     private:
         const char *name;
@@ -33,7 +35,7 @@ class Interface : public TaskObject {
         DataModelNode _interfaceNode;
 
     public:
-        Interface(const char *name, enum InterfaceProtocol protocol, DataModelNode &protocolNode,
+        Interface(const char *name, enum InterfaceProtocol protocol, DataModel &dataModel,
                   size_t stackSize);
         DataModelNode &interfaceNode();
 };

@@ -19,7 +19,6 @@
 #include "STALKUARTInterface.h"
 #include "UARTInterface.h"
 #include "InterfaceProtocol.h"
-#include "STALK.h"
 #include "STALKSource.h"
 
 #include "driver/uart.h"
@@ -28,10 +27,10 @@
 
 STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin,
                                        int txPin, int baudRate, StatsManager &statsManager,
-                                       STALK &stalk)
-    : UARTInterface(name, INTERFACE_STALK, stalk.stalkNode(), uartNumber, rxPin, txPin, baudRate,
-                    rxBufferSize, stackSize),
-      STALKSource(name, interfaceNode(), statsManager),
+                                       DataModel &dataModel)
+    : UARTInterface(name, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
+                    dataModel, stackSize),
+      STALKSource(interfaceNode(), statsManager),
       firstDigitalYachtsWorkaroundSent(false) {
     digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsStartTimeSec);
 }

@@ -20,15 +20,13 @@
 
 #include "WiFiInterface.h"
 #include "InterfaceProtocol.h"
-#include "NMEA.h"
 #include "NMEASource.h"
 
 NMEAWiFiInterface::NMEAWiFiInterface(const char *name, const char *ipv4Addr, uint16_t tcpPort,
                                      WiFiManager &wifiManager, StatsManager &statsManager,
-                                     NMEA &nmea, AISContacts &aisContacts)
-    : WiFiInterface(name, INTERFACE_NMEA_O183, nmea.nmeaNode(), ipv4Addr, tcpPort,wifiManager,
-                    stackSize),
-      NMEASource(name, interfaceNode(), aisContacts, statsManager) {
+                                     AISContacts &aisContacts, DataModel &dataModel)
+    : WiFiInterface(name, INTERFACE_NMEA_O183, ipv4Addr, tcpPort,wifiManager, dataModel, stackSize),
+      NMEASource(interfaceNode(), aisContacts, statsManager) {
 }
 
 void NMEAWiFiInterface::task() {
