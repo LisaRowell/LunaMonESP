@@ -44,7 +44,7 @@ class NMEATXTMessage : public NMEAMessage {
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
-    friend class NMEADataModelBridge;
+    friend class DataModelBridge;
 };
 
 extern NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine,

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_GPS_BRIDGE_H
-#define NMEA_GPS_BRIDGE_H
+#ifndef GPS_BRIDGE_H
+#define GPS_BRIDGE_H
 
 #include "DataModelNode.h"
 #include "DataModelStringLeaf.h"
@@ -41,7 +41,7 @@ class NMEARMCMessage;
 class NMEAVTGMessage;
 class StatCounter;
 
-class NMEAGPSBridge {
+class GPSBridge {
     private:
         static constexpr size_t timeLength = 15;
         static constexpr size_t dateLength = 10;
@@ -93,7 +93,7 @@ class NMEAGPSBridge {
         DataModelTenthsUInt16Leaf gpsStandardDeviationOfAltitudeErrorLeaf;
 
     public:
-        NMEAGPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        GPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEAGGAMessage(const NMEAGGAMessage *message);
         void bridgeNMEAGLLMessage(const NMEAGLLMessage *message);
         void bridgeNMEAGSAMessage(const NMEAGSAMessage *message);
@@ -102,4 +102,4 @@ class NMEAGPSBridge {
         void bridgeNMEAVTGMessage(const NMEAVTGMessage *message);
 };
 
-#endif // NMEA_GPS_BRIDGE_H
+#endif // GPS_BRIDGE_H

@@ -44,7 +44,7 @@ class NMEAGSTMessage : public NMEAMessage {
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
-    friend class NMEAGPSBridge;
+    friend class GPSBridge;
 };
 
 extern NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALine &nmeaLine,

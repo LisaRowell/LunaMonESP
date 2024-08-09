@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_DATA_MODEL_BRIDGE_H
-#define NMEA_DATA_MODEL_BRIDGE_H
+#ifndef DATA_MODEL_BRIDGE_H
+#define DATA_MODEL_BRIDGE_H
 
 #include "NMEAMessageHandler.h"
 
-#include "NMEAAutoPilotBridge.h"
-#include "NMEADepthBridge.h"
-#include "NMEAGPSBridge.h"
-#include "NMEAWaterBridge.h"
-#include "NMEAWindBridge.h"
+#include "AutoPilotBridge.h"
+#include "DepthBridge.h"
+#include "GPSBridge.h"
+#include "WaterBridge.h"
+#include "WindBridge.h"
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -39,17 +39,17 @@ class StatsManager;
 class NMEAMessage;
 class NMEATXTMessage;
 
-class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
+class DataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
-        NMEAAutoPilotBridge autoPilotBridge;
-        NMEADepthBridge depthBridge;
-        NMEAGPSBridge gpsBridge;
-        NMEAWaterBridge waterBridge;
-        NMEAWindBridge windBridge;
+        AutoPilotBridge autoPilotBridge;
+        DepthBridge depthBridge;
+        GPSBridge gpsBridge;
+        WaterBridge waterBridge;
+        WindBridge windBridge;
 
         StatCounter messagesBridgedCounter;
 
-        DataModelNode nmeaDataModelBridgeNode;
+        DataModelNode dataModelBridgeNode;
         DataModelUInt32Leaf messagesBridgedLeaf;
         DataModelUInt32Leaf messagesBridgedRateLeaf;
 
@@ -57,8 +57,8 @@ class NMEADataModelBridge : public NMEAMessageHandler, StatsHolder {
         virtual void exportStats(uint32_t msElapsed) override;
 
     public:
-        NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager);
+        DataModelBridge(DataModel &dataModel, StatsManager &statsManager);
         virtual void processMessage(const NMEAMessage *message) override;
 };
 
-#endif // NMEA_DATA_MODEL_BRIDGE_H
+#endif // DATA_MODEL_BRIDGE_H

@@ -44,7 +44,7 @@ Logger::Logger(LoggerLevel level)
     moduleDebugFlags[LOGGER_MODULE_DATA_MODEL] = CONFIG_LUNAMON_DEBUG_MODULE_DATA_MODEL_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_MQTT] = CONFIG_LUNAMON_DEBUG_MODULE_MQTT_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_ENABLED;
-    moduleDebugFlags[LOGGER_MODULE_NMEA_DATA_MODEL_BRIDGE]
+    moduleDebugFlags[LOGGER_MODULE_DATA_MODEL_BRIDGE]
         = CONFIG_LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_WIFI] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_WIFI_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_UART] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_UART_ENABLED;
@@ -402,7 +402,7 @@ const char *Logger::moduleName(LoggerModule module) {
             return "MQTT";
         case LOGGER_MODULE_NMEA:
             return "NMEA";
-        case LOGGER_MODULE_NMEA_DATA_MODEL_BRIDGE:
+        case LOGGER_MODULE_DATA_MODEL_BRIDGE:
             return "Data Model Bridge";
         case LOGGER_MODULE_NMEA_WIFI:
             return "NMEA WiFi";

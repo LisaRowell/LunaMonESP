@@ -27,7 +27,7 @@
 #include "NMEAWiFiInterface.h"
 #include "UARTInterface.h"
 #include "NMEAUARTInterface.h"
-#include "NMEADataModelBridge.h"
+#include "DataModelBridge.h"
 #include "STALKUARTInterface.h"
 #include "LogManager.h"
 #include "StatusLED.h"
@@ -107,7 +107,7 @@ Make sure and run menuconfig!
 LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
-      nmeaDataModelBridge(dataModel, statsManager),
+      dataModelBridge(dataModel, statsManager),
       logManager(dataModel),
       logger(LOGGER_LEVEL_DEBUG),
       ic2Master(nullptr),
@@ -132,7 +132,7 @@ LunaMon::LunaMon()
                                                   wifiManager, statsManager, aisContacts,
                                                   dataModel);
         if (nmeaWiFiInterface) {
-            nmeaWiFiInterface->addMessageHandler(nmeaDataModelBridge);
+            nmeaWiFiInterface->addMessageHandler(dataModelBridge);
         } else {
             logger << logErrorMain << "Failed to allocate WiFi NMEA interface." << eol;
         }
@@ -184,7 +184,7 @@ NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, uart_port_
     nmeaUARTInterface = new NMEAUARTInterface(name, uartNumber, rxPin, txPin, baudRate,
                                               statsManager, aisContacts, dataModel);
     if (nmeaUARTInterface) {
-        nmeaUARTInterface->addMessageHandler(nmeaDataModelBridge);
+        nmeaUARTInterface->addMessageHandler(dataModelBridge);
     } else {
         logger << logErrorMain << "Failed to allocate " << name << " NMEA interface for UART "
                 << uartNumber << "." << eol;

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_DEPTH_BRIDGE_H
-#define NMEA_DEPTH_BRIDGE_H
+#ifndef DEPTH_BRIDGE_H
+#define DEPTH_BRIDGE_H
 
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
@@ -30,7 +30,7 @@ class NMEADBTMessage;
 class NMEADPTMessage;
 class StatCounter;
 
-class NMEADepthBridge {
+class DepthBridge {
     private:
         StatCounter &messagesBridgedCounter;
 
@@ -49,11 +49,11 @@ class NMEADepthBridge {
         DataModelTenthsInt16Leaf depthBelowKeelFathomsLeaf;
 
     public:
-        NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        DepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEADBKMessage(const NMEADBKMessage *message);
         void bridgeNMEADBSMessage(const NMEADBSMessage *message);
         void bridgeNMEADBTMessage(const NMEADBTMessage *message);
         void bridgeNMEADPTMessage(const NMEADPTMessage *message);
 };
 
-#endif // NMEA_DEPTH_BRIDGE_H
+#endif // DEPTH_BRIDGE_H

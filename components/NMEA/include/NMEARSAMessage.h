@@ -40,7 +40,7 @@ class NMEARSAMessage : public NMEAMessage {
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
-    friend class NMEAAutoPilotBridge;
+    friend class AutoPilotBridge;
 };
 
 extern NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,

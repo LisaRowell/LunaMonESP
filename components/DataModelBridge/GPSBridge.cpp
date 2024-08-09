@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAGPSBridge.h"
+#include "GPSBridge.h"
 
 #include "NMEAGGAMessage.h"
 #include "NMEAGLLMessage.h"
@@ -35,7 +35,7 @@
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
-NMEAGPSBridge::NMEAGPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+GPSBridge::GPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       gpsNode("gps", &dataModel.rootNode()),
       gpsTimeLeaf("time", &gpsNode, gpsTimeBuffer),
@@ -73,7 +73,7 @@ NMEAGPSBridge::NMEAGPSBridge(DataModel &dataModel, StatCounter &messagesBridgedC
 {
 }
 
-void NMEAGPSBridge::bridgeNMEAGGAMessage(const NMEAGGAMessage *message) {
+void GPSBridge::bridgeNMEAGGAMessage(const NMEAGGAMessage *message) {
     message->time.publish(gpsTimeLeaf);
     message->latitude.publish(gpsLatitudeLeaf);
     message->longitude.publish(gpsLongitudeLeaf);
@@ -88,7 +88,7 @@ void NMEAGPSBridge::bridgeNMEAGGAMessage(const NMEAGGAMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEAGPSBridge::bridgeNMEAGLLMessage(const NMEAGLLMessage *message) {
+void GPSBridge::bridgeNMEAGLLMessage(const NMEAGLLMessage *message) {
     message->latitude.publish(gpsLatitudeLeaf);
     message->longitude.publish(gpsLongitudeLeaf);
     message->time.publish(gpsTimeLeaf);
@@ -101,7 +101,7 @@ void NMEAGPSBridge::bridgeNMEAGLLMessage(const NMEAGLLMessage *message) {
 // The Vesper GPS receivers, and possibly others, emit back to back GSA messages with two sets of
 // satellite IDs. This should be somehow detected so that the two groups can be concatenated
 // together.
-void NMEAGPSBridge::bridgeNMEAGSAMessage(const NMEAGSAMessage *message) {
+void GPSBridge::bridgeNMEAGSAMessage(const NMEAGSAMessage *message) {
     if (message->automaticMode) {
         gpsSatelliteSelectionModeLeaf = "Automatic";
     } else {
@@ -132,7 +132,7 @@ void NMEAGPSBridge::bridgeNMEAGSAMessage(const NMEAGSAMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEAGPSBridge::bridgeNMEAGSTMessage(const NMEAGSTMessage *message) {
+void GPSBridge::bridgeNMEAGSTMessage(const NMEAGSTMessage *message) {
     message->standardDeviationOfRangeInputsRMS.publish(gpsStandardDeviationOfRangeInputsRMSLeaf);
     message->standardDeviationOfSemiMajorAxis.publish(gpsStandardDeviationOfSemiMajorAxisLeaf);
     message->standardDeviationOfSemiMinorAxis.publish(gpsStandardDeviationOfSemiMinorAxisLeaf);
@@ -144,7 +144,7 @@ void NMEAGPSBridge::bridgeNMEAGSTMessage(const NMEAGSTMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEAGPSBridge::bridgeNMEARMCMessage(const NMEARMCMessage *message) {
+void GPSBridge::bridgeNMEARMCMessage(const NMEARMCMessage *message) {
     message->time.publish(gpsTimeLeaf);
     message->dataValid.publish(gpsDataValidLeaf);
     message->latitude.publish(gpsLatitudeLeaf);
@@ -158,7 +158,7 @@ void NMEAGPSBridge::bridgeNMEARMCMessage(const NMEARMCMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEAGPSBridge::bridgeNMEAVTGMessage(const NMEAVTGMessage *message) {
+void GPSBridge::bridgeNMEAVTGMessage(const NMEAVTGMessage *message) {
     message->trackMadeGoodTrue.publish(gpsTrackMadeGoodTrueLeaf);
     message->trackMadeGoodMagnetic.publish(gpsTrackMadeGoodMagneticLeaf);
     message->speedOverGround.publish(gpsSpeedOverGroundLeaf);

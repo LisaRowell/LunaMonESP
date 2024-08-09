@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAAutoPilotBridge.h"
+#include "AutoPilotBridge.h"
 
 #include "NMEARSAMessage.h"
 #include "NMEAHDGMessage.h"
@@ -27,7 +27,7 @@
 
 #include "StatCounter.h"
 
-NMEAAutoPilotBridge::NMEAAutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+AutoPilotBridge::AutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       autoPilotNode("autoPilot", &dataModel.rootNode()),
       autoPilotHeadingNode("heading", &autoPilotNode),
@@ -39,7 +39,7 @@ NMEAAutoPilotBridge::NMEAAutoPilotBridge(DataModel &dataModel, StatCounter &mess
       autopilotRudderPortLeaf("port", &autoPilotRudderNode) {
 }
 
-void NMEAAutoPilotBridge::bridgeNMEAHDGMessage(const NMEAHDGMessage *message) {
+void AutoPilotBridge::bridgeNMEAHDGMessage(const NMEAHDGMessage *message) {
     message->magneticSensorHeading.publish(autoPilotHeadingSensorLeaf);
     message->magneticDeviation.publish(autoPilotHeadingDeviationLeaf);
     message->magneticVariation.publish(autoPilotHeadingVariationLeaf);
@@ -47,7 +47,7 @@ void NMEAAutoPilotBridge::bridgeNMEAHDGMessage(const NMEAHDGMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEAAutoPilotBridge::bridgeNMEARSAMessage(const NMEARSAMessage *message) {
+void AutoPilotBridge::bridgeNMEARSAMessage(const NMEARSAMessage *message) {
     if (message->starboardRudderSensorAngleValid) {
         message->starboardRudderSensorAngle.publish(autopilotRudderStarboardLeaf);
     } else {

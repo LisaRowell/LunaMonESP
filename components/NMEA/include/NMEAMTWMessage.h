@@ -38,7 +38,7 @@ class NMEAMTWMessage : public NMEAMessage {
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
-    friend class NMEAWaterBridge;
+    friend class WaterBridge;
 };
 
 extern NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALine &nmeaLine,

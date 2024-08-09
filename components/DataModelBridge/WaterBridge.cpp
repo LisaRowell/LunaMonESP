@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAWaterBridge.h"
+#include "WaterBridge.h"
 
 #include "NMEAMTWMessage.h"
 #include "NMEAVHWMessage.h"
@@ -31,7 +31,7 @@
 
 #include "StatCounter.h"
 
-NMEAWaterBridge::NMEAWaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+WaterBridge::WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       waterNode("water", &dataModel.rootNode()),
       waterHeadingNode("heading", &waterNode),
@@ -45,7 +45,7 @@ NMEAWaterBridge::NMEAWaterBridge(DataModel &dataModel, StatCounter &messagesBrid
       waterTemperatureFahrenheitLeaf("fahrenheit", &waterTemperatureNode) {
 }
 
-void NMEAWaterBridge::bridgeNMEAMTWMessage(const NMEAMTWMessage *message) {
+void WaterBridge::bridgeNMEAMTWMessage(const NMEAMTWMessage *message) {
     switch (message->waterTemperatureUnits) {
         case NMEATemperatureUnits::CELSIUS:
             message->waterTemperature.publish(waterTemperatureCelsiusLeaf);
@@ -56,14 +56,14 @@ void NMEAWaterBridge::bridgeNMEAMTWMessage(const NMEAMTWMessage *message) {
             break;
 
         default:
-            logger() << logWarnNMEADataModelBridge << "Unhandled water temperature units ("
+            logger() << logWarnDataModelBridge << "Unhandled water temperature units ("
                      << message->waterTemperatureUnits << ") in NMEA MTW message" << eol;
     }
 
     messagesBridgedCounter++;
 }
 
-void NMEAWaterBridge::bridgeNMEAVHWMessage(const NMEAVHWMessage *message) {
+void WaterBridge::bridgeNMEAVHWMessage(const NMEAVHWMessage *message) {
     message->waterHeadingTrue.publish(waterHeadingTrueLeaf);
     message->waterHeadingMagnetic.publish(waterHeadingMagneticLeaf);
     message->waterSpeedKnots.publish(waterSpeedKnotsLeaf);

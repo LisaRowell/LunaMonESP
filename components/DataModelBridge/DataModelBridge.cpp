@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEADataModelBridge.h"
-#include "NMEAAutoPilotBridge.h"
-#include "NMEADepthBridge.h"
-#include "NMEAGPSBridge.h"
-#include "NMEAWaterBridge.h"
-#include "NMEAWindBridge.h"
+#include "DataModelBridge.h"
+#include "AutoPilotBridge.h"
+#include "DepthBridge.h"
+#include "GPSBridge.h"
+#include "WaterBridge.h"
+#include "WindBridge.h"
 
 #include "NMEADBKMessage.h"
 #include "NMEADBSMessage.h"
@@ -48,19 +48,19 @@
 #include "DataModelUInt32Leaf.h"
 
 
-NMEADataModelBridge::NMEADataModelBridge(DataModel &dataModel, StatsManager &statsManager)
+DataModelBridge::DataModelBridge(DataModel &dataModel, StatsManager &statsManager)
     : autoPilotBridge(dataModel, messagesBridgedCounter),
       depthBridge(dataModel, messagesBridgedCounter),
       gpsBridge(dataModel, messagesBridgedCounter),
       waterBridge(dataModel, messagesBridgedCounter),
       windBridge(dataModel, messagesBridgedCounter),
-      nmeaDataModelBridgeNode("nmeaDataModelBridge", &dataModel.sysNode()),
-      messagesBridgedLeaf("messages", &nmeaDataModelBridgeNode),
-      messagesBridgedRateLeaf("messageRate", &nmeaDataModelBridgeNode) {
+      dataModelBridgeNode("dataModelBridge", &dataModel.sysNode()),
+      messagesBridgedLeaf("messages", &dataModelBridgeNode),
+      messagesBridgedRateLeaf("messageRate", &dataModelBridgeNode) {
     statsManager.addStatsHolder(*this);
 }
 
-void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
+void DataModelBridge::processMessage(const NMEAMessage *message) {
     const NMEAMsgType msgType = message->type();
     switch (msgType) {
         case NMEAMsgType::DBK:
@@ -131,25 +131,25 @@ void NMEADataModelBridge::processMessage(const NMEAMessage *message) {
         case NMEAMsgType::VDM:
         case NMEAMsgType::VDO:
             // Currently not output to clients.
-            taskLogger() << logDebugNMEADataModelBridge << "Ignoring " << message->source() << " "
+            taskLogger() << logDebugDataModelBridge << "Ignoring " << message->source() << " "
                          << msgType << " message in NMEA->Data Model Bridge" << eol;
             break;
 
         default:
-            taskLogger() << logWarnNMEADataModelBridge << "Unhandled " << message->source() << " "
+            taskLogger() << logWarnDataModelBridge << "Unhandled " << message->source() << " "
                          << msgType << " message in NMEA->Data Model Bridge" << eol;
     }
 }
 
-void NMEADataModelBridge::logTXTMessage(NMEATXTMessage *message) {
+void DataModelBridge::logTXTMessage(NMEATXTMessage *message) {
     // While we don't have a way of making TXT messages available in the DataModel, we output them
     // as info log messages here to aid in debugging. Later we could trade some memory for a way to
     // see these.
-    taskLogger() << logNotifyNMEADataModelBridge << message->source() << " TXT ("
+    taskLogger() << logNotifyDataModelBridge << message->source() << " TXT ("
                  << message->sentenceNumber << "/" << message->totalSentences << ") id "
                  << message->textIdentifier << ": " << message->text << eol;
 }
 
-void NMEADataModelBridge::exportStats(uint32_t msElapsed) {
+void DataModelBridge::exportStats(uint32_t msElapsed) {
     messagesBridgedCounter.update(messagesBridgedLeaf, messagesBridgedRateLeaf, msElapsed);
 }

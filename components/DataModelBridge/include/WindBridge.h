@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_WIND_BRIDGE_H
-#define NMEA_WIND_BRIDGE_H
+#ifndef WIND_BRIDGE_H
+#define WIND_BRIDGE_H
 
 #include "DataModelNode.h"
 #include "DataModelTenthsUInt16Leaf.h"
@@ -27,7 +27,7 @@ class DataModel;
 class NMEAMWVMessage;
 class StatCounter;
 
-class NMEAWindBridge {
+class WindBridge {
     private:
         StatCounter &messagesBridgedCounter;
 
@@ -47,8 +47,8 @@ class NMEAWindBridge {
         DataModelBoolLeaf windValidLeaf;
 
     public:
-        NMEAWindBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        WindBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEAMWVMessage(const NMEAMWVMessage *message);
 };
 
-#endif // NMEA_WIND_BRIDGE_H
+#endif // WIND_BRIDGE_H

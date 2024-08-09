@@ -29,7 +29,7 @@
 
 #include "WiFiManager.h"
 #include "MQTTBroker.h"
-#include "NMEADataModelBridge.h"
+#include "DataModelBridge.h"
 #include "InterfaceProtocol.h"
 #include "LogManager.h"
 #include "Logger.h"
@@ -53,7 +53,7 @@ class LunaMon {
         AISContacts aisContacts;
         WiFiManager wifiManager;
         MQTTBroker mqttBroker;
-        NMEADataModelBridge nmeaDataModelBridge;
+        DataModelBridge dataModelBridge;
         LogManager logManager;
         Logger logger;
         NMEAWiFiInterface *nmeaWiFiInterface;

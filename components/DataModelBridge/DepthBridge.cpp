@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEADepthBridge.h"
+#include "DepthBridge.h"
 
 #include "NMEADBKMessage.h"
 #include "NMEADBSMessage.h"
@@ -31,7 +31,7 @@
 
 #include "StatCounter.h"
 
-NMEADepthBridge::NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+DepthBridge::DepthBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       depthNode("depth", &dataModel.rootNode()),
       depthBelowSurfaceNode("belowSurface", &depthNode),
@@ -49,7 +49,7 @@ NMEADepthBridge::NMEADepthBridge(DataModel &dataModel, StatCounter &messagesBrid
 {
 }
 
-void NMEADepthBridge::bridgeNMEADBKMessage(const NMEADBKMessage *message) {
+void DepthBridge::bridgeNMEADBKMessage(const NMEADBKMessage *message) {
     message->depthFeet.publish(depthBelowKeelFeetLeaf);
     message->depthMeters.publish(depthBelowKeelMetersLeaf);
     message->depthFathoms.publish(depthBelowKeelFathomsLeaf);
@@ -57,7 +57,7 @@ void NMEADepthBridge::bridgeNMEADBKMessage(const NMEADBKMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEADepthBridge::bridgeNMEADBSMessage(const NMEADBSMessage *message) {
+void DepthBridge::bridgeNMEADBSMessage(const NMEADBSMessage *message) {
     message->depthFeet.publish(depthBelowSurfaceFeetLeaf);
     message->depthMeters.publish(depthBelowSurfaceMetersLeaf);
     message->depthFathoms.publish(depthBelowSurfaceFathomsLeaf);
@@ -65,7 +65,7 @@ void NMEADepthBridge::bridgeNMEADBSMessage(const NMEADBSMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEADepthBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
+void DepthBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
     message->depthFeet.publish(depthBelowTransducerFeetLeaf);
     message->depthMeters.publish(depthBelowTransducerMetersLeaf);
     message->depthFathoms.publish(depthBelowTransducerFathomsLeaf);
@@ -73,7 +73,7 @@ void NMEADepthBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
     messagesBridgedCounter++;
 }
 
-void NMEADepthBridge::bridgeNMEADPTMessage(const NMEADPTMessage *message) {
+void DepthBridge::bridgeNMEADPTMessage(const NMEADPTMessage *message) {
     message->depthBelowTransducerMeters.publish(depthBelowTransducerMetersLeaf);
 
     // The transducer offset field in this message is a little wonky as it can indicate either

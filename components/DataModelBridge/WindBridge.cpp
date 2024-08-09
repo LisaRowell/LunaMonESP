@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEAWindBridge.h"
+#include "WindBridge.h"
 
 #include "NMEAMWVMessage.h"
 
@@ -29,7 +29,7 @@
 
 #include "Logger.h"
 
-NMEAWindBridge::NMEAWindBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
+WindBridge::WindBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       windNode("wind", &dataModel.rootNode()),
       apparentWindNode("apparent", &windNode),
@@ -48,7 +48,7 @@ NMEAWindBridge::NMEAWindBridge(DataModel &dataModel, StatCounter &messagesBridge
 {
 }
 
-void NMEAWindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
+void WindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
     if (message->relativeIndicator.isRelative()) {
         message->windAngle.publish(apparentWindAngleLeaf);
 
@@ -66,7 +66,7 @@ void NMEAWindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
                 break;
 
             default:
-                logger() << logWarnNMEADataModelBridge << "Unhandled wind speed units ("
+                logger() << logWarnDataModelBridge << "Unhandled wind speed units ("
                          << message->windSpeedUnits << ") in NMEA MWV message" << eol;
         }
     } else {
@@ -86,7 +86,7 @@ void NMEAWindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
                 break;
 
             default:
-                logger() << logWarnNMEADataModelBridge << "Unhandled wind speed units ("
+                logger() << logWarnDataModelBridge << "Unhandled wind speed units ("
                          << message->windSpeedUnits << ") in NMEA MWV message" << eol;
         }
     }

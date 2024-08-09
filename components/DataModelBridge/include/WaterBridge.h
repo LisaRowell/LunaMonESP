@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_WATER_BRIDGE_H
-#define NMEA_WATER_BRIDGE_H
+#ifndef WATER_BRIDGE_H
+#define WATER_BRIDGE_H
 
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
@@ -28,7 +28,7 @@ class NMEAMTWMessage;
 class NMEAVHWMessage;
 class StatCounter;
 
-class NMEAWaterBridge {
+class WaterBridge {
     private:
         StatCounter &messagesBridgedCounter;
 
@@ -44,9 +44,9 @@ class NMEAWaterBridge {
         DataModelTenthsInt16Leaf waterTemperatureFahrenheitLeaf;
 
     public:
-        NMEAWaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEAMTWMessage(const NMEAMTWMessage *message);
         void bridgeNMEAVHWMessage(const NMEAVHWMessage *message);
 };
 
-#endif // NMEA_WATER_BRIDGE_H
+#endif // WATER_BRIDGE_H

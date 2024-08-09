@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_AUTO_PILOT_BRIDGE_H
-#define NMEA_AUTO_PILOT_BRIDGE_H
+#ifndef AUTO_PILOT_BRIDGE_H
+#define AUTO_PILOT_BRIDGE_H
 
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
@@ -28,7 +28,7 @@ class NMEARSAMessage;
 class NMEAHDGMessage;
 class StatCounter;
 
-class NMEAAutoPilotBridge {
+class AutoPilotBridge {
     private:
         StatCounter &messagesBridgedCounter;
 
@@ -42,9 +42,9 @@ class NMEAAutoPilotBridge {
         DataModelTenthsInt16Leaf autopilotRudderPortLeaf;
 
     public:
-        NMEAAutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        AutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
         void bridgeNMEAHDGMessage(const NMEAHDGMessage *message);
         void bridgeNMEARSAMessage(const NMEARSAMessage *message);
 };
 
-#endif // NMEA_AUTO_PILOT_BRIDGE_H
+#endif // AUTO_PILOT_BRIDGE_H
