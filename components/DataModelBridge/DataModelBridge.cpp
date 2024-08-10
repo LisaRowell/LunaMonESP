@@ -18,7 +18,6 @@
 
 #include "DataModelBridge.h"
 #include "AutoPilotBridge.h"
-#include "DepthBridge.h"
 #include "GPSBridge.h"
 #include "WaterBridge.h"
 #include "WindBridge.h"
@@ -50,7 +49,6 @@
 
 DataModelBridge::DataModelBridge(DataModel &dataModel, StatsManager &statsManager)
     : autoPilotBridge(dataModel, messagesBridgedCounter),
-      depthBridge(dataModel, messagesBridgedCounter),
       gpsBridge(dataModel, messagesBridgedCounter),
       waterBridge(dataModel, messagesBridgedCounter),
       windBridge(dataModel, messagesBridgedCounter),
@@ -64,19 +62,19 @@ void DataModelBridge::processMessage(const NMEAMessage *message) {
     const NMEAMsgType msgType = message->type();
     switch (msgType) {
         case NMEAMsgType::DBK:
-            depthBridge.bridgeNMEADBKMessage((NMEADBKMessage *)message);
+            waterBridge.bridgeNMEADBKMessage((NMEADBKMessage *)message);
             break;
 
         case NMEAMsgType::DBS:
-            depthBridge.bridgeNMEADBSMessage((NMEADBSMessage *)message);
+            waterBridge.bridgeNMEADBSMessage((NMEADBSMessage *)message);
             break;
 
         case NMEAMsgType::DBT:
-            depthBridge.bridgeNMEADBTMessage((NMEADBTMessage *)message);
+            waterBridge.bridgeNMEADBTMessage((NMEADBTMessage *)message);
             break;
 
         case NMEAMsgType::DPT:
-            depthBridge.bridgeNMEADPTMessage((NMEADPTMessage *)message);
+            waterBridge.bridgeNMEADPTMessage((NMEADPTMessage *)message);
             break;
 
         case NMEAMsgType::GGA:

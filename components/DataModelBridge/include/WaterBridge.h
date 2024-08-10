@@ -24,6 +24,10 @@
 #include "DataModelTenthsUInt16Leaf.h"
 
 class DataModel;
+class NMEADBKMessage;
+class NMEADBSMessage;
+class NMEADBTMessage;
+class NMEADPTMessage;
 class NMEAMTWMessage;
 class NMEAVHWMessage;
 class StatCounter;
@@ -33,6 +37,19 @@ class WaterBridge {
         StatCounter &messagesBridgedCounter;
 
         DataModelNode waterNode;
+        DataModelNode waterDepthNode;
+        DataModelNode depthBelowSurfaceNode;
+        DataModelTenthsUInt16Leaf depthBelowSurfaceFeetLeaf;
+        DataModelTenthsUInt16Leaf depthBelowSurfaceMetersLeaf;
+        DataModelTenthsUInt16Leaf depthBelowSurfaceFathomsLeaf;
+        DataModelNode depthBelowTransducerNode;
+        DataModelTenthsUInt16Leaf depthBelowTransducerFeetLeaf;
+        DataModelTenthsUInt16Leaf depthBelowTransducerMetersLeaf;
+        DataModelTenthsUInt16Leaf depthBelowTransducerFathomsLeaf;
+        DataModelNode depthBelowKeelNode;
+        DataModelTenthsInt16Leaf depthBelowKeelFeetLeaf;
+        DataModelTenthsInt16Leaf depthBelowKeelMetersLeaf;
+        DataModelTenthsInt16Leaf depthBelowKeelFathomsLeaf;
         DataModelNode waterHeadingNode;
         DataModelTenthsUInt16Leaf waterHeadingTrueLeaf;
         DataModelTenthsUInt16Leaf waterHeadingMagneticLeaf;
@@ -45,6 +62,10 @@ class WaterBridge {
 
     public:
         WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        void bridgeNMEADBKMessage(const NMEADBKMessage *message);
+        void bridgeNMEADBSMessage(const NMEADBSMessage *message);
+        void bridgeNMEADBTMessage(const NMEADBTMessage *message);
+        void bridgeNMEADPTMessage(const NMEADPTMessage *message);
         void bridgeNMEAMTWMessage(const NMEAMTWMessage *message);
         void bridgeNMEAVHWMessage(const NMEAVHWMessage *message);
 };

@@ -18,6 +18,10 @@
 
 #include "WaterBridge.h"
 
+#include "NMEADBKMessage.h"
+#include "NMEADBSMessage.h"
+#include "NMEADBTMessage.h"
+#include "NMEADPTMessage.h"
 #include "NMEAMTWMessage.h"
 #include "NMEAVHWMessage.h"
 #include "NMEATemperatureUnits.h"
@@ -26,6 +30,7 @@
 #include "DataModel.h"
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
+#include "DataModelTenthsUInt16Leaf.h"
 
 #include "TenthsInt16.h"
 
@@ -34,6 +39,19 @@
 WaterBridge::WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
     : messagesBridgedCounter(messagesBridgedCounter),
       waterNode("water", &dataModel.rootNode()),
+      waterDepthNode("depth", &waterNode),
+      depthBelowSurfaceNode("belowSurface", &waterDepthNode),
+      depthBelowSurfaceFeetLeaf("feet", &depthBelowSurfaceNode),
+      depthBelowSurfaceMetersLeaf("meters", &depthBelowSurfaceNode),
+      depthBelowSurfaceFathomsLeaf("fathoms", &depthBelowSurfaceNode),
+      depthBelowTransducerNode("belowTransducer", &waterDepthNode),
+      depthBelowTransducerFeetLeaf("feet", &depthBelowTransducerNode),
+      depthBelowTransducerMetersLeaf("meters", &depthBelowTransducerNode),
+      depthBelowTransducerFathomsLeaf("fathoms", &depthBelowTransducerNode),
+      depthBelowKeelNode("belowKeel", &waterDepthNode),
+      depthBelowKeelFeetLeaf("feet", &depthBelowKeelNode),
+      depthBelowKeelMetersLeaf("meters", &depthBelowKeelNode),
+      depthBelowKeelFathomsLeaf("fathoms", &depthBelowKeelNode),
       waterHeadingNode("heading", &waterNode),
       waterHeadingTrueLeaf("true", &waterHeadingNode),
       waterHeadingMagneticLeaf("magnetic", &waterHeadingNode),
@@ -43,6 +61,51 @@ WaterBridge::WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCount
       waterTemperatureNode("temperature", &waterNode),
       waterTemperatureCelsiusLeaf("celsius", &waterTemperatureNode),
       waterTemperatureFahrenheitLeaf("fahrenheit", &waterTemperatureNode) {
+}
+
+void WaterBridge::bridgeNMEADBKMessage(const NMEADBKMessage *message) {
+    message->depthFeet.publish(depthBelowKeelFeetLeaf);
+    message->depthMeters.publish(depthBelowKeelMetersLeaf);
+    message->depthFathoms.publish(depthBelowKeelFathomsLeaf);
+
+    messagesBridgedCounter++;
+}
+
+void WaterBridge::bridgeNMEADBSMessage(const NMEADBSMessage *message) {
+    message->depthFeet.publish(depthBelowSurfaceFeetLeaf);
+    message->depthMeters.publish(depthBelowSurfaceMetersLeaf);
+    message->depthFathoms.publish(depthBelowSurfaceFathomsLeaf);
+
+    messagesBridgedCounter++;
+}
+
+void WaterBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
+    message->depthFeet.publish(depthBelowTransducerFeetLeaf);
+    message->depthMeters.publish(depthBelowTransducerMetersLeaf);
+    message->depthFathoms.publish(depthBelowTransducerFathomsLeaf);
+
+    messagesBridgedCounter++;
+}
+
+void WaterBridge::bridgeNMEADPTMessage(const NMEADPTMessage *message) {
+    message->depthBelowTransducerMeters.publish(depthBelowTransducerMetersLeaf);
+
+    // The transducer offset field in this message is a little wonky as it can indicate either
+    // a distance from the transducer to the keel or a distance from the transducer to the water
+    // line, indicated by the sign.
+    TenthsUInt16 depthBelowTransducerMeters = message->depthBelowTransducerMeters;
+    TenthsInt16 transducerOffsetMeters = message->transducerOffsetMeters;
+    if (transducerOffsetMeters < 0) {
+        TenthsInt16 depthBelowKeelMeters;
+        depthBelowKeelMeters = depthBelowTransducerMeters - transducerOffsetMeters.abs();
+        depthBelowKeelMetersLeaf = depthBelowKeelMeters;
+    } else {
+        TenthsUInt16 depthBelowSurfaceMeters;
+        depthBelowSurfaceMeters = depthBelowTransducerMeters + transducerOffsetMeters.abs();
+        depthBelowSurfaceMetersLeaf = depthBelowSurfaceMeters;
+    }
+
+    messagesBridgedCounter++;
 }
 
 void WaterBridge::bridgeNMEAMTWMessage(const NMEAMTWMessage *message) {

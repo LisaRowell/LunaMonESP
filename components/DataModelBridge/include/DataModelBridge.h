@@ -22,7 +22,6 @@
 #include "NMEAMessageHandler.h"
 
 #include "AutoPilotBridge.h"
-#include "DepthBridge.h"
 #include "GPSBridge.h"
 #include "WaterBridge.h"
 #include "WindBridge.h"
@@ -42,7 +41,6 @@ class NMEATXTMessage;
 class DataModelBridge : public NMEAMessageHandler, StatsHolder {
     private:
         AutoPilotBridge autoPilotBridge;
-        DepthBridge depthBridge;
         GPSBridge gpsBridge;
         WaterBridge waterBridge;
         WindBridge windBridge;

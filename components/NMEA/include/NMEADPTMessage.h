@@ -40,7 +40,7 @@ class NMEADPTMessage : public NMEAMessage {
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
-    friend class DepthBridge;
+    friend class WaterBridge;
 };
 
 extern NMEADPTMessage *parseNMEADPTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
