@@ -19,49 +19,21 @@
 #ifndef WATER_BRIDGE_H
 #define WATER_BRIDGE_H
 
-#include "DataModelNode.h"
-#include "DataModelTenthsInt16Leaf.h"
-#include "DataModelTenthsUInt16Leaf.h"
-
-class DataModel;
+class InstrumentData;
+class WaterData;
 class NMEADBKMessage;
 class NMEADBSMessage;
 class NMEADBTMessage;
 class NMEADPTMessage;
 class NMEAMTWMessage;
 class NMEAVHWMessage;
-class StatCounter;
 
 class WaterBridge {
     private:
-        StatCounter &messagesBridgedCounter;
-
-        DataModelNode waterNode;
-        DataModelNode waterDepthNode;
-        DataModelNode depthBelowSurfaceNode;
-        DataModelTenthsUInt16Leaf depthBelowSurfaceFeetLeaf;
-        DataModelTenthsUInt16Leaf depthBelowSurfaceMetersLeaf;
-        DataModelTenthsUInt16Leaf depthBelowSurfaceFathomsLeaf;
-        DataModelNode depthBelowTransducerNode;
-        DataModelTenthsUInt16Leaf depthBelowTransducerFeetLeaf;
-        DataModelTenthsUInt16Leaf depthBelowTransducerMetersLeaf;
-        DataModelTenthsUInt16Leaf depthBelowTransducerFathomsLeaf;
-        DataModelNode depthBelowKeelNode;
-        DataModelTenthsInt16Leaf depthBelowKeelFeetLeaf;
-        DataModelTenthsInt16Leaf depthBelowKeelMetersLeaf;
-        DataModelTenthsInt16Leaf depthBelowKeelFathomsLeaf;
-        DataModelNode waterHeadingNode;
-        DataModelTenthsUInt16Leaf waterHeadingTrueLeaf;
-        DataModelTenthsUInt16Leaf waterHeadingMagneticLeaf;
-        DataModelNode waterSpeedNode;
-        DataModelTenthsInt16Leaf waterSpeedKnotsLeaf;
-        DataModelTenthsInt16Leaf waterSpeedKMPHLeaf;
-        DataModelNode waterTemperatureNode;
-        DataModelTenthsInt16Leaf waterTemperatureCelsiusLeaf;
-        DataModelTenthsInt16Leaf waterTemperatureFahrenheitLeaf;
+        WaterData &waterData;
 
     public:
-        WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        WaterBridge(InstrumentData &instrumentData);
         void bridgeNMEADBKMessage(const NMEADBKMessage *message);
         void bridgeNMEADBSMessage(const NMEADBSMessage *message);
         void bridgeNMEADBTMessage(const NMEADBTMessage *message);

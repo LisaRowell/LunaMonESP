@@ -33,8 +33,9 @@
 
 #include <stdint.h>
 
-STALKSource::STALKSource(DataModelNode &interfaceNode, StatsManager &statsManager)
-    : seaTalkParser(interfaceNode, statsManager),
+STALKSource::STALKSource(DataModelNode &interfaceNode, InstrumentData &instrumentData,
+                         StatsManager &statsManager)
+    : seaTalkParser(interfaceNode, instrumentData, statsManager),
       messagesCounter(),
       illformedMessages(0),
       _lastMessageIllformed(false),

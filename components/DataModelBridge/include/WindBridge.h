@@ -19,35 +19,16 @@
 #ifndef WIND_BRIDGE_H
 #define WIND_BRIDGE_H
 
-#include "DataModelNode.h"
-#include "DataModelTenthsUInt16Leaf.h"
-#include "DataModelBoolLeaf.h"
-
-class DataModel;
+class InstrumentData;
+class WindData;
 class NMEAMWVMessage;
-class StatCounter;
 
 class WindBridge {
     private:
-        StatCounter &messagesBridgedCounter;
-
-        DataModelNode windNode;
-        DataModelNode apparentWindNode;
-        DataModelTenthsUInt16Leaf apparentWindAngleLeaf;
-        DataModelNode apparentWindSpeedNode;
-        DataModelTenthsUInt16Leaf apparentWindSpeedKnotsLeaf;
-        DataModelTenthsUInt16Leaf apparentWindSpeedMPHLeaf;
-        DataModelTenthsUInt16Leaf apparentWindSpeedKMPHLeaf;
-        DataModelNode trueWindNode;
-        DataModelTenthsUInt16Leaf trueWindAngleLeaf;
-        DataModelNode trueWindSpeedNode;
-        DataModelTenthsUInt16Leaf trueWindSpeedKnotsLeaf;
-        DataModelTenthsUInt16Leaf trueWindSpeedMPHLeaf;
-        DataModelTenthsUInt16Leaf trueWindSpeedKMPHLeaf;
-        DataModelBoolLeaf windValidLeaf;
+        WindData &windData;
 
     public:
-        WindBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        WindBridge(InstrumentData &instrumentData);
         void bridgeNMEAMWVMessage(const NMEAMWVMessage *message);
 };
 

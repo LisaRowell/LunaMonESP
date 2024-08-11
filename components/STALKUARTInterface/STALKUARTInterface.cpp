@@ -26,11 +26,11 @@
 #include <stdint.h>
 
 STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin,
-                                       int txPin, int baudRate, StatsManager &statsManager,
-                                       DataModel &dataModel)
+                                       int txPin, int baudRate, InstrumentData &instrumentData,
+                                       StatsManager &statsManager, DataModel &dataModel)
     : UARTInterface(name, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
                     dataModel, stackSize),
-      STALKSource(interfaceNode(), statsManager),
+      STALKSource(interfaceNode(), instrumentData, statsManager),
       firstDigitalYachtsWorkaroundSent(false) {
     digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsStartTimeSec);
 }

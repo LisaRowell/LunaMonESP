@@ -21,11 +21,14 @@
 #include "DataModelNode.h"
 
 #include "TenthsInt16.h"
+#include "TenthsUInt16.h"
+#include "HundredthsUInt16.h"
 
 #include "Logger.h"
 
 #include "etl/string.h"
 #include "etl/string_stream.h"
+#include "etl/to_string.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -44,6 +47,50 @@ DataModelTenthsInt16Leaf & DataModelTenthsInt16Leaf::operator = (const TenthsInt
 
         etl::string<maxStringLength> valueStr;
         value.toString(valueStr);
+        *this << valueStr;
+    }
+
+    return *this;
+}
+
+DataModelTenthsInt16Leaf & DataModelTenthsInt16Leaf::operator = (const TenthsUInt16 &value) {
+    if (!hasValue() || this->value != value) {
+        this->value = value;
+
+        updated();
+
+        etl::string<maxStringLength> valueStr;
+        value.toString(valueStr);
+        *this << valueStr;
+    }
+
+    return *this;
+}
+
+DataModelTenthsInt16Leaf & DataModelTenthsInt16Leaf::operator = (const HundredthsUInt16 &value) {
+    TenthsUInt16 roundedValue;
+    roundedValue.roundFrom(value);
+    if (!hasValue() || this->value != roundedValue) {
+        this->value = roundedValue;
+
+        updated();
+
+        etl::string<maxStringLength> valueStr;
+        roundedValue.toString(valueStr);
+        *this << valueStr;
+    }
+
+    return *this;
+}
+
+DataModelTenthsInt16Leaf & DataModelTenthsInt16Leaf::operator = (const int16_t value) {
+    if (!hasValue() || this->value != value) {
+        this->value = value;
+
+        updated();
+
+        etl::string<maxStringLength> valueStr;
+        etl::to_string(value, valueStr);
         *this << valueStr;
     }
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HUNDREDTHS_UINT8_H
-#define HUNDREDTHS_UINT8_H
+#ifndef INSTRUMENT_DATA_H
+#define INSTRUMENT_DATA_H
 
-#include "LoggableItem.h"
+#include "AutoPilotData.h"
+#include "GPSData.h"
+#include "WaterData.h"
+#include "WindData.h"
 
-#include "etl/string.h"
+#include "DataModelNode.h"
 
-#include <stdint.h>
+class DataModel;
 
-class HundredthsUInt8 : public LoggableItem {
+class InstrumentData {
     private:
-        uint8_t _wholeNumber;
-        uint8_t _hundredths;
+        DataModelNode sysNode;
+        AutoPilotData _autoPilotData;
+        GPSData _gpsData;
+        WaterData _waterData;
+        WindData _windData;
 
     public:
-        HundredthsUInt8();
-        HundredthsUInt8(uint8_t wholeNumber, uint8_t hundredths);
-        uint8_t wholeNumber() const;
-        uint8_t hundredths() const;
-        bool operator == (const HundredthsUInt8 &right) const;
-        void setFromQ22Dot10(uint32_t q22Dot10);
-        void toString(etl::istring &string) const;
-        virtual void log(Logger &logger) const override;
+        InstrumentData(DataModel &dataModel, StatsManager &statsManager);
+        AutoPilotData &autoPilotData();
+        GPSData &gpsData();
+        WaterData &waterData();
+        WindData &windData();
 };
 
-#endif // HUNDREDTHS_UINT8_H
+#endif // INSTRUMENT_DATA_H

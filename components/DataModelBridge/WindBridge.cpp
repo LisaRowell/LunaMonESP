@@ -17,6 +17,8 @@
  */
 
 #include "WindBridge.h"
+#include "InstrumentData.h"
+#include "WindData.h"
 
 #include "NMEAMWVMessage.h"
 
@@ -29,40 +31,27 @@
 
 #include "Logger.h"
 
-WindBridge::WindBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
-    : messagesBridgedCounter(messagesBridgedCounter),
-      windNode("wind", &dataModel.rootNode()),
-      apparentWindNode("apparent", &windNode),
-      apparentWindAngleLeaf("angle", &apparentWindNode),
-      apparentWindSpeedNode("speed", &apparentWindNode),
-      apparentWindSpeedKnotsLeaf("knots", &apparentWindSpeedNode),
-      apparentWindSpeedMPHLeaf("mph", &apparentWindSpeedNode),
-      apparentWindSpeedKMPHLeaf("kmph", &apparentWindSpeedNode),
-      trueWindNode("true", &windNode),
-      trueWindAngleLeaf("angle", &trueWindNode),
-      trueWindSpeedNode("speed", &trueWindNode),
-      trueWindSpeedKnotsLeaf("knots", &trueWindSpeedNode),
-      trueWindSpeedMPHLeaf("mph", &trueWindSpeedNode),
-      trueWindSpeedKMPHLeaf("kmph", &trueWindSpeedNode),
-      windValidLeaf("valid", &windNode)
-{
+WindBridge::WindBridge(InstrumentData &instrumentData)
+    : windData(instrumentData.windData()) {
 }
 
 void WindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
+    windData.beginUpdates();
+
     if (message->relativeIndicator.isRelative()) {
-        message->windAngle.publish(apparentWindAngleLeaf);
+        message->windAngle.publish(windData.apparentWindAngleLeaf);
 
         switch (message->windSpeedUnits) {
             case NMEASpeedUnits::KNOTS:
-                message->windSpeed.publish(apparentWindSpeedKnotsLeaf);
+                message->windSpeed.publish(windData.apparentWindSpeedKnotsLeaf);
                 break;
 
             case NMEASpeedUnits::MILES_PER_HOUR:
-                message->windSpeed.publish(apparentWindSpeedMPHLeaf);
+                message->windSpeed.publish(windData.apparentWindSpeedMPHLeaf);
                 break;
 
             case NMEASpeedUnits::KILOMETERS_PER_HOUR:
-                message->windSpeed.publish(apparentWindSpeedKMPHLeaf);
+                message->windSpeed.publish(windData.apparentWindSpeedKMPHLeaf);
                 break;
 
             default:
@@ -70,19 +59,19 @@ void WindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
                          << message->windSpeedUnits << ") in NMEA MWV message" << eol;
         }
     } else {
-        message->windAngle.publish(trueWindAngleLeaf);
+        message->windAngle.publish(windData.trueWindAngleLeaf);
 
         switch (message->windSpeedUnits) {
             case NMEASpeedUnits::KNOTS:
-                message->windSpeed.publish(trueWindSpeedKnotsLeaf);
+                message->windSpeed.publish(windData.trueWindSpeedKnotsLeaf);
                 break;
 
             case NMEASpeedUnits::MILES_PER_HOUR:
-                message->windSpeed.publish(trueWindSpeedMPHLeaf);
+                message->windSpeed.publish(windData.trueWindSpeedMPHLeaf);
                 break;
 
             case NMEASpeedUnits::KILOMETERS_PER_HOUR:
-                message->windSpeed.publish(trueWindSpeedKMPHLeaf);
+                message->windSpeed.publish(windData.trueWindSpeedKMPHLeaf);
                 break;
 
             default:
@@ -91,7 +80,7 @@ void WindBridge::bridgeNMEAMWVMessage(const NMEAMWVMessage *message) {
         }
     }
 
-    message->dataValid.publish(windValidLeaf);
+    message->dataValid.publish(windData.windValidLeaf);
 
-    messagesBridgedCounter++;
+    windData.endUpdates();
 }

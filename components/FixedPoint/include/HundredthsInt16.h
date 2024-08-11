@@ -33,8 +33,8 @@ class HundredthsInt16 : public LoggableItem {
     public:
         HundredthsInt16();
         HundredthsInt16(int16_t integer, uint8_t hundredths);
-        int16_t integer();
-        uint8_t hundredths();
+        int16_t integer() const;
+        uint8_t hundredths() const;
         bool operator == (const HundredthsInt16 &right) const;
         void setFromHundredths(int32_t hundredths);
         HundredthsInt16 operator+(uint32_t adder);

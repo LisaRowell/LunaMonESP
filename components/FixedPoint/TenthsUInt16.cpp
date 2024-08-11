@@ -18,6 +18,7 @@
 
 #include "TenthsUInt16.h"
 #include "TenthsInt16.h"
+#include "HundredthsUInt16.h"
 
 #include "Logger.h"
 
@@ -31,11 +32,11 @@ TenthsUInt16::TenthsUInt16(uint16_t wholeNumber, uint8_t tenths)
     : _wholeNumber(wholeNumber), _tenths(tenths) {
 }
 
-uint16_t TenthsUInt16::wholeNumber() {
+uint16_t TenthsUInt16::wholeNumber() const {
     return _wholeNumber;
 }
 
-uint8_t TenthsUInt16::tenths() {
+uint8_t TenthsUInt16::tenths() const {
     return _tenths;
 }
 
@@ -46,6 +47,14 @@ bool TenthsUInt16::operator == (const TenthsUInt16 &right) const {
 void TenthsUInt16::setFromTenths(uint32_t tenths) {
     _wholeNumber = tenths / 10;
     _tenths = tenths % 10;
+}
+
+void TenthsUInt16::roundFrom(const HundredthsUInt16 &other) {
+    _wholeNumber = other.wholeNumber();
+    _tenths = (other.hundredths() + 5) / 10;
+    if (_tenths == 0 && other.hundredths() > 50) {
+        _wholeNumber++;
+    }
 }
 
 TenthsUInt16 TenthsUInt16::operator+(uint32_t adder) {

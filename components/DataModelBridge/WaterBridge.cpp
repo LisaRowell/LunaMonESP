@@ -17,6 +17,8 @@
  */
 
 #include "WaterBridge.h"
+#include "InstrumentData.h"
+#include "WaterData.h"
 
 #include "NMEADBKMessage.h"
 #include "NMEADBSMessage.h"
@@ -27,68 +29,43 @@
 #include "NMEATemperatureUnits.h"
 #include "NMEATenthsInt16.h"
 
-#include "DataModel.h"
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
 #include "DataModelTenthsUInt16Leaf.h"
 
 #include "TenthsInt16.h"
 
-#include "StatCounter.h"
-
-WaterBridge::WaterBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
-    : messagesBridgedCounter(messagesBridgedCounter),
-      waterNode("water", &dataModel.rootNode()),
-      waterDepthNode("depth", &waterNode),
-      depthBelowSurfaceNode("belowSurface", &waterDepthNode),
-      depthBelowSurfaceFeetLeaf("feet", &depthBelowSurfaceNode),
-      depthBelowSurfaceMetersLeaf("meters", &depthBelowSurfaceNode),
-      depthBelowSurfaceFathomsLeaf("fathoms", &depthBelowSurfaceNode),
-      depthBelowTransducerNode("belowTransducer", &waterDepthNode),
-      depthBelowTransducerFeetLeaf("feet", &depthBelowTransducerNode),
-      depthBelowTransducerMetersLeaf("meters", &depthBelowTransducerNode),
-      depthBelowTransducerFathomsLeaf("fathoms", &depthBelowTransducerNode),
-      depthBelowKeelNode("belowKeel", &waterDepthNode),
-      depthBelowKeelFeetLeaf("feet", &depthBelowKeelNode),
-      depthBelowKeelMetersLeaf("meters", &depthBelowKeelNode),
-      depthBelowKeelFathomsLeaf("fathoms", &depthBelowKeelNode),
-      waterHeadingNode("heading", &waterNode),
-      waterHeadingTrueLeaf("true", &waterHeadingNode),
-      waterHeadingMagneticLeaf("magnetic", &waterHeadingNode),
-      waterSpeedNode("speed", &waterNode),
-      waterSpeedKnotsLeaf("knots", &waterSpeedNode),
-      waterSpeedKMPHLeaf("kmph", &waterSpeedNode),
-      waterTemperatureNode("temperature", &waterNode),
-      waterTemperatureCelsiusLeaf("celsius", &waterTemperatureNode),
-      waterTemperatureFahrenheitLeaf("fahrenheit", &waterTemperatureNode) {
+WaterBridge::WaterBridge(InstrumentData &instrumentData)
+    : waterData(instrumentData.waterData()) {
 }
 
 void WaterBridge::bridgeNMEADBKMessage(const NMEADBKMessage *message) {
-    message->depthFeet.publish(depthBelowKeelFeetLeaf);
-    message->depthMeters.publish(depthBelowKeelMetersLeaf);
-    message->depthFathoms.publish(depthBelowKeelFathomsLeaf);
-
-    messagesBridgedCounter++;
+    waterData.beginUpdates();
+    message->depthFeet.publish(waterData.depthBelowKeelFeetLeaf);
+    message->depthMeters.publish(waterData.depthBelowKeelMetersLeaf);
+    message->depthFathoms.publish(waterData.depthBelowKeelFathomsLeaf);
+    waterData.endUpdates();
 }
 
 void WaterBridge::bridgeNMEADBSMessage(const NMEADBSMessage *message) {
-    message->depthFeet.publish(depthBelowSurfaceFeetLeaf);
-    message->depthMeters.publish(depthBelowSurfaceMetersLeaf);
-    message->depthFathoms.publish(depthBelowSurfaceFathomsLeaf);
-
-    messagesBridgedCounter++;
+    waterData.beginUpdates();
+    message->depthFeet.publish(waterData.depthBelowSurfaceFeetLeaf);
+    message->depthMeters.publish(waterData.depthBelowSurfaceMetersLeaf);
+    message->depthFathoms.publish(waterData.depthBelowSurfaceFathomsLeaf);
+    waterData.endUpdates();
 }
 
 void WaterBridge::bridgeNMEADBTMessage(const NMEADBTMessage *message) {
-    message->depthFeet.publish(depthBelowTransducerFeetLeaf);
-    message->depthMeters.publish(depthBelowTransducerMetersLeaf);
-    message->depthFathoms.publish(depthBelowTransducerFathomsLeaf);
-
-    messagesBridgedCounter++;
+    waterData.beginUpdates();
+    message->depthFeet.publish(waterData.depthBelowTransducerFeetLeaf);
+    message->depthMeters.publish(waterData.depthBelowTransducerMetersLeaf);
+    message->depthFathoms.publish(waterData.depthBelowTransducerFathomsLeaf);
+    waterData.endUpdates();
 }
 
 void WaterBridge::bridgeNMEADPTMessage(const NMEADPTMessage *message) {
-    message->depthBelowTransducerMeters.publish(depthBelowTransducerMetersLeaf);
+    waterData.beginUpdates();
+    message->depthBelowTransducerMeters.publish(waterData.depthBelowTransducerMetersLeaf);
 
     // The transducer offset field in this message is a little wonky as it can indicate either
     // a distance from the transducer to the keel or a distance from the transducer to the water
@@ -98,39 +75,38 @@ void WaterBridge::bridgeNMEADPTMessage(const NMEADPTMessage *message) {
     if (transducerOffsetMeters < 0) {
         TenthsInt16 depthBelowKeelMeters;
         depthBelowKeelMeters = depthBelowTransducerMeters - transducerOffsetMeters.abs();
-        depthBelowKeelMetersLeaf = depthBelowKeelMeters;
+        waterData.depthBelowKeelMetersLeaf = depthBelowKeelMeters;
     } else {
         TenthsUInt16 depthBelowSurfaceMeters;
         depthBelowSurfaceMeters = depthBelowTransducerMeters + transducerOffsetMeters.abs();
-        depthBelowSurfaceMetersLeaf = depthBelowSurfaceMeters;
+        waterData.depthBelowSurfaceMetersLeaf = depthBelowSurfaceMeters;
     }
-
-    messagesBridgedCounter++;
+    waterData.endUpdates();
 }
 
 void WaterBridge::bridgeNMEAMTWMessage(const NMEAMTWMessage *message) {
+    waterData.beginUpdates();
     switch (message->waterTemperatureUnits) {
         case NMEATemperatureUnits::CELSIUS:
-            message->waterTemperature.publish(waterTemperatureCelsiusLeaf);
+            message->waterTemperature.publish(waterData.waterTemperatureCelsiusLeaf);
             break;
 
         case NMEATemperatureUnits::FAHRENHEIT:
-            message->waterTemperature.publish(waterTemperatureFahrenheitLeaf);
+            message->waterTemperature.publish(waterData.waterTemperatureFahrenheitLeaf);
             break;
 
         default:
             logger() << logWarnDataModelBridge << "Unhandled water temperature units ("
                      << message->waterTemperatureUnits << ") in NMEA MTW message" << eol;
     }
-
-    messagesBridgedCounter++;
+    waterData.endUpdates();
 }
 
 void WaterBridge::bridgeNMEAVHWMessage(const NMEAVHWMessage *message) {
-    message->waterHeadingTrue.publish(waterHeadingTrueLeaf);
-    message->waterHeadingMagnetic.publish(waterHeadingMagneticLeaf);
-    message->waterSpeedKnots.publish(waterSpeedKnotsLeaf);
-    message->waterSpeedKMPH.publish(waterSpeedKMPHLeaf);
-
-    messagesBridgedCounter++;
+    waterData.beginUpdates();
+    message->waterHeadingTrue.publish(waterData.waterHeadingTrueLeaf);
+    message->waterHeadingMagnetic.publish(waterData.waterHeadingMagneticLeaf);
+    message->waterSpeedKnots.publish(waterData.waterSpeedKnotsLeaf);
+    message->waterSpeedKMPH.publish(waterData.waterSpeedKMPHLeaf);
+    waterData.endUpdates();
 }

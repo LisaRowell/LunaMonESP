@@ -19,30 +19,17 @@
 #ifndef AUTO_PILOT_BRIDGE_H
 #define AUTO_PILOT_BRIDGE_H
 
-#include "DataModelNode.h"
-#include "DataModelTenthsInt16Leaf.h"
-#include "DataModelTenthsUInt16Leaf.h"
-
-class DataModel;
+class InstrumentData;
+class AutoPilotData;
 class NMEARSAMessage;
 class NMEAHDGMessage;
-class StatCounter;
 
 class AutoPilotBridge {
     private:
-        StatCounter &messagesBridgedCounter;
-
-        DataModelNode autoPilotNode;
-        DataModelNode autoPilotHeadingNode;
-        DataModelTenthsUInt16Leaf autoPilotHeadingSensorLeaf;
-        DataModelTenthsInt16Leaf autoPilotHeadingDeviationLeaf;
-        DataModelTenthsInt16Leaf autoPilotHeadingVariationLeaf;
-        DataModelNode autoPilotRudderNode;
-        DataModelTenthsInt16Leaf autopilotRudderStarboardLeaf;
-        DataModelTenthsInt16Leaf autopilotRudderPortLeaf;
+        AutoPilotData &autoPilotData;
 
     public:
-        AutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        AutoPilotBridge(InstrumentData &instrumentData);
         void bridgeNMEAHDGMessage(const NMEAHDGMessage *message);
         void bridgeNMEARSAMessage(const NMEARSAMessage *message);
 };

@@ -21,6 +21,9 @@
 
 #include "StatsHolder.h"
 #include "StatCounter.h"
+
+#include "InstrumentData.h"
+
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
@@ -33,6 +36,7 @@ class StatsManager;
 
 class SeaTalkParser : StatsHolder {
     private:
+        InstrumentData &instrumentData;
         StatCounter commandsReceivedCounter;
         uint32_t ignoredCommands;
         uint32_t unknownCommands;
@@ -63,7 +67,8 @@ class SeaTalkParser : StatsHolder {
         virtual void exportStats(uint32_t msElapsed) override;
 
     public:
-        SeaTalkParser(DataModelNode &interfaceNode, StatsManager &statsManager);
+        SeaTalkParser(DataModelNode &interfaceNode, InstrumentData &instrumentData,
+                      StatsManager &statsManager);
         void parseLine(const SeaTalkLine &seaTalkLine);
 };
 

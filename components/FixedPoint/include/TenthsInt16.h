@@ -35,9 +35,13 @@ class TenthsInt16 : public LoggableItem {
     public:
         TenthsInt16();
         TenthsInt16(int16_t integer, uint8_t tenths);
-        int16_t integer();
-        uint8_t tenths();
+        int16_t integer() const;
+        uint8_t tenths() const;
         bool operator == (const TenthsInt16 &right) const;
+        bool operator == (const TenthsUInt16 &right) const;
+        bool operator == (int16_t right) const;
+        TenthsInt16 operator = (const TenthsUInt16 &right);
+        TenthsInt16 operator = (int16_t right);
         void setFromTenths(int32_t tenths);
         TenthsInt16 operator+(uint32_t adder);
         TenthsInt16 operator*(uint32_t multiplier);

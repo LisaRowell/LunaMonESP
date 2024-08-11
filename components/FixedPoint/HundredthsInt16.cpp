@@ -30,11 +30,11 @@ HundredthsInt16::HundredthsInt16(int16_t integer, uint8_t hundredths)
     : _integer(integer), _hundredths(hundredths) {
 }
 
-int16_t HundredthsInt16::integer() {
+int16_t HundredthsInt16::integer() const {
     return _integer;
 }
 
-uint8_t HundredthsInt16::hundredths() {
+uint8_t HundredthsInt16::hundredths() const {
     return _hundredths;
 }
 

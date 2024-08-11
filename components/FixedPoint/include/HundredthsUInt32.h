@@ -33,8 +33,8 @@ class HundredthsUInt32 : public LoggableItem {
     public:
         HundredthsUInt32();
         HundredthsUInt32(uint32_t wholeNumber, uint8_t hundredths);
-        uint32_t wholeNumber();
-        uint8_t hundredths();
+        uint32_t wholeNumber() const;
+        uint8_t hundredths() const;
         bool operator == (const HundredthsUInt32 &right) const;
         void setFromQ22Dot10(uint32_t q22Dot10);
         void setFromQ24Dot8(uint32_t q24Dot8);

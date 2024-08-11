@@ -24,6 +24,11 @@
 #include "StatCounter.h"
 #include "StatsHolder.h"
 #include "StatsManager.h"
+
+#include "InstrumentData.h"
+#include "WindData.h"
+#include "WaterData.h"
+
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
@@ -36,8 +41,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-SeaTalkParser::SeaTalkParser(DataModelNode &interfaceNode, StatsManager &statsManager)
-    : commandsReceivedCounter(),
+SeaTalkParser::SeaTalkParser(DataModelNode &interfaceNode, InstrumentData &instrumentData,
+                             StatsManager &statsManager)
+    : instrumentData(instrumentData),
+      commandsReceivedCounter(),
       ignoredCommands(0),
       unknownCommands(0),
       commandLengthErrors(0),
@@ -49,8 +56,7 @@ SeaTalkParser::SeaTalkParser(DataModelNode &interfaceNode, StatsManager &statsMa
       ignoredCommandsLeaf("ignoredCommands", &receivedNode),
       unknownCommandsLeaf("unknownCommands", &receivedNode),
       commandLengthErrorsLeaf("commandLengthErrors", &receivedNode),
-      commandFormatErrorsLeaf("commandFormatErrors", &receivedNode)
- {
+      commandFormatErrorsLeaf("commandFormatErrors", &receivedNode) {
     statsManager.addStatsHolder(*this);
 }
 
@@ -110,33 +116,46 @@ void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
     uint8_t byte3 = seaTalkLine[3];
 
     bool anchorAlarmActive = (byte2 & 0x80) != 0;
-    bool depthIsMeters = ((byte2 & 0x40) != 0) && (byte3 != 0x65);
-    bool depthIsFathoms = ((byte2 & 0x40) != 0) && (byte3 == 0x65);
-    bool defective = (byte2 & 0x04) != 0;
-    bool deepAlarmSet = (byte2 & 0x02) != 0;
-    bool shallowAlarmSet = (byte2 & 0x01) != 0;
+    // This is not completely correct as the depth might be fathoms when the Meters bit is set. The
+    // only way to know would be to look at what the next message is and if it's a 0x65, then it's
+    // fathoms. Maybe we could add some state here and postpone setting the depth node?
+    bool depthIsMeters = ((byte2 & 0x40) != 0);
+    bool transducerDefective = (byte2 & 0x04) != 0;
+    bool deepAlarmActive = (byte2 & 0x02) != 0;
+    bool shallowAlarmActive = (byte2 & 0x01) != 0;
 
     TenthsUInt16 depth;
     depth.setFromTenths((seaTalkLine[4] << 8) | byte3);
 
+    WaterData &waterData = instrumentData.waterData();
+    waterData.beginUpdates();
+    if (depthIsMeters) {
+        waterData.depthBelowTransducerMetersLeaf = depth;
+    } else {
+        waterData.depthBelowTransducerFeetLeaf = depth;
+    }
+    waterData.anchorDepthAlarmLeaf = anchorAlarmActive;
+    waterData.shallowDepthAlarmLeaf = shallowAlarmActive;
+    waterData.deepDepthAlarmLeaf = deepAlarmActive;
+    waterData.depthTransducerDefectiveLeaf = transducerDefective;
+    waterData.endUpdates();
+
     logger() << logDebugSeaTalk << "Depth " << depth;
-    if (depthIsFathoms) {
-        logger() << " ftm";
-    } else if (depthIsMeters) {
+    if (depthIsMeters) {
         logger() << " m";
     } else {
         logger() << "'";
     }
     if (anchorAlarmActive) {
-        logger() << ", Anchor alarm set";
+        logger() << ", Anchor alarm active";
     }
-    if (deepAlarmSet) {
-        logger() << ", Deep alarm set";
+    if (deepAlarmActive) {
+        logger() << ", Deep alarm active";
     }
-    if (shallowAlarmSet) {
-        logger() << ", Shallow alarm set";
+    if (shallowAlarmActive) {
+        logger() << ", Shallow alarm active";
     }
-    if (defective) {
+    if (transducerDefective) {
         logger() << ", Defective";
     }
     logger() << eol;
@@ -156,6 +175,11 @@ void SeaTalkParser::parseApparentWindAngle(const SeaTalkLine &seaTalkLine) {
     uint16_t angleX2 = (seaTalkLine[2] << 8) | seaTalkLine[3];
     TenthsUInt16 angle;
     angle.setFromTenths(angleX2 * 5);
+
+    WindData &windData = instrumentData.windData();
+    windData.beginUpdates();
+    windData.apparentWindAngleLeaf = angle;
+    windData.endUpdates();
 
     logger() << logDebugSeaTalk << "Apparent wind angle " << angle << eol;
 }
@@ -180,6 +204,15 @@ void SeaTalkParser::parseApparentWindSpeed(const SeaTalkLine &seaTalkLine) {
     bool speedIsMetersPerSec = (byte2 & 0x80) != 0;
     TenthsUInt16 speed(byte2 & 0x7f, byte3);
 
+    WindData &windData = instrumentData.windData();
+    windData.beginUpdates();
+    if (speedIsMetersPerSec) {
+        windData.apparentWindSpeedMPSLeaf = speed;
+    } else {
+        windData.apparentWindSpeedKnotsLeaf = speed;
+    }
+    windData.endUpdates();
+
     logger() << logDebugSeaTalk << "Apparent wind speed " << speed
              << (speedIsMetersPerSec ? " m/s" : " kn") << eol;
 }
@@ -195,6 +228,11 @@ void SeaTalkParser::parseSpeedThroughWaterV1(const SeaTalkLine &seaTalkLine) {
     TenthsUInt16 speed;
     speed.setFromTenths((seaTalkLine[3] << 8) | seaTalkLine[2]);
 
+    WaterData &waterData = instrumentData.waterData();
+    waterData.beginUpdates();
+    waterData.waterSpeedKnotsLeaf = speed;
+    waterData.endUpdates();
+
     logger() << logDebugSeaTalk << "Speed through water " << speed << " kn" << eol;
 }
 
@@ -206,13 +244,26 @@ void SeaTalkParser::parseWaterTemperatureV1(const SeaTalkLine &seaTalkLine) {
         return;
     }
 
-    bool defective = (seaTalkLine.attribute() & 0x40) != 0;
+    bool sensorDefective = (seaTalkLine.attribute() & 0x40) != 0;
     uint8_t celsiusTemp = seaTalkLine[2];
     uint8_t fahrenheitTemp = seaTalkLine[3];
 
+    // This needs more consideration. The sensor may also be outputing the more precise water
+    // temperature command and we might want to use that value instead. Maybe detect if the better
+    // message is being received and skip this one if it is?
+    // Leaving as is will cause the MQTT subscribers to see a lot of updates where the temperature
+    // needlessly changes back and forth between the rounded off version and the tenths degree
+    // value.
+    WaterData &waterData = instrumentData.waterData();
+    waterData.beginUpdates();
+    waterData.waterTemperatureCelsiusLeaf = celsiusTemp;
+    waterData.waterTemperatureFahrenheitLeaf = fahrenheitTemp;
+    waterData.waterTemperatureSensorDefectiveLeaf = sensorDefective;
+    waterData.endUpdates();
+
     logger() << logDebugSeaTalk << "Water temperature " << celsiusTemp << "° C "
              << fahrenheitTemp<< "° F";
-    if (defective) {
+    if (sensorDefective) {
         logger() << " Defective";
     }
     logger() << eol;
@@ -249,6 +300,27 @@ void SeaTalkParser::parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine) {
     bool averageSpeedCalculationStopped = (flags & 0x01) == 0x01;
     bool displaySpeedInMilesPerHour = (flags & 0x02) == 0x02;
 
+    WaterData &waterData = instrumentData.waterData();
+    waterData.beginUpdates();
+    if (displaySpeedInMilesPerHour) {
+        waterData.waterSpeedMPHLeaf = firstSensorSpeed;
+        if (hasAverageSpeed) {
+            waterData.waterAverageSpeedMPHLeaf = averageSpeed;
+            waterData.waterAverageSpeedStoppedLeaf = averageSpeedCalculationStopped;
+        } else {
+            waterData.waterSpeedSecondSensorMPHLeaf = secondSensorSpeed;
+        }
+    } else {
+        waterData.waterSpeedKnotsLeaf = firstSensorSpeed;
+        if (hasAverageSpeed) {
+            waterData.waterAverageSpeedKnotsLeaf = averageSpeed;
+            waterData.waterAverageSpeedStoppedLeaf = averageSpeedCalculationStopped;
+        } else {
+            waterData.waterSpeedSecondSensorKnotsLeaf = secondSensorSpeed;
+        }
+    }
+    waterData.endUpdates();
+
     logger() << logDebugSeaTalk << "Speed through water ";
     if (firstSensorValid) {
         logger() << firstSensorSpeed << (displaySpeedInMilesPerHour ? " mi/h" : " kn");
@@ -278,6 +350,12 @@ void SeaTalkParser::parseWaterTemperatureV2(const SeaTalkLine &seaTalkLine) {
     uint16_t celsiusTempX10MPlus100 = (seaTalkLine[3] << 8) | seaTalkLine[2];
     int16_t celsiusTempX10 = celsiusTempX10MPlus100 - 100;
     TenthsInt16 celsiusTemp(celsiusTempX10 / 10, celsiusTempX10 % 10);
+
+    // See the note on parseWaterTemperatureV1 for future improvements.
+    WaterData &waterData = instrumentData.waterData();
+    waterData.beginUpdates();
+    waterData.waterTemperatureCelsiusLeaf = celsiusTemp;
+    waterData.endUpdates();
 
     logger() << logDebugSeaTalk << "Water temperature " << celsiusTemp << "° C" << eol;
 }

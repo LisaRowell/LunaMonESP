@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 class TenthsInt16;
+class HundredthsUInt16;
 
 class TenthsUInt16 : public LoggableItem {
     private:
@@ -35,10 +36,11 @@ class TenthsUInt16 : public LoggableItem {
     public:
         TenthsUInt16();
         TenthsUInt16(uint16_t wholeNumber, uint8_t tenths);
-        uint16_t wholeNumber();
-        uint8_t tenths();
+        uint16_t wholeNumber() const;
+        uint8_t tenths() const;
         bool operator == (const TenthsUInt16 &right) const;
         void setFromTenths(uint32_t tenths);
+        void roundFrom(const HundredthsUInt16 &other);
         TenthsUInt16 operator+(uint32_t adder);
         TenthsUInt16 operator+(const TenthsUInt16 &other) const;
         TenthsInt16 operator-(const TenthsUInt16 &other) const;

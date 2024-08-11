@@ -17,48 +17,40 @@
  */
 
 #include "AutoPilotBridge.h"
+#include "InstrumentData.h"
+#include "AutoPilotData.h"
 
 #include "NMEARSAMessage.h"
 #include "NMEAHDGMessage.h"
 
-#include "DataModel.h"
 #include "DataModelNode.h"
 #include "DataModelTenthsInt16Leaf.h"
+#include "DataModelTenthsUInt16Leaf.h"
 
-#include "StatCounter.h"
-
-AutoPilotBridge::AutoPilotBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter)
-    : messagesBridgedCounter(messagesBridgedCounter),
-      autoPilotNode("autoPilot", &dataModel.rootNode()),
-      autoPilotHeadingNode("heading", &autoPilotNode),
-      autoPilotHeadingSensorLeaf("sensor", &autoPilotHeadingNode),
-      autoPilotHeadingDeviationLeaf("deviation", &autoPilotHeadingNode),
-      autoPilotHeadingVariationLeaf("variation", &autoPilotHeadingNode),
-      autoPilotRudderNode("rudder", &autoPilotNode),
-      autopilotRudderStarboardLeaf("starboard", &autoPilotRudderNode),
-      autopilotRudderPortLeaf("port", &autoPilotRudderNode) {
+AutoPilotBridge::AutoPilotBridge(InstrumentData &instrumentData)
+    : autoPilotData(instrumentData.autoPilotData()) {
 }
 
 void AutoPilotBridge::bridgeNMEAHDGMessage(const NMEAHDGMessage *message) {
-    message->magneticSensorHeading.publish(autoPilotHeadingSensorLeaf);
-    message->magneticDeviation.publish(autoPilotHeadingDeviationLeaf);
-    message->magneticVariation.publish(autoPilotHeadingVariationLeaf);
-
-    messagesBridgedCounter++;
+    autoPilotData.beginUpdates();
+    message->magneticSensorHeading.publish(autoPilotData.autoPilotHeadingSensorLeaf);
+    message->magneticDeviation.publish(autoPilotData.autoPilotHeadingDeviationLeaf);
+    message->magneticVariation.publish(autoPilotData.autoPilotHeadingVariationLeaf);
+    autoPilotData.endUpdates();
 }
 
 void AutoPilotBridge::bridgeNMEARSAMessage(const NMEARSAMessage *message) {
+    autoPilotData.beginUpdates();
     if (message->starboardRudderSensorAngleValid) {
-        message->starboardRudderSensorAngle.publish(autopilotRudderStarboardLeaf);
+        message->starboardRudderSensorAngle.publish(autoPilotData.autopilotRudderStarboardLeaf);
     } else {
-        autopilotRudderStarboardLeaf.removeValue();
+        autoPilotData.autopilotRudderStarboardLeaf.removeValue();
     }
 
     if (message->portRudderSensorAngleValid) {
-        message->portRudderSensorAngle.publish(autopilotRudderPortLeaf);
+        message->portRudderSensorAngle.publish(autoPilotData.autopilotRudderPortLeaf);
     } else {
-        autopilotRudderPortLeaf.removeValue();
+        autoPilotData.autopilotRudderPortLeaf.removeValue();
     }
-
-    messagesBridgedCounter++;
+    autoPilotData.endUpdates();
 }

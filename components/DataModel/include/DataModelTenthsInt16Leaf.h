@@ -27,6 +27,8 @@
 
 class DataModelNode;
 class Logger;
+class TenthsUInt16;
+class HundredthsUInt16;
 
 class DataModelTenthsInt16Leaf : public DataModelRetainedValueLeaf {
     private:
@@ -37,6 +39,9 @@ class DataModelTenthsInt16Leaf : public DataModelRetainedValueLeaf {
     public:
         DataModelTenthsInt16Leaf(const char *name, DataModelNode *parent);
         DataModelTenthsInt16Leaf & operator = (const TenthsInt16 &value);
+        DataModelTenthsInt16Leaf & operator = (const TenthsUInt16 &value);
+        DataModelTenthsInt16Leaf & operator = (const HundredthsUInt16 &value);
+        DataModelTenthsInt16Leaf & operator = (const int16_t value);
         virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
 };
 

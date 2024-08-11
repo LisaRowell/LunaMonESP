@@ -30,11 +30,11 @@ HundredthsUInt32::HundredthsUInt32(uint32_t wholeNumber, uint8_t hundredths)
     : _wholeNumber(wholeNumber), _hundredths(hundredths) {
 }
 
-uint32_t HundredthsUInt32::wholeNumber() {
+uint32_t HundredthsUInt32::wholeNumber() const {
     return _wholeNumber;
 }
 
-uint8_t HundredthsUInt32::hundredths() {
+uint8_t HundredthsUInt32::hundredths() const {
     return _hundredths;
 }
 

@@ -24,6 +24,8 @@
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
+#include <stdint.h>
+
 TenthsInt16::TenthsInt16() : _integer(0), _tenths(0) {
 }
 
@@ -31,16 +33,38 @@ TenthsInt16::TenthsInt16(int16_t integer, uint8_t tenths)
     : _integer(integer), _tenths(tenths) {
 }
 
-int16_t TenthsInt16::integer() {
+int16_t TenthsInt16::integer() const {
     return _integer;
 }
 
-uint8_t TenthsInt16::tenths() {
+uint8_t TenthsInt16::tenths() const {
     return _tenths;
 }
 
 bool TenthsInt16::operator == (const TenthsInt16 &right) const {
     return _integer == right._integer && _tenths == right._tenths;
+}
+
+bool TenthsInt16::operator == (const TenthsUInt16 &right) const {
+    return _integer == right.wholeNumber() && _tenths == right.tenths();
+}
+
+bool TenthsInt16::operator == (int16_t right) const {
+    return _integer == right && _tenths == 0;
+}
+
+TenthsInt16 TenthsInt16::operator = (const TenthsUInt16 &right) {
+    _integer = right.wholeNumber();
+    _tenths = right.tenths();
+
+    return *this;
+}
+
+TenthsInt16 TenthsInt16::operator = (int16_t right) {
+    _integer = right;
+    _tenths = 0;
+
+    return *this;
 }
 
 void TenthsInt16::setFromTenths(int32_t tenths) {

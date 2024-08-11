@@ -4,4 +4,4 @@ idf_component_register(SRCS "DataModelBridge.cpp"
                             "WaterBridge.cpp"
                             "WindBridge.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES NMEA StatCounter StatsManager DataModel)
+                       REQUIRES NMEA InstrumentData DataModel)

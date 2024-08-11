@@ -19,81 +19,25 @@
 #ifndef GPS_BRIDGE_H
 #define GPS_BRIDGE_H
 
-#include "DataModelNode.h"
-#include "DataModelStringLeaf.h"
-#include "DataModelBoolLeaf.h"
-#include "DataModelUInt16Leaf.h"
-#include "DataModelTenthsInt16Leaf.h"
-#include "DataModelTenthsUInt16Leaf.h"
-#include "DataModelHundredthsUInt8Leaf.h"
-#include "DataModelHundredthsUInt16Leaf.h"
-
-#include "etl/string.h"
-
-#include <stddef.h>
-
-class DataModel;
+class InstrumentData;
+class GPSData;
 class NMEAGGAMessage;
 class NMEAGLLMessage;
 class NMEAGSAMessage;
 class NMEAGSTMessage;
 class NMEARMCMessage;
 class NMEAVTGMessage;
-class StatCounter;
+
+#include <stddef.h>
 
 class GPSBridge {
     private:
-        static constexpr size_t timeLength = 15;
-        static constexpr size_t dateLength = 10;
-        static constexpr size_t coordinateLength = 20;
         static constexpr size_t activeSatellitesLength = 72;
 
-        StatCounter &messagesBridgedCounter;
-
-        DataModelNode gpsNode;
-        etl::string<timeLength> gpsTimeBuffer;
-        DataModelStringLeaf gpsTimeLeaf;
-        etl::string<dateLength> gpsDateBuffer;
-        DataModelStringLeaf gpsDateLeaf;
-        DataModelBoolLeaf gpsDataValidLeaf;
-        etl::string<coordinateLength> gpsLatitudeBuffer;
-        DataModelStringLeaf gpsLatitudeLeaf;
-        etl::string<coordinateLength> gpsLongitudeBuffer;
-        DataModelStringLeaf gpsLongitudeLeaf;
-        DataModelTenthsInt16Leaf gpsAltitudeLeaf;
-        DataModelTenthsUInt16Leaf gpsSpeedOverGroundLeaf;
-        DataModelTenthsUInt16Leaf gpsSpeedOverGroundKmPerHLeaf;
-        DataModelTenthsUInt16Leaf gpsTrackMadeGoodTrueLeaf;
-        DataModelTenthsUInt16Leaf gpsTrackMadeGoodMagneticLeaf;
-        DataModelTenthsInt16Leaf gpsMagneticVariationLeaf;
-        etl::string<15> gpsFAAModeIndicatorBuffer;
-        DataModelStringLeaf gpsFAAModeindicatorLeaf;
-        etl::string<20> gpsGPSQualityBuffer;
-        DataModelStringLeaf gpsGPSQualityLeaf;
-        DataModelUInt16Leaf gpsNumberSatellitesLeaf;
-        DataModelHundredthsUInt16Leaf gpsHorizontalDilutionOfPrecisionLeaf;
-        DataModelTenthsInt16Leaf gpsGeoidalSeparationLeaf;
-        DataModelTenthsUInt16Leaf gpsDataAgeLeaf;
-        DataModelUInt16Leaf gpsDifferentialReferenceStationLeaf;
-        etl::string<9> gpsSatelliteSelectionModeBuffer;
-        DataModelStringLeaf gpsSatelliteSelectionModeLeaf;
-        etl::string<4> gpsFixModeBuffer;
-        DataModelStringLeaf gpsFixModeLeaf;
-        etl::string<activeSatellitesLength> gpsActiveSatellitesBuffer;
-        DataModelStringLeaf gpsActiveSatellitesLeaf;
-        DataModelHundredthsUInt8Leaf gpsPDOPLeaf;
-        DataModelHundredthsUInt8Leaf gpsHDOPLeaf;
-        DataModelHundredthsUInt8Leaf gpsVDOPLeaf;
-        DataModelTenthsUInt16Leaf gpsStandardDeviationOfRangeInputsRMSLeaf;
-        DataModelTenthsUInt16Leaf gpsStandardDeviationOfSemiMajorAxisLeaf;
-        DataModelTenthsUInt16Leaf gpsStandardDeviationOfSemiMinorAxisLeaf;
-        DataModelTenthsUInt16Leaf gpsOrientationOfSemiMajorAxisLeaf;
-        DataModelTenthsUInt16Leaf gpsStandardDeviationOfLatitudeErrorLeaf;
-        DataModelTenthsUInt16Leaf gpsStandardDeviationOfLongitudeErrorLeaf;
-        DataModelTenthsUInt16Leaf gpsStandardDeviationOfAltitudeErrorLeaf;
+        GPSData &gpsData;
 
     public:
-        GPSBridge(DataModel &dataModel, StatCounter &messagesBridgedCounter);
+        GPSBridge(InstrumentData &instrumentData);
         void bridgeNMEAGGAMessage(const NMEAGGAMessage *message);
         void bridgeNMEAGLLMessage(const NMEAGLLMessage *message);
         void bridgeNMEAGSAMessage(const NMEAGSAMessage *message);

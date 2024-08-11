@@ -16,41 +16,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STALK_SOURCE_H
-#define STALK_SOURCE_H
+#ifndef INSTRUMENT_GROUP_H
+#define INSTRUMENT_GROUP_H
 
-#include "SeaTalkParser.h"
-#include "NMEALineSource.h"
 #include "StatsHolder.h"
 #include "StatCounter.h"
+
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+
 #include <stdint.h>
 
-class NMEALine;
-class InstrumentData;
 class StatsManager;
 
-class STALKSource : public NMEALineSource, StatsHolder {
+class InstrumentGroup : StatsHolder {
     private:
-        SeaTalkParser seaTalkParser;
-        StatCounter messagesCounter;
-        uint32_t illformedMessages;
-        bool _lastMessageIllformed;
-        DataModelNode stalkNode;
-        DataModelUInt32Leaf messagesLeaf;
-        DataModelUInt32Leaf messageRateLeaf;
-        DataModelUInt32Leaf illformedMessagesLeaf;
+        static constexpr uint32_t lockTimeoutMs = 60 * 1000;
+
+        const char *name;
+        SemaphoreHandle_t mutex;
+        StatCounter updatesCounter;
+        DataModelNode groupSysNode;
+        DataModelUInt32Leaf updatesLeaf;
+        DataModelUInt32Leaf updateRateLeaf;
 
         virtual void exportStats(uint32_t msElapsed) override;
-        virtual void handleLine(NMEALine &inputLine) override;
-        bool parseLine(NMEALine &nmeaLine);
+
+        protected:
+            DataModelNode &groupNode();
 
     public:
-        STALKSource(DataModelNode &interfaceNode, InstrumentData &instrumentData,
-                    StatsManager &statsManager);
-        bool lastMessageIllformed() const;
+        InstrumentGroup(const char *name, const char *nodeName, DataModelNode &instrumentDataNode,
+                        StatsManager &statsManager);
+        void beginUpdates();
+        void endUpdates();
 };
 
-#endif // STALK_SOURCE_H
+#endif // INSTRUMENT_GROUP_H

@@ -47,15 +47,11 @@
 #include "DataModelUInt32Leaf.h"
 
 
-DataModelBridge::DataModelBridge(DataModel &dataModel, StatsManager &statsManager)
-    : autoPilotBridge(dataModel, messagesBridgedCounter),
-      gpsBridge(dataModel, messagesBridgedCounter),
-      waterBridge(dataModel, messagesBridgedCounter),
-      windBridge(dataModel, messagesBridgedCounter),
-      dataModelBridgeNode("dataModelBridge", &dataModel.sysNode()),
-      messagesBridgedLeaf("messages", &dataModelBridgeNode),
-      messagesBridgedRateLeaf("messageRate", &dataModelBridgeNode) {
-    statsManager.addStatsHolder(*this);
+DataModelBridge::DataModelBridge(InstrumentData &instrumentData)
+    : autoPilotBridge(instrumentData),
+      gpsBridge(instrumentData),
+      waterBridge(instrumentData),
+      windBridge(instrumentData) {
 }
 
 void DataModelBridge::processMessage(const NMEAMessage *message) {
@@ -146,8 +142,4 @@ void DataModelBridge::logTXTMessage(NMEATXTMessage *message) {
     taskLogger() << logNotifyDataModelBridge << message->source() << " TXT ("
                  << message->sentenceNumber << "/" << message->totalSentences << ") id "
                  << message->textIdentifier << ": " << message->text << eol;
-}
-
-void DataModelBridge::exportStats(uint32_t msElapsed) {
-    messagesBridgedCounter.update(messagesBridgedLeaf, messagesBridgedRateLeaf, msElapsed);
 }

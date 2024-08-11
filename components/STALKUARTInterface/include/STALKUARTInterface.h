@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+class InstrumentData;
 class StatsManager;
 class DataModel;
 
@@ -51,7 +52,8 @@ class STALKUARTInterface : public UARTInterface, public STALKSource {
 
     public:
         STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                           int baudRate, StatsManager &statsManager, DataModel &dataModel);
+                           int baudRate, InstrumentData &instrumentData, StatsManager &statsManager,
+                           DataModel &dataModel);
 };
 
 #endif // STALK_UART_INTERFACE_H

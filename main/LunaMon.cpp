@@ -27,6 +27,7 @@
 #include "NMEAWiFiInterface.h"
 #include "UARTInterface.h"
 #include "NMEAUARTInterface.h"
+#include "InstrumentData.h"
 #include "DataModelBridge.h"
 #include "STALKUARTInterface.h"
 #include "LogManager.h"
@@ -107,7 +108,8 @@ Make sure and run menuconfig!
 LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
-      dataModelBridge(dataModel, statsManager),
+      instrumentData(dataModel, statsManager),
+      dataModelBridge(instrumentData),
       logManager(dataModel),
       logger(LOGGER_LEVEL_DEBUG),
       ic2Master(nullptr),
@@ -198,7 +200,7 @@ STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, uart_por
     STALKUARTInterface *stalkUARTInterface;
 
     stalkUARTInterface = new STALKUARTInterface(name, uartNumber, rxPin, txPin, baudRate,
-                                                statsManager, dataModel);
+                                                instrumentData, statsManager, dataModel);
     if (!stalkUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name << " STALK interface for UART "
                 << uartNumber << "." << eol;

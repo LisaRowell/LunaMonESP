@@ -26,36 +26,21 @@
 #include "WaterBridge.h"
 #include "WindBridge.h"
 
-#include "DataModelNode.h"
-#include "DataModelUInt32Leaf.h"
-
-#include "StatCounter.h"
-
-#include "StatsHolder.h"
-
-class DataModel;
-class StatsManager;
+class InstrumentData;
 class NMEAMessage;
 class NMEATXTMessage;
 
-class DataModelBridge : public NMEAMessageHandler, StatsHolder {
+class DataModelBridge : public NMEAMessageHandler {
     private:
         AutoPilotBridge autoPilotBridge;
         GPSBridge gpsBridge;
         WaterBridge waterBridge;
         WindBridge windBridge;
 
-        StatCounter messagesBridgedCounter;
-
-        DataModelNode dataModelBridgeNode;
-        DataModelUInt32Leaf messagesBridgedLeaf;
-        DataModelUInt32Leaf messagesBridgedRateLeaf;
-
         void logTXTMessage(NMEATXTMessage *message);
-        virtual void exportStats(uint32_t msElapsed) override;
 
     public:
-        DataModelBridge(DataModel &dataModel, StatsManager &statsManager);
+        DataModelBridge(InstrumentData &instrumentData);
         virtual void processMessage(const NMEAMessage *message) override;
 };
 
