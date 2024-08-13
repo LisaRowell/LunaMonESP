@@ -46,6 +46,14 @@ const char *SeaTalkCommand::name() const {
             return "Water Temperature V2";
         case SET_LAMP_INTENSITY:
             return "Set lamp Intensity";
+        case AUTO_PILOT_STATUS:
+            return "Auto pilot status";
+        case AUTO_PILOT_HEADING_COURSE_RUDDER:
+            return "Auto pilot heading, course and rudder";
+        case DEVICE_IDENTIFICATION:
+            return "Device identification";
+        case AUTO_PILOT_HEADING_AND_RUDDER:
+            return "Auto pilot heading and rudder";
         default:
             return "Unknown";
     }

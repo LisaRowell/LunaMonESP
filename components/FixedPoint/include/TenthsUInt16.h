@@ -39,6 +39,8 @@ class TenthsUInt16 : public LoggableItem {
         uint16_t wholeNumber() const;
         uint8_t tenths() const;
         bool operator == (const TenthsUInt16 &right) const;
+        bool operator == (uint16_t right) const;
+        TenthsUInt16 operator = (uint16_t right);
         void setFromTenths(uint32_t tenths);
         void roundFrom(const HundredthsUInt16 &other);
         TenthsUInt16 operator+(uint32_t adder);

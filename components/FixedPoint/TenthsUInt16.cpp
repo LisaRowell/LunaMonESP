@@ -25,6 +25,8 @@
 #include "etl/string.h"
 #include "etl/string_stream.h"
 
+#include <stdint.h>
+
 TenthsUInt16::TenthsUInt16() : _wholeNumber(0), _tenths(0) {
 }
 
@@ -42,6 +44,17 @@ uint8_t TenthsUInt16::tenths() const {
 
 bool TenthsUInt16::operator == (const TenthsUInt16 &right) const {
     return _wholeNumber == right._wholeNumber && _tenths == right._tenths;
+}
+
+bool TenthsUInt16::operator == (uint16_t right) const {
+    return _wholeNumber == right && _tenths == 0;
+}
+
+TenthsUInt16 TenthsUInt16::operator = (uint16_t right) {
+    _wholeNumber = right;
+    _tenths = 0;
+
+    return *this;
 }
 
 void TenthsUInt16::setFromTenths(uint32_t tenths) {

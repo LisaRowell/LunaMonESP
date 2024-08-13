@@ -21,18 +21,31 @@
 
 #include "DataModel.h"
 #include "DataModelNode.h"
+#include "DataModelBoolLeaf.h"
+#include "DataModelUInt8Leaf.h"
+#include "DataModelStringLeaf.h"
 #include "DataModelTenthsInt16Leaf.h"
 #include "DataModelTenthsUInt16Leaf.h"
+
+#include "etl/string.h"
 
 AutoPilotData::AutoPilotData(DataModel &dataModel, DataModelNode &instrumentDataNode,
                              StatsManager &statsManager)
     : InstrumentGroup("AutoPilot", "autoPilot", instrumentDataNode, statsManager),
       autoPilotNode("autoPilot", &dataModel.rootNode()),
-      autoPilotHeadingNode("heading", &autoPilotNode),
-      autoPilotRudderNode("rudder", &autoPilotNode),
-      autoPilotHeadingSensorLeaf("sensor", &autoPilotHeadingNode),
-      autoPilotHeadingDeviationLeaf("deviation", &autoPilotHeadingNode),
-      autoPilotHeadingVariationLeaf("variation", &autoPilotHeadingNode),
-      autopilotRudderStarboardLeaf("starboard", &autoPilotRudderNode),
-      autopilotRudderPortLeaf("port", &autoPilotRudderNode) {
+      headingNode("heading", &autoPilotNode),
+      rudderNode("rudder", &autoPilotNode),
+      alarmNode("alarms", &autoPilotNode),
+      statusLeaf("status", &autoPilotNode, statusBuffer),
+      modeLeaf("mode", &autoPilotNode, modeBuffer),
+      headingSensorLeaf("sensor", &headingNode),
+      headingDeviationLeaf("deviation", &headingNode),
+      headingVariationLeaf("variation", &headingNode),
+      courseLeaf("course", &autoPilotNode),
+      rudderStarboardLeaf("starboard", &rudderNode),
+      rudderCenterLeaf("center", &rudderNode),
+      rudderPortLeaf("port", &rudderNode),
+      offCourseAlarmLeaf("offCourse", &alarmNode),
+      windShiftAlarmLeaf("windShift", &alarmNode),
+      knownDevicesLeaf("knownDevices", &dataModel.rootNode(), knownDevicesBuffer) {
 }

@@ -33,24 +33,24 @@ AutoPilotBridge::AutoPilotBridge(InstrumentData &instrumentData)
 
 void AutoPilotBridge::bridgeNMEAHDGMessage(const NMEAHDGMessage *message) {
     autoPilotData.beginUpdates();
-    message->magneticSensorHeading.publish(autoPilotData.autoPilotHeadingSensorLeaf);
-    message->magneticDeviation.publish(autoPilotData.autoPilotHeadingDeviationLeaf);
-    message->magneticVariation.publish(autoPilotData.autoPilotHeadingVariationLeaf);
+    message->magneticSensorHeading.publish(autoPilotData.headingSensorLeaf);
+    message->magneticDeviation.publish(autoPilotData.headingDeviationLeaf);
+    message->magneticVariation.publish(autoPilotData.headingVariationLeaf);
     autoPilotData.endUpdates();
 }
 
 void AutoPilotBridge::bridgeNMEARSAMessage(const NMEARSAMessage *message) {
     autoPilotData.beginUpdates();
     if (message->starboardRudderSensorAngleValid) {
-        message->starboardRudderSensorAngle.publish(autoPilotData.autopilotRudderStarboardLeaf);
+        message->starboardRudderSensorAngle.publish(autoPilotData.rudderStarboardLeaf);
     } else {
-        autoPilotData.autopilotRudderStarboardLeaf.removeValue();
+        autoPilotData.rudderStarboardLeaf.removeValue();
     }
 
     if (message->portRudderSensorAngleValid) {
-        message->portRudderSensorAngle.publish(autoPilotData.autopilotRudderPortLeaf);
+        message->portRudderSensorAngle.publish(autoPilotData.rudderPortLeaf);
     } else {
-        autoPilotData.autopilotRudderPortLeaf.removeValue();
+        autoPilotData.rudderPortLeaf.removeValue();
     }
     autoPilotData.endUpdates();
 }

@@ -22,24 +22,46 @@
 #include "InstrumentGroup.h"
 
 #include "DataModelNode.h"
+#include "DataModelBoolLeaf.h"
+#include "DataModelUInt8Leaf.h"
+#include "DataModelStringLeaf.h"
 #include "DataModelTenthsInt16Leaf.h"
 #include "DataModelTenthsUInt16Leaf.h"
+
+#include "etl/string.h"
 
 class DataModel;
 class StatsManager;
 
 class AutoPilotData : public InstrumentGroup {
     private:
+        static constexpr size_t statusLength = 20;
+        static constexpr size_t modeLength = 8;
+        static constexpr size_t knownDevicesLength = 10 * 3 + 1;
+
         DataModelNode autoPilotNode;
-        DataModelNode autoPilotHeadingNode;
-        DataModelNode autoPilotRudderNode;
+        etl::string<statusLength> statusBuffer;
+        etl::string<modeLength> modeBuffer;
+        DataModelNode headingNode;
+        DataModelNode rudderNode;
+        DataModelNode alarmNode;
+        etl::string<knownDevicesLength> knownDevicesBuffer;
 
     public:
-        DataModelTenthsUInt16Leaf autoPilotHeadingSensorLeaf;
-        DataModelTenthsInt16Leaf autoPilotHeadingDeviationLeaf;
-        DataModelTenthsInt16Leaf autoPilotHeadingVariationLeaf;
-        DataModelTenthsInt16Leaf autopilotRudderStarboardLeaf;
-        DataModelTenthsInt16Leaf autopilotRudderPortLeaf;
+        DataModelStringLeaf statusLeaf;
+        DataModelStringLeaf modeLeaf;
+        DataModelTenthsUInt16Leaf headingSensorLeaf;
+        DataModelTenthsInt16Leaf headingDeviationLeaf;
+        DataModelTenthsInt16Leaf headingVariationLeaf;
+        DataModelTenthsUInt16Leaf courseLeaf;
+        DataModelTenthsInt16Leaf rudderStarboardLeaf;
+        DataModelTenthsInt16Leaf rudderCenterLeaf;
+        DataModelTenthsInt16Leaf rudderPortLeaf;
+        DataModelBoolLeaf offCourseAlarmLeaf;
+        DataModelBoolLeaf windShiftAlarmLeaf;
+        // Not really Auto Pilot, but system in general. Easier to put it here than make a new
+        // group.
+        DataModelStringLeaf knownDevicesLeaf;
 
         AutoPilotData(DataModel &dataModel, DataModelNode &instrumentDataNode,
                       StatsManager &statsManager);

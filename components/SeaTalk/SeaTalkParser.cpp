@@ -16,6 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * The SeaTalk decoding contained in this file is mostly on the work of
+ * Thomas Knauf and his many contributers. Much gratitude is owned to their
+ * work in compiling what's know about the SeaTalk protocol. Documentation
+ * can be found at:
+ * http://www.thomasknauf.de/seatalk.htm
+ *
+ * I've tried to know in the below code where observations based on my boat's
+ * instrumentation have differed from what has been documented. If I get to
+ * the point of higher confidence in my difference I'll push them upstream.
+*/
 #include "SeaTalkParser.h"
 #include "SeaTalkCommand.h"
 #include "SeaTalkLine.h"
@@ -26,6 +37,7 @@
 #include "StatsManager.h"
 
 #include "InstrumentData.h"
+#include "AutoPilotData.h"
 #include "WindData.h"
 #include "WaterData.h"
 
@@ -37,6 +49,10 @@
 #include "HundredthsUInt16.h"
 
 #include "Logger.h"
+
+#include "etl/string.h"
+#include "etl/string_stream.h"
+#include <etl/set.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -93,6 +109,18 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
             break;
         case SeaTalkCommand::SET_LAMP_INTENSITY:
             parseSetLampIntensity(seaTalkLine);
+            break;
+        case SeaTalkCommand::AUTO_PILOT_STATUS:
+            parseAutoPilotStatus(seaTalkLine);
+            break;
+        case SeaTalkCommand::AUTO_PILOT_HEADING_COURSE_RUDDER:
+            parseAutoPilotHeadingCourseAndRudder(seaTalkLine);
+            break;
+        case SeaTalkCommand::DEVICE_IDENTIFICATION:
+            parseDeviceIdentification(seaTalkLine);
+            break;
+        case SeaTalkCommand::AUTO_PILOT_HEADING_AND_RUDDER:
+            parseAutoPilotHeadingAndRudder(seaTalkLine);
             break;
         case SeaTalkCommand::DISPLAY_UNITS_MILEAGE_AND_SPEED:
             ignoredCommand(command, seaTalkLine);
@@ -160,7 +188,6 @@ void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
     }
     logger() << eol;
 }
-
 
 void SeaTalkParser::parseApparentWindAngle(const SeaTalkLine &seaTalkLine) {
     if (!checkLength(4, seaTalkLine)) {
@@ -381,6 +408,147 @@ void SeaTalkParser::parseSetLampIntensity(const SeaTalkLine &seaTalkLine) {
     logger() << logDebugSeaTalk << "Lamp intensity " << lampIntensity << eol;
 }
 
+void SeaTalkParser::parseAutoPilotStatus(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(10, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x07)) {
+        return;
+    }
+
+    uint8_t status = seaTalkLine[2];
+    etl::string<20> statusStr;
+    switch (status) {
+        case 0x00:
+            statusStr = "Okay";
+            break;
+        case 0x01:
+            statusStr = "Auto Release Error";
+            break;
+        case 0x08:
+            statusStr = "Drive Stopped";
+            break;
+        default:
+            etl::string_stream statusStream(statusStr);
+            statusStream << "Unknown Error (0x" << etl::hex << etl::setw(2) << etl::setfill('0')
+                         << status << ")";
+    }
+
+    AutoPilotData &autoPilotData = instrumentData.autoPilotData();
+    autoPilotData.beginUpdates();
+    autoPilotData.statusLeaf = statusStr;
+    autoPilotData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Auto Pilot Status: " << statusStr << eol;
+}
+
+void SeaTalkParser::parseAutoPilotHeadingCourseAndRudder(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(9, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x06, 0x0f)) {
+        return;
+    }
+
+    uint8_t attributeByte = seaTalkLine[1];
+    uint8_t upperAttributeBits = attributeByte & 0xc0;
+    uint8_t upperAttributeBitsSet =
+        ((upperAttributeBits & 0xc0) ? ((upperAttributeBits & 0xc0) == 0xc0 ? 2 : 1): 0);
+    uint16_t heading = ((attributeByte & 0x30) >> 4) * 90 + (seaTalkLine[2] & 0x3f) * 2 +
+                           upperAttributeBitsSet;
+    uint16_t courseX2 = (uint16_t)((seaTalkLine[2] & 0xc0) >> 6) * 90 * 2 + seaTalkLine[3];
+    TenthsUInt16 course;
+    course.setFromTenths(courseX2 * 5);
+    const char *mode = modeBitsToName(seaTalkLine[4] & 0x0f);
+    uint8_t alarms = seaTalkLine[5] & 0x0f;
+    bool offCourseAlarm = (alarms &  0x4) != 0;
+    bool windShiftAlarm = (alarms & 0x8) != 0;
+    int8_t rudderPosition = (int8_t)seaTalkLine[6];
+
+    AutoPilotData &autoPilotData = instrumentData.autoPilotData();
+    autoPilotData.beginUpdates();
+    autoPilotData.headingSensorLeaf = heading;
+    autoPilotData.courseLeaf = course;
+    autoPilotData.modeLeaf = mode;
+    autoPilotData.offCourseAlarmLeaf = offCourseAlarm;
+    autoPilotData.windShiftAlarmLeaf = windShiftAlarm;
+    autoPilotData.rudderCenterLeaf = rudderPosition;
+    autoPilotData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Heading " << heading << " Course " << course << " Mode " << mode
+             << " Rudder " << rudderPosition;
+    if (offCourseAlarm) {
+        logger() << " Off course";
+    }
+    if (windShiftAlarm) {
+        logger() << " Wind shift";
+    }
+    logger() << eol;
+}
+
+void SeaTalkParser::parseDeviceIdentification(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(3, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x00)) {
+        return;
+    }
+
+    uint8_t deviceId = seaTalkLine[2];
+
+    logger() << logDebugSeaTalk << "Device Identification: " << Hex << deviceId << eol;
+
+    if (!devicesSeen.contains(deviceId) && !devicesSeen.full()) {
+        devicesSeen.insert(deviceId);
+
+        etl::string<maxKnownDevices * 3 + 1> knownDevicesString;
+        etl::string_stream knownDevicesStream(knownDevicesString);
+        bool firstDevice = true;
+        for (const uint8_t &knownDevice : devicesSeen) {
+            if (!firstDevice) {
+                knownDevicesStream << ",";
+            } else {
+                firstDevice = false;
+            }
+            knownDevicesStream << etl::hex << etl::setw(2) << etl::setfill('0') << knownDevice
+                               << etl::setw(1);
+        }
+
+        AutoPilotData &autoPilotData = instrumentData.autoPilotData();
+        autoPilotData.beginUpdates();
+        autoPilotData.knownDevicesLeaf = knownDevicesString;
+        autoPilotData.endUpdates();
+
+        logger() << logDebugSeaTalk << "Known Devices: " << knownDevicesString << eol;
+    }
+}
+
+void SeaTalkParser::parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(4, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x01, 0x0f)) {
+        return;
+    }
+
+    uint8_t attributeByte = seaTalkLine[1];
+    uint8_t upperAttributeBits = attributeByte & 0xc0;
+    uint8_t upperAttributeBitsSet =
+        ((upperAttributeBits & 0xc0) ? ((upperAttributeBits & 0xc0) == 0xc0 ? 2 : 1): 0);
+    uint16_t heading = ((attributeByte & 0x30) >> 4) * 90 + (seaTalkLine[2] & 0x3f) * 2 +
+                           upperAttributeBitsSet;
+
+    int8_t rudderPosition = (int8_t)seaTalkLine[3];
+
+    AutoPilotData &autoPilotData = instrumentData.autoPilotData();
+    autoPilotData.beginUpdates();
+    autoPilotData.headingSensorLeaf = heading;
+    autoPilotData.rudderCenterLeaf = rudderPosition;
+    autoPilotData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Heading " << heading << " Rudder " << rudderPosition << eol;
+}
+
 void SeaTalkParser::ignoredCommand(const SeaTalkCommand &command, const SeaTalkLine &seaTalkLine) {
     logger() << logDebugSeaTalk << "Ignoring " << command << " message: " << seaTalkLine << eol;
 
@@ -399,8 +567,9 @@ bool SeaTalkParser::checkLength(size_t expectedLength, const SeaTalkLine &seaTal
     size_t length = seaTalkLine.length();
 
     if (length != expectedLength) {
-        logger() << logWarnSeaTalk << seaTalkLine.command()
-                 << " message with an unexpected length (" << length << "): " << seaTalkLine << eol;
+        SeaTalkCommand command = seaTalkLine.command();
+        logger() << logWarnSeaTalk << command << " message with an unexpected length (" << length
+                 << "): " << seaTalkLine << eol;
 
         commandLengthErrors++;
 
@@ -415,8 +584,9 @@ bool SeaTalkParser::checkAttribute(const SeaTalkLine &seaTalkLine, uint8_t expec
     uint8_t attribute = seaTalkLine.attribute();
 
     if ((attribute & mask) != expectedAttribute) {
-        logger() << logWarnSeaTalk << "Unsupported "<< seaTalkLine.command() << " attribute " << Hex
-                 << attribute << ": " << seaTalkLine << eol;
+        SeaTalkCommand command = seaTalkLine.command();
+        logger() << logWarnSeaTalk << "Unsupported "<< command << " attribute " << Hex << attribute
+                 << ": " << seaTalkLine << eol;
 
         commandFormatErrors++;
 
@@ -432,4 +602,19 @@ void SeaTalkParser::exportStats(uint32_t msElapsed) {
     unknownCommandsLeaf = unknownCommands;
     commandLengthErrorsLeaf = commandLengthErrors;
     commandFormatErrorsLeaf = commandFormatErrors;
+}
+
+const char *SeaTalkParser::modeBitsToName(uint8_t modeBits) const {
+    switch (modeBits) {
+        case 0x0:
+            return "Standby";
+        case 0x2:
+            return "Auto";
+        case 0x6:
+            return "Wind";
+        case 0xa:
+            return "Track";
+        default:
+            return "Unknown";
+    }
 }

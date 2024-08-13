@@ -26,6 +26,7 @@
 
 #include "etl/string.h"
 #include "etl/string_stream.h"
+#include "etl/to_string.h"
 
 #include <stdint.h>
 
@@ -43,6 +44,20 @@ DataModelTenthsUInt16Leaf & DataModelTenthsUInt16Leaf::operator = (const TenthsU
 
         etl::string<maxStringLength> valueStr;
         value.toString(valueStr);
+        *this << valueStr;
+    }
+
+    return *this;
+}
+
+DataModelTenthsUInt16Leaf & DataModelTenthsUInt16Leaf::operator = (uint16_t value) {
+    if (!hasValue() || this->value != value) {
+        this->value = value;
+
+        updated();
+
+        etl::string<maxStringLength> valueStr;
+        etl::to_string(value, valueStr);
         *this << valueStr;
     }
 

@@ -27,6 +27,8 @@
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
+#include <etl/set.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -36,7 +38,10 @@ class StatsManager;
 
 class SeaTalkParser : StatsHolder {
     private:
+        static constexpr size_t maxKnownDevices = 10;
+
         InstrumentData &instrumentData;
+        etl::set<uint8_t, maxKnownDevices> devicesSeen;
         StatCounter commandsReceivedCounter;
         uint32_t ignoredCommands;
         uint32_t unknownCommands;
@@ -59,12 +64,17 @@ class SeaTalkParser : StatsHolder {
         void parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine);
         void parseWaterTemperatureV2(const SeaTalkLine &seaTalkLine);
         void parseSetLampIntensity(const SeaTalkLine &seaTalkLine);
+        void parseAutoPilotStatus(const SeaTalkLine &seaTalkLine);
+        void parseAutoPilotHeadingCourseAndRudder(const SeaTalkLine &seaTalkLine);
+        void parseDeviceIdentification(const SeaTalkLine &seaTalkLine);
+        void parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLine);
         void ignoredCommand(const SeaTalkCommand &command, const SeaTalkLine &seaTalkLine);
         void unknownCommand(const SeaTalkCommand &command, const SeaTalkLine &seaTalkLine);
         bool checkLength(size_t expectedLength, const SeaTalkLine &seaTalkLine);
         bool checkAttribute(const SeaTalkLine &seaTalkLine, uint8_t expectedAttribute,
                             uint8_t mask = 0xff);
         virtual void exportStats(uint32_t msElapsed) override;
+        const char *modeBitsToName(uint8_t modeBits) const;
 
     public:
         SeaTalkParser(DataModelNode &interfaceNode, InstrumentData &instrumentData,

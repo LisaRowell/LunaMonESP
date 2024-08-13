@@ -26,15 +26,19 @@ class Logger;
 class SeaTalkCommand {
     public:
         enum Value : uint8_t {
-            DEPTHS_BELOW_TRANSDUCER         = 0x00,
-            APPARENT_WIND_ANGLE             = 0x10,
-            APPARENT_WIND_SPEED             = 0x11,
-            SPEED_THROUGH_WATER_V1          = 0x20,
-            WATER_TEMPERATURE_V1            = 0x23,
-            DISPLAY_UNITS_MILEAGE_AND_SPEED = 0x24,
-            SPEED_THROUGH_WATER_V2          = 0x26,
-            WATER_TEMPERATURE_V2            = 0x27,
-            SET_LAMP_INTENSITY              = 0x30
+            DEPTHS_BELOW_TRANSDUCER             = 0x00,
+            APPARENT_WIND_ANGLE                 = 0x10,
+            APPARENT_WIND_SPEED                 = 0x11,
+            SPEED_THROUGH_WATER_V1              = 0x20,
+            WATER_TEMPERATURE_V1                = 0x23,
+            DISPLAY_UNITS_MILEAGE_AND_SPEED     = 0x24,
+            SPEED_THROUGH_WATER_V2              = 0x26,
+            WATER_TEMPERATURE_V2                = 0x27,
+            SET_LAMP_INTENSITY                  = 0x30,
+            AUTO_PILOT_STATUS                   = 0x83,
+            AUTO_PILOT_HEADING_COURSE_RUDDER    = 0x84,
+            DEVICE_IDENTIFICATION               = 0x90,
+            AUTO_PILOT_HEADING_AND_RUDDER       = 0x9c
         };
 
     private:
