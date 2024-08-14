@@ -44,26 +44,26 @@ GPSBridge::GPSBridge(InstrumentData &instrumentData)
 
 void GPSBridge::bridgeNMEAGGAMessage(const NMEAGGAMessage *message) {
     gpsData.beginUpdates();
-    message->time.publish(gpsData.gpsTimeLeaf);
-    message->latitude.publish(gpsData.gpsLatitudeLeaf);
-    message->longitude.publish(gpsData.gpsLongitudeLeaf);
-    message->gpsQuality.publish(gpsData.gpsGPSQualityLeaf);
-    message->numberSatellites.publish(gpsData.gpsNumberSatellitesLeaf);
-    message->horizontalDilutionOfPrecision.publish(gpsData.gpsHorizontalDilutionOfPrecisionLeaf);
-    message->antennaAltitude.publish(gpsData.gpsAltitudeLeaf);
-    message->geoidalSeparation.publish(gpsData.gpsGeoidalSeparationLeaf);
-    message->gpsDataAge.publish(gpsData.gpsDataAgeLeaf);
-    message->differentialReferenceStation.publish(gpsData.gpsDifferentialReferenceStationLeaf);
+    message->time.publish(gpsData.timeLeaf);
+    message->latitude.publish(gpsData.latitudeLeaf);
+    message->longitude.publish(gpsData.longitudeLeaf);
+    message->gpsQuality.publish(gpsData.gpsQualityLeaf);
+    message->numberSatellites.publish(gpsData.numberSatellitesLeaf);
+    message->horizontalDilutionOfPrecision.publish(gpsData.horizontalDilutionOfPrecisionLeaf);
+    message->antennaAltitude.publish(gpsData.altitudeLeaf);
+    message->geoidalSeparation.publish(gpsData.geoidalSeparationLeaf);
+    message->gpsDataAge.publish(gpsData.dataAgeLeaf);
+    message->differentialReferenceStation.publish(gpsData.differentialReferenceStationLeaf);
     gpsData.endUpdates();
 }
 
 void GPSBridge::bridgeNMEAGLLMessage(const NMEAGLLMessage *message) {
     gpsData.beginUpdates();
-    message->latitude.publish(gpsData.gpsLatitudeLeaf);
-    message->longitude.publish(gpsData.gpsLongitudeLeaf);
-    message->time.publish(gpsData.gpsTimeLeaf);
-    message->dataValid.publish(gpsData.gpsDataValidLeaf);
-    message->faaModeIndicator.publish(gpsData.gpsFAAModeindicatorLeaf);
+    message->latitude.publish(gpsData.latitudeLeaf);
+    message->longitude.publish(gpsData.longitudeLeaf);
+    message->time.publish(gpsData.timeLeaf);
+    message->dataValid.publish(gpsData.dataValidLeaf);
+    message->faaModeIndicator.publish(gpsData.faaModeindicatorLeaf);
     gpsData.endUpdates();
 }
 
@@ -73,11 +73,11 @@ void GPSBridge::bridgeNMEAGLLMessage(const NMEAGLLMessage *message) {
 void GPSBridge::bridgeNMEAGSAMessage(const NMEAGSAMessage *message) {
     gpsData.beginUpdates();
     if (message->automaticMode) {
-        gpsData.gpsSatelliteSelectionModeLeaf = "Automatic";
+        gpsData.satelliteSelectionModeLeaf = "Automatic";
     } else {
-        gpsData.gpsSatelliteSelectionModeLeaf = "Manual";
+        gpsData.satelliteSelectionModeLeaf = "Manual";
     }
-    message->gpsFixMode.publish(gpsData.gpsFixModeLeaf);
+    message->gpsFixMode.publish(gpsData.fixModeLeaf);
 
     etl::string<activeSatellitesLength> activeSatellitesStr;
     etl::string_stream activeSatellitesStrStream(activeSatellitesStr);
@@ -93,46 +93,46 @@ void GPSBridge::bridgeNMEAGSAMessage(const NMEAGSAMessage *message) {
         }
     }
 
-    gpsData.gpsActiveSatellitesLeaf = activeSatellitesStr;
+    gpsData.activeSatellitesLeaf = activeSatellitesStr;
 
-    message->pdop.publish(gpsData.gpsPDOPLeaf);
-    message->hdop.publish(gpsData.gpsHDOPLeaf);
-    message->vdop.publish(gpsData.gpsVDOPLeaf);
+    message->pdop.publish(gpsData.pdopLeaf);
+    message->hdop.publish(gpsData.hdopLeaf);
+    message->vdop.publish(gpsData.vdopLeaf);
     gpsData.endUpdates();
 }
 
 void GPSBridge::bridgeNMEAGSTMessage(const NMEAGSTMessage *message) {
     gpsData.beginUpdates();
-    message->standardDeviationOfRangeInputsRMS.publish(gpsData.gpsStandardDeviationOfRangeInputsRMSLeaf);
-    message->standardDeviationOfSemiMajorAxis.publish(gpsData.gpsStandardDeviationOfSemiMajorAxisLeaf);
-    message->standardDeviationOfSemiMinorAxis.publish(gpsData.gpsStandardDeviationOfSemiMinorAxisLeaf);
-    message->orientationOfSemiMajorAxis.publish(gpsData.gpsOrientationOfSemiMajorAxisLeaf);
-    message->standardDeviationOfLatitudeError.publish(gpsData.gpsStandardDeviationOfLatitudeErrorLeaf);
-    message->standardDeviationOfLongitudeError.publish(gpsData.gpsStandardDeviationOfLongitudeErrorLeaf);
-    message->standardDeviationOfAltitudeError.publish(gpsData.gpsStandardDeviationOfAltitudeErrorLeaf);
+    message->standardDeviationOfRangeInputsRMS.publish(gpsData.standardDeviationOfRangeInputsRMSLeaf);
+    message->standardDeviationOfSemiMajorAxis.publish(gpsData.standardDeviationOfSemiMajorAxisLeaf);
+    message->standardDeviationOfSemiMinorAxis.publish(gpsData.standardDeviationOfSemiMinorAxisLeaf);
+    message->orientationOfSemiMajorAxis.publish(gpsData.orientationOfSemiMajorAxisLeaf);
+    message->standardDeviationOfLatitudeError.publish(gpsData.standardDeviationOfLatitudeErrorLeaf);
+    message->standardDeviationOfLongitudeError.publish(gpsData.standardDeviationOfLongitudeErrorLeaf);
+    message->standardDeviationOfAltitudeError.publish(gpsData.standardDeviationOfAltitudeErrorLeaf);
     gpsData.endUpdates();
 }
 
 void GPSBridge::bridgeNMEARMCMessage(const NMEARMCMessage *message) {
     gpsData.beginUpdates();
-    message->time.publish(gpsData.gpsTimeLeaf);
-    message->dataValid.publish(gpsData.gpsDataValidLeaf);
-    message->latitude.publish(gpsData.gpsLatitudeLeaf);
-    message->longitude.publish(gpsData.gpsLongitudeLeaf);
-    message->speedOverGround.publish(gpsData.gpsSpeedOverGroundLeaf);
-    message->trackMadeGood.publish(gpsData.gpsTrackMadeGoodTrueLeaf);
-    message->date.publish(gpsData.gpsDateLeaf);
-    message->magneticVariation.publish(gpsData.gpsMagneticVariationLeaf);
-    message->faaModeIndicator.publish(gpsData.gpsFAAModeindicatorLeaf);
+    message->time.publish(gpsData.timeLeaf);
+    message->dataValid.publish(gpsData.dataValidLeaf);
+    message->latitude.publish(gpsData.latitudeLeaf);
+    message->longitude.publish(gpsData.longitudeLeaf);
+    message->speedOverGround.publish(gpsData.speedOverGroundLeaf);
+    message->trackMadeGood.publish(gpsData.trackMadeGoodTrueLeaf);
+    message->date.publish(gpsData.dateLeaf);
+    message->magneticVariation.publish(gpsData.magneticVariationLeaf);
+    message->faaModeIndicator.publish(gpsData.faaModeindicatorLeaf);
     gpsData.endUpdates();
 }
 
 void GPSBridge::bridgeNMEAVTGMessage(const NMEAVTGMessage *message) {
     gpsData.beginUpdates();
-    message->trackMadeGoodTrue.publish(gpsData.gpsTrackMadeGoodTrueLeaf);
-    message->trackMadeGoodMagnetic.publish(gpsData.gpsTrackMadeGoodMagneticLeaf);
-    message->speedOverGround.publish(gpsData.gpsSpeedOverGroundLeaf);
-    message->speedOverGroundKmPerH.publish(gpsData.gpsSpeedOverGroundKmPerHLeaf);
-    message->faaModeIndicator.publish(gpsData.gpsFAAModeindicatorLeaf);
+    message->trackMadeGoodTrue.publish(gpsData.trackMadeGoodTrueLeaf);
+    message->trackMadeGoodMagnetic.publish(gpsData.trackMadeGoodMagneticLeaf);
+    message->speedOverGround.publish(gpsData.speedOverGroundLeaf);
+    message->speedOverGroundKmPerH.publish(gpsData.speedOverGroundKmPerHLeaf);
+    message->faaModeIndicator.publish(gpsData.faaModeindicatorLeaf);
     gpsData.endUpdates();
 }

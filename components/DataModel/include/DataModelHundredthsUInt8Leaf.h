@@ -24,6 +24,7 @@
 #include "HundredthsUInt8.h"
 
 #include <stdint.h>
+#include <stdint.h>
 
 class DataModelNode;
 class Logger;
@@ -37,6 +38,7 @@ class DataModelHundredthsUInt8Leaf : public DataModelRetainedValueLeaf {
     public:
         DataModelHundredthsUInt8Leaf(const char *name, DataModelNode *parent);
         DataModelHundredthsUInt8Leaf & operator = (const HundredthsUInt8 &value);
+        DataModelHundredthsUInt8Leaf & operator = (uint8_t value);
         virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
 };
 

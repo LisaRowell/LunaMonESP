@@ -38,6 +38,7 @@
 
 #include "InstrumentData.h"
 #include "AutoPilotData.h"
+#include "GPSData.h"
 #include "WindData.h"
 #include "WaterData.h"
 
@@ -47,12 +48,14 @@
 #include "TenthsInt16.h"
 #include "TenthsUInt16.h"
 #include "HundredthsUInt16.h"
+#include "HundredthsUInt8.h"
 
 #include "Logger.h"
 
 #include "etl/string.h"
 #include "etl/string_stream.h"
-#include <etl/set.h>
+#include "etl/set.h"
+#include "etl/to_string.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -110,6 +113,30 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
         case SeaTalkCommand::SET_LAMP_INTENSITY:
             parseSetLampIntensity(seaTalkLine);
             break;
+        case SeaTalkCommand::LATITUDE_POSITION:
+            parseLatitudePosition(seaTalkLine);
+            break;
+        case SeaTalkCommand::LONGITUDE_POSITION:
+            parseLongitudePosition(seaTalkLine);
+            break;
+        case SeaTalkCommand::SPEED_OVER_GROUND:
+            parseSpeedOverGround(seaTalkLine);
+            break;
+        case SeaTalkCommand::COURSE_OVER_GROUND:
+            parseCourseOverGround(seaTalkLine);
+            break;
+        case SeaTalkCommand::HOURS_MINUTES_SECONDS:
+            parseTime(seaTalkLine);
+            break;
+        case SeaTalkCommand::YEAR_MONTH_DAY:
+            parseDate(seaTalkLine);
+            break;
+        case SeaTalkCommand::SATELLITE_INFO:
+            parseSatelliteInfo(seaTalkLine);
+            break;
+        case SeaTalkCommand::RAW_LATITUDE_AND_LONGITUDE:
+            parseRawLatitudeAndLongitude(seaTalkLine);
+            break;
         case SeaTalkCommand::AUTO_PILOT_STATUS:
             parseAutoPilotStatus(seaTalkLine);
             break;
@@ -119,10 +146,19 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
         case SeaTalkCommand::DEVICE_IDENTIFICATION:
             parseDeviceIdentification(seaTalkLine);
             break;
+        case SeaTalkCommand::MAGNETIC_VARIATION:
+            parseMagneticVariation(seaTalkLine);
+            break;
         case SeaTalkCommand::AUTO_PILOT_HEADING_AND_RUDDER:
             parseAutoPilotHeadingAndRudder(seaTalkLine);
             break;
+        case SeaTalkCommand::GPS_AND_DGPS_INFO:
+            parseGPSAndDGPSInfo(seaTalkLine);
+            break;
         case SeaTalkCommand::DISPLAY_UNITS_MILEAGE_AND_SPEED:
+        case SeaTalkCommand::COUNT_DOWN_TIMER:
+        case SeaTalkCommand::E80_START_UP:
+        case SeaTalkCommand::UNKNOWN_GPS_COMMAND_A7:
             ignoredCommand(command, seaTalkLine);
             break;
         default:
@@ -408,6 +444,192 @@ void SeaTalkParser::parseSetLampIntensity(const SeaTalkLine &seaTalkLine) {
     logger() << logDebugSeaTalk << "Lamp intensity " << lampIntensity << eol;
 }
 
+void SeaTalkParser::parseLatitudePosition(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(5, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x02, 0x0f)) {
+        return;
+    }
+
+    uint8_t degrees = seaTalkLine[2];
+    uint16_t minutesX100 = (uint16_t)(seaTalkLine[4] & 0x7f) << 8 | seaTalkLine[3];
+    char suffix = (seaTalkLine[4] & 0x80) == 0 ? 'N' : 'S';
+
+    etl::string<coordinateLength> latitudeStr;
+    coordinateToString(degrees, minutesX100, suffix, latitudeStr);
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.latitudeLeaf = latitudeStr;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Latitude " << latitudeStr << eol;
+}
+
+void SeaTalkParser::parseLongitudePosition(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(5, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x02, 0x0f)) {
+        return;
+    }
+
+    uint8_t degrees = seaTalkLine[2];
+    uint16_t minutesX100 = (uint16_t)(seaTalkLine[4] & 0x7f) << 8 | seaTalkLine[3];
+    char suffix = (seaTalkLine[4] & 0x80) == 0 ? 'W' : 'E';
+
+    etl::string<coordinateLength> longitudeStr;
+    coordinateToString(degrees, minutesX100, suffix, longitudeStr);
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.longitudeLeaf = longitudeStr;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Longitude " << longitudeStr << eol;
+}
+
+void SeaTalkParser::parseSpeedOverGround(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(4, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x01)) {
+        return;
+    }
+
+    uint16_t speedOverGroundX10 = (uint16_t)(seaTalkLine[3] << 8) | seaTalkLine[2];
+    TenthsUInt16 speedOverGround;
+    speedOverGround.setFromTenths(speedOverGroundX10);
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.speedOverGroundLeaf = speedOverGround;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Speed Over Ground " << speedOverGround << " kn" << eol;
+}
+
+void SeaTalkParser::parseCourseOverGround(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(3, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x00, 0x0f)) {
+        return;
+    }
+
+    uint8_t attributeBits = seaTalkLine[1] & 0xf0;
+    uint16_t courseOverGroundX2
+        = ((uint16_t)(attributeBits & 0x30) >> 4) * 90 * 2 + ((seaTalkLine[2] & 0x3f) << 1) * 2 +
+          ((attributeBits & 0xc0) >> 6);
+    TenthsUInt16 courseOverGround;
+    courseOverGround.setFromTenths(courseOverGroundX2 * 5);
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.trackMadeGoodMagneticLeaf = courseOverGround;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Course Over Ground " << courseOverGround << "\xC2\xB0" << eol;
+}
+
+void SeaTalkParser::parseTime(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(4, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x01, 0x0f)) {
+        return;
+    }
+
+    uint8_t seconds = ((seaTalkLine[2] & 0x03) << 4) | ((seaTalkLine[1] & 0xf0) >> 4);
+    uint8_t minutes = (seaTalkLine[2] & 0xfc) >> 2;
+    uint8_t hours = seaTalkLine[3];
+
+    etl::string<timeLength> timeStr;
+    etl::string_stream timeStrStream(timeStr);
+    timeStrStream << etl::setfill('0') << etl::setw(2) << hours << etl::setw(1) << ":"
+                  << etl::setw(2) << minutes << etl::setw(1) << ":" << etl::setw(2) << seconds;
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.timeLeaf = timeStr;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Time: " << timeStr << eol;
+}
+
+void SeaTalkParser::parseDate(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(4, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x01, 0x0f)) {
+        return;
+    }
+
+    uint8_t month = ((seaTalkLine[1] & 0xf0) >> 4);
+    uint8_t day = seaTalkLine[2];
+    uint16_t year = seaTalkLine[3] + 2000;
+
+    etl::string<dateLength> dateStr;
+    etl::string_stream dateStrStream(dateStr);
+    dateStrStream << etl::setfill('0') << etl::setw(2) << month << etl::setw(1) << "/"
+                  << etl::setw(2) << day << etl::setw(1) << "/" << etl::setw(4) << year;
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.dateLeaf = dateStr;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Date: " << dateStr << " " << seaTalkLine << eol;
+}
+
+void SeaTalkParser::parseSatelliteInfo(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(3, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x00, 0x0f)) {
+        return;
+    }
+
+    uint8_t numberSatellites = (seaTalkLine[1] & 0xf0) >> 4;
+    uint8_t horizontalDilutionOfPrecision = seaTalkLine[2];
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.numberSatellitesLeaf = numberSatellites;
+    gpsData.horizontalDilutionOfPrecisionLeaf = horizontalDilutionOfPrecision;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Number Satellites " << numberSatellites
+             << " HorizontalDilutionOfPrecision " << horizontalDilutionOfPrecision << eol;
+}
+
+// We decode the raw latitude and longitude commands for debugging purposes, but do not export
+// the values as they could be used in a misleading way.
+void SeaTalkParser::parseRawLatitudeAndLongitude(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(8, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x05, 0x0f)) {
+        return;
+    }
+
+    uint8_t latitudeDegrees = seaTalkLine[2];
+    uint16_t latitudeMinutesX1000 = (uint16_t)seaTalkLine[3] << 8 | seaTalkLine[4];
+    uint8_t longitudeDegrees = seaTalkLine[5];
+    uint16_t longitudeMinutesX1000 = (uint16_t)seaTalkLine[6] << 8 | seaTalkLine[7];
+    bool isSouth = (seaTalkLine[1] & 0x10) != 0;
+    bool isEast = (seaTalkLine[1] & 0x20) != 0;
+
+    etl::string<coordinateLength> latitudeStr;
+    rawCoordinateToString(latitudeDegrees, latitudeMinutesX1000, isSouth ? 'S' : 'N', latitudeStr);
+    etl::string<coordinateLength> longitudeStr;
+    rawCoordinateToString(longitudeDegrees, longitudeMinutesX1000, isEast ? 'E' : 'W',
+                          longitudeStr);
+
+    logger() << logDebugSeaTalk << "Raw Position " << latitudeStr << " " << longitudeStr << eol;
+}
+
 void SeaTalkParser::parseAutoPilotStatus(const SeaTalkLine &seaTalkLine) {
     if (!checkLength(10, seaTalkLine)) {
         return;
@@ -523,6 +745,27 @@ void SeaTalkParser::parseDeviceIdentification(const SeaTalkLine &seaTalkLine) {
     }
 }
 
+void SeaTalkParser::parseMagneticVariation(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(3, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x00)) {
+        return;
+    }
+
+    // We should not rely on the sign of this being interpretted correctly
+    // ToDo: Test to make sure it makes sense.
+    int8_t magneticVariation = (int8_t)seaTalkLine[2];
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.magneticVariationLeaf = magneticVariation;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Magnetic Variation " << magneticVariation << eol;
+
+}
+
 void SeaTalkParser::parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLine) {
     if (!checkLength(4, seaTalkLine)) {
         return;
@@ -547,6 +790,147 @@ void SeaTalkParser::parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLin
     autoPilotData.endUpdates();
 
     logger() << logDebugSeaTalk << "Heading " << heading << " Rudder " << rudderPosition << eol;
+}
+
+void SeaTalkParser::parseGPSAndDGPSInfo(const SeaTalkLine &seaTalkLine) {
+    // Unlike other commands, this datagram can contain a varity of different pieces of information,
+    // only some of which have been reverse engineered. The attributes byte is used to determine
+    // what the message contains.
+    switch (seaTalkLine.attribute()) {
+        case 0x57:
+            parseGPSAndDGPSFixInfo(seaTalkLine);
+            break;
+        case 0x74:
+            parseActiveSatellites(seaTalkLine);
+            break;
+        default:
+            logger() << logDebugSeaTalk << "Ignoring GPS and DPGS subcommand "
+                     << Hex << seaTalkLine.attribute() << ": " << seaTalkLine << eol;
+    }
+}
+
+void SeaTalkParser::parseGPSAndDGPSFixInfo(const SeaTalkLine &seaTalkLine) {
+    uint8_t signalQualityCode = seaTalkLine[2] & 0x0f;
+    bool signalQualityAvailable = (seaTalkLine[2] & 0x10) == 0x10;
+    const char *signalQualityDescription = parseSignalQuality(signalQualityCode,
+                                                              signalQualityAvailable);
+    uint8_t hdop = seaTalkLine[3] & 0x7c;
+    bool hdopAvailable = (seaTalkLine[3] & 0x80) == 0x80;
+    int8_t antennaHeight = (int8_t)seaTalkLine[5];
+    uint8_t numberSatellites = ((seaTalkLine[2] & 0xe0) >> 4) | (seaTalkLine[3] & 0x01);
+    bool numberSatellitesAvailable = (seaTalkLine[3] & 0x02) == 0x02;
+    int16_t geoSeperation = seaTalkLine[6] * 16;
+    uint16_t differentialAge = (seaTalkLine[7] & 0xe0) >> 2 | (seaTalkLine[8] & 0x0f);
+    bool differentialAgeAvailable = (seaTalkLine[8] & 0x10) == 0x10;
+    uint16_t differentialStationID = (((uint16_t)seaTalkLine[8] & 0xc0) << 2) | seaTalkLine[9];
+    bool differentialStationIDAvailable = (seaTalkLine[8] & 0x20) == 0x20;
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.gpsQualityLeaf = signalQualityDescription;
+    if (hdopAvailable) {
+        gpsData.hdopLeaf = hdop;
+    } else {
+        gpsData.hdopLeaf.removeValue();
+    }
+    gpsData.altitudeLeaf = antennaHeight;
+    if (numberSatellitesAvailable) {
+        gpsData.numberSatellitesLeaf = numberSatellites;
+    } else {
+        gpsData.numberSatellitesLeaf.removeValue();
+    }
+    gpsData.geoidalSeparationLeaf = geoSeperation;
+    if (differentialAgeAvailable) {
+        gpsData.dataAgeLeaf = differentialAgeAvailable;
+    } else {
+        gpsData.dataAgeLeaf.removeValue();
+    }
+    if (differentialStationIDAvailable) {
+        gpsData.differentialReferenceStationLeaf = differentialStationID;
+    } else {
+        gpsData.differentialReferenceStationLeaf.removeValue();
+    }
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Signal quality " << signalQualityDescription << " HDOP ";
+    if (hdopAvailable) {
+        logger() << hdop;
+    } else {
+        logger() << "unavailable";
+    }
+    logger() << " Antenna height " << antennaHeight << " # Satellites ";
+    if (numberSatellitesAvailable) {
+        logger() << numberSatellites;
+    } else {
+        logger() << "unavailable";
+    }
+    logger() << " Geo seperation " << geoSeperation << " Differential age ";
+    if (differentialAgeAvailable) {
+        logger() << differentialAge;
+    } else {
+        logger() << "unavailable";
+    }
+    logger() << " Diff station ID ";
+    if (differentialStationIDAvailable) {
+        logger() << differentialStationID;
+    } else {
+        logger() << "unavailable";
+    }
+    logger () << eol;
+}
+
+const char *SeaTalkParser::parseSignalQuality(uint8_t signalQualityCode,
+                                              bool signalQualityAvailable) {
+    if (signalQualityAvailable) {
+        switch (signalQualityCode) {
+            case 0:
+                return "Fix Not Available";
+            case 1:
+                return "GPS Fix";
+            case 2:
+                return "Differential GPS Fix";
+            case 3:
+                return "PPS Fix";
+            case 4:
+                return "Real Time Kinematic";
+            case 5:
+                return "Float RTK";
+            case 6:
+                return "Estimated";
+            case 7:
+                return "Manual Input Mode";
+            case 8:
+                return "Simulated Mode";
+            default:
+                return "Unknown";
+        }
+    } else {
+        return "Not Available";
+    }
+}
+
+void SeaTalkParser::parseActiveSatellites(const SeaTalkLine &seaTalkLine) {
+    etl::string<activeSatellitesLength + 1> idString;
+    etl::string_stream idStream(idString);
+
+    bool validIDFound = false;
+    for (int pos = 2; pos <= 6; pos++) {
+        if (seaTalkLine[pos] != 0) {
+            if (validIDFound) {
+                idStream << ",";
+            } else {
+                validIDFound = true;
+            }
+            idStream << seaTalkLine[pos];
+        }
+    }
+
+    GPSData &gpsData = instrumentData.gpsData();
+    gpsData.beginUpdates();
+    gpsData.activeSatellitesLeaf = idString;
+    gpsData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Active Satellites " << idString << eol;
 }
 
 void SeaTalkParser::ignoredCommand(const SeaTalkCommand &command, const SeaTalkLine &seaTalkLine) {
@@ -617,4 +1001,22 @@ const char *SeaTalkParser::modeBitsToName(uint8_t modeBits) const {
         default:
             return "Unknown";
     }
+}
+
+void SeaTalkParser::coordinateToString(uint8_t degrees, uint16_t minutesX100, char suffix,
+                                       etl::istring &string) const {
+    etl::to_string(degrees, string);
+    string.append("\xC2\xB0 ");
+    etl::to_string(minutesX100, 2U, string, etl::format_spec().precision(2), true);
+    string.append("' ");
+    string.push_back(suffix);
+}
+
+void SeaTalkParser::rawCoordinateToString(uint8_t degrees, uint16_t minutesX1000, char suffix,
+                                          etl::istring &string) const {
+    etl::to_string(degrees, string);
+    string.append("\xC2\xB0 ");
+    etl::to_string(minutesX1000, 3U, string, etl::format_spec().precision(3), true);
+    string.append("' ");
+    string.push_back(suffix);
 }

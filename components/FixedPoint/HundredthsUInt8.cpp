@@ -38,8 +38,19 @@ uint8_t HundredthsUInt8::hundredths() const {
     return _hundredths;
 }
 
+HundredthsUInt8 & HundredthsUInt8::operator = (uint8_t value) {
+    _wholeNumber = value;
+    _hundredths = 0;
+
+    return *this;
+}
+
 bool HundredthsUInt8::operator == (const HundredthsUInt8 &right) const {
     return _wholeNumber == right._wholeNumber && _hundredths == right._hundredths;
+}
+
+bool HundredthsUInt8::operator == (uint8_t right) const {
+    return _wholeNumber == right && _hundredths == 0;
 }
 
 void HundredthsUInt8::setFromQ22Dot10(uint32_t q22Dot10) {

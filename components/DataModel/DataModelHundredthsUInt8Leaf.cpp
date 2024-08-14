@@ -26,6 +26,7 @@
 
 #include "etl/string.h"
 #include "etl/string_stream.h"
+#include "etl/to_string.h"
 
 #include <stdint.h>
 
@@ -44,6 +45,20 @@ DataModelHundredthsUInt8Leaf & DataModelHundredthsUInt8Leaf::operator =
 
         etl::string<maxStringLength> valueStr;
         value.toString(valueStr);
+        *this << valueStr;
+    }
+
+    return *this;
+}
+
+DataModelHundredthsUInt8Leaf & DataModelHundredthsUInt8Leaf::operator = (uint8_t value) {
+    if (!hasValue() || this->value != value) {
+        this->value = value;
+
+        updated();
+
+        etl::string<maxStringLength> valueStr;
+        etl::to_string(value, valueStr);
         *this << valueStr;
     }
 

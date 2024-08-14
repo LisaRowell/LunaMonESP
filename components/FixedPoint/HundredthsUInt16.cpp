@@ -49,6 +49,10 @@ bool HundredthsUInt16::operator == (const HundredthsUInt16 &right) const {
     return _wholeNumber == right._wholeNumber && _hundredths == right._hundredths;
 }
 
+bool HundredthsUInt16::operator == (uint16_t right) const {
+    return _wholeNumber == right && _hundredths == 0;
+}
+
 void HundredthsUInt16::setFromQ22Dot10(uint32_t q22Dot10) {
     _wholeNumber = q22Dot10 / 1024;
     uint16_t fractional1024ths = q22Dot10 % 1024;

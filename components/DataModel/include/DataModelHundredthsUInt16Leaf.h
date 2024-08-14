@@ -37,6 +37,7 @@ class DataModelHundredthsUInt16Leaf : public DataModelRetainedValueLeaf {
     public:
         DataModelHundredthsUInt16Leaf(const char *name, DataModelNode *parent);
         DataModelHundredthsUInt16Leaf & operator = (const HundredthsUInt16 &value);
+        DataModelHundredthsUInt16Leaf & operator = (uint16_t value);
         virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;
 };
 

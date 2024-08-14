@@ -35,10 +35,23 @@ class SeaTalkCommand {
             SPEED_THROUGH_WATER_V2              = 0x26,
             WATER_TEMPERATURE_V2                = 0x27,
             SET_LAMP_INTENSITY                  = 0x30,
+            LATITUDE_POSITION                   = 0x50,
+            LONGITUDE_POSITION                  = 0x51,
+            SPEED_OVER_GROUND                   = 0x52,
+            COURSE_OVER_GROUND                  = 0x53,
+            HOURS_MINUTES_SECONDS               = 0x54,
+            YEAR_MONTH_DAY                      = 0x56,
+            SATELLITE_INFO                      = 0x57,
+            RAW_LATITUDE_AND_LONGITUDE          = 0x58,
+            COUNT_DOWN_TIMER                    = 0x59,
+            E80_START_UP                        = 0x61,
             AUTO_PILOT_STATUS                   = 0x83,
             AUTO_PILOT_HEADING_COURSE_RUDDER    = 0x84,
             DEVICE_IDENTIFICATION               = 0x90,
-            AUTO_PILOT_HEADING_AND_RUDDER       = 0x9c
+            MAGNETIC_VARIATION                  = 0x99,
+            AUTO_PILOT_HEADING_AND_RUDDER       = 0x9c,
+            GPS_AND_DGPS_INFO                   = 0xa5,
+            UNKNOWN_GPS_COMMAND_A7              = 0xa7
         };
 
     private:

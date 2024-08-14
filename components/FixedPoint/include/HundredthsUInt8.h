@@ -35,7 +35,9 @@ class HundredthsUInt8 : public LoggableItem {
         HundredthsUInt8(uint8_t wholeNumber, uint8_t hundredths);
         uint8_t wholeNumber() const;
         uint8_t hundredths() const;
+        HundredthsUInt8 & operator = (uint8_t value);
         bool operator == (const HundredthsUInt8 &right) const;
+        bool operator == (uint8_t right) const;
         void setFromQ22Dot10(uint32_t q22Dot10);
         void toString(etl::istring &string) const;
         virtual void log(Logger &logger) const override;

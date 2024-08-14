@@ -46,14 +46,40 @@ const char *SeaTalkCommand::name() const {
             return "Water Temperature V2";
         case SET_LAMP_INTENSITY:
             return "Set lamp Intensity";
+        case LATITUDE_POSITION:
+            return "Latitude Position";
+        case LONGITUDE_POSITION:
+            return "Longitude Position";
+        case SPEED_OVER_GROUND:
+            return "Speed Over Ground";
+        case COURSE_OVER_GROUND:
+            return "Course Over Ground";
+        case HOURS_MINUTES_SECONDS:
+            return "Time";
+        case YEAR_MONTH_DAY:
+            return "Date";
+        case SATELLITE_INFO:
+            return "Satellite Info";
+        case RAW_LATITUDE_AND_LONGITUDE:
+            return "Raw Latitude and Longitude";
+        case COUNT_DOWN_TIMER:
+            return "Count Down Timer";
+        case E80_START_UP:
+            return "E80_START_UP";
         case AUTO_PILOT_STATUS:
             return "Auto pilot status";
         case AUTO_PILOT_HEADING_COURSE_RUDDER:
             return "Auto pilot heading, course and rudder";
         case DEVICE_IDENTIFICATION:
             return "Device identification";
+        case MAGNETIC_VARIATION:
+            return "Magnetic Variation";
         case AUTO_PILOT_HEADING_AND_RUDDER:
             return "Auto pilot heading and rudder";
+        case GPS_AND_DGPS_INFO:
+            return "GPS and DGPS Info";
+        case UNKNOWN_GPS_COMMAND_A7:
+            return "Unknown GPS Command A7";
         default:
             return "Unknown";
     }

@@ -37,6 +37,7 @@ class HundredthsUInt16 : public LoggableItem {
         uint8_t hundredths() const;
         HundredthsUInt16 & operator = (uint16_t wholeNumber);
         bool operator == (const HundredthsUInt16 &right) const;
+        bool operator == (uint16_t right) const;
         void setFromQ22Dot10(uint32_t q22Dot10);
         void setFromHundredths(uint32_t hundredths);
         void toString(etl::istring &string) const;

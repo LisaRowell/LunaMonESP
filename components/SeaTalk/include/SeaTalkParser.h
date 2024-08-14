@@ -27,7 +27,8 @@
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
-#include <etl/set.h>
+#include "etl/set.h"
+#include "etl/string.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -39,6 +40,10 @@ class StatsManager;
 class SeaTalkParser : StatsHolder {
     private:
         static constexpr size_t maxKnownDevices = 10;
+        static constexpr size_t coordinateLength = 20;
+        static constexpr size_t dateLength = 11;
+        static constexpr size_t timeLength = 10;
+        static constexpr size_t activeSatellitesLength = 72;
 
         InstrumentData &instrumentData;
         etl::set<uint8_t, maxKnownDevices> devicesSeen;
@@ -64,10 +69,23 @@ class SeaTalkParser : StatsHolder {
         void parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine);
         void parseWaterTemperatureV2(const SeaTalkLine &seaTalkLine);
         void parseSetLampIntensity(const SeaTalkLine &seaTalkLine);
+        void parseLatitudePosition(const SeaTalkLine &seaTalkLine);
+        void parseLongitudePosition(const SeaTalkLine &seaTalkLine);
+        void parseSpeedOverGround(const SeaTalkLine &seaTalkLine);
+        void parseCourseOverGround(const SeaTalkLine &seaTalkLine);
+        void parseTime(const SeaTalkLine &seaTalkKine);
+        void parseDate(const SeaTalkLine &seaTalkKine);
+        void parseSatelliteInfo(const SeaTalkLine &seaTalkLine);
+        void parseRawLatitudeAndLongitude(const SeaTalkLine &seaTalkLine);
         void parseAutoPilotStatus(const SeaTalkLine &seaTalkLine);
         void parseAutoPilotHeadingCourseAndRudder(const SeaTalkLine &seaTalkLine);
         void parseDeviceIdentification(const SeaTalkLine &seaTalkLine);
+        void parseMagneticVariation(const SeaTalkLine &seaTalkLine);
         void parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLine);
+        void parseGPSAndDGPSInfo(const SeaTalkLine &seaTalkLine);
+        void parseGPSAndDGPSFixInfo(const SeaTalkLine &seaTalkLine);
+        const char *parseSignalQuality(uint8_t signalQualityCode, bool signalQualityAvailable);
+        void parseActiveSatellites(const SeaTalkLine &seaTalkLine);
         void ignoredCommand(const SeaTalkCommand &command, const SeaTalkLine &seaTalkLine);
         void unknownCommand(const SeaTalkCommand &command, const SeaTalkLine &seaTalkLine);
         bool checkLength(size_t expectedLength, const SeaTalkLine &seaTalkLine);
@@ -75,6 +93,10 @@ class SeaTalkParser : StatsHolder {
                             uint8_t mask = 0xff);
         virtual void exportStats(uint32_t msElapsed) override;
         const char *modeBitsToName(uint8_t modeBits) const;
+        void coordinateToString(uint8_t degrees, uint16_t minutesX100, char suffix,
+                                etl::istring &string) const;
+        void rawCoordinateToString(uint8_t degrees, uint16_t minutesX1000, char suffix,
+                                   etl::istring &string) const;
 
     public:
         SeaTalkParser(DataModelNode &interfaceNode, InstrumentData &instrumentData,
