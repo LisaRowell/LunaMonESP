@@ -40,6 +40,7 @@ class NMEAUARTInterface : public UARTInterface, public NMEASource {
         static constexpr uint32_t noDataDelayMs = 20;
 
         char buffer[rxBufferSize];
+
         virtual void task() override;
 
     public:

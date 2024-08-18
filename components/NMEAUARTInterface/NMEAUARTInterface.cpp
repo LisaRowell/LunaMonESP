@@ -40,7 +40,7 @@ void NMEAUARTInterface::task() {
     logger << logDebugNMEAUART << "Starting receive on UART " << uartNumber() << "..." << eol;
 
     while (true) {
-        // Currently we read by polling to see if there are characters in the UART's RC buffer,
+        // Currently we read by polling to see if there are characters in the UART's RX buffer,
         // reading them if there are, sleeping if there are not. A better implementation would be
         // to use an interrupt to wake the task...
         size_t bytesRead = readToBuffer(buffer, rxBufferSize);
