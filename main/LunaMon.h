@@ -38,14 +38,17 @@
 #include "etl/string.h"
 
 #include "driver/uart.h"
+#include "driver/gpio.h"
 
 class StatusLED;
 class I2CMaster;
 class EnvironmentalMon;
 class UARTInterface;
+class SoftUARTInterface;
 class NMEAWiFiInterface;
 class NMEAUARTInterface;
 class STALKUARTInterface;
+class NMEASoftUARTInterface;
 
 class LunaMon {
     private:
@@ -61,6 +64,7 @@ class LunaMon {
         NMEAWiFiInterface *nmeaWiFiInterface;
         UARTInterface *uart1Interface;
         UARTInterface *uart2Interface;
+        SoftUARTInterface *softUARTInterface;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
@@ -77,6 +81,11 @@ class LunaMon {
                                                    int rxPin, int txPin, int baudRate);
         STALKUARTInterface *createSTALKUARTInterface(const char *name, uart_port_t uartNumber,
                                                      int rxPin, int txPin, int baudRate);
+        SoftUARTInterface *createSoftUARTInterface(enum InterfaceProtocol protocol,
+                                                   const char *name, gpio_num_t rxPin,
+                                                   gpio_num_t txPin);
+        NMEASoftUARTInterface *createNMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
+                                                           gpio_num_t txPin);
 
     public:
         LunaMon();

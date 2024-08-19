@@ -16,29 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#ifndef NMEA_SOFT_UART_INTERFACE_H
+#define NMEA_SOFT_UART_INTERFACE_H
 
-#include "TaskObject.h"
-#include "InterfaceProtocol.h"
+#include "SoftUARTInterface.h"
+#include "NMEASource.h"
 
-#include "DataModelNode.h"
+#include "driver/uart.h"
+#include "driver/gpio.h"
 
 #include <stddef.h>
+#include <stdint.h>
 
+class StatsManager;
+class AISContacts;
 class DataModel;
 
-class Interface : public TaskObject {
+class NMEASoftUARTInterface : public SoftUARTInterface, public NMEASource {
     private:
-        const char *name;
-        enum InterfaceProtocol protocol;
-        DataModelNode _interfaceNode;
+        static constexpr size_t stackSize = (1024 * 8);
+        static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
+        static constexpr uint32_t noDataDelayMs = 20;
+
+        char buffer[rxBufferSize];
+
+        void task();
 
     public:
-        Interface(const char *name, enum InterfaceProtocol protocol, DataModel &dataModel,
-                  size_t stackSize);
-        DataModelNode &interfaceNode();
-        const char *interfaceName() const;
+        NMEASoftUARTInterface(const char *name, gpio_num_t rxPin, gpio_num_t txPin,
+                              uint32_t baudRate, StatsManager &statsManager,
+                              AISContacts &aisContacts, DataModel &dataModel);
 };
 
-#endif // INTERFACE_H
+#endif // NMEA_SOFT_UART_INTERFACE_H

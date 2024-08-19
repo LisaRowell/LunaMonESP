@@ -147,7 +147,7 @@ menu "Luna Mon Configuration"
                 information on which pin to use.
 
         config LUNAMON_UART2_TX_PIN
-            int "UART1 TX Pin"
+            int "UART2 TX Pin"
             default 4
             help
                 Pin number to use for the UART2's TX pin. Consult your board documentation for
@@ -174,6 +174,48 @@ menu "Luna Mon Configuration"
             int
             default 4800 if LUNAMON_UART2_BAUD_RATE_4800
             default 38400 if LUNAMON_UART2_BAUD_RATE_38400
+
+    endif
+
+    config LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        bool "Has a serial source connected for the Software UART"
+        default n
+        help
+            Whether or not there's a serial source connected to be configured as a software UART.
+
+    config LUNAMON_SOFTWARE_UART_ENABLED
+        int
+        default 1 if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        default 0 if !LUNAMON_HAS_SOFTWARE_UART_SOURCE
+
+    if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        choice
+            prompt "Software UART Protocol"
+            default LUNAMON_SOFTWARE_UART_NMEA_0183
+            help
+                Luna Mon supports interfaces with either NMEA 0183, SeaTalk or $STALK messages.
+                NMEA 0183 is what is typically put out by older, non-Raymarine devices. SeaTalk
+                is a proprietary protocol used by AutoHelm and Raymarine devices. $STALK is a
+                packaging of SeaTalk messages into a NMEA 0183 message structure typically outputed
+                by bridging devices such as the Digital Yachts ST-NMEA.
+
+            config LUNAMON_SOFTWARE_UART_NMEA_0183
+                bool "NMEA 0183"
+        endchoice
+
+        config LUNAMON_SOFTWARE_UART_RX_PIN
+            int "Software UART RX Pin"
+            default 5
+            help
+                Pin number to use for the software UART's RX pin. Consult your board documentation
+                for information on which pin to use.
+
+        config LUNAMON_SOFTWARE_UART_TX_PIN
+            int "Software UART TX Pin"
+            default 4
+            help
+                Pin number to use for the software UART's TX pin. Consult your board documentation
+                for information on which pin to use.
 
     endif
 
@@ -395,6 +437,16 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_DEBUG_MODULE_NMEA_UART
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_UART
 
+    config LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
+        bool "Debug NMEA Software UART"
+        help
+            Whether or not to debug the NMEA Software UART module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
+
     config LUNAMON_DEBUG_MODULE_STALK
         bool "Debug STALK"
         help
@@ -444,6 +496,16 @@ menu "Luna Mon Configuration"
         int
         default 1 if LUNAMON_DEBUG_MODULE_UART
         default 0 if !LUNAMON_DEBUG_MODULE_UART
+
+    config LUNAMON_DEBUG_MODULE_SOFT_UART
+        bool "Debug Software UART"
+        help
+            Whether or not to debug the Software UART module.
+
+    config LUNAMON_DEBUG_MODULE_SOFT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_SOFT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_SOFT_UART
 
     config LUNAMON_DEBUG_MODULE_AIS
         bool "Debug AIS"

@@ -30,6 +30,8 @@
 #include "InstrumentData.h"
 #include "DataModelBridge.h"
 #include "STALKUARTInterface.h"
+#include "SoftUARTInterface.h"
+#include "NMEASoftUARTInterface.h"
 #include "LogManager.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
@@ -47,6 +49,9 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
+
+#include "driver/gpio.h"
+#include "driver/uart.h"
 
 #if !CONFIG_LUNAMON_NMEA_WIFI_ENABLED
 #define CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR   ""
@@ -105,6 +110,20 @@ Make sure and run menuconfig!
 #define UART2_PROTOCOL          (INTERFACE_OFFLINE)
 #endif
 
+#if CONFIG_LUNAMON_SOFTWARE_UART_ENABLED
+#define SOFTWARE_UART_RX_PIN    ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_RX_PIN)
+#define SOFTWARE_UART_TX_PIN    ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_TX_PIN)
+#ifdef CONFIG_LUNAMON_SOFTWARE_UART_NMEA_0183
+#define SOFTWARE_UART_PROTOCOL  (INTERFACE_NMEA_O183)
+#else
+Make sure and run menuconfig!
+#endif
+#else
+#define SOFTWARE_UART_RX_PIN    (GPIO_NUM_0)
+#define SOFTWARE_UART_TX_PIN    (GPIO_NUM_0)
+#define SOFTWARE_UART_PROTOCOL  (INTERFACE_OFFLINE)
+#endif
+
 LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
@@ -146,6 +165,8 @@ LunaMon::LunaMon()
                                          UART1_TX_PIN, UART1_BAUD_RATE);
     uart2Interface = createUARTInterface(UART2_PROTOCOL, "uart2", (uart_port_t)2, UART2_RX_PIN,
                                          UART2_TX_PIN, UART2_BAUD_RATE);
+    softUARTInterface = createSoftUARTInterface(SOFTWARE_UART_PROTOCOL, "softUART",
+                                                SOFTWARE_UART_RX_PIN, SOFTWARE_UART_TX_PIN);
 
     if (CONFIG_LUNAMON_I2C_ENABLED) {
         ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
@@ -209,6 +230,40 @@ STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, uart_por
     return stalkUARTInterface;
 }
 
+SoftUARTInterface *LunaMon::createSoftUARTInterface(enum InterfaceProtocol protocol,
+                                                    const char *name, gpio_num_t rxPin,
+                                                    gpio_num_t txPin) {
+    SoftUARTInterface *softUARTInterface;
+
+    switch (protocol) {
+        case INTERFACE_NMEA_O183:
+            softUARTInterface = createNMEASoftUARTInterface(name, rxPin, txPin);
+            break;
+
+        case INTERFACE_OFFLINE:
+        default:
+            softUARTInterface = nullptr;
+    }
+
+    return softUARTInterface;
+}
+
+NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
+                                                            gpio_num_t txPin) {
+    NMEASoftUARTInterface *nmeaSoftUARTInterface;
+
+    nmeaSoftUARTInterface = new NMEASoftUARTInterface(name, rxPin, txPin, 4800, statsManager,
+                                                      aisContacts, dataModel);
+    if (nmeaSoftUARTInterface) {
+        nmeaSoftUARTInterface->addMessageHandler(dataModelBridge);
+    } else {
+        logger << logErrorMain << "Failed to allocate " << name
+               << " NMEA interface for Software UART" << "." << eol;
+    }
+
+    return nmeaSoftUARTInterface;
+}
+
 void LunaMon::run() {
     initNVS();
 
@@ -227,10 +282,15 @@ void LunaMon::run() {
     if (uart2Interface) {
         uart2Interface->start();
     }
+    if (softUARTInterface) {
+        softUARTInterface->start();
+    }
 
     if (environmentalMon) {
         environmentalMon->start();
     }
+
+    gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);
 
     versionLeaf = "0.1.1";
 

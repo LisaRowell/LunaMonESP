@@ -36,3 +36,7 @@ Interface::Interface(const char *name, enum InterfaceProtocol protocol, DataMode
 DataModelNode &Interface::interfaceNode() {
     return _interfaceNode;
 }
+
+const char *Interface::interfaceName() const {
+    return name;
+}
