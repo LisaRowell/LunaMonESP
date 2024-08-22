@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 StatsManager::StatsManager()
-    : TaskObject("Stats Manager", LOGGER_LEVEL_DEBUG, stackSize),
+    : TaskObject("Stats Manager", LOGGER_LEVEL_DEBUG, stackSize, LOW_PRIORITY),
       statsHolders() {
     lastHarvestTime.setNow();
 }

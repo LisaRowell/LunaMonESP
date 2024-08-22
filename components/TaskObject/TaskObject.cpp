@@ -26,13 +26,17 @@
 
 #include <stddef.h>
 
-TaskObject::TaskObject(const char *name, LoggerLevel level, size_t stackSize)
-    : name(name), stackSize(stackSize), _task(nullptr), logger(level) {
+TaskObject::TaskObject(const char *name, LoggerLevel level, size_t stackSize, TaskPriority priority)
+    : name(name),
+      stackSize(stackSize),
+      priority(priority),
+      _task(nullptr),
+      logger(level) {
 }
 
 void TaskObject::start() {
     BaseType_t created = xTaskCreate(startTask, name, stackSize, this,
-                                     tskIDLE_PRIORITY, &_task);
+                                     priority, &_task);
     if (created != pdPASS || _task == nullptr) {
         logger << logErrorTaskObject << "Failed to create " << name << " task" << eol;
         errorExit();

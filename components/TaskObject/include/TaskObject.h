@@ -27,9 +27,17 @@
 #include <stddef.h>
 
 class TaskObject {
+    public:
+        typedef enum {
+            LOW_PRIORITY = tskIDLE_PRIORITY,
+            MEDIUM_PRIORITY = tskIDLE_PRIORITY + 1,
+            HIGH_PRIORITY = tskIDLE_PRIORITY + 2
+        } TaskPriority;
+
     private:
         const char *name;
         size_t stackSize;
+        TaskPriority priority;
 
         static void startTask(void *task);
 
@@ -41,7 +49,8 @@ class TaskObject {
         virtual void task() = 0;
 
     public:
-        TaskObject(const char *name, LoggerLevel level, size_t stackSize);
+        TaskObject(const char *name, LoggerLevel level, size_t stackSize,
+                   TaskPriority priority = MEDIUM_PRIORITY);
         void start();
         TaskHandle_t taskHandle();
 
