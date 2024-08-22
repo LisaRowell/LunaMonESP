@@ -28,11 +28,11 @@
 
 class TaskObject {
     public:
-        typedef enum {
+        enum TaskPriority {
             LOW_PRIORITY = tskIDLE_PRIORITY,
             MEDIUM_PRIORITY = tskIDLE_PRIORITY + 1,
             HIGH_PRIORITY = tskIDLE_PRIORITY + 2
-        } TaskPriority;
+        };
 
     private:
         const char *name;
