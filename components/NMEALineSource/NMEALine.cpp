@@ -23,6 +23,7 @@
 
 #include "etl/string.h"
 #include "etl/string_view.h"
+#include "etl/to_string.h"
 
 #include <stddef.h>
 
@@ -39,6 +40,33 @@ void NMEALine::append(const char *srcBuffer, size_t start, size_t end) {
     if (line.is_truncated()) {
         logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
     }
+    remaining = line;
+}
+
+void NMEALine::append(const etl::istring &string) {
+    line.append(string);
+    if (line.is_truncated()) {
+        logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
+    }
+
+    remaining = line;
+}
+
+void NMEALine::append(const char *string) {
+    line.append(string);
+    if (line.is_truncated()) {
+        logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
+    }
+
+    remaining = line;
+}
+
+void NMEALine::append(char character) {
+    line.push_back(character);
+    if (line.is_truncated()) {
+        logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
+    }
+
     remaining = line;
 }
 
@@ -110,6 +138,30 @@ bool NMEALine::getWord(etl::string_view &word) {
     return true;
 }
 
+void NMEALine::appendWord(const etl::istring &string) {
+    line.push_back(',');
+    line.append(string);
+    remaining = line;
+}
+
+void NMEALine::appendParity() {
+    line.push_back('*');
+
+    // Parity is calulated as being over all characters in the message between the opening '$'
+    // (or '!') and the '*', non-inclusive.
+    uint8_t checksum = 0;
+    for (int pos = 1; pos < line.length() - 1; pos++) {
+        checksum ^= line[pos];
+    }
+
+    etl::string<3> checksumString;
+    etl::format_spec checksumFormat;
+    checksumFormat.hex().upper_case(true).width(2).fill('0');
+    etl::to_string(checksum, checksumString, checksumFormat);
+
+    line.append(checksumString);
+}
+
 bool NMEALine::atEndOfLine() {
     return remaining.empty();
 }
@@ -141,12 +193,26 @@ bool NMEALine::checkParity() {
     return lineChecksum == checksum;
 }
 
+const etl::istring &NMEALine::contents() const {
+    return line;
+}
+
 void NMEALine::logLine() {
     logger() << logDebugNMEALine << line << eol;
 }
 
 Logger & operator << (Logger &logger, const NMEALine &nmeaLine) {
-    logger << nmeaLine.line;
+    // Depending upon where this is done, the line may or may not have a CRLF at the end. If it
+    // does, avoid logging it.
+    etl::string_view lineView(nmeaLine.line);
+    if (lineView.back() == '\n') {
+        lineView.remove_suffix(1);
+        if (lineView.back() == '\r') {
+            lineView.remove_suffix(1);
+        }
+    }
+
+    logger << lineView;
 
     return logger;
 }

@@ -19,7 +19,8 @@
 #include "STALKUARTInterface.h"
 #include "UARTInterface.h"
 #include "InterfaceProtocol.h"
-#include "STALKSource.h"
+#include "STALKInterface.h"
+#include "SeaTalkLampIntensity.h"
 
 #include "driver/uart.h"
 
@@ -30,9 +31,11 @@ STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber,
                                        StatsManager &statsManager, DataModel &dataModel)
     : UARTInterface(name, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
                     statsManager, dataModel, stackSize),
-      STALKSource(interfaceNode(), instrumentData, statsManager),
-      firstDigitalYachtsWorkaroundSent(false) {
+      STALKInterface(*this, instrumentData, statsManager),
+      firstDigitalYachtsWorkaroundSent(false),
+      testLampIntensity(SeaTalkLampIntensity::L0) {
     digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsStartTimeSec);
+    testTimer.setSeconds(10);
 }
 
 void STALKUARTInterface::task() {
@@ -58,6 +61,10 @@ void STALKUARTInterface::task() {
         } else {
             vTaskDelay(pdMS_TO_TICKS(noDataDelayMs));
         }
+
+        if (CONFIG_LUNAMON_STALK_WRITE_TEST_ENABLED) {
+            commandTest();
+        }
     }
 }
 
@@ -81,4 +88,12 @@ void STALKUARTInterface::sendDigitalYachtsSTALKConfig() {
         firstDigitalYachtsWorkaroundSent = 1;
     }
     send("$PDGY,STalk,On\r\n");
+}
+
+void STALKUARTInterface::commandTest() {
+    if (testTimer.expired()) {
+        testLampIntensity.cycle();
+        setLampIntensity(testLampIntensity);
+        testTimer.advanceSeconds(10);
+    }
 }

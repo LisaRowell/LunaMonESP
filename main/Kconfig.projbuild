@@ -610,4 +610,14 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_ENABLE_DIGITAL_YACHTS_STALK_WORKAROUND
         default 0 if !LUNAMON_ENABLE_DIGITAL_YACHTS_STALK_WORKAROUND
 
+    config LUNAMON_ENABLE_STALK_WRITE_TEST
+        bool "Enable a test that writes to $STALK interfaces"
+        help
+            Perform periodic $STALK commands that cycle through lamp britenesses of displays.
+
+    config LUNAMON_STALK_WRITE_TEST_ENABLED
+        int
+        default 1 if LUNAMON_ENABLE_STALK_WRITE_TEST
+        default 0 if !LUNAMON_ENABLE_STALK_WRITE_TEST
+
 endmenu

@@ -21,7 +21,8 @@
 
 #include "UARTInterface.h"
 #include "InterfaceProtocol.h"
-#include "STALKSource.h"
+#include "STALKInterface.h"
+#include "SeaTalkLampIntensity.h"
 #include "NMEALine.h"
 #include "PassiveTimer.h"
 
@@ -34,7 +35,7 @@ class InstrumentData;
 class StatsManager;
 class DataModel;
 
-class STALKUARTInterface : public UARTInterface, public STALKSource {
+class STALKUARTInterface : public UARTInterface, public STALKInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
@@ -46,9 +47,13 @@ class STALKUARTInterface : public UARTInterface, public STALKSource {
         PassiveTimer digitalYachtsWorkaroundTimer;
         bool firstDigitalYachtsWorkaroundSent;
 
+        SeaTalkLampIntensity testLampIntensity;
+        PassiveTimer testTimer;
+
         virtual void task() override;
         void workAroundDigitalYachtsBugs();
         void sendDigitalYachtsSTALKConfig();
+        void commandTest();
 
     public:
         STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,

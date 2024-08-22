@@ -104,6 +104,20 @@ size_t WiFiInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
     }
 }
 
+size_t WiFiInterface::sendBytes(const void *bytes, size_t length) {
+    takeWriteLock();
+    ssize_t result = write(sock, bytes, length);
+    releaseWriteLock();
+
+    if (result < 0) {
+        taskLogger() << logWarnWiFiInterface << "Write of " << length << " bytes to WiFI failed: "
+                     << strerror(errno) << "(" << errno << ")" << eol;
+        return 0;
+    } else {
+        return (size_t)result;
+    }
+}
+
 void WiFiInterface::sourceDisconnected() {
     stateLeaf = false;
     close(sock);

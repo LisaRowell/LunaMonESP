@@ -124,8 +124,18 @@ size_t UARTInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
     }
 }
 
-void UARTInterface::send(const char *string) {
-    size_t length = strlen(string);
+size_t UARTInterface::sendBytes(const void *bytes, size_t length) {
     logger << logDebugUART << "Writing " << length << " bytes to UART " << _uartNumber << eol;
-    uart_write_bytes(_uartNumber, string, length);
+
+    takeWriteLock();
+    ssize_t result = uart_write_bytes(_uartNumber, bytes, length);
+    releaseWriteLock();
+
+    if (result < 0) {
+        taskLogger() << logWarnUART << "Write of " << length << " bytes to UART " << _uartNumber
+                     << " failed";
+        return 0;
+    } else {
+        return (size_t)result;
+    }
 }

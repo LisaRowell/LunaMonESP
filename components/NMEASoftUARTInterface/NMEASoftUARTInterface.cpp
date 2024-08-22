@@ -38,8 +38,8 @@ NMEASoftUARTInterface::NMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
 }
 
 void NMEASoftUARTInterface::task() {
-    logger << logDebugNMEASoftUART << "Starting receive on Software UART " << interfaceName()
-           << "..." << eol;
+    logger << logDebugNMEASoftUART << "Starting receive on Software UART " << name() << "..."
+           << eol;
 
     startInterface();
 

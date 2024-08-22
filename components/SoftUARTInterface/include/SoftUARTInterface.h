@@ -27,7 +27,7 @@
 #include "driver/uart.h"
 
 #include <stdint.h>
-#include <stdint.h>
+#include <stddef.h>
 
 class StatsManager;
 class DataModel;
@@ -44,6 +44,7 @@ class SoftUARTInterface  : public Interface {
         void startInterface();
         size_t readToByteBuffer(uint8_t *buffer, size_t rxBufferSize);
         size_t readToShortBuffer(uint16_t *buffer, size_t rxBufferSize);
+        virtual size_t sendBytes(const void *bytes, size_t length) override;
         uint32_t rxBitCount() const;
         bool receiveOverrunOccured() const;
 };

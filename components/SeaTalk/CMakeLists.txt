@@ -1,4 +1,5 @@
 idf_component_register(SRCS "SeaTalkParser.cpp"
+                            "SeaTalkMaster.cpp"
                             "SeaTalkCommand.cpp"
                             "SeaTalkLine.cpp"
                             "SeaTalkLampIntensity.cpp"

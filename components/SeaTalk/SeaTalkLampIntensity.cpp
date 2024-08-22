@@ -26,6 +26,10 @@ SeaTalkLampIntensity::SeaTalkLampIntensity(uint8_t value) {
     this->value = (Value)value;
 }
 
+SeaTalkLampIntensity::SeaTalkLampIntensity(Value value) {
+    this->value = value;
+}
+
 const char *SeaTalkLampIntensity::name() const {
     switch (value) {
         case L0:
@@ -51,7 +55,23 @@ bool SeaTalkLampIntensity::intensityValid() const {
         default:
             return false;
     }
+}
 
+void SeaTalkLampIntensity::cycle() {
+    switch (value) {
+        case L0:
+            value = L1;
+            break;
+        case L1:
+            value = L2;
+            break;
+        case L2:
+            value = L3;
+            break;
+        case L3:
+        default:
+            value = L0;
+    }
 }
 
 Logger & operator << (Logger &logger, const SeaTalkLampIntensity &lampIntensity) {

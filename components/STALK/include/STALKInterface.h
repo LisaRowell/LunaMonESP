@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STALK_SOURCE_H
-#define STALK_SOURCE_H
+#ifndef STALK_INTERFACE_H
+#define STALK_INTERFACE_H
 
 #include "SeaTalkParser.h"
+#include "SeaTalkMaster.h"
 #include "NMEALineSource.h"
 #include "StatsHolder.h"
 #include "StatCounter.h"
@@ -29,11 +30,13 @@
 #include <stdint.h>
 
 class NMEALine;
+class Interface;
 class InstrumentData;
 class StatsManager;
 
-class STALKSource : public NMEALineSource, StatsHolder {
+class STALKInterface : public NMEALineSource, public SeaTalkMaster, StatsHolder {
     private:
+        Interface &interface;
         SeaTalkParser seaTalkParser;
         StatCounter messagesCounter;
         uint32_t illformedMessages;
@@ -46,11 +49,15 @@ class STALKSource : public NMEALineSource, StatsHolder {
         virtual void exportStats(uint32_t msElapsed) override;
         virtual void handleLine(NMEALine &inputLine) override;
         bool parseLine(NMEALine &nmeaLine);
+        void parseDatagramMessage(NMEALine &nmeaLine);
+        void parsePropritoryMessage(NMEALine &nmeaLine);
+
+        virtual void sendCommand(const SeaTalkLine &seaTalkLine) override;
 
     public:
-        STALKSource(DataModelNode &interfaceNode, InstrumentData &instrumentData,
-                    StatsManager &statsManager);
+        STALKInterface(Interface &interface, InstrumentData &instrumentData,
+                       StatsManager &statsManager);
         bool lastMessageIllformed() const;
 };
 
-#endif // STALK_SOURCE_H
+#endif // STALK_INTERFACE_H

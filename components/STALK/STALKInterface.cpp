@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "STALKSource.h"
+#include "STALKInterface.h"
 
 #include "SeaTalkLine.h"
 #include "SeaTalkParser.h"
+#include "Interface.h"
 #include "NMEALine.h"
 #include "StatCounter.h"
 #include "StatsManager.h"
@@ -27,26 +28,30 @@
 #include "DataModelUInt32Leaf.h"
 #include "Logger.h"
 
+#include "etl/string.h"
 #include "etl/string_view.h"
+#include "etl/to_string.h"
 #include "etl/vector.h"
 #include "etl/to_arithmetic.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
-STALKSource::STALKSource(DataModelNode &interfaceNode, InstrumentData &instrumentData,
-                         StatsManager &statsManager)
-    : seaTalkParser(interfaceNode, instrumentData, statsManager),
+STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentData,
+                               StatsManager &statsManager)
+    : interface(interface),
+      seaTalkParser(interface.interfaceNode(), instrumentData, statsManager),
       messagesCounter(),
       illformedMessages(0),
       _lastMessageIllformed(false),
-      stalkNode("stalk", &interfaceNode),
+      stalkNode("stalk", &interface.interfaceNode()),
       messagesLeaf("messages", &stalkNode),
       messageRateLeaf("messageRate", &stalkNode),
       illformedMessagesLeaf("illformedMessages", &stalkNode) {
     statsManager.addStatsHolder(*this);
 }
 
-void STALKSource::handleLine(NMEALine &inputLine) {
+void STALKInterface::handleLine(NMEALine &inputLine) {
     logger() << logDebugSTALK << inputLine << eol;
 
     if (!parseLine(inputLine)) {
@@ -63,7 +68,7 @@ void STALKSource::handleLine(NMEALine &inputLine) {
 // containing a SeaTalk message encoded as comma separated ASCII versions of the bytes in the
 // message with the ninth bit discarded.
 // Returns false iff the NMEA message wasn't a $STALK message at all.
-bool STALKSource::parseLine(NMEALine &nmeaLine) {
+bool STALKInterface::parseLine(NMEALine &nmeaLine) {
     etl::string_view tagView;
     if (!nmeaLine.getWord(tagView)) {
         logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
@@ -72,13 +77,21 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
         return false;
     }
 
-    if (tagView != "STALK") {
+    if (tagView == "STALK") {
+        parseDatagramMessage(nmeaLine);
+    } else if (tagView == "PDGY") {
+        parsePropritoryMessage(nmeaLine);
+    } else {
         logger() << logWarnSTALK << "Non $STALK message (" << tagView << ") on STALK interface"
                  << eol;
         illformedMessages++;
         return false;
     }
 
+    return true;
+}
+
+void STALKInterface::parseDatagramMessage(NMEALine &nmeaLine) {
     SeaTalkLine seaTalkLine;
     while (!nmeaLine.atEndOfLine()) {
         etl::string_view msgByteView;
@@ -86,7 +99,6 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
             logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
                      << eol;
             illformedMessages++;
-            return true;
         }
 
         int result = etl::to_arithmetic<int>(msgByteView, etl::radix::hex);
@@ -94,7 +106,6 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
             logger() << logWarnSTALK << "$STALK message with bad byte encoding (" << msgByteView
                      << "): " << nmeaLine << eol;
             illformedMessages++;
-            return true;
         }
         seaTalkLine.append((uint8_t)result);
     }
@@ -103,20 +114,48 @@ bool STALKSource::parseLine(NMEALine &nmeaLine) {
         logger() << logWarnSTALK << "$STALK message longer than max allowed SeaTalk message: "
                << nmeaLine << eol;
         illformedMessages++;
-        return true;
     }
 
     messagesCounter++;
     seaTalkParser.parseLine(seaTalkLine);
-
-    return true;
 }
 
-void STALKSource::exportStats(uint32_t msElapsed) {
+void STALKInterface::parsePropritoryMessage(NMEALine &nmeaLine) {
+    logger() << logDebugSTALK << "Ignoring propritory message: " << nmeaLine << eol;
+    messagesCounter++;
+}
+
+void STALKInterface::sendCommand(const SeaTalkLine &seaTalkLine) {
+    NMEALine nmeaLine;
+    nmeaLine.append("$STALK");
+
+    // Todo add an c++ iterator to seaTalkLine
+    etl::format_spec byteFormat;
+    byteFormat.hex().upper_case(true).width(2).fill('0');
+    for (int pos = 0; pos < seaTalkLine.length(); pos++) {
+        uint8_t datagramByte = seaTalkLine[pos];
+        etl::string<4> datagramByteString;
+        etl::to_string(datagramByte, datagramByteString, byteFormat);
+        nmeaLine.appendWord(datagramByteString);
+    }
+
+    nmeaLine.appendParity();
+    nmeaLine.append("\r\n");
+
+    taskLogger() << logDebugSTALK << "Sending STALK command: " << nmeaLine << eol;
+
+    size_t bytesWritten = interface.send(nmeaLine.contents());
+    if (bytesWritten != nmeaLine.contents().length()) {
+        taskLogger() << logWarnSTALK << "Write failure sended SeaTalk command to interface "
+                     << interface.name() << eol;
+    }
+}
+
+void STALKInterface::exportStats(uint32_t msElapsed) {
     messagesCounter.update(messagesLeaf, messageRateLeaf, msElapsed);
     illformedMessagesLeaf = illformedMessages;
 }
 
-bool STALKSource::lastMessageIllformed() const {
+bool STALKInterface::lastMessageIllformed() const {
     return _lastMessageIllformed;
 }

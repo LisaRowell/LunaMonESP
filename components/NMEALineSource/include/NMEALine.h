@@ -43,12 +43,18 @@ class NMEALine {
         NMEALine();
         void reset();
         void append(const char *srcBuffer, size_t start, size_t end);
+        void append(const etl::istring &string);
+        void append(const char *string);
+        void append(char character);
         bool isEmpty();
         bool isEncapsulatedData();
         bool sanityCheck();
         bool extractChar(char &character);
         bool getWord(etl::string_view &word);
+        void appendWord(const etl::istring &string);
+        void appendParity();
         bool atEndOfLine();
+        const etl::istring &contents() const;
         void logLine();
 
     friend Logger & operator << (Logger &logger, const NMEALine &nmeaLine);

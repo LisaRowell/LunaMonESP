@@ -27,6 +27,11 @@
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
+#include "etl/string.h"
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+
 #include <stddef.h>
 
 class StatsManager;
@@ -34,7 +39,9 @@ class DataModel;
 
 class Interface : public TaskObject, StatsHolder {
     private:
-        const char *name;
+        static constexpr uint32_t lockTimeoutMs = 60 * 1000;
+
+        const char *_name;
         enum InterfaceProtocol protocol;
         DataModelNode _interfaceNode;
         DataModelUInt32Leaf receivedBytesLeaf;
@@ -43,13 +50,20 @@ class Interface : public TaskObject, StatsHolder {
         virtual void exportStats(uint32_t msElapsed) override;
 
     protected:
+        SemaphoreHandle_t writeLock;
         StatCounter receivedBytes;
+
+        void takeWriteLock();
+        void releaseWriteLock();
 
     public:
         Interface(const char *name, enum InterfaceProtocol protocol, StatsManager &statsManager,
                   DataModel &dataModel, size_t stackSize);
         DataModelNode &interfaceNode();
-        const char *interfaceName() const;
+        const char *name() const;
+        size_t send(const char *string);
+        size_t send(const etl::istring &string);
+        virtual size_t sendBytes(const void *bytes, size_t length) = 0;
 };
 
 #endif // INTERFACE_H

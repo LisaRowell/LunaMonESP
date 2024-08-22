@@ -58,6 +58,14 @@ size_t SoftUARTInterface::readToShortBuffer(uint16_t *buffer, size_t rxBufferSiz
     return wordsRead;
 }
 
+size_t SoftUARTInterface::sendBytes(const void *bytes, size_t length) {
+    takeWriteLock();
+    // This is currently unimplemented for this interface type.
+    releaseWriteLock();
+
+    return 0;
+}
+
 uint32_t SoftUARTInterface::rxBitCount() const {
     return uart.rxBitCount();
 }

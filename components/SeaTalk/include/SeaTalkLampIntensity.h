@@ -39,9 +39,12 @@ class SeaTalkLampIntensity {
 
     public:
         SeaTalkLampIntensity(uint8_t value);
+        SeaTalkLampIntensity(Value value);
         constexpr operator Value() const { return value; }
+        constexpr operator uint8_t() const { return (uint8_t)value; }
         const char *name() const;
         explicit operator bool() const = delete;
+        void cycle();
 
         friend Logger & operator << (Logger &logger, const SeaTalkLampIntensity &lampIntensity);
 };

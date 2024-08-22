@@ -25,27 +25,57 @@
 #include "DataModel.h"
 #include "DataModelNode.h"
 #include "TaskObject.h"
+#include "Error.h"
+
+#include "etl/string.h"
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 #include <stddef.h>
 
 Interface::Interface(const char *name, enum InterfaceProtocol protocol, StatsManager &statsManager,
                      DataModel &dataModel, size_t stackSize)
     : TaskObject(name, LOGGER_LEVEL_DEBUG, stackSize),
-      name(name),
+      _name(name),
       protocol(protocol),
       _interfaceNode(name, &dataModel.sysNode()),
       receivedBytesLeaf("receivedBytes", &_interfaceNode),
       receivedByteRateLeaf("receivedByteRate", &_interfaceNode),
       receivedBytes() {
     statsManager.addStatsHolder(*this);
+
+    if ((writeLock = xSemaphoreCreateMutex()) == nullptr) {
+        fatalError("Failed to create Interface write mutex");
+    }
 }
 
 DataModelNode &Interface::interfaceNode() {
     return _interfaceNode;
 }
 
-const char *Interface::interfaceName() const {
-    return name;
+const char *Interface::name() const {
+    return _name;
+}
+
+size_t Interface::send(const char *string) {
+    size_t length = strlen(string);
+    return sendBytes(string, length);
+}
+
+size_t Interface::send(const etl::istring &string) {
+    size_t length = string.length();
+    return sendBytes(string.data(), length);
+}
+
+void Interface::takeWriteLock() {
+    if (xSemaphoreTake(writeLock, pdMS_TO_TICKS(lockTimeoutMs)) != pdTRUE) {
+        fatalError("Failed to get contacts lock mutex");
+    }
+}
+
+void Interface::releaseWriteLock() {
+    xSemaphoreGive(writeLock);
 }
 
 void Interface::exportStats(uint32_t msElapsed) {
