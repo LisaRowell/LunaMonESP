@@ -37,6 +37,7 @@
 
 #include <lwip/sockets.h>
 
+#include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 
 #include <stdint.h>

@@ -28,6 +28,7 @@
 #include "etl/map.h"
 #include "etl/pool.h"
 
+#include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 
 #include <stddef.h>
