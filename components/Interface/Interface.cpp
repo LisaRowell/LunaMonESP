@@ -19,18 +19,25 @@
 #include "Interface.h"
 #include "InterfaceProtocol.h"
 
+#include "StatCounter.h"
+#include "StatsManager.h"
+
 #include "DataModel.h"
 #include "DataModelNode.h"
 #include "TaskObject.h"
 
 #include <stddef.h>
 
-Interface::Interface(const char *name, enum InterfaceProtocol protocol, DataModel &dataModel,
-                     size_t stackSize)
+Interface::Interface(const char *name, enum InterfaceProtocol protocol, StatsManager &statsManager,
+                     DataModel &dataModel, size_t stackSize)
     : TaskObject(name, LOGGER_LEVEL_DEBUG, stackSize),
       name(name),
       protocol(protocol),
-      _interfaceNode(name, &dataModel.sysNode()) {
+      _interfaceNode(name, &dataModel.sysNode()),
+      receivedBytesLeaf("receivedBytes", &_interfaceNode),
+      receivedByteRateLeaf("receivedByteRate", &_interfaceNode),
+      receivedBytes() {
+    statsManager.addStatsHolder(*this);
 }
 
 DataModelNode &Interface::interfaceNode() {
@@ -39,4 +46,8 @@ DataModelNode &Interface::interfaceNode() {
 
 const char *Interface::interfaceName() const {
     return name;
+}
+
+void Interface::exportStats(uint32_t msElapsed) {
+    receivedBytes.update(receivedBytesLeaf, receivedByteRateLeaf, msElapsed);
 }

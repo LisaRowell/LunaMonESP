@@ -34,8 +34,9 @@
 SoftUARTInterface::SoftUARTInterface(const char *name, enum InterfaceProtocol protocol,
                                      gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
                                      uart_word_length_t dataBits, uart_stop_bits_t stopBits,
-                                     uart_parity_t parity, DataModel &dataModel, size_t stackSize)
-    : Interface(name, protocol, dataModel, stackSize),
+                                     uart_parity_t parity, StatsManager &statsManager,
+                                     DataModel &dataModel, size_t stackSize)
+    : Interface(name, protocol, statsManager, dataModel, stackSize),
       uart(rxPin, txPin, baudRate, dataBits, stopBits, parity) {
 }
 
@@ -44,11 +45,17 @@ void SoftUARTInterface::startInterface() {
 }
 
 size_t SoftUARTInterface::readToByteBuffer(uint8_t *buffer, size_t rxBufferSize) {
-    return uart.readToByteBuffer(buffer, rxBufferSize);
+    size_t bytesRead = uart.readToByteBuffer(buffer, rxBufferSize);
+
+    receivedBytes.incrementBy(bytesRead);
+    return bytesRead;
 }
 
 size_t SoftUARTInterface::readToShortBuffer(uint16_t *buffer, size_t rxBufferSize) {
-    return uart.readToShortBuffer(buffer, rxBufferSize);
+    size_t wordsRead = uart.readToShortBuffer(buffer, rxBufferSize);
+
+    receivedBytes.incrementBy(wordsRead);
+    return wordsRead;
 }
 
 uint32_t SoftUARTInterface::rxBitCount() const {

@@ -33,7 +33,7 @@ NMEASoftUARTInterface::NMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
                                              uint32_t baudRate, StatsManager &statsManager,
                                              AISContacts &aisContacts, DataModel &dataModel)
     : SoftUARTInterface(name, INTERFACE_NMEA_O183, rxPin, txPin, baudRate, UART_DATA_8_BITS,
-                        UART_STOP_BITS_1, UART_PARITY_DISABLE, dataModel, stackSize),
+                        UART_STOP_BITS_1, UART_PARITY_DISABLE, statsManager, dataModel, stackSize),
       NMEASource(interfaceNode(), aisContacts, statsManager) {
 }
 

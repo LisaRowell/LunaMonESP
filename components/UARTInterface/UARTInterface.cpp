@@ -19,6 +19,9 @@
 #include "UARTInterface.h"
 #include "Interface.h"
 
+#include "StatCounter.h"
+#include "StatsManager.h"
+
 #include "Error.h"
 #include "ESPError.h"
 #include "Logger.h"
@@ -33,8 +36,9 @@
 
 UARTInterface::UARTInterface(const char *name, enum InterfaceProtocol protocol,
                              uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
-                             size_t rxBufferSize, DataModel &dataModel, size_t stackSize)
-    : Interface(name, protocol, dataModel, stackSize),
+                             size_t rxBufferSize, StatsManager &statsManager, DataModel &dataModel,
+                             size_t stackSize)
+    : Interface(name, protocol, statsManager, dataModel, stackSize),
       _uartNumber(uartNumber),
       rxPin(rxPin),
       txPin(txPin),
@@ -109,6 +113,9 @@ size_t UARTInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
     if (bytesInRxBuffer) {
         size_t bytesToRead = etl::min(bytesInRxBuffer, rxBufferSize);
         size_t bytesRead = uart_read_bytes(_uartNumber, buffer, bytesToRead, 0);
+
+        receivedBytes.incrementBy(bytesRead);
+
         logger << logDebugUART << "Reading from UART " << _uartNumber << ", expected "
                 << bytesInRxBuffer << " received " << bytesRead << eol;
         return bytesRead;

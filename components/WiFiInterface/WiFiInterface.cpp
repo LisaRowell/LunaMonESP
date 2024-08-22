@@ -34,8 +34,8 @@
 
 WiFiInterface::WiFiInterface(const char *name, enum InterfaceProtocol protocol,
                              const char *ipv4Addr, uint16_t tcpPort, WiFiManager &wifiManager,
-                             DataModel &dataModel, size_t stackSize)
-    : Interface(name, protocol, dataModel, stackSize),
+                             StatsManager &statsManager, DataModel &dataModel, size_t stackSize)
+    : Interface(name, protocol, statsManager, dataModel, stackSize),
       WiFiManagerClient(wifiManager),
       ipv4Addr(ipv4Addr),
       tcpPort(tcpPort),
@@ -99,6 +99,7 @@ size_t WiFiInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
                << errno << ")" << eol;
         return 0;
     } else {
+        receivedBytes.incrementBy((size_t)bytesRead);
         return (size_t)bytesRead;
     }
 }

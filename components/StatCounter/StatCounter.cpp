@@ -33,6 +33,10 @@ void StatCounter::increment() {
     count++;
 }
 
+void StatCounter::incrementBy(uint32_t addition) {
+    count += addition;
+}
+
 StatCounter StatCounter::operator ++ (int) {
     count++;
 

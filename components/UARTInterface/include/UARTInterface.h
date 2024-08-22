@@ -25,6 +25,7 @@
 
 #include <stddef.h>
 
+class StatsManager;
 class DataModelNode;
 
 class UARTInterface : public Interface {
@@ -39,8 +40,8 @@ class UARTInterface : public Interface {
 
     public:
         UARTInterface(const char *name, enum InterfaceProtocol protocol, uart_port_t uartNumber,
-                      int rxPin, int txPin, int baudRate, size_t rxBufferSize, DataModel &dataModel,
-                      size_t stackSize);
+                      int rxPin, int txPin, int baudRate, size_t rxBufferSize,
+                      StatsManager &statsManager, DataModel &dataModel, size_t stackSize);
         void startUART();
         uart_port_t uartNumber() const;
         size_t readToBuffer(void *buffer, size_t rxBufferSize);

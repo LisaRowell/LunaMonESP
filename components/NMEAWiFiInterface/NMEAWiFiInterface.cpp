@@ -25,7 +25,8 @@
 NMEAWiFiInterface::NMEAWiFiInterface(const char *name, const char *ipv4Addr, uint16_t tcpPort,
                                      WiFiManager &wifiManager, StatsManager &statsManager,
                                      AISContacts &aisContacts, DataModel &dataModel)
-    : WiFiInterface(name, INTERFACE_NMEA_O183, ipv4Addr, tcpPort,wifiManager, dataModel, stackSize),
+    : WiFiInterface(name, INTERFACE_NMEA_O183, ipv4Addr, tcpPort, wifiManager, statsManager,
+                    dataModel, stackSize),
       NMEASource(interfaceNode(), aisContacts, statsManager) {
 }
 

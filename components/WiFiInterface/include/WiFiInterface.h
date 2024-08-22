@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+class StatsManager;
 class DataModelNode;
 class WiFiManager;
 
@@ -53,8 +54,8 @@ class WiFiInterface : public Interface, WiFiManagerClient {
 
     public:
         WiFiInterface(const char *name, enum InterfaceProtocol protocol, const char *ipv4Addr,
-                      uint16_t tcpPort, WiFiManager &wifiManager, DataModel &dataModel,
-                      size_t stackSize);
+                      uint16_t tcpPort, WiFiManager &wifiManager, StatsManager &statsManager,
+                      DataModel &dataModel, size_t stackSize);
 };
 
 #endif // WIFI_INTERFACE_H

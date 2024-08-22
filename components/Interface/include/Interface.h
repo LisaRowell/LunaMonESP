@@ -22,21 +22,32 @@
 #include "TaskObject.h"
 #include "InterfaceProtocol.h"
 
+#include "StatsHolder.h"
+#include "StatCounter.h"
 #include "DataModelNode.h"
+#include "DataModelUInt32Leaf.h"
 
 #include <stddef.h>
 
+class StatsManager;
 class DataModel;
 
-class Interface : public TaskObject {
+class Interface : public TaskObject, StatsHolder {
     private:
         const char *name;
         enum InterfaceProtocol protocol;
         DataModelNode _interfaceNode;
+        DataModelUInt32Leaf receivedBytesLeaf;
+        DataModelUInt32Leaf receivedByteRateLeaf;
+
+        virtual void exportStats(uint32_t msElapsed) override;
+
+    protected:
+        StatCounter receivedBytes;
 
     public:
-        Interface(const char *name, enum InterfaceProtocol protocol, DataModel &dataModel,
-                  size_t stackSize);
+        Interface(const char *name, enum InterfaceProtocol protocol, StatsManager &statsManager,
+                  DataModel &dataModel, size_t stackSize);
         DataModelNode &interfaceNode();
         const char *interfaceName() const;
 };

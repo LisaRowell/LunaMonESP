@@ -29,7 +29,7 @@ STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber,
                                        int txPin, int baudRate, InstrumentData &instrumentData,
                                        StatsManager &statsManager, DataModel &dataModel)
     : UARTInterface(name, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
-                    dataModel, stackSize),
+                    statsManager, dataModel, stackSize),
       STALKSource(interfaceNode(), instrumentData, statsManager),
       firstDigitalYachtsWorkaroundSent(false) {
     digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsStartTimeSec);
