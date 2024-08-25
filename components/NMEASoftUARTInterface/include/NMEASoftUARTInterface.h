@@ -20,7 +20,7 @@
 #define NMEA_SOFT_UART_INTERFACE_H
 
 #include "SoftUARTInterface.h"
-#include "NMEASource.h"
+#include "NMEAInterface.h"
 
 #include "driver/uart.h"
 #include "driver/gpio.h"
@@ -32,7 +32,7 @@ class StatsManager;
 class AISContacts;
 class DataModel;
 
-class NMEASoftUARTInterface : public SoftUARTInterface, public NMEASource {
+class NMEASoftUARTInterface : public SoftUARTInterface, public NMEAInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;

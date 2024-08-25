@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEASource.h"
+#include "NMEAInterface.h"
 #include "NMEAMessageHandler.h"
 
 #include "DataModelNode.h"
@@ -26,17 +26,18 @@
 
 #include "Error.h"
 
-NMEASource::NMEASource(DataModelNode &interfaceNode, AISContacts &aisContacts,
-                       StatsManager &statsManager)
+NMEAInterface::NMEAInterface(DataModelNode &interfaceNode, AISContacts &aisContacts,
+                             StatsManager &statsManager)
     : parser(aisContacts),
       messageHandlers(),
       nmeaNode("nmea", &interfaceNode),
       messagesLeaf("messages", &nmeaNode),
       messageRateLeaf("messageRate", &nmeaNode) {
     statsManager.addStatsHolder(*this);
+    addLineHandler(*this);
 }
 
-void NMEASource::addMessageHandler(NMEAMessageHandler &messageHandler) {
+void NMEAInterface::addMessageHandler(NMEAMessageHandler &messageHandler) {
     if (messageHandlers.full()) {
         fatalError("Too many message handles for NMEA source");
     }
@@ -44,7 +45,7 @@ void NMEASource::addMessageHandler(NMEAMessageHandler &messageHandler) {
     messageHandlers.push_back(&messageHandler);
 }
 
-void NMEASource::handleLine(NMEALine &inputLine) {
+void NMEAInterface::handleLine(NMEALine &inputLine) {
     NMEAMessage *nmeaMessage = parser.parseLine(inputLine);
     if (nmeaMessage != nullptr) {
         nmeaMessage->log();
@@ -60,6 +61,6 @@ void NMEASource::handleLine(NMEALine &inputLine) {
     }
 }
 
-void NMEASource::exportStats(uint32_t msElapsed) {
+void NMEAInterface::exportStats(uint32_t msElapsed) {
     messagesCounter.update(messagesLeaf, messageRateLeaf, msElapsed);
 }

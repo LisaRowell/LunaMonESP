@@ -20,7 +20,7 @@
 #define NMEA_WIFI_INTERFACE_H
 
 #include "WiFiInterface.h"
-#include "NMEASource.h"
+#include "NMEAInterface.h"
 #include "InterfaceProtocol.h"
 
 #include <stddef.h>
@@ -30,7 +30,7 @@ class StatsManager;
 class AISContacts;
 class DataModel;
 
-class NMEAWiFiInterface : public WiFiInterface, public NMEASource {
+class NMEAWiFiInterface : public WiFiInterface, public NMEAInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
 

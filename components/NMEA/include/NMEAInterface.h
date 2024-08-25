@@ -16,13 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_SOURCE_H
-#define NMEA_SOURCE_H
+#ifndef NMEA_INTERFACE_H
+#define NMEA_INTERFACE_H
 
 #include "NMEALine.h"
 #include "NMEAParser.h"
 
 #include "NMEALineSource.h"
+#include "NMEALineHandler.h"
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -38,7 +39,7 @@ class AISContacts;
 class NMEAMessageHandler;
 class StatsManager;
 
-class NMEASource : public NMEALineSource, StatsHolder {
+class NMEAInterface : public NMEALineSource, NMEALineHandler, StatsHolder {
     private:
         static const size_t maxMessageHandlers = 5;
 
@@ -49,13 +50,13 @@ class NMEASource : public NMEALineSource, StatsHolder {
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
 
+        void handleLine(NMEALine &inputLine);
         virtual void exportStats(uint32_t msElapsed) override;
-        virtual void handleLine(NMEALine &inputLine) override;
 
     public:
-        NMEASource(DataModelNode &interfaceNode, AISContacts &aisContacts,
-                   StatsManager &statsManager);
+        NMEAInterface(DataModelNode &interfaceNode, AISContacts &aisContacts,
+                      StatsManager &statsManager);
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 
-#endif // NMEA_SOURCE_H
+#endif // NMEA_INTERFACE_H

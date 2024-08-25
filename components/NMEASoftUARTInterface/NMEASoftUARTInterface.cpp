@@ -18,7 +18,7 @@
 
 #include "NMEASoftUARTInterface.h"
 #include "SoftUARTInterface.h"
-#include "NMEASource.h"
+#include "NMEAInterface.h"
 #include "InterfaceProtocol.h"
 
 #include "Logger.h"
@@ -34,7 +34,7 @@ NMEASoftUARTInterface::NMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
                                              AISContacts &aisContacts, DataModel &dataModel)
     : SoftUARTInterface(name, INTERFACE_NMEA_O183, rxPin, txPin, baudRate, UART_DATA_8_BITS,
                         UART_STOP_BITS_1, UART_PARITY_DISABLE, statsManager, dataModel, stackSize),
-      NMEASource(interfaceNode(), aisContacts, statsManager) {
+      NMEAInterface(interfaceNode(), aisContacts, statsManager) {
 }
 
 void NMEASoftUARTInterface::task() {

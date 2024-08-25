@@ -20,8 +20,8 @@
 #define NMEA_UART_INTERFACE_H
 
 #include "UARTInterface.h"
+#include "NMEAInterface.h"
 #include "InterfaceProtocol.h"
-#include "NMEASource.h"
 #include "NMEALine.h"
 
 #include "driver/uart.h"
@@ -33,7 +33,7 @@ class StatsManager;
 class AISContacts;
 class DataModel;
 
-class NMEAUARTInterface : public UARTInterface, public NMEASource {
+class NMEAUARTInterface : public UARTInterface, public NMEAInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;

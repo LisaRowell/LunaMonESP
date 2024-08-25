@@ -20,6 +20,7 @@
 #define NMEA_LINE_SOURCE_H
 
 #include "NMEALine.h"
+#include "NMEALineHandler.h"
 
 #include "etl/vector.h"
 
@@ -27,21 +28,25 @@
 
 class NMEALineSource {
     private:
-        bool carriageReturnFound;
+        static constexpr size_t MAX_LINE_HANDLERS = 4;
+
+        etl::vector<NMEALineHandler *, MAX_LINE_HANDLERS> lineHandlers;
         NMEALine inputLine;
+        bool carriageReturnFound;
 
         bool scanForCarriageReturn(size_t &carriageReturnPos, const char *buffer,
                                    size_t &bufferPos, size_t &remaining);
         bool processBufferToEndOfLine(const char *buffer, size_t &bufferPos, size_t &remaining);
         void lineCompleted();
+        void handleLine(NMEALine &inputLine);
 
     protected:
-        void sourceReset();
         void processBuffer(const char *buffer, size_t length);
-        virtual void handleLine(NMEALine &inputLine) = 0;
 
     public:
         NMEALineSource();
+        void addLineHandler(NMEALineHandler &lineHandler);
+        void sourceReset();
 };
 
 #endif // NMEA_LINE_SOURCE_H

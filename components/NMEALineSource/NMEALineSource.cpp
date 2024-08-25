@@ -18,10 +18,13 @@
 
 #include "NMEALineSource.h"
 #include "NMEALine.h"
+#include "NMEALineHandler.h"
 
 #include "CharacterTools.h"
 #include "Logger.h"
 #include "Error.h"
+
+#include "etl/vector.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -140,4 +143,20 @@ void NMEALineSource::lineCompleted() {
     }
 
     handleLine(inputLine);
+}
+
+void NMEALineSource::handleLine(NMEALine &inputLine) {
+    for (NMEALineHandler *lineHandler : lineHandlers) {
+        lineHandler->handleLine(inputLine);
+    }
+}
+
+void NMEALineSource::addLineHandler(NMEALineHandler &lineHandler) {
+    if (lineHandlers.full()) {
+        logger() << logErrorNMEALine << "Attempt to add more than " << MAX_LINE_HANDLERS
+                 << " line handlers to a NMEALineSource" << eol;
+        errorExit();
+    }
+
+    lineHandlers.push_back(&lineHandler);
 }

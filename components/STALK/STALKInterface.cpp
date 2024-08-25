@@ -49,6 +49,7 @@ STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentD
       messageRateLeaf("messageRate", &stalkNode),
       illformedMessagesLeaf("illformedMessages", &stalkNode) {
     statsManager.addStatsHolder(*this);
+    addLineHandler(*this);
 }
 
 void STALKInterface::handleLine(NMEALine &inputLine) {
@@ -68,19 +69,19 @@ void STALKInterface::handleLine(NMEALine &inputLine) {
 // containing a SeaTalk message encoded as comma separated ASCII versions of the bytes in the
 // message with the ninth bit discarded.
 // Returns false iff the NMEA message wasn't a $STALK message at all.
-bool STALKInterface::parseLine(NMEALine &nmeaLine) {
+bool STALKInterface::parseLine(NMEALine &inputLine) {
     etl::string_view tagView;
-    if (!nmeaLine.getWord(tagView)) {
-        logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
+    if (!inputLine.getWord(tagView)) {
+        logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << inputLine
                  << eol;
         illformedMessages++;
         return false;
     }
 
     if (tagView == "STALK") {
-        parseDatagramMessage(nmeaLine);
+        parseDatagramMessage(inputLine);
     } else if (tagView == "PDGY") {
-        parsePropritoryMessage(nmeaLine);
+        parsePropritoryMessage(inputLine);
     } else {
         logger() << logWarnSTALK << "Non $STALK message (" << tagView << ") on STALK interface"
                  << eol;

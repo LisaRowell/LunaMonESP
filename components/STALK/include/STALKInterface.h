@@ -22,6 +22,7 @@
 #include "SeaTalkParser.h"
 #include "SeaTalkMaster.h"
 #include "NMEALineSource.h"
+#include "NMEALineHandler.h"
 #include "StatsHolder.h"
 #include "StatCounter.h"
 #include "DataModelNode.h"
@@ -34,7 +35,7 @@ class Interface;
 class InstrumentData;
 class StatsManager;
 
-class STALKInterface : public NMEALineSource, public SeaTalkMaster, StatsHolder {
+class STALKInterface : public NMEALineSource, NMEALineHandler, public SeaTalkMaster, StatsHolder {
     private:
         Interface &interface;
         SeaTalkParser seaTalkParser;
@@ -47,7 +48,7 @@ class STALKInterface : public NMEALineSource, public SeaTalkMaster, StatsHolder 
         DataModelUInt32Leaf illformedMessagesLeaf;
 
         virtual void exportStats(uint32_t msElapsed) override;
-        virtual void handleLine(NMEALine &inputLine) override;
+        void handleLine(NMEALine &inputLine);
         bool parseLine(NMEALine &nmeaLine);
         void parseDatagramMessage(NMEALine &nmeaLine);
         void parsePropritoryMessage(NMEALine &nmeaLine);
