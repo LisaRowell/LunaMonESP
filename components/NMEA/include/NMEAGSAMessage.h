@@ -26,7 +26,7 @@
 #include "NMEAHundredthsUInt8.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAGSAMessage : public NMEAMessage {
     private:
@@ -39,14 +39,14 @@ class NMEAGSAMessage : public NMEAMessage {
 
     public:
         NMEAGSAMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class GPSBridge;
 };
 
-extern NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif

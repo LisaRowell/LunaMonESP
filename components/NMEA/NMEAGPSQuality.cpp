@@ -17,7 +17,7 @@
  */
 
 #include "NMEAGPSQuality.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -46,9 +46,9 @@ bool NMEAGPSQuality::set(etl::string_view &gpsQualityView) {
     return true;
 }
 
-bool NMEAGPSQuality::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEAGPSQuality::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view gpsQualityView;
-    if (!nmeaLine.getWord(gpsQualityView)) {
+    if (!lineWalker.getWord(gpsQualityView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing GPS Quality field"
                  << eol;
         return false;

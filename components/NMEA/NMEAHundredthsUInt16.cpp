@@ -17,6 +17,7 @@
  */
 
 #include "NMEAHundredthsUInt16.h"
+#include "NMEALineWalker.h"
 
 #include "DataModelHundredthsUInt16Leaf.h"
 
@@ -85,10 +86,10 @@ bool NMEAHundredthsUInt16::set(const etl::string_view &valueView) {
     return true;
 }
 
-bool NMEAHundredthsUInt16::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
-                                   const char *fieldName) {
+bool NMEAHundredthsUInt16::extract(NMEALineWalker &lineWalker, NMEATalker &talker,
+                                   const char *msgType, const char *fieldName) {
     etl::string_view valueView;
-    if (!nmeaLine.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
                  << " field" << eol;
         return false;

@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 #include "NMEAUInt32.h"
@@ -56,10 +55,11 @@ bool NMEAUInt32::set(const etl::string_view &valueView, bool optional, uint32_t 
     return true;
 }
 
-bool NMEAUInt32::extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgTypeName,
-                         const char *fieldName, bool optional, uint32_t maxValue) {
+bool NMEAUInt32::extract(NMEALineWalker &lineWalker, const NMEATalker &talker,
+                         const char *msgTypeName, const char *fieldName, bool optional,
+                         uint32_t maxValue) {
     etl::string_view valueView;
-    if (!nmeaLine.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView)) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgTypeName << " message missing " << fieldName
                      << " field" << eol;

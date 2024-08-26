@@ -19,7 +19,7 @@
 #include "NMEARSAMessage.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATenthsInt16.h"
 #include "NMEADataValid.h"
 
@@ -28,21 +28,21 @@
 NMEARSAMessage::NMEARSAMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEARSAMessage::parse(NMEALine &nmeaLine) {
-    if (!starboardRudderSensorAngle.extract(nmeaLine, talker, "RSA",
+bool NMEARSAMessage::parse(NMEALineWalker &lineWalker) {
+    if (!starboardRudderSensorAngle.extract(lineWalker, talker, "RSA",
                                             "Starboard Rudder Sensor Angle", true)) {
         return false;
     }
-    if (!starboardRudderSensorAngleValid.extract(nmeaLine, talker, "RSA",
+    if (!starboardRudderSensorAngleValid.extract(lineWalker, talker, "RSA",
                                                  !starboardRudderSensorAngle.hasValue())) {
         return false;
     }
 
-    if (!portRudderSensorAngle.extract(nmeaLine, talker, "RSA", "Port Rudder Sensor Angle",
+    if (!portRudderSensorAngle.extract(lineWalker, talker, "RSA", "Port Rudder Sensor Angle",
                                        true)) {
         return false;
     }
-    if (!portRudderSensorAngleValid.extract(nmeaLine, talker, "RSA",
+    if (!portRudderSensorAngleValid.extract(lineWalker, talker, "RSA",
                                             !portRudderSensorAngle.hasValue())) {
         return false;
     }
@@ -70,14 +70,14 @@ void NMEARSAMessage::log() const {
     logger() << eol;
 }
 
-NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEARSAMessage *message = new (nmeaMessageBuffer)NMEARSAMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 class NMEATalker;
+class NMEALineWalker;
 
 class NMEATXTMessage : public NMEAMessage {
     private:
@@ -36,18 +37,18 @@ class NMEATXTMessage : public NMEAMessage {
         uint8_t textIdentifier;
         etl::string<maxNMEALineLength> text;
 
-        bool getTwoDigitField(NMEALine &nmeaLine, uint8_t &value, const char *fieldName);
+        bool getTwoDigitField(NMEALineWalker &lineWalker, uint8_t &value, const char *fieldName);
 
     public:
         NMEATXTMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class DataModelBridge;
 };
 
-extern NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif

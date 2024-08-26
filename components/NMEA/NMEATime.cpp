@@ -17,7 +17,7 @@
  */
 
 #include "NMEATime.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -64,9 +64,9 @@ bool NMEATime::set(const etl::string_view &timeView) {
     return true;
 }
 
-bool NMEATime::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEATime::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view timeView;
-    if (!nmeaLine.getWord(timeView)) {
+    if (!lineWalker.getWord(timeView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing Time field" << eol;
         return false;
     }

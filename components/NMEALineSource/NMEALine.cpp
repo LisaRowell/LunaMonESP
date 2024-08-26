@@ -27,12 +27,11 @@
 
 #include <stddef.h>
 
-NMEALine::NMEALine() : line(), remaining(){
+NMEALine::NMEALine() : line() {
 }
 
 void NMEALine::reset() {
     line.clear();
-    remaining = line;
 }
 
 void NMEALine::append(const char *srcBuffer, size_t start, size_t end) {
@@ -40,7 +39,6 @@ void NMEALine::append(const char *srcBuffer, size_t start, size_t end) {
     if (line.is_truncated()) {
         logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
     }
-    remaining = line;
 }
 
 void NMEALine::append(const etl::istring &string) {
@@ -48,8 +46,6 @@ void NMEALine::append(const etl::istring &string) {
     if (line.is_truncated()) {
         logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
     }
-
-    remaining = line;
 }
 
 void NMEALine::append(const char *string) {
@@ -57,8 +53,6 @@ void NMEALine::append(const char *string) {
     if (line.is_truncated()) {
         logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
     }
-
-    remaining = line;
 }
 
 void NMEALine::append(char character) {
@@ -66,73 +60,27 @@ void NMEALine::append(char character) {
     if (line.is_truncated()) {
         logger() << logWarnNMEALine << "NMEA line exceeded maximum length, truncated" << eol;
     }
-
-    remaining = line;
 }
 
 bool NMEALine::isEmpty() {
     return line.empty();
 }
 
-bool NMEALine::isEncapsulatedData() {
-    return encapsulatedData;
-}
-
 bool NMEALine::sanityCheck() {
-    char msgStart;
-
-    if (!extractChar(msgStart)) {
+    if (isEmpty()) {
         logger() << logWarnNMEALine << "Empty NMEA message" << eol;
         return false;
     }
 
-    switch (msgStart) {
-        case '$':
-            encapsulatedData = false;
-            break;
-
-        case '!':
-            encapsulatedData = true;
-            break;
-
-        default:
-            logger() << logWarnNMEALine << "NMEA message missing leading '$'" << eol;
-            logLine();
-            return false;
-    }
-
-    if (!checkParity()) {
-        logger() << logWarnNMEALine << "NMEA line with bad parity: " << line << eol;
-        return false;
-    }
-    stripParity();
-
-    return true;
-}
-
-bool NMEALine::extractChar(char &character) {
-    if (remaining.empty()) {
+    char firstCharacter = line.front();
+    if (firstCharacter != '$' && firstCharacter != '!') {
+        logger() << logWarnNMEALine << "NMEA message missing leading '$' or '!': " << line << eol;
         return false;
     }
 
-    character = remaining.front();
-    remaining.remove_prefix(1);
-
-    return true;
-}
-
-bool NMEALine::getWord(etl::string_view &word) {
-    if (remaining.empty()) {
+    if (!validateChecksum()) {
+        logger() << logWarnNMEALine << "NMEA line with bad checksum: " << line << eol;
         return false;
-    }
-
-    size_t commaPos = remaining.find(',');
-    if (commaPos == remaining.npos) {
-        word.assign(remaining.begin(), remaining.end());
-        remaining.remove_prefix(remaining.size());
-    } else {
-        word.assign(remaining.begin(), remaining.begin() + commaPos);
-        remaining.remove_prefix(commaPos + 1);
     }
 
     return true;
@@ -141,10 +89,9 @@ bool NMEALine::getWord(etl::string_view &word) {
 void NMEALine::appendWord(const etl::istring &string) {
     line.push_back(',');
     line.append(string);
-    remaining = line;
 }
 
-void NMEALine::appendParity() {
+void NMEALine::appendChecksum() {
     line.push_back('*');
 
     // Parity is calulated as being over all characters in the message between the opening '$'
@@ -162,15 +109,7 @@ void NMEALine::appendParity() {
     line.append(checksumString);
 }
 
-bool NMEALine::atEndOfLine() {
-    return remaining.empty();
-}
-
-void NMEALine::stripParity() {
-    remaining.remove_suffix(3);
-}
-
-bool NMEALine::checkParity() {
+bool NMEALine::validateChecksum() {
     size_t checksumPos = line.size() - 3;
     if (line[checksumPos] != '*') {
         return false;
@@ -195,10 +134,6 @@ bool NMEALine::checkParity() {
 
 const etl::istring &NMEALine::contents() const {
     return line;
-}
-
-void NMEALine::logLine() {
-    logger() << logDebugNMEALine << line << eol;
 }
 
 Logger & operator << (Logger &logger, const NMEALine &nmeaLine) {

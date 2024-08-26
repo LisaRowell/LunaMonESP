@@ -19,7 +19,7 @@
 #include "NMEAMWVMessage.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEARelativeIndicator.h"
 #include "NMEASpeedUnits.h"
@@ -29,24 +29,24 @@
 NMEAMWVMessage::NMEAMWVMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAMWVMessage::parse(NMEALine &nmeaLine) {
-    if (!windAngle.extract(nmeaLine, talker, "MWV", "Wind Angle")) {
+bool NMEAMWVMessage::parse(NMEALineWalker &lineWalker) {
+    if (!windAngle.extract(lineWalker, talker, "MWV", "Wind Angle")) {
         return false;
     }
 
-    if (!relativeIndicator.extract(nmeaLine, talker, "MWV")) {
+    if (!relativeIndicator.extract(lineWalker, talker, "MWV")) {
         return false;
     }
 
-    if (!windSpeed.extract(nmeaLine, talker, "MWV", "Wind Speed")) {
+    if (!windSpeed.extract(lineWalker, talker, "MWV", "Wind Speed")) {
         return false;
     }
 
-    if (!windSpeedUnits.extract(nmeaLine, talker, "MWV")) {
+    if (!windSpeedUnits.extract(lineWalker, talker, "MWV")) {
         return false;
     }
 
-    if (!dataValid.extract(nmeaLine, talker, "MWV")) {
+    if (!dataValid.extract(lineWalker, talker, "MWV")) {
         return false;
     }
 
@@ -63,14 +63,14 @@ void NMEAMWVMessage::log() const {
              << eol;
 }
 
-NMEAMWVMessage *parseNMEAMWVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAMWVMessage *parseNMEAMWVMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAMWVMessage *message = new (nmeaMessageBuffer)NMEAMWVMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

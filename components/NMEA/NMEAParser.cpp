@@ -19,6 +19,7 @@
 #include "NMEAParser.h"
 
 #include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 #include "NMEAMessage.h"
@@ -58,9 +59,16 @@
 NMEAParser::NMEAParser(AISContacts &aisContacts) : aisContacts(aisContacts) {
 }
 
-NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
+NMEAMessage *NMEAParser::parseLine(const NMEALine &nmeaLine) {
+    NMEALineWalker walker(nmeaLine);
+
+    // At this point we can assume the line has either a leading '$' or '!' and has a valid
+    // checksum.
+    walker.skipChar();
+    walker.stripChecksum();
+
     etl::string_view tagView;
-    if (!nmeaLine.getWord(tagView)) {
+    if (!walker.getWord(tagView)) {
         logger() << logWarnNMEA << "NMEA message missing tag" << eol;
         return nullptr;
     }
@@ -80,60 +88,61 @@ NMEAMessage *NMEAParser::parseLine(NMEALine &nmeaLine) {
         return nullptr;
     }
 
-    if (!nmeaLine.isEncapsulatedData()) {
-        return parseUnencapsulatedLine(talker, msgType, nmeaLine);
+    if (!walker.isEncapsulatedData()) {
+        return parseUnencapsulatedLine(talker, msgType, walker);
     } else {
-        return parseEncapsulatedLine(talker, msgType, nmeaLine);
+        return parseEncapsulatedLine(talker, msgType, walker);
     }
 }
 
 NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
-                                                 const NMEAMsgType &msgType, NMEALine &nmeaLine) {
+                                                 const NMEAMsgType &msgType,
+                                                 NMEALineWalker &walker) {
     switch (msgType) {
         case NMEAMsgType::DBK:
-            return parseNMEADBKMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEADBKMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::DBS:
-            return parseNMEADBSMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEADBSMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::DBT:
-            return parseNMEADBTMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEADBTMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::DPT:
-            return parseNMEADPTMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEADPTMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::GGA:
-            return parseNMEAGGAMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAGGAMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::GLL:
-            return parseNMEAGLLMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAGLLMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::GSA:
-            return parseNMEAGSAMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAGSAMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::GST:
-            return parseNMEAGSTMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAGSTMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::GSV:
-            return parseNMEAGSVMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAGSVMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::HDG:
-            return parseNMEAHDGMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAHDGMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::MTW:
-            return parseNMEAMTWMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAMTWMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::MWV:
-            return parseNMEAMWVMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAMWVMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::RMC:
-            return parseNMEARMCMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEARMCMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::RSA:
-            return parseNMEARSAMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEARSAMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::TXT:
-            return parseNMEATXTMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEATXTMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::VDM:
         case NMEAMsgType::VDO:
@@ -142,10 +151,10 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
             return nullptr;
 
         case NMEAMsgType::VHW:
-            return parseNMEAVHWMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAVHWMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::VTG:
-            return parseNMEAVTGMessage(talker, nmeaLine, nmeaMessageBuffer);
+            return parseNMEAVTGMessage(talker, walker, nmeaMessageBuffer);
 
         case NMEAMsgType::UNKNOWN:
         default:
@@ -155,11 +164,10 @@ NMEAMessage *NMEAParser::parseUnencapsulatedLine(const NMEATalker &talker,
     }
 }
 
-NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker,
-                                               const NMEAMsgType &msgType,
-                                               NMEALine &nmeaLine) {
+NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker, const NMEAMsgType &msgType,
+                                               NMEALineWalker &walker) {
     NMEAUInt8 fragmentCount;
-    if (!fragmentCount.extract(nmeaLine, talker, msgType.name(), "Fragment Count")) {
+    if (!fragmentCount.extract(walker, talker, msgType.name(), "Fragment Count")) {
         decapsulator.reset();
         return nullptr;
     }
@@ -171,7 +179,7 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker,
     }
 
     NMEAUInt8 fragmentIndex;
-    if (!fragmentIndex.extract(nmeaLine, talker, msgType.name(), "Fragment Index")) {
+    if (!fragmentIndex.extract(walker, talker, msgType.name(), "Fragment Index")) {
         decapsulator.reset();
         return nullptr;
     }
@@ -183,7 +191,7 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker,
     }
 
     NMEAUInt32 messageID;
-    if (!messageID.extract(nmeaLine, talker, msgType.name(), "Message ID", true)) {
+    if (!messageID.extract(walker, talker, msgType.name(), "Message ID", true)) {
         decapsulator.reset();
         return nullptr;
     }
@@ -198,13 +206,13 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker,
     const uint32_t messageIdOrZero = messageID.hasValue() ? messageID : 0;
 
     NMEARadioChannelCode radioChannelCode;
-    if (!radioChannelCode.extract(nmeaLine, talker, msgType)) {
+    if (!radioChannelCode.extract(walker, talker, msgType)) {
         decapsulator.reset();
         return nullptr;
     }
 
     etl::string_view payloadView;
-    if (!nmeaLine.getWord(payloadView)) {
+    if (!walker.getWord(payloadView)) {
         logger() << logWarnNMEA << "NMEA " << msgType << " message from " << talker
                  << " missing payload" << eol;
         decapsulator.reset();
@@ -212,7 +220,7 @@ NMEAMessage *NMEAParser::parseEncapsulatedLine(const NMEATalker &talker,
     }
 
     NMEAUInt8 fillBits;
-    if (!fillBits.extract(nmeaLine, talker, msgType.name(), "Fill Bits", false, 5)) {
+    if (!fillBits.extract(walker, talker, msgType.name(), "Fill Bits", false, 5)) {
         decapsulator.reset();
         return nullptr;
     }

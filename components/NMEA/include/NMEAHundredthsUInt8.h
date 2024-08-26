@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelHundredthsUInt8Leaf;
 class Logger;
@@ -39,7 +39,7 @@ class NMEAHundredthsUInt8 : public LoggableItem {
         bool set(const etl::string_view &decimalString);
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                      const char *fieldName);
         constexpr operator HundredthsUInt8() const { return value; }
         void publish(DataModelHundredthsUInt8Leaf &leaf) const;

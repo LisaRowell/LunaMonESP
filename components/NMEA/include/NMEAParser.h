@@ -31,6 +31,7 @@
 class AISContacts;
 class NMEAMessage;
 class NMEALine;
+class NMEALineWalker;
 
 class NMEAParser {
     private:
@@ -39,15 +40,15 @@ class NMEAParser {
         AISContacts &aisContacts;
 
         NMEAMessage *parseUnencapsulatedLine(const NMEATalker &talker, const NMEAMsgType &msgType,
-                                             NMEALine &nmeaLine);
+                                             NMEALineWalker &walker);
         NMEAMessage *parseEncapsulatedLine(const NMEATalker &talker, const NMEAMsgType &msgType,
-                                           NMEALine &nmeaLine);
+                                           NMEALineWalker &walker);
         NMEAMessage *parseEncapsulatedMessage(const NMEATalker &talker,
                                               const NMEAMsgType &msgType);
 
     public:
         NMEAParser(AISContacts &aisContacts);
-        NMEAMessage *parseLine(NMEALine &nmeaLine);
+        NMEAMessage *parseLine(const NMEALine &nmeaLine);
 };
 
 #endif // NMEA_PARSER_H

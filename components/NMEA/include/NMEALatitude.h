@@ -26,7 +26,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelStringLeaf;
 
@@ -42,7 +42,7 @@ class NMEALatitude : public NMEACoordinate, public LoggableItem {
         bool set(const etl::string_view &latitudeView, const etl::string_view &northOrSouthView);
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType);
         void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };

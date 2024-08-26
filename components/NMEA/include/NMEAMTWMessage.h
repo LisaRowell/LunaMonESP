@@ -25,7 +25,7 @@
 #include "NMEATemperatureUnits.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAMTWMessage : public NMEAMessage {
     private:
@@ -34,14 +34,14 @@ class NMEAMTWMessage : public NMEAMessage {
 
     public:
         NMEAMTWMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class WaterBridge;
 };
 
-extern NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_MTW_MESSAGE_H

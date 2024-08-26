@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,10 @@
  */
 
 #include "NMEAInt8.h"
+#include "NMEALineWalker.h"
+#include "NMEATalker.h"
 
+#include "DataModelInt8Leaf.h"
 #include "Logger.h"
 #include "CharacterTools.h"
 #include "StringTools.h"
@@ -56,10 +59,10 @@ bool NMEAInt8::set(const etl::string_view &valueView, bool optional, int8_t minV
     return true;
 }
 
-bool NMEAInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+bool NMEAInt8::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                        const char *fieldName, bool optional, int8_t minValue, int8_t maxValue) {
     etl::string_view valueView;
-    if (!nmeaLine.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView)) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
                      << " field" << eol;
@@ -79,11 +82,9 @@ bool NMEAInt8::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgTy
     return true;
 }
 
-#if 0
 void NMEAInt8::publish(DataModelInt8Leaf &leaf) const {
     leaf = value;
 }
-#endif
 
 void NMEAInt8::log(Logger &logger) const {
     logger << value;

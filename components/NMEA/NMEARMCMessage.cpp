@@ -27,47 +27,47 @@
 #include "NMEAFAAModeIndicator.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 
 #include "Logger.h"
 
 NMEARMCMessage::NMEARMCMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEARMCMessage::parse(NMEALine &nmeaLine) {
-    if (!time.extract(nmeaLine, talker, "RMC")) {
+bool NMEARMCMessage::parse(NMEALineWalker &lineWalker) {
+    if (!time.extract(lineWalker, talker, "RMC")) {
         return false;
     }
 
-    if (!dataValid.extract(nmeaLine, talker, "RMC")) {
+    if (!dataValid.extract(lineWalker, talker, "RMC")) {
         return false;
     }
 
-    if (!latitude.extract(nmeaLine, talker, "RMC")) {
+    if (!latitude.extract(lineWalker, talker, "RMC")) {
         return false;
     }
 
-    if (!longitude.extract(nmeaLine, talker, "RMC")) {
+    if (!longitude.extract(lineWalker, talker, "RMC")) {
         return false;
     }
 
-    if (!speedOverGround.extract(nmeaLine, talker, "RMC", "Speed Over Ground")) {
+    if (!speedOverGround.extract(lineWalker, talker, "RMC", "Speed Over Ground")) {
         return false;
     }
 
-    if (!trackMadeGood.extract(nmeaLine, talker, "RMC", "Track Made Good", true)) {
+    if (!trackMadeGood.extract(lineWalker, talker, "RMC", "Track Made Good", true)) {
         return false;
     }
 
-    if (!date.extract(nmeaLine, talker, "RMC")) {
+    if (!date.extract(lineWalker, talker, "RMC")) {
         return false;
     }
 
-    if (!magneticVariation.extract(nmeaLine, talker, "RMC", "Magnetic Variation")) {
+    if (!magneticVariation.extract(lineWalker, talker, "RMC", "Magnetic Variation")) {
         return false;
     }
 
-    if (!faaModeIndicator.extract(nmeaLine, talker, "RMC")) {
+    if (!faaModeIndicator.extract(lineWalker, talker, "RMC")) {
         return false;
     }
 
@@ -88,14 +88,14 @@ void NMEARMCMessage::log() const {
     logger() << eol;
 }
 
-NMEARMCMessage *parseNMEARMCMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEARMCMessage *parseNMEARMCMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEARMCMessage *message = new (nmeaMessageBuffer)NMEARMCMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

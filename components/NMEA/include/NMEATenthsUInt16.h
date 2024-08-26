@@ -25,7 +25,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelTenthsUInt16Leaf;
 class Logger;
@@ -38,7 +38,7 @@ class NMEATenthsUInt16 : public LoggableItem {
     public:
         NMEATenthsUInt16();
         bool set(const etl::string_view &valueView, bool optional);
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false);
         bool hasValue() const;
         constexpr operator TenthsUInt16() const { return value; }

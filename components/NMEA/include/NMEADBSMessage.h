@@ -34,14 +34,14 @@ class NMEADBSMessage : public NMEAMessage {
 
     public:
         NMEADBSMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class WaterBridge;
 };
 
-extern NMEADBSMessage *parseNMEADBSMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEADBSMessage *parseNMEADBSMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif //NMEA_DBS_MESSAGE_H

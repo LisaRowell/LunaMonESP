@@ -17,7 +17,7 @@
  */
 
 #include "NMEARelativeIndicator.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "Logger.h"
@@ -46,10 +46,10 @@ bool NMEARelativeIndicator::set(etl::string_view &relativeIndicatorView) {
     }
 }
 
-bool NMEARelativeIndicator::extract(NMEALine &nmeaLine, const NMEATalker &talker,
+bool NMEARelativeIndicator::extract(NMEALineWalker &lineWalker, const NMEATalker &talker,
                                     const char *msgType) {
     etl::string_view relativeIndicatorView;
-    if (!nmeaLine.getWord(relativeIndicatorView)) {
+    if (!lineWalker.getWord(relativeIndicatorView)) {
         logger() << logWarnNMEA << talker << " " << msgType
                  << " message missing Relative Indicator field" << eol;
         return false;

@@ -25,7 +25,7 @@
 #include "NMEAGSVSatelitteInfo.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAGSVMessage : public NMEAMessage {
     private:
@@ -37,14 +37,14 @@ class NMEAGSVMessage : public NMEAMessage {
 
     public:
         NMEAGSVMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class NMEADataModelBridge;
 };
 
-extern NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif

@@ -22,6 +22,7 @@
 #include "SeaTalkParser.h"
 #include "Interface.h"
 #include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "StatCounter.h"
 #include "StatsManager.h"
 #include "DataModelNode.h"
@@ -52,7 +53,7 @@ STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentD
     addLineHandler(*this);
 }
 
-void STALKInterface::handleLine(NMEALine &inputLine) {
+void STALKInterface::handleLine(const NMEALine &inputLine) {
     logger() << logDebugSTALK << inputLine << eol;
 
     if (!parseLine(inputLine)) {
@@ -69,9 +70,21 @@ void STALKInterface::handleLine(NMEALine &inputLine) {
 // containing a SeaTalk message encoded as comma separated ASCII versions of the bytes in the
 // message with the ninth bit discarded.
 // Returns false iff the NMEA message wasn't a $STALK message at all.
-bool STALKInterface::parseLine(NMEALine &inputLine) {
+bool STALKInterface::parseLine(const NMEALine &inputLine) {
+    NMEALineWalker walker(inputLine);
+
+    // At this point we can assume the line has either a leading '$' or '!' and has a valid
+    // checksum.
+    walker.skipChar();
+    if (walker.isEncapsulatedData()) {
+        logger() << logWarnSTALK << "Encapsulated NMEA message on $STALK interface:" << inputLine
+                 << eol;
+        return false;
+    }
+    walker.stripChecksum();
+
     etl::string_view tagView;
-    if (!inputLine.getWord(tagView)) {
+    if (!walker.getWord(tagView)) {
         logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << inputLine
                  << eol;
         illformedMessages++;
@@ -79,7 +92,7 @@ bool STALKInterface::parseLine(NMEALine &inputLine) {
     }
 
     if (tagView == "STALK") {
-        parseDatagramMessage(inputLine);
+        parseDatagramMessage(inputLine, walker);
     } else if (tagView == "PDGY") {
         parsePropritoryMessage(inputLine);
     } else {
@@ -92,14 +105,15 @@ bool STALKInterface::parseLine(NMEALine &inputLine) {
     return true;
 }
 
-void STALKInterface::parseDatagramMessage(NMEALine &nmeaLine) {
+void STALKInterface::parseDatagramMessage(const NMEALine &nmeaLine, NMEALineWalker &walker) {
     SeaTalkLine seaTalkLine;
-    while (!nmeaLine.atEndOfLine()) {
+    while (!walker.atEndOfLine()) {
         etl::string_view msgByteView;
-        if (!nmeaLine.getWord(msgByteView)) {
+        if (!walker.getWord(msgByteView)) {
             logger() << logWarnSTALK << "Illformed $STALK message on STALK interface: " << nmeaLine
                      << eol;
             illformedMessages++;
+            return;
         }
 
         int result = etl::to_arithmetic<int>(msgByteView, etl::radix::hex);
@@ -107,13 +121,14 @@ void STALKInterface::parseDatagramMessage(NMEALine &nmeaLine) {
             logger() << logWarnSTALK << "$STALK message with bad byte encoding (" << msgByteView
                      << "): " << nmeaLine << eol;
             illformedMessages++;
+            return;
         }
         seaTalkLine.append((uint8_t)result);
     }
 
     if (seaTalkLine.wasOverrun()) {
         logger() << logWarnSTALK << "$STALK message longer than max allowed SeaTalk message: "
-               << nmeaLine << eol;
+                 << nmeaLine << eol;
         illformedMessages++;
     }
 
@@ -121,11 +136,12 @@ void STALKInterface::parseDatagramMessage(NMEALine &nmeaLine) {
     seaTalkParser.parseLine(seaTalkLine);
 }
 
-void STALKInterface::parsePropritoryMessage(NMEALine &nmeaLine) {
+void STALKInterface::parsePropritoryMessage(const NMEALine &nmeaLine) {
     logger() << logDebugSTALK << "Ignoring propritory message: " << nmeaLine << eol;
     messagesCounter++;
 }
 
+// Not called on the interface task!
 void STALKInterface::sendCommand(const SeaTalkLine &seaTalkLine) {
     NMEALine nmeaLine;
     nmeaLine.append("$STALK");
@@ -140,7 +156,7 @@ void STALKInterface::sendCommand(const SeaTalkLine &seaTalkLine) {
         nmeaLine.appendWord(datagramByteString);
     }
 
-    nmeaLine.appendParity();
+    nmeaLine.appendChecksum();
     nmeaLine.append("\r\n");
 
     taskLogger() << logDebugSTALK << "Sending STALK command: " << nmeaLine << eol;

@@ -28,7 +28,7 @@
 #include "NMEAFAAModeIndicator.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAGLLMessage : public NMEAMessage {
     private:
@@ -40,14 +40,14 @@ class NMEAGLLMessage : public NMEAMessage {
 
     public:
         NMEAGLLMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class GPSBridge;
 };
 
-extern NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif

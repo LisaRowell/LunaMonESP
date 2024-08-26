@@ -17,7 +17,7 @@
  */
 
 #include "NMEATemperatureUnits.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "Logger.h"
@@ -46,10 +46,10 @@ bool NMEATemperatureUnits::set(etl::string_view &temperatureUnitsView) {
     }
 }
 
-bool NMEATemperatureUnits::extract(NMEALine &nmeaLine, const NMEATalker &talker,
+bool NMEATemperatureUnits::extract(NMEALineWalker &lineWalker, const NMEATalker &talker,
                                    const char *msgType) {
     etl::string_view temperatureUnitsView;
-    if (!nmeaLine.getWord(temperatureUnitsView)) {
+    if (!lineWalker.getWord(temperatureUnitsView)) {
         logger() << logWarnNMEA << talker << " " << msgType
                  << " message missing Temperature Units field" << eol;
         return false;

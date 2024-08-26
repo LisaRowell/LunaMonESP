@@ -19,7 +19,7 @@
 #include "NMEAHDGMessage.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEAHeadingOffset.h"
 
@@ -28,16 +28,16 @@
 NMEAHDGMessage::NMEAHDGMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAHDGMessage::parse(NMEALine &nmeaLine) {
-    if (!magneticSensorHeading.extract(nmeaLine, talker, "HDG", "Magnetic Sensor Heading")) {
+bool NMEAHDGMessage::parse(NMEALineWalker &lineWalker) {
+    if (!magneticSensorHeading.extract(lineWalker, talker, "HDG", "Magnetic Sensor Heading")) {
         return false;
     }
 
-    if (!magneticDeviation.extract(nmeaLine, talker, "HDG", "Magnetic Deviation")) {
+    if (!magneticDeviation.extract(lineWalker, talker, "HDG", "Magnetic Deviation")) {
         return false;
     }
 
-    if (!magneticVariation.extract(nmeaLine, talker, "HDG", "Magnetic Variation")) {
+    if (!magneticVariation.extract(lineWalker, talker, "HDG", "Magnetic Variation")) {
         return false;
     }
 
@@ -53,14 +53,14 @@ void NMEAHDGMessage::log() const {
              << " Deviation " << magneticDeviation << " Variation " << magneticVariation << eol;
 }
 
-NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAHDGMessage *message = new (nmeaMessageBuffer)NMEAHDGMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

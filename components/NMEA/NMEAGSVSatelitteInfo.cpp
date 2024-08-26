@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  */
 
 #include "NMEAGSVSatelitteInfo.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEAUInt16.h"
 #include "NMEAInt8.h"
@@ -26,25 +26,26 @@
 
 #include "Logger.h"
 
-bool NMEAGSVSatelitteInfo::extract(NMEALine &nmeaLine, NMEATalker &talker, bool &endOfInput) {
-    if (nmeaLine.atEndOfLine()) {
+bool NMEAGSVSatelitteInfo::extract(NMEALineWalker &lineWalker, NMEATalker &talker,
+                                   bool &endOfInput) {
+    if (lineWalker.atEndOfLine()) {
         endOfInput = true;
         return true;
     }
 
-    if (!id.extract(nmeaLine, talker, "GSV", "Satelitte ID")) {
+    if (!id.extract(lineWalker, talker, "GSV", "Satelitte ID")) {
         return false;
     }
 
-    if (!elevation.extract(nmeaLine, talker, "GSV", "Elevation", false, -90, 90)) {
+    if (!elevation.extract(lineWalker, talker, "GSV", "Elevation", false, -90, 90)) {
         return false;
     }
 
-    if (!azimuth.extract(nmeaLine, talker, "GSV", "Azimuth")) {
+    if (!azimuth.extract(lineWalker, talker, "GSV", "Azimuth")) {
         return false;
     }
 
-    if (!signalToNoiseRatio.extract(nmeaLine, talker, "GSV", "Signal to Noise Ratio", true, 99)) {
+    if (!signalToNoiseRatio.extract(lineWalker, talker, "GSV", "Signal to Noise Ratio", true, 99)) {
         return false;
     }
 

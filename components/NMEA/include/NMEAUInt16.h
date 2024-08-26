@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelUInt16Leaf;
 class Logger;
@@ -37,7 +37,7 @@ class NMEAUInt16 : public LoggableItem {
 
     public:
         NMEAUInt16();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false, uint16_t maxValue = 0xffff);
         bool hasValue() const;
         operator uint16_t() const;

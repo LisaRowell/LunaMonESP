@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelBoolLeaf;
 class Logger;
@@ -36,7 +36,7 @@ class NMEADataValid : public LoggableItem {
 
     public:
         NMEADataValid();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                      bool optional = false);
         void publish(DataModelBoolLeaf &leaf) const;
         constexpr operator bool() const { return valid; }

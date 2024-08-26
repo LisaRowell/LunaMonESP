@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelTenthsInt16Leaf;
 class Logger;
@@ -41,7 +41,7 @@ class NMEATenthsInt16 : public LoggableItem {
 
     public:
         NMEATenthsInt16();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                      const char *fieldName, bool optional = false);
         bool hasValue() const;
         constexpr operator TenthsInt16() const { return value; }

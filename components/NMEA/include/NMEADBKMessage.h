@@ -25,7 +25,7 @@
 #include "NMEALine.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEADBKMessage : public NMEAMessage {
     private:
@@ -35,14 +35,14 @@ class NMEADBKMessage : public NMEAMessage {
 
     public:
         NMEADBKMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class WaterBridge;
 };
 
-extern NMEADBKMessage *parseNMEADBKMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEADBKMessage *parseNMEADBKMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif //NMEA_DBK_MESSAGE_H

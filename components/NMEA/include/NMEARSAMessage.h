@@ -25,7 +25,7 @@
 #include "NMEADataValid.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEARSAMessage : public NMEAMessage {
     private:
@@ -36,14 +36,14 @@ class NMEARSAMessage : public NMEAMessage {
 
     public:
         NMEARSAMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class AutoPilotBridge;
 };
 
-extern NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEARSAMessage *parseNMEARSAMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_RSA_MESSAGE_H

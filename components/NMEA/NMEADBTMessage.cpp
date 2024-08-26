@@ -21,7 +21,7 @@
 #include "NMEATenthsUInt16.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -29,28 +29,28 @@
 NMEADBTMessage::NMEADBTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEADBTMessage::parse(NMEALine &nmeaLine) {
-    if (!depthFeet.extract(nmeaLine, talker, "DBT", "Depth Feet", true)) {
+bool NMEADBTMessage::parse(NMEALineWalker &lineWalker) {
+    if (!depthFeet.extract(lineWalker, talker, "DBT", "Depth Feet", true)) {
         return false;
     }
 
-    if (!extractConstantWord(nmeaLine, "DBT", "f")) {
+    if (!extractConstantWord(lineWalker, "DBT", "f")) {
         return false;
     }
 
-    if (!depthMeters.extract(nmeaLine, talker, "DBT", "Depth Meters", true)) {
+    if (!depthMeters.extract(lineWalker, talker, "DBT", "Depth Meters", true)) {
         return false;
     }
 
-    if (!extractConstantWord(nmeaLine, "DBT", "M")) {
+    if (!extractConstantWord(lineWalker, "DBT", "M")) {
         return false;
     }
 
-    if (!depthFathoms.extract(nmeaLine, talker, "DBT", "Depth Fathoms", true)) {
+    if (!depthFathoms.extract(lineWalker, talker, "DBT", "Depth Fathoms", true)) {
         return false;
     }
 
-    if (!extractConstantWord(nmeaLine, "DBT", "F")) {
+    if (!extractConstantWord(lineWalker, "DBT", "F")) {
         return false;
     }
 
@@ -66,14 +66,14 @@ void NMEADBTMessage::log() const {
              << " m, " << depthFathoms << " ftm" << eol;
 }
 
-NMEADBTMessage *parseNMEADBTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEADBTMessage *parseNMEADBTMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEADBTMessage *message = new (nmeaMessageBuffer)NMEADBTMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

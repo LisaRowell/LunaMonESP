@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_HUNDREDTHS_UINT16_H
-#define NMEA_HUNDREDTHS_UINT16_H
-
-#include "NMEALineWalker.h"
-#include "NMEATalker.h"
-
-#include "HundredthsUInt16.h"
-
-#include "LoggableItem.h"
-#include "Logger.h"
+#ifndef NMEA_LINE_WALKER_H
+#define NMEA_LINE_WALKER_H
 
 #include "etl/string_view.h"
 
-class DataModelHundredthsUInt16Leaf;
+class NMEALine;
 
-class NMEAHundredthsUInt16 : public LoggableItem {
+class NMEALineWalker {
     private:
-        HundredthsUInt16 value;
-
-        bool set(const etl::string_view &valueView);
+        const NMEALine &nmeaLine;
+        etl::string_view remaining;
 
     public:
-        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
-                     const char *fieldName);
-        constexpr operator HundredthsUInt16() const { return value; }
-        void publish(DataModelHundredthsUInt16Leaf &leaf) const;
-        virtual void log(Logger &logger) const override;
+        NMEALineWalker(const NMEALine &nmeaLine);
+        void reset();
+        // Returns true if the line is in the encapsulated encoding scheme AIS messages (and
+        // possibly others), versus the normal style NMEA 0183 CSV data.
+        bool isEncapsulatedData() const;
+        void stripChecksum();
+        bool getChar(char &character);
+        bool getWord(etl::string_view &word);
+        void skipChar();
+        bool atEndOfLine() const;
 };
 
-#endif
+#endif // NMEA_LINE_WALKER_H

@@ -21,7 +21,7 @@
 #include "NMEATenthsUInt16.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -29,18 +29,18 @@
 NMEADPTMessage::NMEADPTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEADPTMessage::parse(NMEALine &nmeaLine) {
-    if (!depthBelowTransducerMeters.extract(nmeaLine, talker, "DPT", "Depth")) {
+bool NMEADPTMessage::parse(NMEALineWalker &lineWalker) {
+    if (!depthBelowTransducerMeters.extract(lineWalker, talker, "DPT", "Depth")) {
         return false;
     }
 
-    if (!transducerOffsetMeters.extract(nmeaLine, talker, "DPT", "Transducer Offset")) {
+    if (!transducerOffsetMeters.extract(lineWalker, talker, "DPT", "Transducer Offset")) {
         return false;
     }
 
     // NMEA 3.0 added a max range scale field, early messages only had two fields. Untested...
-    if (!nmeaLine.atEndOfLine()) {
-        if (!maxRangeScaleMeters.extract(nmeaLine, talker, "DPT", "Max Range Scale"), true) {
+    if (!lineWalker.atEndOfLine()) {
+        if (!maxRangeScaleMeters.extract(lineWalker, talker, "DPT", "Max Range Scale"), true) {
             return false;
         }
     }
@@ -62,14 +62,14 @@ void NMEADPTMessage::log() const {
     logger() << eol;
 }
 
-NMEADPTMessage *parseNMEADPTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEADPTMessage *parseNMEADPTMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEADPTMessage *message = new (nmeaMessageBuffer)NMEADPTMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

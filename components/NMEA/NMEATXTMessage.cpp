@@ -18,7 +18,7 @@
 
 #include "NMEATXTMessage.h"
 #include "NMEAMessage.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 
@@ -30,21 +30,21 @@
 NMEATXTMessage::NMEATXTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEATXTMessage::parse(NMEALine &nmeaLine) {
-    if (!getTwoDigitField(nmeaLine, totalSentences, "Total Sentences")) {
+bool NMEATXTMessage::parse(NMEALineWalker &lineWalker) {
+    if (!getTwoDigitField(lineWalker, totalSentences, "Total Sentences")) {
         return false;
     }
 
-    if (!getTwoDigitField(nmeaLine, sentenceNumber, "Sentence Number")) {
+    if (!getTwoDigitField(lineWalker, sentenceNumber, "Sentence Number")) {
         return false;
     }
 
-    if (!getTwoDigitField(nmeaLine, textIdentifier, "Text Identifier")) {
+    if (!getTwoDigitField(lineWalker, textIdentifier, "Text Identifier")) {
         return false;
     }
 
     etl::string_view textView;
-    if (!nmeaLine.getWord(textView)) {
+    if (!lineWalker.getWord(textView)) {
         logger() << logWarnNMEA << talker << " TXT message missing Text field" << eol;
         return false;
     }
@@ -53,9 +53,10 @@ bool NMEATXTMessage::parse(NMEALine &nmeaLine) {
     return true;
 }
 
-bool NMEATXTMessage::getTwoDigitField(NMEALine &nmeaLine, uint8_t &value, const char *fieldName) {
+bool NMEATXTMessage::getTwoDigitField(NMEALineWalker &lineWalker, uint8_t &value,
+                                      const char *fieldName) {
     etl::string_view valueView;
-    if (!nmeaLine.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView)) {
         logger() << logWarnNMEA << talker << " TXT message missing " << fieldName << " field"
                  << eol;
         return false;
@@ -80,14 +81,14 @@ void NMEATXTMessage::log() const {
              << sentenceNumber << " TextId " << textIdentifier << " " << text << eol;
 }
 
-NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEATXTMessage *parseNMEATXTMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEATXTMessage *message = new (nmeaMessageBuffer)NMEATXTMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

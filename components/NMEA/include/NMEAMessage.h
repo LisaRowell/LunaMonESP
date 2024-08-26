@@ -22,13 +22,13 @@
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAMessage {
     protected:
         NMEATalker talker;
 
-        bool extractConstantWord(NMEALine &nmeaLine, const char *messageType,
+        bool extractConstantWord(NMEALineWalker &lineWalker, const char *messageType,
                                  const char *constantWord, bool optional = false);
 
     public:
@@ -38,7 +38,5 @@ class NMEAMessage {
         const char *typeName() const;
         virtual void log() const = 0;
 };
-
-NMEAMessage *parseNMEAMessage(NMEALine &nmeaLine);
 
 #endif

@@ -25,7 +25,7 @@
 #include "NMEAHeadingOffset.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAHDGMessage : public NMEAMessage {
     private:
@@ -35,14 +35,14 @@ class NMEAHDGMessage : public NMEAMessage {
 
     public:
         NMEAHDGMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class AutoPilotBridge;
 };
 
-extern NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAHDGMessage *parseNMEAHDGMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_HDG_MESSAGE_H

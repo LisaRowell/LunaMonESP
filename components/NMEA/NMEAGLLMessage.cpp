@@ -19,7 +19,7 @@
 #include "NMEAGLLMessage.h"
 #include "NMEAMsgType.h"
 #include "NMEAMessage.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 #include "NMEALatitude.h"
@@ -33,24 +33,24 @@
 NMEAGLLMessage::NMEAGLLMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAGLLMessage::parse(NMEALine &nmeaLine) {
-    if (!latitude.extract(nmeaLine, talker, "GLL")) {
+bool NMEAGLLMessage::parse(NMEALineWalker &lineWalker) {
+    if (!latitude.extract(lineWalker, talker, "GLL")) {
         return false;
     }
 
-    if (!longitude.extract(nmeaLine, talker, "GLL")) {
+    if (!longitude.extract(lineWalker, talker, "GLL")) {
         return false;
     }
 
-    if (!time.extract(nmeaLine, talker, "GLL")) {
+    if (!time.extract(lineWalker, talker, "GLL")) {
         return false;
     }
 
-    if (!dataValid.extract(nmeaLine, talker, "GLL")) {
+    if (!dataValid.extract(lineWalker, talker, "GLL")) {
         return false;
     }
 
-    if (!faaModeIndicator.extract(nmeaLine, talker, "GLL")) {
+    if (!faaModeIndicator.extract(lineWalker, talker, "GLL")) {
         return false;
     }
 
@@ -70,14 +70,14 @@ void NMEAGLLMessage::log() const {
     logger() << eol;
 }
 
-NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAGLLMessage *parseNMEAGLLMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAGLLMessage *message = new (nmeaMessageBuffer)NMEAGLLMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

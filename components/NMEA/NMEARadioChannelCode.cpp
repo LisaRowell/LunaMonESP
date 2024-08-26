@@ -18,7 +18,7 @@
 
 #include "NMEARadioChannelCode.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -45,10 +45,10 @@ bool NMEARadioChannelCode::set(const etl::string_view &radioChannelCodeView) {
     }
 }
 
-bool NMEARadioChannelCode::extract(NMEALine &nmeaLine, const NMEATalker &talker,
+bool NMEARadioChannelCode::extract(NMEALineWalker &lineWalker, const NMEATalker &talker,
                                    const NMEAMsgType &msgType) {
     etl::string_view radioChannelCodeView;
-    if (!nmeaLine.getWord(radioChannelCodeView)) {
+    if (!lineWalker.getWord(radioChannelCodeView)) {
         logger() << logWarnNMEA << talker << " " << msgType
                  << " message missing Radio Channel Code field" << eol;
         return false;

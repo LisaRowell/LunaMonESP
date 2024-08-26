@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelStringLeaf;
 class DataModelStringLeaf;
@@ -41,7 +41,7 @@ class NMEAGPSFixMode : public LoggableItem {
         bool set(etl::string_view &gpsQualityStr);
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType);
         void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };

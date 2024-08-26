@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2023 Lisa Rowell
+ * Copyright (C) 2021-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ class NMEAGSVSatelitteInfo : public LoggableItem {
         NMEAUInt8 signalToNoiseRatio;
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, bool &endOfInput);
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, bool &endOfInput);
         virtual void log(Logger &logger) const override;
 
     friend class NMEADataModelBridge;

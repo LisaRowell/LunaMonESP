@@ -19,7 +19,7 @@
 #include "NMEAVHWMessage.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATenthsUInt16.h"
 #include "NMEARelativeIndicator.h"
 #include "NMEASpeedUnits.h"
@@ -29,32 +29,32 @@
 NMEAVHWMessage::NMEAVHWMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAVHWMessage::parse(NMEALine &nmeaLine) {
-    if (!waterHeadingTrue.extract(nmeaLine, talker, "VHW", "Water Heading True", true)) {
+bool NMEAVHWMessage::parse(NMEALineWalker &lineWalker) {
+    if (!waterHeadingTrue.extract(lineWalker, talker, "VHW", "Water Heading True", true)) {
         return false;
     }
-    if (!extractConstantWord(nmeaLine, "VHW", "T", !waterHeadingTrue.hasValue())) {
-        return false;
-    }
-
-    if (!waterHeadingMagnetic.extract(nmeaLine, talker, "VHW", "Water Heading Magnetic", true)) {
-        return false;
-    }
-    if (!extractConstantWord(nmeaLine, "VHW", "M", !waterHeadingMagnetic.hasValue())) {
+    if (!extractConstantWord(lineWalker, "VHW", "T", !waterHeadingTrue.hasValue())) {
         return false;
     }
 
-    if (!waterSpeedKnots.extract(nmeaLine, talker, "VHW", "Water Speed Knots")) {
+    if (!waterHeadingMagnetic.extract(lineWalker, talker, "VHW", "Water Heading Magnetic", true)) {
         return false;
     }
-    if (!extractConstantWord(nmeaLine, "VHW", "N")) {
+    if (!extractConstantWord(lineWalker, "VHW", "M", !waterHeadingMagnetic.hasValue())) {
         return false;
     }
 
-    if (!waterSpeedKMPH.extract(nmeaLine, talker, "VHW", "Water Speed km/h")) {
+    if (!waterSpeedKnots.extract(lineWalker, talker, "VHW", "Water Speed Knots")) {
         return false;
     }
-    if (!extractConstantWord(nmeaLine, "VHW", "K")) {
+    if (!extractConstantWord(lineWalker, "VHW", "N")) {
+        return false;
+    }
+
+    if (!waterSpeedKMPH.extract(lineWalker, talker, "VHW", "Water Speed km/h")) {
+        return false;
+    }
+    if (!extractConstantWord(lineWalker, "VHW", "K")) {
         return false;
     }
 
@@ -80,14 +80,14 @@ void NMEAVHWMessage::log() const {
     logger() << eol;
 }
 
-NMEAVHWMessage *parseNMEAVHWMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAVHWMessage *parseNMEAVHWMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAVHWMessage *message = new (nmeaMessageBuffer)NMEAVHWMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

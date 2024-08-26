@@ -17,7 +17,7 @@
  */
 
 #include "NMEASpeedUnits.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "Logger.h"
@@ -50,9 +50,9 @@ bool NMEASpeedUnits::set(etl::string_view &speedUnitsView) {
     }
 }
 
-bool NMEASpeedUnits::extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgType) {
+bool NMEASpeedUnits::extract(NMEALineWalker &lineWalker, const NMEATalker &talker, const char *msgType) {
     etl::string_view speedUnitsView;
-    if (!nmeaLine.getWord(speedUnitsView)) {
+    if (!lineWalker.getWord(speedUnitsView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing Speed Units field"
                  << eol;
         return false;

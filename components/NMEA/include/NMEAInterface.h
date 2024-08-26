@@ -50,7 +50,7 @@ class NMEAInterface : public NMEALineSource, NMEALineHandler, StatsHolder {
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
 
-        void handleLine(NMEALine &inputLine);
+        void handleLine(const NMEALine &inputLine);
         virtual void exportStats(uint32_t msElapsed) override;
 
     public:

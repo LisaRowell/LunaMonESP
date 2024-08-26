@@ -18,7 +18,7 @@
 
 #include "NMEAMessage.h"
 
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
 
@@ -38,10 +38,10 @@ const char *NMEAMessage::typeName() const {
     return msgType.name();
 }
 
-bool NMEAMessage::extractConstantWord(NMEALine &nmeaLine, const char *messageType,
+bool NMEAMessage::extractConstantWord(NMEALineWalker &lineWalker, const char *messageType,
                                       const char *constantWord, bool optional) {
     etl::string_view word;
-    if (!nmeaLine.getWord(word)) {
+    if (!lineWalker.getWord(word)) {
         logger() << logErrorNMEA << talker << " " << messageType << " message missing "
                  << constantWord << " field" << eol;
         return false;

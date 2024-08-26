@@ -17,7 +17,7 @@
  */
 
 #include "NMEALongitude.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 // #include "DataModel/DataModelStringLeaf.h"
@@ -57,15 +57,15 @@ bool NMEALongitude::set(const etl::string_view &longitudeView,
     }
 }
 
-bool NMEALongitude::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEALongitude::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view longitudeView;
-    if (!nmeaLine.getWord(longitudeView)) {
+    if (!lineWalker.getWord(longitudeView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing longitude" << eol;
         return false;
     }
 
     etl::string_view eastOrWestView;
-    if (!nmeaLine.getWord(eastOrWestView)) {
+    if (!lineWalker.getWord(eastOrWestView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing E/W" << eol;
         return false;
     }

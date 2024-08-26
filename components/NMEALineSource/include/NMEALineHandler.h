@@ -23,7 +23,7 @@ class NMEALine;
 
 class NMEALineHandler {
     public:
-        virtual void handleLine(NMEALine &inputLine) = 0;
+        virtual void handleLine(const NMEALine &inputLine) = 0;
 };
 
 

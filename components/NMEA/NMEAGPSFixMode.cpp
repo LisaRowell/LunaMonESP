@@ -17,7 +17,7 @@
  */
 
 #include "NMEAGPSFixMode.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -46,9 +46,9 @@ bool NMEAGPSFixMode::set(etl::string_view &gpsFixModeView) {
     return true;
 }
 
-bool NMEAGPSFixMode::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEAGPSFixMode::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view gpsFixModeView;
-    if (!nmeaLine.getWord(gpsFixModeView)) {
+    if (!lineWalker.getWord(gpsFixModeView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing GPS Fix Mode field"
                  << eol;
         return false;

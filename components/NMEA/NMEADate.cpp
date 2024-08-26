@@ -17,7 +17,7 @@
  */
 
 #include "NMEADate.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -81,9 +81,9 @@ bool NMEADate::set(const etl::string_view &dateView) {
     return true;
 }
 
-bool NMEADate::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEADate::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view dateView;
-    if (!nmeaLine.getWord(dateView)) {
+    if (!lineWalker.getWord(dateView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing Date field" << eol;
         return false;
     }

@@ -31,13 +31,8 @@ const size_t maxNMEALineLength = 82;
 class NMEALine {
     private:
         etl::string<maxNMEALineLength> line;
-        etl::string_view remaining;
-        // This flag is used to identify the lines which are in the encapsulated encoding scheme
-        // used for AIS messages (and possibly others), versus the normal style NMEA 0183 CSV data.
-        bool encapsulatedData;
 
-        void stripParity();
-        bool checkParity();
+        bool validateChecksum();
 
     public:
         NMEALine();
@@ -47,15 +42,10 @@ class NMEALine {
         void append(const char *string);
         void append(char character);
         bool isEmpty();
-        bool isEncapsulatedData();
         bool sanityCheck();
-        bool extractChar(char &character);
-        bool getWord(etl::string_view &word);
         void appendWord(const etl::istring &string);
-        void appendParity();
-        bool atEndOfLine();
+        void appendChecksum();
         const etl::istring &contents() const;
-        void logLine();
 
     friend Logger & operator << (Logger &logger, const NMEALine &nmeaLine);
 };

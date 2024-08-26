@@ -20,7 +20,7 @@
 #include "NMEAMsgType.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATime.h"
 #include "NMEATenthsUInt16.h"
 
@@ -30,48 +30,47 @@
 NMEAGSTMessage::NMEAGSTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAGSTMessage::parse(NMEALine &nmeaLine) {
-    if (!time.extract(nmeaLine, talker, "GST")) {
+bool NMEAGSTMessage::parse(NMEALineWalker &lineWalker) {
+    if (!time.extract(lineWalker, talker, "GST")) {
         return false;
     }
 
-    if (!standardDeviationOfRangeInputsRMS.extract(nmeaLine, talker, "GST",
+    if (!standardDeviationOfRangeInputsRMS.extract(lineWalker, talker, "GST",
                                                    "RMS Value of Standard Deviation of Range "
                                                    "Inputs")) {
         return false;
     }
 
-    if (!standardDeviationOfSemiMajorAxis.extract(nmeaLine, talker, "GST",
+    if (!standardDeviationOfSemiMajorAxis.extract(lineWalker, talker, "GST",
                                                   "Standard Deviation of Semi-Major Axis of Error "
                                                   "Ellipse", true)) {
         return false;
     }
 
-    if (!standardDeviationOfSemiMinorAxis.extract(nmeaLine, talker, "GST",
+    if (!standardDeviationOfSemiMinorAxis.extract(lineWalker, talker, "GST",
                                                   "Standard Deviation of Semi-Minor Axis of Error "
                                                   "Ellipse", true)) {
         return false;
     }
 
-    if (!orientationOfSemiMajorAxis.extract(nmeaLine, talker, "GST",
+    if (!orientationOfSemiMajorAxis.extract(lineWalker, talker, "GST",
                                             "Orientation of Semi-Major Axis of Error Ellipse",
                                             true)) {
         return false;
     }
 
-    if (!standardDeviationOfLatitudeError.extract(nmeaLine, talker, "GST",
+    if (!standardDeviationOfLatitudeError.extract(lineWalker, talker, "GST",
                                                   "Standard Deviation of Latitude Error")) {
         return false;
     }
 
-    if (!standardDeviationOfLongitudeError.extract(nmeaLine, talker, "GST",
+    if (!standardDeviationOfLongitudeError.extract(lineWalker, talker, "GST",
                                                    "Standard Deviation of Longitude Error")) {
         return false;
     }
 
-    if (!standardDeviationOfAltitudeError.extract(nmeaLine, talker, "GST",
+    if (!standardDeviationOfAltitudeError.extract(lineWalker, talker, "GST",
                                                   "Standard Deviation of Altitude Error")) {
-        nmeaLine.logLine();
         return false;
     }
 
@@ -93,14 +92,14 @@ void NMEAGSTMessage::log() const {
              << standardDeviationOfAltitudeError << "m" << eol;
 }
 
-NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAGSTMessage *parseNMEAGSTMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAGSTMessage *message = new (nmeaMessageBuffer)NMEAGSTMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

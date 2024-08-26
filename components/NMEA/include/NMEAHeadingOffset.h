@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelTenthsInt16Leaf;
 class Logger;
@@ -38,7 +38,7 @@ class NMEAHeadingOffset : public LoggableItem {
 
     public:
         NMEAHeadingOffset();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                      const char *fieldName);
         void publish(DataModelTenthsInt16Leaf &leaf) const;
         virtual void log(Logger &logger) const override;

@@ -17,7 +17,7 @@
  */
 
 #include "NMEAFAAModeIndicator.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -90,9 +90,9 @@ bool NMEAFAAModeIndicator::set(etl::string_view &faaModeView) {
     }
 }
 
-bool NMEAFAAModeIndicator::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEAFAAModeIndicator::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view faaModeIndicatorView;
-    if (nmeaLine.getWord(faaModeIndicatorView)) {
+    if (lineWalker.getWord(faaModeIndicatorView)) {
         if (!set(faaModeIndicatorView)) {
             logger() << logWarnNMEA << talker << " " << msgType
                      << " message with bad FAA Mode Indicator field '" << faaModeIndicatorView

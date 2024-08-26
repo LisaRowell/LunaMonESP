@@ -17,7 +17,7 @@
  */
 
 #include "NMEALatitude.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelStringLeaf.h"
@@ -59,15 +59,15 @@ bool NMEALatitude::set(const etl::string_view &latitudeView,
     return true;
 }
 
-bool NMEALatitude::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType) {
+bool NMEALatitude::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
     etl::string_view latitudeView;
-    if (!nmeaLine.getWord(latitudeView)) {
+    if (!lineWalker.getWord(latitudeView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing latitude" << eol;
         return false;
     }
 
     etl::string_view northOrSouthView;
-    if (!nmeaLine.getWord(northOrSouthView)) {
+    if (!lineWalker.getWord(northOrSouthView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing N/S" << eol;
         return false;
     }

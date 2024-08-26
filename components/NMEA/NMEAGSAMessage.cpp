@@ -20,7 +20,7 @@
 #include "NMEAGPSFixMode.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -30,9 +30,9 @@
 NMEAGSAMessage::NMEAGSAMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
+bool NMEAGSAMessage::parse(NMEALineWalker &lineWalker) {
     etl::string_view manualOrAutomaticModeView;
-    if (!nmeaLine.getWord(manualOrAutomaticModeView)) {
+    if (!lineWalker.getWord(manualOrAutomaticModeView)) {
         logger() << logWarnNMEA << talker
                  << " GSA message missing Manual or Automatic Mode indicator" << eol;
         return false;
@@ -56,24 +56,24 @@ bool NMEAGSAMessage::parse(NMEALine &nmeaLine) {
         return false;
     }
 
-    if (!gpsFixMode.extract(nmeaLine, talker, "GSA")) {
+    if (!gpsFixMode.extract(lineWalker, talker, "GSA")) {
         return false;
     }
 
     unsigned satelliteIndex;
     for (satelliteIndex = 0; satelliteIndex < 12; satelliteIndex++) {
-        if (!satelliteIDs[satelliteIndex].extract(nmeaLine, talker, "GSA", "Satellite ID", true)) {
+        if (!satelliteIDs[satelliteIndex].extract(lineWalker, talker, "GSA", "Satellite ID", true)) {
             return false;
         }
     }
 
-    if (!pdop.extract(nmeaLine, talker, "GSA", "PDOP")) {
+    if (!pdop.extract(lineWalker, talker, "GSA", "PDOP")) {
         return false;
     }
-    if (!hdop.extract(nmeaLine, talker, "GSA", "HDOP")) {
+    if (!hdop.extract(lineWalker, talker, "GSA", "HDOP")) {
         return false;
     }
-    if (!vdop.extract(nmeaLine, talker, "GSA", "VDOP")) {
+    if (!vdop.extract(lineWalker, talker, "GSA", "VDOP")) {
         return false;
     }
 
@@ -103,14 +103,14 @@ void NMEAGSAMessage::log() const {
     logger() << "PDOP " << pdop << " HDOP " << hdop << " VDOP " << vdop << eol;
 }
 
-NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAGSAMessage *parseNMEAGSAMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAGSAMessage *message = new (nmeaMessageBuffer)NMEAGSAMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

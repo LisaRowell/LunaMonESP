@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelStringLeaf;
 class Logger;
@@ -50,7 +50,7 @@ class NMEAFAAModeIndicator : public LoggableItem {
 
     public:
         NMEAFAAModeIndicator();
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType);
         bool hasValue() const;
         void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;

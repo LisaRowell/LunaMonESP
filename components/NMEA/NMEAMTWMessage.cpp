@@ -19,7 +19,7 @@
 #include "NMEAMTWMessage.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATenthsInt16.h"
 #include "NMEATemperatureUnits.h"
 
@@ -28,12 +28,12 @@
 NMEAMTWMessage::NMEAMTWMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAMTWMessage::parse(NMEALine &nmeaLine) {
-    if (!waterTemperature.extract(nmeaLine, talker, "MTW", "Water Temperature")) {
+bool NMEAMTWMessage::parse(NMEALineWalker &lineWalker) {
+    if (!waterTemperature.extract(lineWalker, talker, "MTW", "Water Temperature")) {
         return false;
     }
 
-    if (!waterTemperatureUnits.extract(nmeaLine, talker, "MTW")) {
+    if (!waterTemperatureUnits.extract(lineWalker, talker, "MTW")) {
         return false;
     }
 
@@ -49,14 +49,14 @@ void NMEAMTWMessage::log() const {
              << waterTemperatureUnits << eol;
 }
 
-NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAMTWMessage *parseNMEAMTWMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAMTWMessage *message = new (nmeaMessageBuffer)NMEAMTWMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

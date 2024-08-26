@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class Logger;
 
@@ -35,7 +35,7 @@ class NMEARelativeIndicator : public LoggableItem {
 
     public:
         NMEARelativeIndicator();
-        bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, const NMEATalker &talker, const char *msgType);
         bool isRelative() const;
         virtual void log(Logger &logger) const override;
 };

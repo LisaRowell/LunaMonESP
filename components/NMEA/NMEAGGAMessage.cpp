@@ -25,7 +25,7 @@
 #include "NMEATenthsInt16.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 
 #include "StringTools.h"
 #include "Logger.h"
@@ -33,53 +33,53 @@
 NMEAGGAMessage::NMEAGGAMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAGGAMessage::parse(NMEALine &nmeaLine) {
-    if (!time.extract(nmeaLine, talker, "GGA")) {
+bool NMEAGGAMessage::parse(NMEALineWalker &lineWalker) {
+    if (!time.extract(lineWalker, talker, "GGA")) {
         return false;
     }
 
-    if (!latitude.extract(nmeaLine, talker, "GGA")) {
+    if (!latitude.extract(lineWalker, talker, "GGA")) {
         return false;
     }
 
-    if (!longitude.extract(nmeaLine, talker, "GGA")) {
+    if (!longitude.extract(lineWalker, talker, "GGA")) {
         return false;
     }
 
-    if (!gpsQuality.extract(nmeaLine, talker, "GGA")) {
+    if (!gpsQuality.extract(lineWalker, talker, "GGA")) {
         return false;
     }
 
-    if (!numberSatellites.extract(nmeaLine, talker, "GGA", "Number Satellites", false, 12)) {
+    if (!numberSatellites.extract(lineWalker, talker, "GGA", "Number Satellites", false, 12)) {
         return false;
     }
 
-    if (!horizontalDilutionOfPrecision.extract(nmeaLine, talker, "GGA",
+    if (!horizontalDilutionOfPrecision.extract(lineWalker, talker, "GGA",
                                                "Horizontal Dilution of Precision")) {
         return false;
     }
 
-    if (!antennaAltitude.extract(nmeaLine, talker, "GGA", "Antenna Altitude")) {
+    if (!antennaAltitude.extract(lineWalker, talker, "GGA", "Antenna Altitude")) {
         return false;
     }
 
-    if (!extractConstantWord(nmeaLine, "GGA", "M")) {
+    if (!extractConstantWord(lineWalker, "GGA", "M")) {
         return false;
     }
 
-    if (!geoidalSeparation.extract(nmeaLine, talker, "GGA", "Geoidal Separation")) {
+    if (!geoidalSeparation.extract(lineWalker, talker, "GGA", "Geoidal Separation")) {
         return false;
     }
 
-    if (!extractConstantWord(nmeaLine, "GGA", "M")) {
+    if (!extractConstantWord(lineWalker, "GGA", "M")) {
         return false;
     }
 
-    if (!gpsDataAge.extract(nmeaLine, talker, "GGA", "GPS Data Age", true)) {
+    if (!gpsDataAge.extract(lineWalker, talker, "GGA", "GPS Data Age", true)) {
         return false;
     }
 
-    if (!differentialReferenceStation.extract(nmeaLine, talker, "GGA",
+    if (!differentialReferenceStation.extract(lineWalker, talker, "GGA",
                                               "Differential Reference Station", true, 1023)) {
         return false;
     }
@@ -107,14 +107,14 @@ void NMEAGGAMessage::log() const {
     logger() << eol;
 }
 
-NMEAGGAMessage *parseNMEAGGAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAGGAMessage *parseNMEAGGAMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAGGAMessage *message = new (nmeaMessageBuffer)NMEAGGAMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

@@ -45,7 +45,7 @@ void NMEAInterface::addMessageHandler(NMEAMessageHandler &messageHandler) {
     messageHandlers.push_back(&messageHandler);
 }
 
-void NMEAInterface::handleLine(NMEALine &inputLine) {
+void NMEAInterface::handleLine(const NMEALine &inputLine) {
     NMEAMessage *nmeaMessage = parser.parseLine(inputLine);
     if (nmeaMessage != nullptr) {
         nmeaMessage->log();

@@ -31,6 +31,7 @@
 #include <stdint.h>
 
 class NMEALine;
+class NMEALineWalker;
 class Interface;
 class InstrumentData;
 class StatsManager;
@@ -48,10 +49,10 @@ class STALKInterface : public NMEALineSource, NMEALineHandler, public SeaTalkMas
         DataModelUInt32Leaf illformedMessagesLeaf;
 
         virtual void exportStats(uint32_t msElapsed) override;
-        void handleLine(NMEALine &inputLine);
-        bool parseLine(NMEALine &nmeaLine);
-        void parseDatagramMessage(NMEALine &nmeaLine);
-        void parsePropritoryMessage(NMEALine &nmeaLine);
+        void handleLine(const NMEALine &inputLine);
+        bool parseLine(const NMEALine &nmeaLine);
+        void parseDatagramMessage(const NMEALine &nmeaLine, NMEALineWalker &walker);
+        void parsePropritoryMessage(const NMEALine &nmeaLine);
 
         virtual void sendCommand(const SeaTalkLine &seaTalkLine) override;
 

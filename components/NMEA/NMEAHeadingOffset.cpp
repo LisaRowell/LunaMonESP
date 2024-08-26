@@ -17,7 +17,7 @@
  */
 
 #include "NMEAHeadingOffset.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelTenthsInt16Leaf.h"
@@ -100,17 +100,17 @@ bool NMEAHeadingOffset::set(const etl::string_view &directionView,
     return true;
 }
 
-bool NMEAHeadingOffset::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+bool NMEAHeadingOffset::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                                 const char *fieldName) {
     etl::string_view directionView;
-    if (!nmeaLine.getWord(directionView)) {
+    if (!lineWalker.getWord(directionView)) {
         logger() << logWarnNMEA << talker << " " << msgType
                  << " message missing " << fieldName << " direction field" << eol;
         hasValue = false;
         return false;
     }
     etl::string_view eastOrWestView;
-    if (!nmeaLine.getWord(eastOrWestView)) {
+    if (!lineWalker.getWord(eastOrWestView)) {
         logger() << logWarnNMEA << talker << " " << msgType
                  << " message missing " << fieldName << " E/W field" << eol;
         hasValue = false;

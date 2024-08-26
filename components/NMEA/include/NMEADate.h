@@ -25,7 +25,7 @@
 
 #include <stddef.h>
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class DataModelStringLeaf;
 class Logger;
@@ -42,7 +42,7 @@ class NMEADate : public LoggableItem {
         bool set(const etl::string_view &dateView);
 
     public:
-        bool extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType);
         void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };

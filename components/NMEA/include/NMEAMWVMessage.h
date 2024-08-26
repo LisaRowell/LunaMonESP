@@ -27,7 +27,7 @@
 #include "NMEADataValid.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAMWVMessage : public NMEAMessage {
     private:
@@ -39,14 +39,14 @@ class NMEAMWVMessage : public NMEAMessage {
 
     public:
         NMEAMWVMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class WindBridge;
 };
 
-extern NMEAMWVMessage *parseNMEAMWVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAMWVMessage *parseNMEAMWVMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif // NMEA_MWV_MESSAGE_H

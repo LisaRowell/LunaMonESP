@@ -23,7 +23,7 @@
 
 #include "etl/string_view.h"
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class Logger;
 
@@ -43,7 +43,7 @@ class NMEASpeedUnits : public LoggableItem {
 
     public:
         NMEASpeedUnits();
-        bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, const NMEATalker &talker, const char *msgType);
         constexpr operator Value() const { return value; }
         virtual void log(Logger &logger) const override;
 };

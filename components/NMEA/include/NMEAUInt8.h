@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-class NMEALine;
+class NMEALineWalker;
 class NMEATalker;
 class NMEAMsgType;
 class Logger;
@@ -40,7 +40,7 @@ class NMEAUInt8 : public LoggableItem {
 
     public:
         NMEAUInt8();
-        bool extract(NMEALine &nmeaLine, const NMEATalker &talker, const char *msgTypeName,
+        bool extract(NMEALineWalker &lineWalker, const NMEATalker &talker, const char *msgTypeName,
                      const char *fieldName, bool optional = false, uint8_t maxValue = 0xff);
         bool hasValue() const;
         operator uint8_t() const;

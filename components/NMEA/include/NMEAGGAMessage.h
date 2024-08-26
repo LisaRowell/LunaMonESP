@@ -32,7 +32,7 @@
 #include "NMEAUInt16.h"
 
 class NMEATalker;
-class NMEALine;
+class NMEALineWalker;
 
 class NMEAGGAMessage : public NMEAMessage {
     private:
@@ -49,14 +49,14 @@ class NMEAGGAMessage : public NMEAMessage {
 
     public:
         NMEAGGAMessage(const NMEATalker &talker);
-        bool parse(NMEALine &nmeaLine);
+        bool parse(NMEALineWalker &lineWalker);
         virtual NMEAMsgType::Value type() const override;
         virtual void log() const override;
 
     friend class GPSBridge;
 };
 
-extern NMEAGGAMessage *parseNMEAGGAMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+extern NMEAGGAMessage *parseNMEAGGAMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                            uint8_t *nmeaMessageBuffer);
 
 #endif

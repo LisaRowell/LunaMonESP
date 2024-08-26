@@ -20,7 +20,7 @@
 #include "NMEAMsgType.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEAUInt8.h"
 
 #include "StringTools.h"
@@ -29,22 +29,22 @@
 NMEAGSVMessage::NMEAGSVMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAGSVMessage::parse(NMEALine &nmeaLine) {
-    if (!sentencesInGroup.extract(nmeaLine, talker, "GSV", "Sentences in Group", false, 9)) {
+bool NMEAGSVMessage::parse(NMEALineWalker &lineWalker) {
+    if (!sentencesInGroup.extract(lineWalker, talker, "GSV", "Sentences in Group", false, 9)) {
         return false;
     }
 
-    if (!sentenceNumber.extract(nmeaLine, talker, "GSV", "Sentence Number", false, 9)) {
+    if (!sentenceNumber.extract(lineWalker, talker, "GSV", "Sentence Number", false, 9)) {
         return false;
     }
 
-    if (!numberSatellites.extract(nmeaLine, talker, "GSV", "Number Satellites")) {
+    if (!numberSatellites.extract(lineWalker, talker, "GSV", "Number Satellites")) {
         return false;
     }
 
     bool endOfInput;
     for (satelittesInMessage = 0, endOfInput = false; !endOfInput && satelittesInMessage < 4;) {
-        if (!satelittes[satelittesInMessage].extract(nmeaLine, talker, endOfInput)) {
+        if (!satelittes[satelittesInMessage].extract(lineWalker, talker, endOfInput)) {
             return false;
         }
         if (!endOfInput) {
@@ -71,14 +71,14 @@ void NMEAGSVMessage::log() const {
     logger() << eol;
 }
 
-NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAGSVMessage *parseNMEAGSVMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAGSVMessage *message = new (nmeaMessageBuffer)NMEAGSVMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 #include "NMEATenthsUInt16.h"
 
@@ -95,10 +95,10 @@ bool NMEATenthsUInt16::set(const etl::string_view &valueView, bool optional) {
     return true;
 }
 
-bool NMEATenthsUInt16::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+bool NMEATenthsUInt16::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                                const char *fieldName, bool optional) {
     etl::string_view valueView;
-    if (!nmeaLine.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView)) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
                      << " field" << eol;

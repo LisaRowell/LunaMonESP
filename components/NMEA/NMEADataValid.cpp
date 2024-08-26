@@ -17,7 +17,7 @@
  */
 
 #include "NMEADataValid.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
 #include "DataModelBoolLeaf.h"
@@ -52,10 +52,10 @@ bool NMEADataValid::set(etl::string_view &dataValidView, bool optional) {
     }
 }
 
-bool NMEADataValid::extract(NMEALine &nmeaLine, NMEATalker &talker, const char *msgType,
+bool NMEADataValid::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                             bool optional) {
     etl::string_view dataValidView;
-    if (!nmeaLine.getWord(dataValidView)) {
+    if (!lineWalker.getWord(dataValidView)) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgType << " message missing Data Valid field"
                      << eol;

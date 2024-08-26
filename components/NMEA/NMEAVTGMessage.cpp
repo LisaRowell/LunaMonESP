@@ -21,7 +21,7 @@
 #include "NMEAFAAModeIndicator.h"
 #include "NMEATalker.h"
 #include "NMEAMsgType.h"
-#include "NMEALine.h"
+#include "NMEALineWalker.h"
 
 #include "Logger.h"
 
@@ -30,22 +30,22 @@
 NMEAVTGMessage::NMEAVTGMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
-bool NMEAVTGMessage::parse(NMEALine &nmeaLine) {
-    if (!trackMadeGoodTrue.extract(nmeaLine, talker, "VTG", "Track Made Good", true)) {
+bool NMEAVTGMessage::parse(NMEALineWalker &lineWalker) {
+    if (!trackMadeGoodTrue.extract(lineWalker, talker, "VTG", "Track Made Good", true)) {
         return false;
     }
 
     // There are two forms of this sentence, one with "T", "M", "N", "K" after each field, and one
     // with out.
     etl::string_view secondWordView;
-    if (!nmeaLine.getWord(secondWordView)) {
+    if (!lineWalker.getWord(secondWordView)) {
         logger() << logErrorNMEA << talker << " VTG message missing second field" << eol;
         return false;
     }
 
     bool oldForm = !wordIsT(secondWordView);
     if (!oldForm) {
-        if (!nmeaLine.getWord(secondWordView)) {
+        if (!lineWalker.getWord(secondWordView)) {
             logger() << logErrorNMEA << talker
                      << " VTG message missing Course Over Ground, Magnetic " << eol;
             return false;
@@ -59,32 +59,32 @@ bool NMEAVTGMessage::parse(NMEALine &nmeaLine) {
     }
 
     if (!oldForm) {
-        if (!extractConstantWord(nmeaLine, "VTG", "M")) {
+        if (!extractConstantWord(lineWalker, "VTG", "M")) {
             return false;
         }
     }
 
-    if (!speedOverGround.extract(nmeaLine, talker, "VTG", "Speed Over Ground")) {
+    if (!speedOverGround.extract(lineWalker, talker, "VTG", "Speed Over Ground")) {
         return false;
     }
 
    if (!oldForm) {
-        if (!extractConstantWord(nmeaLine, "VTG", "N")) {
+        if (!extractConstantWord(lineWalker, "VTG", "N")) {
             return false;
         }
     }
 
-    if (!speedOverGroundKmPerH.extract(nmeaLine, talker, "VTG", "Speed Over Ground km/h")) {
+    if (!speedOverGroundKmPerH.extract(lineWalker, talker, "VTG", "Speed Over Ground km/h")) {
         return false;
     }
 
    if (!oldForm) {
-        if (!extractConstantWord(nmeaLine, "VTG", "K")) {
+        if (!extractConstantWord(lineWalker, "VTG", "K")) {
             return false;
         }
     }
 
-    if (!faaModeIndicator.extract(nmeaLine, talker, "VTG")) {
+    if (!faaModeIndicator.extract(lineWalker, talker, "VTG")) {
         return false;
     }
 
@@ -118,14 +118,14 @@ void NMEAVTGMessage::log() const {
     logger() << eol;
 }
 
-NMEAVTGMessage *parseNMEAVTGMessage(const NMEATalker &talker, NMEALine &nmeaLine,
+NMEAVTGMessage *parseNMEAVTGMessage(const NMEATalker &talker, NMEALineWalker &lineWalker,
                                     uint8_t *nmeaMessageBuffer) {
     NMEAVTGMessage *message = new (nmeaMessageBuffer)NMEAVTGMessage(talker);
     if (!message) {
         return nullptr;
     }
 
-    if (!message->parse(nmeaLine)) {
+    if (!message->parse(lineWalker)) {
         // Since we use a static buffer and placement new for messages, we don't do a free here.
         return nullptr;
     }
