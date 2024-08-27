@@ -37,15 +37,21 @@ class UARTInterface : public Interface {
         int txPin;
         int baudRate;
         size_t rxBufferSize;
+        size_t txBufferSize;
+
+        bool sendMessageBytesBlocking(const void *bytes, size_t length);
+        bool sendMessageBytesNonBlocking(const void *bytes, size_t length);
 
     public:
         UARTInterface(const char *name, enum InterfaceProtocol protocol, uart_port_t uartNumber,
-                      int rxPin, int txPin, int baudRate, size_t rxBufferSize,
+                      int rxPin, int txPin, int baudRate, size_t rxBufferSize, size_t txBufferSize,
                       StatsManager &statsManager, DataModel &dataModel, size_t stackSize);
         void startUART();
         uart_port_t uartNumber() const;
         size_t readToBuffer(void *buffer, size_t rxBufferSize);
         virtual size_t sendBytes(const void *bytes, size_t length) override;
+        virtual bool sendMessageBytes(const void *bytes, size_t length,
+                                      bool blocking = true) override;
 };
 
 #endif // UART_INTERFACE_H

@@ -29,7 +29,7 @@ NMEAUARTInterface::NMEAUARTInterface(const char *name, uart_port_t uartNumber, i
                                      int baudRate, StatsManager &statsManager,
                                      AISContacts &aisContacts, DataModel &dataModel)
     : UARTInterface(name, INTERFACE_NMEA_O183, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
-                    statsManager, dataModel, stackSize),
+                    txBufferSize, statsManager, dataModel, stackSize),
       NMEAInterface(interfaceNode(), aisContacts, statsManager) {
 }
 

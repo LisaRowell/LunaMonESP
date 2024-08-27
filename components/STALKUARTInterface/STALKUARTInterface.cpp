@@ -30,7 +30,7 @@ STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber,
                                        int txPin, int baudRate, InstrumentData &instrumentData,
                                        StatsManager &statsManager, DataModel &dataModel)
     : UARTInterface(name, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
-                    statsManager, dataModel, stackSize),
+                    txBufferSize, statsManager, dataModel, stackSize),
       STALKInterface(*this, instrumentData, statsManager),
       firstDigitalYachtsWorkaroundSent(false),
       testLampIntensity(SeaTalkLampIntensity::L0) {

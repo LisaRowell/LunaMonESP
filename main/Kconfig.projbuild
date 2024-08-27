@@ -219,6 +219,63 @@ menu "Luna Mon Configuration"
 
     endif
 
+    config LUNAMON_ENABLE_NMEA_BRIDGE
+        bool "Enable a NMEA 0183 to NMEA 0183 message bridge"
+        default n
+        help
+            Whether or not enable a bridge of messages between two NMEA 0183 interfaces.
+
+    config LUNAMON_NMEA_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_ENABLE_NMEA_BRIDGE
+        default 0 if !LUNAMON_ENABLE_NMEA_BRIDGE
+
+    if LUNAMON_ENABLE_NMEA_BRIDGE
+        config LUNAMON_NMEA_BRIDGE_NAME
+            string "Bridge name"
+            default "bridge"
+            help
+                The name of the brige as shown in log messages and in MQTT $SYS topics.
+
+        choice
+            prompt "Bridge source interface"
+            help
+                The interface on which bridged messages are expected. This should be configured as
+                a NMEA 0183 source.
+
+            config LUNAMON_NMEA_BRIDGE_SOURCE_WIFI
+                bool "WiFi"
+            config LUNAMON_NMEA_BRIDGE_SOURCE_UART1
+                bool "UART1"
+            config LUNAMON_NMEA_BRIDGE_SOURCE_UART2
+                bool "UART2"
+            config LUNAMON_NMEA_BRIDGE_SOURCE_SOFT_UART
+                bool "Software UART"
+        endchoice
+
+        choice
+            prompt "Bridge destination interface"
+            help
+                The interface on which bridged messages are sent out.
+
+            config LUNAMON_NMEA_BRIDGE_DESTINATION_WIFI
+                bool "WiFi"
+            config LUNAMON_NMEA_BRIDGE_DESTINATION_UART1
+                bool "UART1"
+            config LUNAMON_NMEA_BRIDGE_DESTINATION_UART2
+                bool "UART2"
+            config LUNAMON_NMEA_BRIDGE_DESTINATION_SOFT_UART
+                bool "Software UART"
+        endchoice
+
+        config LUNAMON_NMEA_BRIDGE_MESSAGE_TYPES
+            string "Bridged message types"
+            help
+                A comma separated list of NMEA message types (typically three letters) to be
+                bridged.
+
+    endif
+
     config LUNAMON_HAS_STATUS_LED
         bool "Has Status LED"
         default n
@@ -476,6 +533,16 @@ menu "Luna Mon Configuration"
         int
         default 1 if LUNAMON_DEBUG_MODULE_SEATALK
         default 0 if !LUNAMON_DEBUG_MODULE_SEATALK
+
+    config LUNAMON_DEBUG_MODULE_NMEA_BRIDGE
+        bool "Debug NMEA Bridge"
+        help
+            Whether or not to debug the NMEA Bridge module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_BRIDGE
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_BRIDGE
 
     config LUNAMON_DEBUG_MODULE_NMEA_LINE
         bool "Debug NMEA Line"

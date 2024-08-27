@@ -57,6 +57,8 @@ class WiFiInterface : public Interface, WiFiManagerClient {
                       uint16_t tcpPort, WiFiManager &wifiManager, StatsManager &statsManager,
                       DataModel &dataModel, size_t stackSize);
         virtual size_t sendBytes(const void *bytes, size_t length) override;
+        virtual bool sendMessageBytes(const void *bytes, size_t length,
+                                      bool blocking = true) override;
 };
 
 #endif // WIFI_INTERFACE_H

@@ -36,14 +36,15 @@
 
 UARTInterface::UARTInterface(const char *name, enum InterfaceProtocol protocol,
                              uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
-                             size_t rxBufferSize, StatsManager &statsManager, DataModel &dataModel,
-                             size_t stackSize)
+                             size_t rxBufferSize, size_t txBufferSize, StatsManager &statsManager,
+                             DataModel &dataModel, size_t stackSize)
     : Interface(name, protocol, statsManager, dataModel, stackSize),
       _uartNumber(uartNumber),
       rxPin(rxPin),
       txPin(txPin),
       baudRate(baudRate),
-      rxBufferSize(rxBufferSize) {
+      rxBufferSize(rxBufferSize),
+      txBufferSize(txBufferSize) {
 }
 
 void UARTInterface::startUART() {
@@ -51,7 +52,7 @@ void UARTInterface::startUART() {
            << " baud, rx pin " << rxPin << " tx pin " << txPin << eol;
 
     esp_err_t error;
-    error = uart_driver_install(_uartNumber, rxBufferSize, 0, 0, nullptr, 0);
+    error = uart_driver_install(_uartNumber, rxBufferSize, txBufferSize, 0, nullptr, 0);
     if (error != ESP_OK) {
         logger << logErrorUART << "Failed to install UART " << _uartNumber << "  driver: "
                
@@ -137,5 +138,84 @@ size_t UARTInterface::sendBytes(const void *bytes, size_t length) {
         return 0;
     } else {
         return (size_t)result;
+    }
+}
+
+bool UARTInterface::sendMessageBytes(const void *bytes, size_t length, bool blocking) {
+    logger << logDebugUART << "Writing " << length << " message bytes to UART " << _uartNumber
+           << eol;
+
+    takeWriteLock();
+
+    size_t txBufferSpace;
+    esp_err_t error = uart_get_tx_buffer_free_size(_uartNumber, &txBufferSpace);
+    if (error != ESP_OK) {
+        releaseWriteLock();
+        taskLogger() << logWarnUART << "Failed to get UART " << _uartNumber
+                     << " TX buffer free space" << eol;
+        return false;
+    }
+
+    if (txBufferSpace >= length) {
+        ssize_t result = uart_write_bytes(_uartNumber, bytes, length);
+        releaseWriteLock();
+        if (result == length) {
+            return true;
+        } else {
+            taskLogger() << logWarnUART << "Writing message of " << length << " bytes to UART "
+                         << _uartNumber << " failed";
+            return false;
+        }
+    } else {
+        releaseWriteLock();
+        return false;
+    }
+}
+
+bool UARTInterface::sendMessageBytesBlocking(const void *bytes, size_t length) {
+    logger << logDebugUART << "Writing " << length << " bytes to UART " << _uartNumber
+           << " blocking"<< eol;
+
+    takeWriteLock();
+    ssize_t result = uart_write_bytes(_uartNumber, bytes, length);
+    releaseWriteLock();
+
+    if (result == length) {
+        return true;
+    } else {
+        taskLogger() << logWarnUART << "Blocking write of " << length << " message bytes to UART "
+                     << _uartNumber << " failed";
+        return false;
+    }
+}
+
+bool UARTInterface::sendMessageBytesNonBlocking(const void *bytes, size_t length) {
+    logger << logDebugUART << "Writing " << length << " message bytes to UART " << _uartNumber
+           << " non-blocking" << eol;
+
+    takeWriteLock();
+
+    size_t txBufferSpace;
+    esp_err_t error = uart_get_tx_buffer_free_size(_uartNumber, &txBufferSpace);
+    if (error != ESP_OK) {
+        releaseWriteLock();
+        taskLogger() << logWarnUART << "Failed to get UART " << _uartNumber
+                     << " TX buffer free space" << eol;
+        return false;
+    }
+
+    if (txBufferSpace >= length) {
+        ssize_t result = uart_tx_chars(_uartNumber, (const char *)bytes, length);
+        releaseWriteLock();
+        if (result == length) {
+            return true;
+        } else {
+            taskLogger() << logWarnUART << "Writing message of " << length << " bytes to UART "
+                         << _uartNumber << " failed";
+            return false;
+        }
+    } else {
+        releaseWriteLock();
+        return false;
     }
 }

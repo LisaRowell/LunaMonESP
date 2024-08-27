@@ -20,6 +20,7 @@
 #define NMEA_MSG_TYPE_H
 
 #include "etl/string.h"
+#include "etl/string_view.h"
 
 #include <stdint.h>
 
@@ -57,8 +58,10 @@ class NMEAMsgType {
         NMEAMsgType();
         NMEAMsgType(Value value);
         NMEAMsgType(const etl::istring &msgTypeStr);
-        constexpr operator Value() const { return value; }
+        NMEAMsgType(const etl::string_view &msgTypeStrView);
         void parse(const etl::istring &msgTypeStr);
+        void parse(const etl::string_view &msgTypeStrView);
+        constexpr operator Value() const { return value; }
         const char *name() const;
         explicit operator bool() const = delete;
 

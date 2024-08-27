@@ -22,6 +22,7 @@
 #include "Error.h"
 
 #include "etl/string.h"
+#include "etl/string_view.h"
 
 NMEAMsgType::NMEAMsgType() : value(UNKNOWN) {
 }
@@ -33,44 +34,53 @@ NMEAMsgType::NMEAMsgType(const etl::istring &msgTypeStr) {
     parse(msgTypeStr);
 }
 
+NMEAMsgType::NMEAMsgType(const etl::string_view &msgTypeStrView) {
+    parse(msgTypeStrView);
+}
+
 void NMEAMsgType::parse(const etl::istring &msgTypeStr) {
-    if (msgTypeStr == "DBK") {
+    etl::string_view msgTypeStrView(msgTypeStr);
+    parse(msgTypeStrView);
+}
+
+void NMEAMsgType::parse(const etl::string_view &msgTypeStrView) {
+    if (msgTypeStrView == "DBK") {
         value = DBK;
-    } else if (msgTypeStr == "DBS") {
+    } else if (msgTypeStrView == "DBS") {
         value = DBS;
-    } else if (msgTypeStr == "DBT") {
+    } else if (msgTypeStrView == "DBT") {
         value = DBT;
-    } else if (msgTypeStr == "DPT") {
+    } else if (msgTypeStrView == "DPT") {
         value = DPT;
-    } else if (msgTypeStr == "GGA") {
+    } else if (msgTypeStrView == "GGA") {
         value = GGA;
-    } else if (msgTypeStr == "GLL") {
+    } else if (msgTypeStrView == "GLL") {
         value = GLL;
-    } else if (msgTypeStr == "GSA") {
+    } else if (msgTypeStrView == "GSA") {
         value = GSA;
-    } else if (msgTypeStr == "GST") {
+    } else if (msgTypeStrView == "GST") {
         value = GST;
-    } else if (msgTypeStr == "GSV") {
+    } else if (msgTypeStrView == "GSV") {
         value = GSV;
-    } else if (msgTypeStr == "HDG") {
+    } else if (msgTypeStrView == "HDG") {
         value = HDG;
-    } else if (msgTypeStr == "MTW") {
+    } else if (msgTypeStrView == "MTW") {
         value = MTW;
-    } else if (msgTypeStr == "MWV") {
+    } else if (msgTypeStrView == "MWV") {
         value = MWV;
-    } else if (msgTypeStr == "RMC") {
+    } else if (msgTypeStrView == "RMC") {
         value = RMC;
-    } else if (msgTypeStr == "RSA") {
+    } else if (msgTypeStrView == "RSA") {
         value = RSA;
-    } else if (msgTypeStr == "TXT") {
+    } else if (msgTypeStrView == "TXT") {
         value = TXT;
-    } else if (msgTypeStr == "VDM") {
+    } else if (msgTypeStrView == "VDM") {
         value = VDM;
-    } else if (msgTypeStr == "VDO") {
+    } else if (msgTypeStrView == "VDO") {
         value = VDO;
-    } else if (msgTypeStr == "VHW") {
+    } else if (msgTypeStrView == "VHW") {
         value = VHW;
-    } else if (msgTypeStr == "VTG") {
+    } else if (msgTypeStrView == "VTG") {
         value = VTG;
     } else {
         value = UNKNOWN;

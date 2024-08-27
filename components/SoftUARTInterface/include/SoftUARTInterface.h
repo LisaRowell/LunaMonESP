@@ -45,6 +45,8 @@ class SoftUARTInterface  : public Interface {
         size_t readToByteBuffer(uint8_t *buffer, size_t rxBufferSize);
         size_t readToShortBuffer(uint16_t *buffer, size_t rxBufferSize);
         virtual size_t sendBytes(const void *bytes, size_t length) override;
+        virtual bool sendMessageBytes(const void *bytes, size_t length,
+                                      bool blocking = true) override;
         uint32_t rxBitCount() const;
         bool receiveOverrunOccured() const;
 };

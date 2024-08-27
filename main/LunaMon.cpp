@@ -32,6 +32,7 @@
 #include "STALKUARTInterface.h"
 #include "SoftUARTInterface.h"
 #include "NMEASoftUARTInterface.h"
+#include "NMEABridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
@@ -124,6 +125,38 @@ Make sure and run menuconfig!
 #define SOFTWARE_UART_PROTOCOL  (INTERFACE_OFFLINE)
 #endif
 
+#if CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED
+#define NMEA_BRIDGE_NAME            (CONFIG_LUNAMON_NMEA_BRIDGE_NAME)
+#if CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_WIFI
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_WIFI)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_UART1
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_UART1)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_UART2
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_UART2)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_SOFT_UART
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_SOFT_UART)
+#else
+Make sure and run menuconfig!
+#endif
+#if CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_WIFI
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_WIFI)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_UART1
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_UART1)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_UART2
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_UART2)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_SOFT_UART
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_SOFT_UART)
+#else
+Make sure and run menuconfig!
+#endif
+#define NMEA_BRIDGE_MESSAGE_TYPES   (CONFIG_LUNAMON_NMEA_BRIDGE_MESSAGE_TYPES)
+#else
+#define NMEA_BRIDGE_NAME            ("")
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_NONE)
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_NONE)
+#define NMEA_BRIDGE_MESSAGE_TYPES   ("")
+#endif
+
 LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
@@ -131,6 +164,7 @@ LunaMon::LunaMon()
       dataModelBridge(instrumentData),
       logManager(dataModel),
       logger(LOGGER_LEVEL_DEBUG),
+      nmeaBridge(nullptr),
       ic2Master(nullptr),
       environmentalMon(nullptr),
       versionLeaf("version", &dataModel.brokerNode(), versionBuffer),
@@ -167,6 +201,11 @@ LunaMon::LunaMon()
                                          UART2_TX_PIN, UART2_BAUD_RATE);
     softUARTInterface = createSoftUARTInterface(SOFTWARE_UART_PROTOCOL, "softUART",
                                                 SOFTWARE_UART_RX_PIN, SOFTWARE_UART_TX_PIN);
+
+    if (CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED) {
+        nmeaBridge = createNMEABridge(NMEA_BRIDGE_NAME, NMEA_BRIDGE_MESSAGE_TYPES,
+                                      NMEA_BRIDGE_SOURCE, NMEA_BRIDGE_DESTINATION);
+    }
 
     if (CONFIG_LUNAMON_I2C_ENABLED) {
         ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
@@ -262,6 +301,67 @@ NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, gp
     }
 
     return nmeaSoftUARTInterface;
+}
+
+NMEABridge *LunaMon::createNMEABridge(const char *name, const char *msgTypeList,
+                                      InterfaceID srcInterfaceID, InterfaceID dstInterfaceID) {
+    NMEAInterface *srcInterface = nmeaInterfaceByID(srcInterfaceID);
+    if (srcInterface == nullptr) {
+        logger << logErrorMain << "NMEA to NMEA Bridge '" << name
+               << "' must have a NMEA configured source interface" << eol;
+        return nullptr;
+    }
+
+    Interface *dstInterface = interfaceByID(dstInterfaceID);
+    if (dstInterface == nullptr) {
+        logger << logErrorMain << "NMEA to NMEA Bridge '" << name
+               << "' must have a destination interface" << eol;
+        return nullptr;
+    }
+
+    return new NMEABridge(name, msgTypeList, *srcInterface, *dstInterface, statsManager, dataModel);
+}
+
+NMEAInterface *LunaMon::nmeaInterfaceByID(InterfaceID id) {
+    switch (id) {
+        case InterfaceID::INTERFACE_WIFI:
+            return nmeaWiFiInterface;
+        case InterfaceID::INTERFACE_UART1:
+            if (UART1_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)uart1Interface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_UART2:
+            if (UART2_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)uart2Interface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_SOFT_UART:
+            if (UART2_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)softUARTInterface;
+            } else {
+                return nullptr;
+            }
+        default:
+            return nullptr;
+    }
+}
+
+Interface *LunaMon::interfaceByID(InterfaceID id) {
+    switch (id) {
+        case InterfaceID::INTERFACE_WIFI:
+            return nmeaWiFiInterface;
+        case InterfaceID::INTERFACE_UART1:
+            return uart1Interface;
+        case InterfaceID::INTERFACE_UART2:
+            return uart2Interface;
+        case InterfaceID::INTERFACE_SOFT_UART:
+            return softUARTInterface;
+        default:
+            return nullptr;
+    }
 }
 
 void LunaMon::run() {

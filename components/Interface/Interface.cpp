@@ -68,6 +68,16 @@ size_t Interface::send(const etl::istring &string) {
     return sendBytes(string.data(), length);
 }
 
+bool Interface::sendMessage(const char *string, bool blocking) {
+    size_t length = strlen(string);
+    return sendMessageBytes(string, length, blocking);
+}
+
+bool Interface::sendMessage(const etl::istring &string, bool blocking) {
+    size_t length = string.length();
+    return sendMessageBytes(string.data(), length, blocking);
+}
+
 void Interface::takeWriteLock() {
     if (xSemaphoreTake(writeLock, pdMS_TO_TICKS(lockTimeoutMs)) != pdTRUE) {
         fatalError("Failed to get contacts lock mutex");

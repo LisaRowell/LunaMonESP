@@ -47,11 +47,22 @@ class UARTInterface;
 class SoftUARTInterface;
 class NMEAWiFiInterface;
 class NMEAUARTInterface;
+class NMEAInterface;
+class Interface;
 class STALKUARTInterface;
 class NMEASoftUARTInterface;
+class NMEABridge;
 
 class LunaMon {
     private:
+        enum InterfaceID : uint8_t {
+            INTERFACE_WIFI,
+            INTERFACE_UART1,
+            INTERFACE_UART2,
+            INTERFACE_SOFT_UART,
+            INTERFACE_NONE
+        };
+
         StatsManager statsManager;
         DataModel dataModel;
         AISContacts aisContacts;
@@ -65,6 +76,7 @@ class LunaMon {
         UARTInterface *uart1Interface;
         UARTInterface *uart2Interface;
         SoftUARTInterface *softUARTInterface;
+        NMEABridge *nmeaBridge;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
@@ -86,6 +98,10 @@ class LunaMon {
                                                    gpio_num_t txPin);
         NMEASoftUARTInterface *createNMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
                                                            gpio_num_t txPin);
+        NMEABridge *createNMEABridge(const char *name, const char *msgTypeList,
+                                     InterfaceID srcInterfaceID, InterfaceID dstInterfaceID);
+        NMEAInterface *nmeaInterfaceByID(InterfaceID id);
+        Interface *interfaceByID(InterfaceID id);
 
     public:
         LunaMon();

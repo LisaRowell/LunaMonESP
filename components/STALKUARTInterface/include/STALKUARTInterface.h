@@ -39,6 +39,7 @@ class STALKUARTInterface : public UARTInterface, public STALKInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
+        static constexpr size_t txBufferSize = maxNMEALineLength * 2;
         static constexpr uint32_t noDataDelayMs = 20;
         static constexpr uint32_t digitalYachtsStartTimeSec = 5;
         static constexpr uint32_t digitalYachtsResendTimeSec = 30;

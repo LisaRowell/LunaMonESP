@@ -63,7 +63,11 @@ class Interface : public TaskObject, StatsHolder {
         const char *name() const;
         size_t send(const char *string);
         size_t send(const etl::istring &string);
+        bool sendMessage(const char *string, bool blocking = true);
+        bool sendMessage(const etl::istring &string, bool blocking = true);
+
         virtual size_t sendBytes(const void *bytes, size_t length) = 0;
+        virtual bool sendMessageBytes(const void *bytes, size_t length, bool blocking = true) = 0;
 };
 
 #endif // INTERFACE_H
