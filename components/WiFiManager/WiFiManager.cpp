@@ -62,6 +62,11 @@ void WiFiManager::start() {
 
     wifiInterface = esp_netif_create_default_wifi_sta();
 
+    if ((error = esp_netif_set_hostname(wifiInterface, CONFIG_LUNAMON_HOST_NAME)) != ESP_OK) {
+        logger << logErrorWiFiManager << "Failed to set device hostnamt: " << ESPError(error)
+               << eol;
+    }
+
     wifi_init_config_t wifiInitConfig = WIFI_INIT_CONFIG_DEFAULT();
     if ((error = esp_wifi_init(&wifiInitConfig)) != ESP_OK) {
         logger << logErrorWiFiManager << "Failed to init WiFi: " << ESPError(error)

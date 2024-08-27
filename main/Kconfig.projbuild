@@ -1,5 +1,11 @@
 menu "Luna Mon Configuration"
 
+    config LUNAMON_HOST_NAME
+        string "Host Name"
+        default "LunaMon"
+        help
+            Device host name visible on the network by the router and other devices.
+
     config LUNAMON_WIFI_SSID
         string "WiFi SSID"
         default "myssid"
