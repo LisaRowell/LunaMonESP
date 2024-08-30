@@ -81,14 +81,14 @@ menu "Luna Mon Configuration"
 
         config LUNAMON_UART1_RX_PIN
             int "UART1 RX Pin"
-            default 16
+            default 38
             help
                 Pin number to use for the UART1's RX pin. Consult your board documentation for
                 information on which pin to use.
 
         config LUNAMON_UART1_TX_PIN
             int "UART1 TX Pin"
-            default 17
+            default 39
             help
                 Pin number to use for the UART1's TX pin. Consult your board documentation for
                 information on which pin to use.
