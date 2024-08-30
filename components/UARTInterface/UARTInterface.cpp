@@ -42,14 +42,17 @@ UARTInterface::UARTInterface(const char *name, enum InterfaceProtocol protocol,
       _uartNumber(uartNumber),
       rxPin(rxPin),
       txPin(txPin),
-      baudRate(baudRate),
-      rxBufferSize(rxBufferSize),
-      txBufferSize(txBufferSize) {
+      baudRate(baudRate) {
+    // On the ESP32-S3, and possibly other versions, the ring buffers used have to be sized in a
+    // multiple of four bytes. Addjust the buffer sizes accordingly.
+    this->rxBufferSize = (rxBufferSize + 3) & 0xfffffffc;
+    this->txBufferSize = (txBufferSize + 3) & 0xfffffffc;
 }
 
 void UARTInterface::startUART() {
     logger << logDebugUART << "Configuring UART " << _uartNumber << " for " << baudRate
-           << " baud, rx pin " << rxPin << " tx pin " << txPin << eol;
+           << " baud, rx pin " << rxPin << " tx pin " << txPin << " rx buffer size " << rxBufferSize
+           << " tx buffer size " << txBufferSize << eol;
 
     esp_err_t error;
     error = uart_driver_install(_uartNumber, rxBufferSize, txBufferSize, 0, nullptr, 0);
