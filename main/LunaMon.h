@@ -45,12 +45,14 @@ class I2CMaster;
 class EnvironmentalMon;
 class UARTInterface;
 class SoftUARTInterface;
+class NMEASoftUARTInterface;
+class RMTUARTInterface;
+class NMEARMTUARTInterface;
 class NMEAWiFiInterface;
 class NMEAUARTInterface;
 class NMEAInterface;
 class Interface;
 class STALKUARTInterface;
-class NMEASoftUARTInterface;
 class NMEABridge;
 
 class LunaMon {
@@ -76,6 +78,7 @@ class LunaMon {
         UARTInterface *uart1Interface;
         UARTInterface *uart2Interface;
         SoftUARTInterface *softUARTInterface;
+        RMTUARTInterface *rmtUARTInterface;
         NMEABridge *nmeaBridge;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
@@ -98,6 +101,10 @@ class LunaMon {
                                                    gpio_num_t txPin);
         NMEASoftUARTInterface *createNMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
                                                            gpio_num_t txPin);
+        RMTUARTInterface *createRMTUARTInterface(InterfaceProtocol protocol, const char *name,
+                                                 gpio_num_t rxGPIO, gpio_num_t txGPIO);
+        NMEARMTUARTInterface *createNMEARMTUARTInterface(const char *name, gpio_num_t rxGPIO,
+                                                         gpio_num_t txGPIO);
         NMEABridge *createNMEABridge(const char *name, const char *msgTypeList,
                                      InterfaceID srcInterfaceID, InterfaceID dstInterfaceID);
         NMEAInterface *nmeaInterfaceByID(InterfaceID id);

@@ -16,15 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_PROTOCOL_H
-#define INTERFACE_PROTOCOL_H
+#ifndef RMT_SYMBOL_READER_H
+#define RMT_SYMBOL_READER_H
 
+#include "driver/rmt_types.h"
+#include "driver/rmt_rx.h"
+
+#include <stddef.h>
 #include <stdint.h>
 
-enum InterfaceProtocol : uint8_t {
-    INTERFACE_OFFLINE,
-    INTERFACE_NMEA_O183,
-    INTERFACE_STALK
+class RMTSymbolReader {
+    private:
+        const rmt_symbol_word_t *currentWord;
+        size_t remainingWords;
+        bool onFirstOfPair;
+
+    public:
+        RMTSymbolReader(const rmt_symbol_word_t *symbols, size_t count);
+        bool nextSymbol(uint16_t &duration, uint16_t &level);
 };
 
-#endif // INTERFACE_PROTOCOL_H
+#endif // RMT_SYMBOL_READER_H

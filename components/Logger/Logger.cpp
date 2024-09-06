@@ -50,6 +50,8 @@ Logger::Logger(LoggerLevel level)
     moduleDebugFlags[LOGGER_MODULE_NMEA_UART] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_SOFT_UART]
         = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_NMEA_RMT_UART]
+        = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_RMT_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_STALK] = CONFIG_LUNAMON_DEBUG_MODULE_STALK_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_STALK_UART] = CONFIG_LUNAMON_DEBUG_MODULE_STALK_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_SEATALK] = CONFIG_LUNAMON_DEBUG_MODULE_SEATALK_ENABLED;
@@ -58,6 +60,7 @@ Logger::Logger(LoggerLevel level)
     moduleDebugFlags[LOGGER_MODULE_UART] = CONFIG_LUNAMON_DEBUG_MODULE_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_SOFT_UART] = CONFIG_LUNAMON_DEBUG_MODULE_SOFT_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_AIS] = CONFIG_LUNAMON_DEBUG_MODULE_AIS_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_RMT_UART] = CONFIG_LUNAMON_DEBUG_MODULE_RMT_UART_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_WIFI_INTERFACE]
         = CONFIG_LUNAMON_DEBUG_MODULE_WIFI_INTERFACE_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_WIFI_MANAGER] = CONFIG_LUNAMON_DEBUG_MODULE_WIFI_MANAGER_ENABLED;
@@ -414,6 +417,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "NMEA UART";
         case LOGGER_MODULE_NMEA_SOFT_UART:
             return "NMEA Software UART";
+        case LOGGER_MODULE_NMEA_RMT_UART:
+            return "NMEA RMT UART";
         case LOGGER_MODULE_STALK:
             return "STALK";
         case LOGGER_MODULE_STALK_UART:
@@ -430,6 +435,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "Soft UART";
         case LOGGER_MODULE_AIS:
             return "AIS";
+        case LOGGER_MODULE_RMT_UART:
+            return "RMT UART";
         case LOGGER_MODULE_WIFI_INTERFACE:
             return "WiFi Interface";
         case LOGGER_MODULE_WIFI_MANAGER:

@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_PROTOCOL_H
-#define INTERFACE_PROTOCOL_H
+#ifndef INTERFACE_MODE_H
+#define INTERFACE_MODE_H
 
 #include <stdint.h>
 
-enum InterfaceProtocol : uint8_t {
-    INTERFACE_OFFLINE,
-    INTERFACE_NMEA_O183,
-    INTERFACE_STALK
+enum InterfaceMode : uint8_t {
+    RX_ONLY,
+    TX_ONLY,
+    RX_AND_TX
 };
 
-#endif // INTERFACE_PROTOCOL_H
+#endif // INTERFACE_MODE_H

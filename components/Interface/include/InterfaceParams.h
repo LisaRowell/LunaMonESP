@@ -16,15 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_PROTOCOL_H
-#define INTERFACE_PROTOCOL_H
+#ifndef INTERFACE_PARAMS_H
+#define INTERFACE_PARAMS_H
 
 #include <stdint.h>
 
-enum InterfaceProtocol : uint8_t {
-    INTERFACE_OFFLINE,
-    INTERFACE_NMEA_O183,
-    INTERFACE_STALK
+enum InterfaceDataWidth : uint8_t {
+    DATA_WIDTH_5_BITS,
+    DATA_WIDTH_6_BITS,
+    DATA_WIDTH_7_BITS,
+    DATA_WIDTH_8_BITS,
+    DATA_WIDTH_9_BITS
 };
 
-#endif // INTERFACE_PROTOCOL_H
+extern uint8_t interfaceDataWidthBits(InterfaceDataWidth dataWidth);
+
+enum InterfaceParity : uint8_t {
+    PARITY_NONE,
+    PARITY_EVEN,
+    PARITY_ODD,
+    PARITY_SPACE,
+    PARITY_MARK
+};
+
+enum InterfaceStopBits : uint8_t {
+    STOP_BITS_1,
+    STOP_BITS_1_5,
+    STOP_BITS_2
+};
+
+extern uint8_t interfaceHalfStopBits(InterfaceStopBits stopBits);
+
+#endif // INTERFACE_PARAMS_H

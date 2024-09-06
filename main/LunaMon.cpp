@@ -32,6 +32,8 @@
 #include "STALKUARTInterface.h"
 #include "SoftUARTInterface.h"
 #include "NMEASoftUARTInterface.h"
+#include "RMTUARTInterface.h"
+#include "NMEARMTUARTInterface.h"
 #include "NMEABridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
@@ -125,6 +127,20 @@ Make sure and run menuconfig!
 #define SOFTWARE_UART_PROTOCOL  (INTERFACE_OFFLINE)
 #endif
 
+#if CONFIG_LUNAMON_RMT_UART_ENABLED
+#define RMT_UART_RX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_RX_GPIO)
+#define RMT_UART_TX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_TX_GPIO)
+#ifdef CONFIG_LUNAMON_RMT_UART_NMEA_0183
+#define RMT_UART_PROTOCOL       (INTERFACE_NMEA_O183)
+#else
+Make sure and run menuconfig!
+#endif
+#else
+#define RMT_UART_RX_GPIO        (GPIO_NUM_0)
+#define RMT_UART_TX_GPIO        (GPIO_NUM_0)
+#define RMT_UART_PROTOCOL       (INTERFACE_OFFLINE)
+#endif
+
 #if CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED
 #define NMEA_BRIDGE_NAME            (CONFIG_LUNAMON_NMEA_BRIDGE_NAME)
 #if CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_WIFI
@@ -195,12 +211,14 @@ LunaMon::LunaMon()
         nmeaWiFiInterface = nullptr;
     }
 
-    uart1Interface = createUARTInterface(UART1_PROTOCOL, "uart1", (uart_port_t)1, UART1_RX_PIN,
+    uart1Interface = createUARTInterface(UART1_PROTOCOL, "uart1", UART_NUM_1, UART1_RX_PIN,
                                          UART1_TX_PIN, UART1_BAUD_RATE);
-    uart2Interface = createUARTInterface(UART2_PROTOCOL, "uart2", (uart_port_t)2, UART2_RX_PIN,
+    uart2Interface = createUARTInterface(UART2_PROTOCOL, "uart2", UART_NUM_2, UART2_RX_PIN,
                                          UART2_TX_PIN, UART2_BAUD_RATE);
     softUARTInterface = createSoftUARTInterface(SOFTWARE_UART_PROTOCOL, "softUART",
                                                 SOFTWARE_UART_RX_PIN, SOFTWARE_UART_TX_PIN);
+    rmtUARTInterface = createRMTUARTInterface(RMT_UART_PROTOCOL, "rmtUART", RMT_UART_RX_GPIO,
+                                              RMT_UART_TX_GPIO);
 
     if (CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED) {
         nmeaBridge = createNMEABridge(NMEA_BRIDGE_NAME, NMEA_BRIDGE_MESSAGE_TYPES,
@@ -303,6 +321,38 @@ NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, gp
     return nmeaSoftUARTInterface;
 }
 
+RMTUARTInterface *LunaMon::createRMTUARTInterface(InterfaceProtocol protocol, const char *name,
+                                                  gpio_num_t rxGPIO, gpio_num_t txGPIO) {
+    RMTUARTInterface *rmtUARTInterface;
+
+    switch (protocol) {
+        case INTERFACE_NMEA_O183:
+            rmtUARTInterface = createNMEARMTUARTInterface(name, rxGPIO, txGPIO);
+            break;
+
+        case INTERFACE_OFFLINE:
+        default:
+            rmtUARTInterface = nullptr;
+    }
+
+    return rmtUARTInterface;
+}
+
+NMEARMTUARTInterface *LunaMon::createNMEARMTUARTInterface(const char *name, gpio_num_t rxGPIO,
+                                                          gpio_num_t txGPIO) {
+    NMEARMTUARTInterface *nmeaRMTUARTInterface;
+
+    nmeaRMTUARTInterface = new NMEARMTUARTInterface(name, rxGPIO, txGPIO, 4800, statsManager,
+                                                    aisContacts, dataModel);
+    if (nmeaRMTUARTInterface) {
+        nmeaRMTUARTInterface->addMessageHandler(dataModelBridge);
+    } else {
+        logger << logErrorMain << "Failed to allocate NMEA RMT UART interface " << name << eol;
+    }
+
+    return nmeaRMTUARTInterface;
+}
+
 NMEABridge *LunaMon::createNMEABridge(const char *name, const char *msgTypeList,
                                       InterfaceID srcInterfaceID, InterfaceID dstInterfaceID) {
     NMEAInterface *srcInterface = nmeaInterfaceByID(srcInterfaceID);
@@ -384,6 +434,9 @@ void LunaMon::run() {
     }
     if (softUARTInterface) {
         softUARTInterface->start();
+    }
+    if (rmtUARTInterface) {
+        rmtUARTInterface->start();
     }
 
     if (environmentalMon) {

@@ -225,6 +225,48 @@ menu "Luna Mon Configuration"
 
     endif
 
+    config LUNAMON_HAS_RMT_UART_SOURCE
+        bool "Has a serial source connected for a RMT based UART"
+        default n
+        help
+            Whether or not there's a serial source connected to be configured as a RMT UART.
+
+    config LUNAMON_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_HAS_RMT_UART_SOURCE
+        default 0 if !LUNAMON_HAS_RMT_UART_SOURCE
+
+    if LUNAMON_HAS_RMT_UART_SOURCE
+        choice
+            prompt "RMT UART Protocol"
+            default LUNAMON_RMT_UART_NMEA_0183
+            help
+                Luna Mon supports interfaces with either NMEA 0183, SeaTalk or $STALK messages.
+                NMEA 0183 is what is typically put out by older, non-Raymarine devices. SeaTalk
+                is a proprietary protocol used by AutoHelm and Raymarine devices. $STALK is a
+                packaging of SeaTalk messages into a NMEA 0183 message structure typically outputed
+                by bridging devices such as the Digital Yachts ST-NMEA.
+
+            config LUNAMON_RMT_UART_NMEA_0183
+                bool "NMEA 0183"
+        endchoice
+
+        config LUNAMON_RMT_UART_RX_GPIO
+            int "RMT UART RX GPIO"
+            default 5
+            help
+                Pin number to use for the RMT UART's RX GPIO. Consult your board documentation for
+                information on which pin to use.
+
+        config LUNAMON_RMT_UART_TX_GPIO
+            int "RMT UART TX GPIO"
+            default 4
+            help
+                Pin number to use for the RMT UART's TX GPIO. Consult your board documentation for
+                information on which pin to use.
+
+    endif
+
     config LUNAMON_ENABLE_NMEA_BRIDGE
         bool "Enable a NMEA 0183 to NMEA 0183 message bridge"
         default n
@@ -510,6 +552,16 @@ menu "Luna Mon Configuration"
         default 1 if LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
 
+    config LUNAMON_DEBUG_MODULE_NMEA_RMT_UART
+        bool "Debug NMEA RMT UART"
+        help
+            Whether or not to debug the NMEA RMT UART module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_RMT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_RMT_UART
+
     config LUNAMON_DEBUG_MODULE_STALK
         bool "Debug STALK"
         help
@@ -589,6 +641,16 @@ menu "Luna Mon Configuration"
         int
         default 1 if LUNAMON_DEBUG_MODULE_AIS
         default 0 if !LUNAMON_DEBUG_MODULE_AIS
+
+    config LUNAMON_DEBUG_MODULE_RMT_UART
+        bool "Debug RMT UART"
+        help
+            Whether or not to debug the RMT UART module.
+
+    config LUNAMON_DEBUG_MODULE_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_RMT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_RMT_UART
 
     config LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
         bool "Debug WiFiInterface"
