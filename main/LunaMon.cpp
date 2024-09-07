@@ -439,6 +439,10 @@ void LunaMon::run() {
         rmtUARTInterface->start();
     }
 
+    if (nmeaBridge) {
+        nmeaBridge->start();
+    }
+
     if (environmentalMon) {
         environmentalMon->start();
     }

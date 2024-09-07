@@ -36,23 +36,35 @@
 #include "etl/set.h"
 #include "etl/string_view.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/message_buffer.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
 NMEABridge::NMEABridge(const char *name, const char *msgTypeList, NMEAInterface &srcInterface,
                        Interface &dstInterface, StatsManager &statsManager, DataModel &dataModel)
-    : name(name),
+    : TaskObject::TaskObject("NMEA Bridge", LOGGER_LEVEL_DEBUG, stackSize),
+      name(name),
       dstInterface(dstInterface),
       bridgedMessages(),
       droppedMessages(0),
+      outputErrors(0),
       bridgeNode(name, &dataModel.sysNode()),
       bridgedMessagesLeaf("bridged", &bridgeNode),
       bridgedMessageRateLeaf("bridgedRate", &bridgeNode),
-      droppedMessageLeaf("dropped", &bridgeNode) {
+      droppedMessageLeaf("dropped", &bridgeNode),
+      outputErrorsLeaf("outputErrors", &bridgeNode) {
     srcInterface.addLineHandler(*this);
     statsManager.addStatsHolder(*this);
 
     buildBridgedMessageSet(msgTypeList);
+
+    if ((messagesBuffer = xMessageBufferCreate(messageBufferLength)) == nullptr) {
+        logger << logErrorNMEABridge << "Failed to create message buffer for NMEA Bridge " << name
+               << eol;
+        errorExit();
+    }
 }
 
 void NMEABridge::buildBridgedMessageSet(const char *msgTypeList) {
@@ -72,38 +84,43 @@ void NMEABridge::buildBridgedMessageSet(const char *msgTypeList) {
 
         NMEAMsgType msgType(msgTypeStrView);
         if (msgType == NMEAMsgType::UNKNOWN) {
-            logger() << logErrorNMEABridge << "Unknown NMEA message type '" << msgTypeStrView
-                     << "' in NMEA Bridge " << name << " list: " << msgTypeList << eol;
+            logger << logErrorNMEABridge << "Unknown NMEA message type '" << msgTypeStrView
+                    << "' in NMEA Bridge " << name << " list: " << msgTypeList << eol;
             errorExit();
         }
 
         if (bridgedMsgTypes.contains(msgType)) {
-            logger() << logWarnNMEABridge << "Duplicate NMEA message type '" << msgTypeStrView
-                     << "' in NMEA Bridge " << name << " list: " << msgTypeList << eol;
+            logger << logWarnNMEABridge << "Duplicate NMEA message type '" << msgTypeStrView
+                   << "' in NMEA Bridge " << name << " list: " << msgTypeList << eol;
         } else {
             bridgedMsgTypes.insert(msgType);
         }
     }
 }
 
+// Called from the input interface's task.
 void NMEABridge::handleLine(const NMEALine &inputLine) {
     NMEAMsgType msgType;
     parseMsgType(msgType, inputLine);
 
     if (bridgedMsgTypes.contains(msgType)) {
-        bool sent = dstInterface.sendMessage(inputLine.contents(), false);
-        if (sent) {
+        // Attempt to queue the message, but don't block. If the Message Buffer is full then we're
+        // overrunning the output interface. Blocking here is just going to lead to input overruns.
+        size_t queuedLength = xMessageBufferSend(messagesBuffer, inputLine.data(),
+                                                 inputLine.length(), 0);
+        if (queuedLength != 0) {
             bridgedMessages++;
-            logger() << logDebugNMEABridge << "Bridged NMEA " << msgType << " message to "
-                     << dstInterface.name() << eol;
+            taskLogger() << logDebugNMEABridge << "Bridged NMEA " << msgType << " message to "
+                         << dstInterface.name() << eol;
         } else {
             droppedMessages++;
-            logger() << logDebugNMEABridge << "Dropped NMEA " << msgType
-                     << " message due to full output interface " << dstInterface.name() << eol;
+            taskLogger() << logDebugNMEABridge << "Dropped NMEA " << msgType
+                         << " message due to full bridge queue on bridge " << name << eol;
         }
     }
 }
 
+// Called from the input interface's task.
 void NMEABridge::parseMsgType(NMEAMsgType &msgType, const NMEALine &inputLine) {
     NMEALineWalker lineWalker(inputLine);
 
@@ -113,12 +130,12 @@ void NMEABridge::parseMsgType(NMEAMsgType &msgType, const NMEALine &inputLine) {
 
     etl::string_view tagView;
     if (!lineWalker.getWord(tagView)) {
-        logger() << logWarnNMEABridge << "NMEA message missing tag: " << inputLine << eol;
+        taskLogger() << logWarnNMEABridge << "NMEA message missing tag: " << inputLine << eol;
         return;
     }
 
     if (tagView.length() < 2) {
-        logger() << logWarnNMEABridge << "NMEA message missing talker: " << inputLine << eol;
+        taskLogger() << logWarnNMEABridge << "NMEA message missing talker: " << inputLine << eol;
         return;
     }
     tagView.remove_prefix(2);
@@ -126,7 +143,34 @@ void NMEABridge::parseMsgType(NMEAMsgType &msgType, const NMEALine &inputLine) {
     msgType.parse(tagView);
 }
 
+void NMEABridge::task() {
+    while (true) {
+        char message[maxNMEALineLength];
+        size_t messageLength = xMessageBufferReceive(messagesBuffer, message, maxNMEALineLength,
+                                                     portMAX_DELAY);
+        if (messageLength > 0) {
+            // Internally NMEA 0183 messages don't include the terminating CR,LF, so we need to add
+            // it here before we output it.
+            message[messageLength] = '\r';
+            message[messageLength + 1] = '\n';
+            message[messageLength + 2] = 0;
+            bool sent = dstInterface.sendMessage(message, true);
+            if (sent) {
+                // Remove the CR,LF for the debug message
+                message[messageLength] = '0';
+                logger << logDebugNMEABridge << "Wrote NMEA message to " << dstInterface.name()
+                       << ": " << message << eol;
+            } else {
+                outputErrors++;
+                logger << logWarnNMEABridge << "Error sending NMEA bridged message to "
+                       << dstInterface.name() << eol;
+            }
+        }
+    }
+}
+
 void NMEABridge::exportStats(uint32_t msElapsed) {
     bridgedMessages.update(bridgedMessagesLeaf, bridgedMessageRateLeaf, msElapsed);
     droppedMessageLeaf = droppedMessages;
+    outputErrorsLeaf = outputErrors;
 }

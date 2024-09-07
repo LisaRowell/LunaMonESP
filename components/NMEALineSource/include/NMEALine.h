@@ -46,6 +46,8 @@ class NMEALine {
         void appendWord(const etl::istring &string);
         void appendChecksum();
         const etl::istring &contents() const;
+        const char *data() const;
+        size_t length() const;
 
     friend Logger & operator << (Logger &logger, const NMEALine &nmeaLine);
 };

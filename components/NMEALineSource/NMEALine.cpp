@@ -136,6 +136,14 @@ const etl::istring &NMEALine::contents() const {
     return line;
 }
 
+const char *NMEALine::data() const {
+    return line.data();
+}
+
+size_t NMEALine::length() const {
+    return line.size();
+}
+
 Logger & operator << (Logger &logger, const NMEALine &nmeaLine) {
     // Depending upon where this is done, the line may or may not have a CRLF at the end. If it
     // does, avoid logging it.
