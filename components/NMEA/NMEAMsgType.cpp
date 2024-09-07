@@ -56,6 +56,8 @@ void NMEAMsgType::parse(const etl::string_view &msgTypeStrView) {
         value = GGA;
     } else if (msgTypeStrView == "GLL") {
         value = GLL;
+    } else if (msgTypeStrView == "GNS") {
+        value = GNS;
     } else if (msgTypeStrView == "GSA") {
         value = GSA;
     } else if (msgTypeStrView == "GST") {
@@ -103,6 +105,8 @@ const char *NMEAMsgType::name() const {
             return "GGA";
         case GLL:
             return "GLL";
+        case GNS:
+            return "GNS";
         case GSA:
             return "GSA";
         case GST:

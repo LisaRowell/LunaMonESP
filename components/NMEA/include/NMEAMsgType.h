@@ -36,6 +36,7 @@ class NMEAMsgType {
             DPT,
             GGA,
             GLL,
+            GNS,
             GSA,
             GST,
             GSV,
