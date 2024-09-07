@@ -154,8 +154,8 @@ void NMEABridge::task() {
             message[messageLength] = '\r';
             message[messageLength + 1] = '\n';
             message[messageLength + 2] = 0;
-            bool sent = dstInterface.sendMessage(message, true);
-            if (sent) {
+            size_t sent = dstInterface.sendBytes(message, messageLength + 2);
+            if (sent == messageLength + 2) {
                 // Remove the CR,LF for the debug message
                 message[messageLength] = '0';
                 logger << logDebugNMEABridge << "Wrote NMEA message to " << dstInterface.name()

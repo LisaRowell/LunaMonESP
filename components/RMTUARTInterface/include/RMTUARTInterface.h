@@ -46,8 +46,6 @@ class RMTUARTInterface : public Interface {
         void startUART();
         size_t readToBuffer(void *buffer, size_t bufferSize);
         virtual size_t sendBytes(const void *bytes, size_t length) override;
-        virtual bool sendMessageBytes(const void *bytes, size_t length,
-                                      bool blocking = true) override;
 };
 
 #endif // RMT_UART_INTERFACE_H

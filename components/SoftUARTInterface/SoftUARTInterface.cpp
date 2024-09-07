@@ -64,11 +64,6 @@ size_t SoftUARTInterface::sendBytes(const void *bytes, size_t length) {
     return 0;
 }
 
-bool SoftUARTInterface::sendMessageBytes(const void *bytes, size_t length, bool blocking) {
-    // This is currently unimplemented for this interface type.
-    return false;
-}
-
 uint32_t SoftUARTInterface::rxBitCount() const {
     return uart.rxBitCount();
 }

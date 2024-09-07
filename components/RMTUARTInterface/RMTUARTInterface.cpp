@@ -54,10 +54,6 @@ size_t RMTUARTInterface::sendBytes(const void *bytes, size_t length) {
     return length;
 }
 
-bool RMTUARTInterface::sendMessageBytes(const void *bytes, size_t length, bool blocking) {
-    return true;
-}
-
 static void uartSender(void *arg) {
     const char *message = "Hello World!\r\n";
     while (1) {

@@ -118,15 +118,6 @@ size_t WiFiInterface::sendBytes(const void *bytes, size_t length) {
     }
 }
 
-bool WiFiInterface::sendMessageBytes(const void *bytes, size_t length, bool blocking) {
-    // Unfortunately there isn't a way to determine if the LWIP stack would block for a given
-    // write operation so we can not honor the blocking parameter.
-    (void)blocking;
-
-    size_t result = sendBytes(bytes, length);
-    return result == length;
-}
-
 void WiFiInterface::sourceDisconnected() {
     stateLeaf = false;
     close(sock);
