@@ -22,10 +22,11 @@
 #include "InterfaceProtocol.h"
 #include "NMEAInterface.h"
 
-NMEAWiFiInterface::NMEAWiFiInterface(const char *name, const char *ipv4Addr, uint16_t tcpPort,
-                                     WiFiManager &wifiManager, StatsManager &statsManager,
-                                     AISContacts &aisContacts, DataModel &dataModel)
-    : WiFiInterface(name, INTERFACE_NMEA_O183, ipv4Addr, tcpPort, wifiManager, statsManager,
+NMEAWiFiInterface::NMEAWiFiInterface(const char *name, const char *label, const char *ipv4Addr,
+                                     uint16_t tcpPort, WiFiManager &wifiManager,
+                                     StatsManager &statsManager, AISContacts &aisContacts,
+                                     DataModel &dataModel)
+    : WiFiInterface(name, label, INTERFACE_NMEA_O183, ipv4Addr, tcpPort, wifiManager, statsManager,
                     dataModel, stackSize),
       NMEAInterface(interfaceNode(), aisContacts, statsManager) {
 }

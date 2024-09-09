@@ -34,11 +34,11 @@
 #include <stddef.h>
 #include <string.h>
 
-UARTInterface::UARTInterface(const char *name, enum InterfaceProtocol protocol,
+UARTInterface::UARTInterface(const char *name, const char *label, enum InterfaceProtocol protocol,
                              uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
                              size_t rxBufferSize, size_t txBufferSize, StatsManager &statsManager,
                              DataModel &dataModel, size_t stackSize)
-    : Interface(name, protocol, statsManager, dataModel, stackSize),
+    : Interface(name, label, protocol, statsManager, dataModel, stackSize),
       _uartNumber(uartNumber),
       rxPin(rxPin),
       txPin(txPin),

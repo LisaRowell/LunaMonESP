@@ -40,9 +40,10 @@ class UARTInterface : public Interface {
         size_t txBufferSize;
 
     public:
-        UARTInterface(const char *name, enum InterfaceProtocol protocol, uart_port_t uartNumber,
-                      int rxPin, int txPin, int baudRate, size_t rxBufferSize, size_t txBufferSize,
-                      StatsManager &statsManager, DataModel &dataModel, size_t stackSize);
+        UARTInterface(const char *name, const char *label, enum InterfaceProtocol protocol,
+                      uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
+                      size_t rxBufferSize, size_t txBufferSize, StatsManager &statsManager,
+                      DataModel &dataModel, size_t stackSize);
         void startUART();
         uart_port_t uartNumber() const;
         size_t readToBuffer(void *buffer, size_t rxBufferSize);

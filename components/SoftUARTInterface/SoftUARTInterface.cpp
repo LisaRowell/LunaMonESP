@@ -31,12 +31,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-SoftUARTInterface::SoftUARTInterface(const char *name, enum InterfaceProtocol protocol,
-                                     gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
+SoftUARTInterface::SoftUARTInterface(const char *name, const char *label,
+                                     enum InterfaceProtocol protocol, gpio_num_t rxPin,
+                                     gpio_num_t txPin, uint32_t baudRate,
                                      uart_word_length_t dataBits, uart_stop_bits_t stopBits,
                                      uart_parity_t parity, StatsManager &statsManager,
                                      DataModel &dataModel, size_t stackSize)
-    : Interface(name, protocol, statsManager, dataModel, stackSize),
+    : Interface(name, label, protocol, statsManager, dataModel, stackSize),
       uart(rxPin, txPin, baudRate, dataBits, stopBits, parity) {
 }
 

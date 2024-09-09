@@ -45,9 +45,9 @@ class NMEAUARTInterface : public UARTInterface, public NMEAInterface {
         virtual void task() override;
 
     public:
-        NMEAUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                          int baudRate, StatsManager &statsManager, AISContacts &aisContacts,
-                          DataModel &dataModel);
+        NMEAUARTInterface(const char *name, const char *label, uart_port_t uartNumber, int rxPin,
+                          int txPin, int baudRate, StatsManager &statsManager,
+                          AISContacts &aisContacts, DataModel &dataModel);
 };
 
 #endif // NMEA_UART_INTERFACE_H

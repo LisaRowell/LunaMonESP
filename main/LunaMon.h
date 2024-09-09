@@ -89,22 +89,25 @@ class LunaMon {
         DataModelUInt32Leaf uptimeLeaf;
 
         void initNVS();
-        UARTInterface *createUARTInterface(enum InterfaceProtocol protocol, const char *name,
-                                           uart_port_t uartNumber, int rxPin, int txPin,
-                                           int baudRate);
-        NMEAUARTInterface *createNMEAUARTInterface(const char *name, uart_port_t uartNumber,
-                                                   int rxPin, int txPin, int baudRate);
-        STALKUARTInterface *createSTALKUARTInterface(const char *name, uart_port_t uartNumber,
-                                                     int rxPin, int txPin, int baudRate);
-        SoftUARTInterface *createSoftUARTInterface(enum InterfaceProtocol protocol,
-                                                   const char *name, gpio_num_t rxPin,
-                                                   gpio_num_t txPin);
-        NMEASoftUARTInterface *createNMEASoftUARTInterface(const char *name, gpio_num_t rxPin,
-                                                           gpio_num_t txPin);
-        RMTUARTInterface *createRMTUARTInterface(InterfaceProtocol protocol, const char *name,
-                                                 gpio_num_t rxGPIO, gpio_num_t txGPIO);
-        NMEARMTUARTInterface *createNMEARMTUARTInterface(const char *name, gpio_num_t rxGPIO,
-                                                         gpio_num_t txGPIO);
+        UARTInterface *createUARTInterface(const char *name, const char *label,
+                                           enum InterfaceProtocol protocol, uart_port_t uartNumber,
+                                           int rxPin, int txPin, int baudRate);
+        NMEAUARTInterface *createNMEAUARTInterface(const char *name, const char *label,
+                                                   uart_port_t uartNumber, int rxPin, int txPin,
+                                                   int baudRate);
+        STALKUARTInterface *createSTALKUARTInterface(const char *name, const char *label,
+                                                     uart_port_t uartNumber, int rxPin, int txPin,
+                                                     int baudRate);
+        SoftUARTInterface *createSoftUARTInterface(const char *name, const char *label,
+                                                   enum InterfaceProtocol protocol,
+                                                   gpio_num_t rxPin, gpio_num_t txPin);
+        NMEASoftUARTInterface *createNMEASoftUARTInterface(const char *name, const char *label,
+                                                           gpio_num_t rxPin, gpio_num_t txPin);
+        RMTUARTInterface *createRMTUARTInterface(const char *name, const char *label,
+                                                 InterfaceProtocol protocol, gpio_num_t rxGPIO,
+                                                 gpio_num_t txGPIO);
+        NMEARMTUARTInterface *createNMEARMTUARTInterface(const char *name, const char *label,
+                                                         gpio_num_t rxGPIO, gpio_num_t txGPIO);
         NMEABridge *createNMEABridge(const char *name, const char *msgTypeList,
                                      InterfaceID srcInterfaceID, InterfaceID dstInterfaceID);
         NMEAInterface *nmeaInterfaceByID(InterfaceID id);

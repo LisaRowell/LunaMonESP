@@ -32,10 +32,10 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-WiFiInterface::WiFiInterface(const char *name, enum InterfaceProtocol protocol,
+WiFiInterface::WiFiInterface(const char *name, const char *label, enum InterfaceProtocol protocol,
                              const char *ipv4Addr, uint16_t tcpPort, WiFiManager &wifiManager,
                              StatsManager &statsManager, DataModel &dataModel, size_t stackSize)
-    : Interface(name, protocol, statsManager, dataModel, stackSize),
+    : Interface(name, label, protocol, statsManager, dataModel, stackSize),
       WiFiManagerClient(wifiManager),
       ipv4Addr(ipv4Addr),
       tcpPort(tcpPort),

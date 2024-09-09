@@ -26,10 +26,11 @@
 
 #include <stdint.h>
 
-STALKUARTInterface::STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin,
-                                       int txPin, int baudRate, InstrumentData &instrumentData,
-                                       StatsManager &statsManager, DataModel &dataModel)
-    : UARTInterface(name, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
+STALKUARTInterface::STALKUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
+                                       int rxPin, int txPin, int baudRate,
+                                       InstrumentData &instrumentData, StatsManager &statsManager,
+                                       DataModel &dataModel)
+    : UARTInterface(name, label, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
                     txBufferSize, statsManager, dataModel, stackSize),
       STALKInterface(*this, instrumentData, statsManager),
       firstDigitalYachtsWorkaroundSent(false),

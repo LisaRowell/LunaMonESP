@@ -25,11 +25,11 @@
 
 #include <stdint.h>
 
-NMEAUARTInterface::NMEAUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                                     int baudRate, StatsManager &statsManager,
+NMEAUARTInterface::NMEAUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
+                                     int rxPin, int txPin, int baudRate, StatsManager &statsManager,
                                      AISContacts &aisContacts, DataModel &dataModel)
-    : UARTInterface(name, INTERFACE_NMEA_O183, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
-                    txBufferSize, statsManager, dataModel, stackSize),
+    : UARTInterface(name, label, INTERFACE_NMEA_O183, uartNumber, rxPin, txPin, baudRate,
+                    rxBufferSize, txBufferSize, statsManager, dataModel, stackSize),
       NMEAInterface(interfaceNode(), aisContacts, statsManager) {
 }
 

@@ -53,9 +53,9 @@ class WiFiInterface : public Interface, WiFiManagerClient {
         void sourceDisconnected();
 
     public:
-        WiFiInterface(const char *name, enum InterfaceProtocol protocol, const char *ipv4Addr,
-                      uint16_t tcpPort, WiFiManager &wifiManager, StatsManager &statsManager,
-                      DataModel &dataModel, size_t stackSize);
+        WiFiInterface(const char *name, const char *label, enum InterfaceProtocol protocol,
+                      const char *ipv4Addr, uint16_t tcpPort, WiFiManager &wifiManager,
+                      StatsManager &statsManager, DataModel &dataModel, size_t stackSize);
         virtual size_t sendBytes(const void *bytes, size_t length) override;
 };
 

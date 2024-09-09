@@ -44,8 +44,8 @@ class NMEARMTUARTInterface : public RMTUARTInterface, public NMEAInterface {
         virtual void task() override;
 
     public:
-        NMEARMTUARTInterface(const char *name, gpio_num_t rxGPIO, gpio_num_t txGPIO,
-                             uint32_t baudRate, StatsManager &statsManager,
+        NMEARMTUARTInterface(const char *name, const char *label, gpio_num_t rxGPIO,
+                             gpio_num_t txGPIO, uint32_t baudRate, StatsManager &statsManager,
                              AISContacts &aisContacts, DataModel &dataModel);
 };
 

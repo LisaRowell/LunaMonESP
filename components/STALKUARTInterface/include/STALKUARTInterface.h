@@ -57,9 +57,9 @@ class STALKUARTInterface : public UARTInterface, public STALKInterface {
         void commandTest();
 
     public:
-        STALKUARTInterface(const char *name, uart_port_t uartNumber, int rxPin, int txPin,
-                           int baudRate, InstrumentData &instrumentData, StatsManager &statsManager,
-                           DataModel &dataModel);
+        STALKUARTInterface(const char *name, const char *label, uart_port_t uartNumber, int rxPin,
+                           int txPin, int baudRate, InstrumentData &instrumentData,
+                           StatsManager &statsManager, DataModel &dataModel);
 };
 
 #endif // STALK_UART_INTERFACE_H

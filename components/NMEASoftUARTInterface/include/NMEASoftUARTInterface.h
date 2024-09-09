@@ -43,8 +43,8 @@ class NMEASoftUARTInterface : public SoftUARTInterface, public NMEAInterface {
         void task();
 
     public:
-        NMEASoftUARTInterface(const char *name, gpio_num_t rxPin, gpio_num_t txPin,
-                              uint32_t baudRate, StatsManager &statsManager,
+        NMEASoftUARTInterface(const char *name, const char *label, gpio_num_t rxPin,
+                              gpio_num_t txPin, uint32_t baudRate, StatsManager &statsManager,
                               AISContacts &aisContacts, DataModel &dataModel);
 };
 

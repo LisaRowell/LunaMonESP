@@ -36,19 +36,23 @@ menu "Luna Mon Configuration"
             default 0 if !LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
 
     if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        config LUNAMON_NMEA_WIFI_SOURCE_LABEL
+            string "WiFi NMEA Source label"
+            default ""
+            help
+                The label of the NMEA over WiFi interface.
 
-    config LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR
-        string "WiFi NMEA Source IPv4 Address"
-        default "sourceIPV4"
-        help
-            The IPv4 address of the NMEA source.
+        config LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR
+            string "WiFi NMEA Source IPv4 Address"
+            default "sourceIPV4"
+            help
+                The IPv4 address of the NMEA source.
 
-    config LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT
-        int "WiFi NMEA Source TCP Port"
-        default 39150
-        help
-            The TCP port number for the NMEA source.
-
+        config LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT
+            int "WiFi NMEA Source TCP Port"
+            default 39150
+            help
+                The TCP port number for the NMEA source.
     endif
 
     config LUNAMON_HAS_UART1_SOURCE
@@ -63,6 +67,12 @@ menu "Luna Mon Configuration"
         default 0 if !LUNAMON_HAS_UART1_SOURCE
 
     if LUNAMON_HAS_UART1_SOURCE
+        config LUNAMON_UART1_LABEL
+            string "UART1 interface label"
+            default ""
+            help
+                The label of the UART1 interface.
+
         choice
             prompt "UART1 Protocol"
             default LUNAMON_UART1_NMEA_0183
@@ -129,6 +139,12 @@ menu "Luna Mon Configuration"
         default 0 if !LUNAMON_HAS_UART2_SOURCE
 
     if LUNAMON_HAS_UART2_SOURCE
+        config LUNAMON_UART2_LABEL
+            string "UART2 interface label"
+            default ""
+            help
+                The label of the UART2 interface.
+
         choice
             prompt "UART2 Protocol"
             default LUNAMON_UART2_NMEA_0183
@@ -195,6 +211,12 @@ menu "Luna Mon Configuration"
         default 0 if !LUNAMON_HAS_SOFTWARE_UART_SOURCE
 
     if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        config LUNAMON_SOFTWARE_UART_LABEL
+            string "Software UART interface label"
+            default ""
+            help
+                The label of the software UART interface.
+
         choice
             prompt "Software UART Protocol"
             default LUNAMON_SOFTWARE_UART_NMEA_0183
@@ -237,6 +259,12 @@ menu "Luna Mon Configuration"
         default 0 if !LUNAMON_HAS_RMT_UART_SOURCE
 
     if LUNAMON_HAS_RMT_UART_SOURCE
+        config LUNAMON_RMT_UART_LABEL
+            string "RMT UART interface label"
+            default ""
+            help
+                The label of the RMT UART interface.
+
         choice
             prompt "RMT UART Protocol"
             default LUNAMON_RMT_UART_NMEA_0183
@@ -283,7 +311,7 @@ menu "Luna Mon Configuration"
             string "Bridge name"
             default "bridge"
             help
-                The name of the brige as shown in log messages and in MQTT $SYS topics.
+                The name of the bridge as shown in log messages and in MQTT $SYS topics.
 
         choice
             prompt "Bridge source interface"

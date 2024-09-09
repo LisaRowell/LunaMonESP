@@ -38,11 +38,11 @@ class RMTUARTInterface : public Interface {
         void createTestSender(gpio_num_t gpio, uint32_t baudRate);
 
     public:
-        RMTUARTInterface(const char *name, InterfaceProtocol protocol, InterfaceMode mode,
-                         uint32_t baudRate, InterfaceDataWidth dataWidth, InterfaceParity parity,
-                         InterfaceStopBits stopBits, gpio_num_t rxGPIO, gpio_num_t txGPIO,
-                         size_t rxBufferSize, StatsManager &statsManager, DataModel &dataModel,
-                         size_t stackSize);
+        RMTUARTInterface(const char *name, const char *label, InterfaceProtocol protocol,
+                         InterfaceMode mode, uint32_t baudRate, InterfaceDataWidth dataWidth,
+                         InterfaceParity parity, InterfaceStopBits stopBits, gpio_num_t rxGPIO,
+                         gpio_num_t txGPIO, size_t rxBufferSize, StatsManager &statsManager,
+                         DataModel &dataModel, size_t stackSize);
         void startUART();
         size_t readToBuffer(void *buffer, size_t bufferSize);
         virtual size_t sendBytes(const void *bytes, size_t length) override;

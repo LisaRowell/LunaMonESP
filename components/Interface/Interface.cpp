@@ -24,6 +24,8 @@
 
 #include "DataModel.h"
 #include "DataModelNode.h"
+#include "DataModelStringLeaf.h"
+#include "DataModelUInt32Leaf.h"
 #include "TaskObject.h"
 #include "Error.h"
 
@@ -33,13 +35,15 @@
 #include <freertos/semphr.h>
 
 #include <stddef.h>
+#include <stdint.h>
 
-Interface::Interface(const char *name, enum InterfaceProtocol protocol, StatsManager &statsManager,
-                     DataModel &dataModel, size_t stackSize)
+Interface::Interface(const char *name, const char *label, enum InterfaceProtocol protocol,
+                     StatsManager &statsManager, DataModel &dataModel, size_t stackSize)
     : TaskObject(name, LOGGER_LEVEL_DEBUG, stackSize),
       _name(name),
       protocol(protocol),
       _interfaceNode(name, &dataModel.sysNode()),
+      labelLeaf("label", &_interfaceNode, labelBuffer),
       receivedBytesLeaf("receivedBytes", &_interfaceNode),
       receivedByteRateLeaf("receivedByteRate", &_interfaceNode),
       receivedBytes() {
@@ -48,6 +52,8 @@ Interface::Interface(const char *name, enum InterfaceProtocol protocol, StatsMan
     if ((writeLock = xSemaphoreCreateMutex()) == nullptr) {
         fatalError("Failed to create Interface write mutex");
     }
+
+    labelLeaf = label;
 }
 
 DataModelNode &Interface::interfaceNode() {

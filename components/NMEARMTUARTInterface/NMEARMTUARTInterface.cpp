@@ -27,10 +27,11 @@
 
 #include <stdint.h>
 
-NMEARMTUARTInterface::NMEARMTUARTInterface(const char *name, gpio_num_t rxGPIO, gpio_num_t txGPIO,
-                                           uint32_t baudRate, StatsManager &statsManager,
-                                           AISContacts &aisContacts, DataModel &dataModel)
-    : RMTUARTInterface(name, INTERFACE_NMEA_O183, RX_AND_TX, baudRate, DATA_WIDTH_8_BITS,
+NMEARMTUARTInterface::NMEARMTUARTInterface(const char *name, const char *label, gpio_num_t rxGPIO,
+                                           gpio_num_t txGPIO, uint32_t baudRate,
+                                           StatsManager &statsManager, AISContacts &aisContacts,
+                                           DataModel &dataModel)
+    : RMTUARTInterface(name, label, INTERFACE_NMEA_O183, RX_AND_TX, baudRate, DATA_WIDTH_8_BITS,
                        PARITY_NONE, STOP_BITS_1, rxGPIO, txGPIO, rxBufferSize, statsManager,
                        dataModel, stackSize),
       NMEAInterface(interfaceNode(), aisContacts, statsManager) {
