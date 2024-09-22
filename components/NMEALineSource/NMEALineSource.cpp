@@ -142,10 +142,11 @@ void NMEALineSource::lineCompleted() {
         return;
     }
 
-    handleLine(inputLine);
+    handleLine();
 }
 
-void NMEALineSource::handleLine(NMEALine &inputLine) {
+void NMEALineSource::handleLine() {
+    logger() << logDebugNMEALine << "Handling NMEA formatted line: " << inputLine << eol;
     for (NMEALineHandler *lineHandler : lineHandlers) {
         lineHandler->handleLine(inputLine);
     }

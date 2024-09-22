@@ -38,7 +38,7 @@ class NMEALineSource {
                                    size_t &bufferPos, size_t &remaining);
         bool processBufferToEndOfLine(const char *buffer, size_t &bufferPos, size_t &remaining);
         void lineCompleted();
-        void handleLine(NMEALine &inputLine);
+        void handleLine();
 
     protected:
         void processBuffer(const char *buffer, size_t length);
