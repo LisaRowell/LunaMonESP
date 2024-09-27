@@ -24,8 +24,6 @@
 #include "InterfaceParams.h"
 
 #include "driver/gpio.h"
-// for testing
-#include "driver/uart.h"
 #include "esp_log.h"
 
 #include <stddef.h>
@@ -37,9 +35,8 @@ RMTUARTInterface::RMTUARTInterface(const char *name, const char *label, Interfac
                                    size_t rxBufferSize, StatsManager &statsManager,
                                    DataModel &dataModel, size_t stackSize)
     : Interface(name, label, protocol, statsManager, dataModel, stackSize),
-      rmtUART(InterfaceMode::RX_ONLY, baudRate, dataWidth, parity, stopBits, rxGPIO, txGPIO,
+      rmtUART(InterfaceMode::RX_AND_TX, baudRate, dataWidth, parity, stopBits, rxGPIO, txGPIO,
               rxBufferSize) {
-//    createTestSender(txGPIO, baudRate);
 }
 
 void RMTUARTInterface::startUART() {
@@ -51,38 +48,5 @@ size_t RMTUARTInterface::readToBuffer(void *buffer, size_t bufferSize) {
 }
 
 size_t RMTUARTInterface::sendBytes(const void *bytes, size_t length) {
-    return length;
-}
-
-static void uartSender(void *arg) {
-    const char *message = "Hello World!\r\n";
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(5 * 1000));
-        ESP_LOGI("RMTUART", "Sending...");
-        uart_write_bytes(UART_NUM_1, message, strlen(message));
-    }
-}
-
-void RMTUARTInterface::createTestSender(gpio_num_t gpio, uint32_t baudRate) {
-    uart_config_t uart_config = {
-        .baud_rate = (int)baudRate,
-        .data_bits = UART_DATA_8_BITS,
-        .parity    = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .rx_flow_ctrl_thresh = 1,
-        .source_clk = UART_SCLK_DEFAULT
-    };
-    int intr_alloc_flags = 0;
-
-#if CONFIG_UART_ISR_IN_IRAM
-    intr_alloc_flags = ESP_INTR_FLAG_IRAM;
-#endif
-
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_1, 1024 * 2, 0, 0, NULL, intr_alloc_flags));
-    ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1, gpio, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE,
-                                 UART_PIN_NO_CHANGE));
-
-    xTaskCreate(uartSender, "UART Sender", 8 * 1024, NULL, 10, NULL);
+    return rmtUART.send(bytes, length);
 }

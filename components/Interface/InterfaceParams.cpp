@@ -21,9 +21,9 @@
 #include "Logger.h"
 #include "Error.h"
 
-#include <stdint.h>
+#include <stddef.h>
 
-uint8_t interfaceDataWidthBits(InterfaceDataWidth dataWidth) {
+size_t interfaceDataWidthBits(InterfaceDataWidth dataWidth) {
     switch (dataWidth) {
         case DATA_WIDTH_5_BITS:
             return 5;
@@ -46,6 +46,38 @@ Logger & operator << (Logger &logger, InterfaceDataWidth dataWidth) {
     return logger;
 }
 
+size_t interfaceParityBits(InterfaceParity parity) {
+    if (parity == PARITY_NONE) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+extern Logger & operator << (Logger &logger, InterfaceParity parity) {
+    switch (parity) {
+        case PARITY_NONE:
+            logger << "No parity";
+            break;
+        case PARITY_EVEN:
+            logger << "Even parity";
+            break;
+        case PARITY_ODD:
+            logger << "Odd parity";
+            break;
+        case PARITY_SPACE:
+            logger << "Space parity";
+            break;
+        case PARITY_MARK:
+            logger << "Mark parity";
+            break;
+        default:
+            fatalError("Invalid interface parity");
+    }
+
+    return logger;
+}
+
 uint8_t interfaceHalfStopBits(InterfaceStopBits stopBits) {
     switch (stopBits) {
         case STOP_BITS_1:
@@ -57,4 +89,22 @@ uint8_t interfaceHalfStopBits(InterfaceStopBits stopBits) {
         default:
             fatalError("Invalid interface stop bits");
     }
+}
+
+extern Logger & operator << (Logger &logger, InterfaceStopBits stopBits) {
+    switch (stopBits) {
+        case STOP_BITS_1:
+            logger << "1 stop bit";
+            break;
+        case STOP_BITS_1_5:
+            logger << "1.5 stop bits";
+            break;
+        case STOP_BITS_2:
+            logger << "2 stop bits";
+            break;
+        default:
+            fatalError("Invalid interface stop bits");
+    }
+
+    return logger;
 }

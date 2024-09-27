@@ -71,6 +71,9 @@ void UARTInterface::startUART() {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 1,
         .source_clk = UART_SCLK_DEFAULT,
+        .flags = {
+            .backup_before_sleep = 0
+        }
     };
     error = uart_param_config(_uartNumber, &uart_config);
     if (error != ESP_OK) {

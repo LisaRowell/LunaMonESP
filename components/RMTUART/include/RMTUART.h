@@ -31,16 +31,19 @@
 #include <stdint.h>
 
 class RMTUARTReceiver;
+class RMTUARTTransmitter;
 
 class RMTUART {
     private:
         QueueHandle_t rxQueue;
         RMTUARTReceiver *receiver;
+        RMTUARTTransmitter *transmitter;
 
         void initializeRX(uint32_t baudRate, InterfaceDataWidth dataWidth, InterfaceParity parity,
                           InterfaceStopBits stopBits, gpio_num_t gpio, size_t bufferSize,
                           QueueHandle_t rxQueue);
-        void initializeTX();
+        void initializeTX(uint32_t baudRate, InterfaceDataWidth dataWidth, InterfaceParity parity,
+                          InterfaceStopBits stopBits, gpio_num_t gpio);
 
     public:
         RMTUART(InterfaceMode mode, uint32_t baudRate, InterfaceDataWidth dataWidth,
@@ -48,6 +51,7 @@ class RMTUART {
                 gpio_num_t txGPIO, size_t rxBufferSize);
         void startUART();
         size_t receive(void *buffer, size_t bufferSize);
+        size_t send(const void *characters, size_t length);
 };
 
 #endif // RMT_UART_H

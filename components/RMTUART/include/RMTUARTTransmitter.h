@@ -16,33 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RMT_UART_INTERFACE_H
-#define RMT_UART_INTERFACE_H
+#ifndef RMT_UART_TRANSMITTER_H
+#define RMT_UART_TRANSMITTER_H
 
-#include "Interface.h"
-#include "RMTUART.h"
-#include "InterfaceProtocol.h"
-#include "InterfaceMode.h"
+#include "RMTUARTBitStreamer.h"
+
 #include "InterfaceParams.h"
 
 #include "driver/gpio.h"
+#include "driver/rmt_types.h"
+#include "driver/rmt_tx.h"
+#include "driver/rmt_encoder.h"
 
 #include <stddef.h>
 #include <stdint.h>
 
-class RMTUARTInterface : public Interface {
+class RMTUARTTransmitter {
     private:
-        RMTUART rmtUART;
+        static constexpr int interruptPriority = 1;
+        static constexpr uint32_t resolutionHz = 1000000;
+
+        gpio_num_t gpio;
+        rmt_channel_handle_t channelHandle;
+        rmt_transmit_config_t transmitConfig;
+        rmt_encoder_handle_t encoderHandle;
+        RMTUARTBitStreamer bitStreamer;
+
+        void createChannel();
+        void buildTransmitConfig();
+        void createEncoder();
 
     public:
-        RMTUARTInterface(const char *name, const char *label, InterfaceProtocol protocol,
-                         InterfaceMode mode, uint32_t baudRate, InterfaceDataWidth dataWidth,
-                         InterfaceParity parity, InterfaceStopBits stopBits, gpio_num_t rxGPIO,
-                         gpio_num_t txGPIO, size_t rxBufferSize, StatsManager &statsManager,
-                         DataModel &dataModel, size_t stackSize);
-        void startUART();
-        size_t readToBuffer(void *buffer, size_t bufferSize);
-        virtual size_t sendBytes(const void *bytes, size_t length) override;
+        RMTUARTTransmitter(uint32_t baudRate, InterfaceDataWidth dataWidth, InterfaceParity parity,
+                           InterfaceStopBits stopBits, gpio_num_t gpio);
+        void send(const void *characters, size_t length);
 };
 
-#endif // RMT_UART_INTERFACE_H
+#endif // RMT_UART_TRANSMITTER_H

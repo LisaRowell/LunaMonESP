@@ -20,6 +20,8 @@
 #include "RMTUARTReceiver.h"
 #include "RMTSymbolReader.h"
 #include "RMTCharBuilder.h"
+#include "RMTUARTTransmitter.h"
+
 #include "InterfaceMode.h"
 #include "InterfaceParams.h"
 
@@ -50,11 +52,11 @@ RMTUART::RMTUART(InterfaceMode mode, uint32_t baudRate, InterfaceDataWidth dataW
             initializeRX(baudRate, dataWidth, parity, stopBits, rxGPIO, rxBufferSize, rxQueue);
             break;
         case InterfaceMode::TX_ONLY:
-            initializeTX();
+            initializeTX(baudRate, dataWidth, parity, stopBits, txGPIO);
             break;
         case InterfaceMode::RX_AND_TX:
             initializeRX(baudRate, dataWidth, parity, stopBits, rxGPIO, rxBufferSize, rxQueue);
-            initializeTX();
+            initializeTX(baudRate, dataWidth, parity, stopBits, txGPIO);
             break;
         default:
             logger() << logErrorRMTUART << "Bad interface mode " << (uint8_t)mode << eol;
@@ -81,10 +83,24 @@ void RMTUART::initializeRX(uint32_t baudRate, InterfaceDataWidth dataWidth, Inte
     }
 }
 
-void RMTUART::initializeTX() {
+void RMTUART::initializeTX(uint32_t baudRate, InterfaceDataWidth dataWidth, InterfaceParity parity,
+                           InterfaceStopBits stopBits, gpio_num_t gpio) {
+    logger() << logDebugRMTUART << "Creating RMT UART Transmitter" << eol;
+
+    transmitter = new RMTUARTTransmitter(baudRate, dataWidth, parity, stopBits, gpio);
+    if (transmitter == nullptr) {
+        logger() << logErrorRMTUART << "Failed to allocate RMT UART Transmitter" << eol;
+        errorExit();
+    }
 }
 
 size_t RMTUART::receive(void *buffer, size_t bufferSize) {
+    if (receiver == nullptr) {
+        logger() << logErrorRMTUART << "Tried to receive from a transmit only RMT UART interface"
+                 << eol;
+        errorExit();
+    }
+
     // We need to do work here for 9 bit support...
     uint8_t *bufferPos = (uint8_t *)buffer;
     size_t bytesRead = 0;
@@ -95,4 +111,15 @@ size_t RMTUART::receive(void *buffer, size_t bufferSize) {
     }
 
     return bytesRead;
+}
+
+size_t RMTUART::send(const void *characters, size_t length) {
+    if (transmitter == nullptr) {
+        logger() << logErrorRMTUART << "Tried to send to a receive only RMT UART interface" << eol;
+        errorExit();
+    }
+
+    transmitter->send(characters, length);
+
+    return length;
 }

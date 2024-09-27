@@ -49,7 +49,7 @@ class RMTUARTReceiver : public TaskObject {
         InterfaceStopBits stopBits;
         gpio_num_t gpio;
         size_t itemBufferSize;
-        rmt_channel_handle_t rxChannelHandle;
+        rmt_channel_handle_t channelHandle;
         rmt_receive_config_t receiveConfig;
         MessageBufferHandle_t eventQueue;
 

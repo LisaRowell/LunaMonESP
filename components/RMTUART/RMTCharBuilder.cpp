@@ -44,59 +44,12 @@ RMTCharBuilder::RMTCharBuilder(InterfaceDataWidth dataWidth, InterfaceParity par
       wrongBitErrors(0),
       parityErrors(0),
       overrunErrors(0) {
-    switch (dataWidth) {
-        case InterfaceDataWidth::DATA_WIDTH_5_BITS:
-            bitsPerChar = 5;
-            break;
-        case InterfaceDataWidth::DATA_WIDTH_6_BITS:
-            bitsPerChar = 6;
-            break;
-        case InterfaceDataWidth::DATA_WIDTH_7_BITS:
-            bitsPerChar = 7;
-            break;
-        case InterfaceDataWidth::DATA_WIDTH_8_BITS:
-            bitsPerChar = 8;
-            break;
-        case InterfaceDataWidth::DATA_WIDTH_9_BITS:
-            bitsPerChar = 9;
-            break;
-        default:
-            logger() << logErrorRMTUART << "Bad data width (" << (uint8_t)dataWidth << ")" << eol;
-            errorExit();
-    }
+    bitsPerChar = interfaceDataWidthBits(dataWidth);
 
-    uint8_t halfStopBits;
-    switch (stopBits) {
-        case InterfaceStopBits::STOP_BITS_1:
-            halfStopBits = 2;
-            break;
-        case InterfaceStopBits::STOP_BITS_1_5:
-            halfStopBits = 3;
-            break;
-        case InterfaceStopBits::STOP_BITS_2:
-            halfStopBits = 4;
-            break;
-        default:
-            logger() << logErrorRMTUART << "Stop bit configuration (" << (uint8_t)stopBits << ")"
-                     << eol;
-            errorExit();
-    }
-      minStopBitDuration = (((bitDuration * halfStopBits) / 2) * 8) / 10;
+    uint8_t halfStopBits = interfaceHalfStopBits(stopBits);
+    minStopBitDuration = (((bitDuration * halfStopBits) / 2) * 8) / 10;
 
-    switch (parity) {
-        case InterfaceParity::PARITY_NONE:
-            dataBitsPerFrame = bitsPerChar;
-            break;
-        case InterfaceParity::PARITY_EVEN:
-        case InterfaceParity::PARITY_ODD:
-        case InterfaceParity::PARITY_MARK:
-        case InterfaceParity::PARITY_SPACE:
-            dataBitsPerFrame = bitsPerChar + 1;
-            break;
-        default:
-            logger() << logErrorRMTUART << "Bad parity (" << (uint8_t)parity << ")" << eol;
-            errorExit();
-    }
+    dataBitsPerFrame = bitsPerChar + interfaceParityBits(parity);
 }
 
 void RMTCharBuilder::addBits(uint16_t duration, uint16_t level) {

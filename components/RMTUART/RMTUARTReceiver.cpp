@@ -80,8 +80,8 @@ void RMTUARTReceiver::task() {
         rmt_symbol_word_t symbolWords[itemBufferSize / 2];
 
         esp_err_t error;
-        if ((error = rmt_receive(rxChannelHandle, symbolWords, sizeof(symbolWords),
-                                &receiveConfig)) != ESP_OK) {
+        if ((error = rmt_receive(channelHandle, symbolWords, sizeof(symbolWords),
+                                 &receiveConfig)) != ESP_OK) {
             logger << logErrorRMTUART << "Call to rmt_receive failed: " << ESPError(error) << eol;
             errorExit();
         }
@@ -112,12 +112,12 @@ void RMTUARTReceiver::task() {
 
 void RMTUARTReceiver::initializeRMT() {
     logger << logDebugRMTUART << "Initializing RMT UART receiving on GPIO " << gpio << " at "
-           << baudRate << " baud" << eol;
+           << baudRate << " baud " << dataWidth << " " << parity << " " << stopBits << eol;
 
     createChannel();
 
     esp_err_t error;
-    if ((error = rmt_enable(rxChannelHandle)) != ESP_OK) {
+    if ((error = rmt_enable(channelHandle)) != ESP_OK) {
         logger << logErrorRMTUART << "Failed to enable receive RMT: " << ESPError(error) << eol;
         errorExit();
     }
@@ -141,7 +141,7 @@ void RMTUARTReceiver::createChannel() {
             .io_loop_back = false,
         }
     };
-    if ((error = rmt_new_rx_channel(&channelConfig, &rxChannelHandle)) != ESP_OK) {
+    if ((error = rmt_new_rx_channel(&channelConfig, &channelHandle)) != ESP_OK) {
         logger << logErrorRMTUART << "Failed to allocate receive RMT channel: " << ESPError(error)
                << eol;
         errorExit();
@@ -150,7 +150,7 @@ void RMTUARTReceiver::createChannel() {
     rmt_rx_event_callbacks_t receiveCallbacks = {
         .on_recv_done = rmtRXDoneCallback,
     };
-    if ((error = rmt_rx_register_event_callbacks(rxChannelHandle, &receiveCallbacks,
+    if ((error = rmt_rx_register_event_callbacks(channelHandle, &receiveCallbacks,
                                                  eventQueue)) != ESP_OK) {
         logger << logErrorRMTUART << "Failed to register receive RMT callbacks: " << ESPError(error)
                << eol;

@@ -19,7 +19,10 @@
 #ifndef INTERFACE_PARAMS_H
 #define INTERFACE_PARAMS_H
 
+#include <stddef.h>
 #include <stdint.h>
+
+class Logger;
 
 enum InterfaceDataWidth : uint8_t {
     DATA_WIDTH_5_BITS,
@@ -29,7 +32,9 @@ enum InterfaceDataWidth : uint8_t {
     DATA_WIDTH_9_BITS
 };
 
-extern uint8_t interfaceDataWidthBits(InterfaceDataWidth dataWidth);
+extern size_t interfaceDataWidthBits(InterfaceDataWidth dataWidth);
+
+extern Logger & operator << (Logger &logger, InterfaceDataWidth dataWidth);
 
 enum InterfaceParity : uint8_t {
     PARITY_NONE,
@@ -39,6 +44,10 @@ enum InterfaceParity : uint8_t {
     PARITY_MARK
 };
 
+extern size_t interfaceParityBits(InterfaceParity parity);
+
+extern Logger & operator << (Logger &logger, InterfaceParity parity);
+
 enum InterfaceStopBits : uint8_t {
     STOP_BITS_1,
     STOP_BITS_1_5,
@@ -46,5 +55,7 @@ enum InterfaceStopBits : uint8_t {
 };
 
 extern uint8_t interfaceHalfStopBits(InterfaceStopBits stopBits);
+
+extern Logger & operator << (Logger &logger, InterfaceStopBits stopBits);
 
 #endif // INTERFACE_PARAMS_H
