@@ -34,6 +34,7 @@
 #include "NMEASoftUARTInterface.h"
 #include "RMTUARTInterface.h"
 #include "NMEARMTUARTInterface.h"
+#include "STALKRMTUARTInterface.h"
 #include "NMEABridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
@@ -85,8 +86,8 @@
 #if CONFIG_LUNAMON_UART1_ENABLED
 #define UART1_LABEL             (CONFIG_LUNAMON_UART1_LABEL)
 #define UART1_BAUD_RATE         (CONFIG_LUNAMON_UART1_BAUD_RATE)
-#define UART1_RX_PIN            (CONFIG_LUNAMON_UART1_RX_PIN)
-#define UART1_TX_PIN            (CONFIG_LUNAMON_UART1_TX_PIN)
+#define UART1_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_RX_PIN)
+#define UART1_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_TX_PIN)
 #ifdef CONFIG_LUNAMON_UART1_NMEA_0183
 #define UART1_PROTOCOL          (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_UART1_STALK
@@ -105,8 +106,8 @@ Make sure and run menuconfig!
 #if CONFIG_LUNAMON_UART2_ENABLED
 #define UART2_LABEL             (CONFIG_LUNAMON_UART2_LABEL)
 #define UART2_BAUD_RATE         (CONFIG_LUNAMON_UART2_BAUD_RATE)
-#define UART2_RX_PIN            (CONFIG_LUNAMON_UART2_RX_PIN)
-#define UART2_TX_PIN            (CONFIG_LUNAMON_UART2_TX_PIN)
+#define UART2_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_RX_PIN)
+#define UART2_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_TX_PIN)
 #ifdef CONFIG_LUNAMON_UART2_NMEA_0183
 #define UART2_PROTOCOL          (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_UART2_STALK
@@ -140,15 +141,19 @@ Make sure and run menuconfig!
 
 #if CONFIG_LUNAMON_RMT_UART_ENABLED
 #define RMT_UART_LABEL          (CONFIG_LUNAMON_RMT_UART_LABEL)
+#define RMT_UART_BAUD_RATE      (CONFIG_LUNAMON_RMT_UART_BAUD_RATE)
 #define RMT_UART_RX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_RX_GPIO)
 #define RMT_UART_TX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_TX_GPIO)
 #ifdef CONFIG_LUNAMON_RMT_UART_NMEA_0183
 #define RMT_UART_PROTOCOL       (INTERFACE_NMEA_O183)
+#elif CONFIG_LUNAMON_RMT_UART_STALK
+#define RMT_UART_PROTOCOL       (INTERFACE_STALK)
 #else
 Make sure and run menuconfig!
 #endif
 #else
 #define RMT_UART_LABEL          ("")
+#define RMT_UART_BAUD_RATE      (0)
 #define RMT_UART_RX_GPIO        (GPIO_NUM_0)
 #define RMT_UART_TX_GPIO        (GPIO_NUM_0)
 #define RMT_UART_PROTOCOL       (INTERFACE_OFFLINE)
@@ -232,7 +237,8 @@ LunaMon::LunaMon()
                                                 SOFTWARE_UART_PROTOCOL, SOFTWARE_UART_RX_PIN,
                                                 SOFTWARE_UART_TX_PIN);
     rmtUARTInterface = createRMTUARTInterface("rmtUART", RMT_UART_LABEL, RMT_UART_PROTOCOL,
-                                              RMT_UART_RX_GPIO, RMT_UART_TX_GPIO);
+                                              RMT_UART_RX_GPIO, RMT_UART_TX_GPIO,
+                                              RMT_UART_BAUD_RATE);
 
     if (CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED) {
         nmeaBridge = createNMEABridge(NMEA_BRIDGE_NAME, NMEA_BRIDGE_MESSAGE_TYPES,
@@ -251,7 +257,7 @@ LunaMon::LunaMon()
 
 UARTInterface *LunaMon::createUARTInterface(const char *name, const char *label,
                                             enum InterfaceProtocol protocol, uart_port_t uartNumber,
-                                            int rxPin, int txPin, int baudRate) {
+                                            gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate) {
     UARTInterface *uartInterface;
 
     switch (protocol) {
@@ -274,8 +280,8 @@ UARTInterface *LunaMon::createUARTInterface(const char *name, const char *label,
 }
 
 NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, const char *label,
-                                                    uart_port_t uartNumber, int rxPin, int txPin,
-                                                    int baudRate) {
+                                                    uart_port_t uartNumber, gpio_num_t rxPin,
+                                                    gpio_num_t txPin, uint32_t baudRate) {
     NMEAUARTInterface *nmeaUARTInterface;
 
     nmeaUARTInterface = new NMEAUARTInterface(name, label, uartNumber, rxPin, txPin, baudRate,
@@ -291,8 +297,8 @@ NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, const char
 }
 
 STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, const char *label,
-                                                      uart_port_t uartNumber, int rxPin, int txPin,
-                                                      int baudRate) {
+                                                      uart_port_t uartNumber, gpio_num_t rxPin,
+                                                      gpio_num_t txPin, uint32_t baudRate) {
     STALKUARTInterface *stalkUARTInterface;
 
     stalkUARTInterface = new STALKUARTInterface(name, label, uartNumber, rxPin, txPin, baudRate,
@@ -307,8 +313,7 @@ STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, const ch
 
 SoftUARTInterface *LunaMon::createSoftUARTInterface(const char *name, const char *label,
                                                     enum InterfaceProtocol protocol,
-                                                    gpio_num_t rxPin,
-                                                    gpio_num_t txPin) {
+                                                    gpio_num_t rxPin, gpio_num_t txPin) {
     SoftUARTInterface *softUARTInterface;
 
     switch (protocol) {
@@ -342,12 +347,16 @@ NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, co
 
 RMTUARTInterface *LunaMon::createRMTUARTInterface(const char *name, const char *label,
                                                   InterfaceProtocol protocol, gpio_num_t rxGPIO,
-                                                  gpio_num_t txGPIO) {
+                                                  gpio_num_t txGPIO, uint32_t baudRate) {
     RMTUARTInterface *rmtUARTInterface;
 
     switch (protocol) {
         case INTERFACE_NMEA_O183:
-            rmtUARTInterface = createNMEARMTUARTInterface(name, label, rxGPIO, txGPIO);
+            rmtUARTInterface = createNMEARMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate);
+            break;
+
+        case INTERFACE_STALK:
+            rmtUARTInterface = createSTALKRMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate);
             break;
 
         case INTERFACE_OFFLINE:
@@ -359,11 +368,12 @@ RMTUARTInterface *LunaMon::createRMTUARTInterface(const char *name, const char *
 }
 
 NMEARMTUARTInterface *LunaMon::createNMEARMTUARTInterface(const char *name, const char *label,
-                                                          gpio_num_t rxGPIO, gpio_num_t txGPIO) {
+                                                          gpio_num_t rxGPIO, gpio_num_t txGPIO,
+                                                          uint32_t baudRate) {
     NMEARMTUARTInterface *nmeaRMTUARTInterface;
 
-    nmeaRMTUARTInterface = new NMEARMTUARTInterface(name, label, rxGPIO, txGPIO, 4800, statsManager,
-                                                    aisContacts, dataModel);
+    nmeaRMTUARTInterface = new NMEARMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate,
+                                                    statsManager, aisContacts, dataModel);
     if (nmeaRMTUARTInterface) {
         nmeaRMTUARTInterface->addMessageHandler(dataModelBridge);
     } else {
@@ -371,6 +381,21 @@ NMEARMTUARTInterface *LunaMon::createNMEARMTUARTInterface(const char *name, cons
     }
 
     return nmeaRMTUARTInterface;
+}
+
+STALKRMTUARTInterface *LunaMon::createSTALKRMTUARTInterface(const char *name, const char *label,
+                                                            gpio_num_t rxPin, gpio_num_t txPin,
+                                                            uint32_t baudRate) {
+    STALKRMTUARTInterface *stalkRMTUARTInterface;
+
+    stalkRMTUARTInterface = new STALKRMTUARTInterface(name, label, rxPin, txPin, baudRate,
+                                                      instrumentData, statsManager, dataModel);
+    if (!stalkRMTUARTInterface) {
+        logger << logErrorMain << "Failed to allocate " << name << " STALK interface for RMT UART"
+               << eol;
+    }
+
+    return stalkRMTUARTInterface;
 }
 
 NMEABridge *LunaMon::createNMEABridge(const char *name, const char *msgTypeList,

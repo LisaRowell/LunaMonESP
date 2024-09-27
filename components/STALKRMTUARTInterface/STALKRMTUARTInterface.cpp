@@ -16,24 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "STALKUARTInterface.h"
-#include "UARTInterface.h"
+#include "STALKRMTUARTInterface.h"
+#include "RMTUARTInterface.h"
 #include "InterfaceProtocol.h"
+#include "InterfaceMode.h"
+#include "InterfaceParams.h"
 #include "STALKInterface.h"
 #include "SeaTalkLampIntensity.h"
 
 #include "driver/gpio.h"
-#include "driver/uart.h"
 
-#include <stddef.h>
 #include <stdint.h>
 
-STALKUARTInterface::STALKUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
-                                       gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
-                                       InstrumentData &instrumentData, StatsManager &statsManager,
-                                       DataModel &dataModel)
-    : UARTInterface(name, label, INTERFACE_STALK, uartNumber, rxPin, txPin, baudRate, rxBufferSize,
-                    txBufferSize, statsManager, dataModel, stackSize),
+STALKRMTUARTInterface::STALKRMTUARTInterface(const char *name, const char *label, gpio_num_t rxPin,
+                                             gpio_num_t txPin, uint32_t baudRate,
+                                             InstrumentData &instrumentData,
+                                             StatsManager &statsManager, DataModel &dataModel)
+    : RMTUARTInterface(name, label, INTERFACE_STALK, RX_AND_TX, baudRate, DATA_WIDTH_8_BITS,
+                       PARITY_NONE, STOP_BITS_1, rxPin, txPin, rxBufferSize, statsManager,
+                       dataModel, stackSize),
       STALKInterface(*this, instrumentData, statsManager),
       firstDigitalYachtsWorkaroundSent(false),
       testLampIntensity(SeaTalkLampIntensity::L0) {
@@ -41,11 +42,11 @@ STALKUARTInterface::STALKUARTInterface(const char *name, const char *label, uart
     testTimer.setSeconds(10);
 }
 
-void STALKUARTInterface::task() {
+void STALKRMTUARTInterface::task() {
     sourceReset();
     startUART();
 
-    logger << logDebugSTALKUART << "Starting receive on UART " << uartNumber() << "..." << eol;
+    logger << logDebugSTALKRMTUART << "Starting receive on RMT UART..." << eol;
 
     while (true) {
         // Currently we read by polling to see if there are characters in the UART's RC buffer,
@@ -73,7 +74,7 @@ void STALKUARTInterface::task() {
 
 // To get around bugs in Digitial Yachts' ST-NMEA (ISO) converters which prevented some units from
 // having configuration messages stored in NVRAM, we can reconfigure them on the fly.
-void STALKUARTInterface::workAroundDigitalYachtsBugs() {
+void STALKRMTUARTInterface::workAroundDigitalYachtsBugs() {
     if (lastMessageIllformed()) {
         // We use a passive timer to keep from spamming the d
         if (digitalYachtsWorkaroundTimer.expired()) {
@@ -83,7 +84,7 @@ void STALKUARTInterface::workAroundDigitalYachtsBugs() {
     }
 }
 
-void STALKUARTInterface::sendDigitalYachtsSTALKConfig() {
+void STALKRMTUARTInterface::sendDigitalYachtsSTALKConfig() {
     if (!firstDigitalYachtsWorkaroundSent) {
         // The Digital Yachts ST-NMEA device's serial input doesn't do a great job of syncing on the
         // first character it receives. Before sending the first config, try sending a blank line.
@@ -93,7 +94,7 @@ void STALKUARTInterface::sendDigitalYachtsSTALKConfig() {
     send("$PDGY,STalk,On\r\n");
 }
 
-void STALKUARTInterface::commandTest() {
+void STALKRMTUARTInterface::commandTest() {
     if (testTimer.expired()) {
         testLampIntensity.cycle();
         setLampIntensity(testLampIntensity);

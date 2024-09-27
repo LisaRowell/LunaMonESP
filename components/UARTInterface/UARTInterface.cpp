@@ -28,6 +28,7 @@
 
 #include "etl/algorithm.h"
 
+#include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_err.h"
 
@@ -35,9 +36,9 @@
 #include <string.h>
 
 UARTInterface::UARTInterface(const char *name, const char *label, enum InterfaceProtocol protocol,
-                             uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
-                             size_t rxBufferSize, size_t txBufferSize, StatsManager &statsManager,
-                             DataModel &dataModel, size_t stackSize)
+                             uart_port_t uartNumber, gpio_num_t rxPin, gpio_num_t txPin,
+                             uint32_t baudRate, size_t rxBufferSize, size_t txBufferSize,
+                             StatsManager &statsManager, DataModel &dataModel, size_t stackSize)
     : Interface(name, label, protocol, statsManager, dataModel, stackSize),
       _uartNumber(uartNumber),
       rxPin(rxPin),

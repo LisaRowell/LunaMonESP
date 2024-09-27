@@ -16,40 +16,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_UART_INTERFACE_H
-#define NMEA_UART_INTERFACE_H
+#ifndef STALK_RMT_UART_INTERFACE_H
+#define STALK_RMT_UART_INTERFACE_H
 
-#include "UARTInterface.h"
-#include "NMEAInterface.h"
+#include "RMTUARTInterface.h"
 #include "InterfaceProtocol.h"
+#include "STALKInterface.h"
+#include "SeaTalkLampIntensity.h"
 #include "NMEALine.h"
+#include "PassiveTimer.h"
 
 #include "driver/gpio.h"
-#include "driver/uart.h"
 
 #include <stddef.h>
 #include <stdint.h>
 
+class InstrumentData;
 class StatsManager;
-class AISContacts;
 class DataModel;
 
-class NMEAUARTInterface : public UARTInterface, public NMEAInterface {
+class STALKRMTUARTInterface : public RMTUARTInterface, public STALKInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
-        static constexpr size_t txBufferSize = maxNMEALineLength * 3;
         static constexpr uint32_t noDataDelayMs = 20;
+        static constexpr uint32_t digitalYachtsStartTimeSec = 5;
+        static constexpr uint32_t digitalYachtsResendTimeSec = 30;
 
         char buffer[rxBufferSize];
+        PassiveTimer digitalYachtsWorkaroundTimer;
+        bool firstDigitalYachtsWorkaroundSent;
+
+        SeaTalkLampIntensity testLampIntensity;
+        PassiveTimer testTimer;
 
         virtual void task() override;
+        void workAroundDigitalYachtsBugs();
+        void sendDigitalYachtsSTALKConfig();
+        void commandTest();
 
     public:
-        NMEAUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
-                          gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
-                          StatsManager &statsManager, AISContacts &aisContacts,
-                          DataModel &dataModel);
+        STALKRMTUARTInterface(const char *name, const char *label, gpio_num_t rxPin,
+                              gpio_num_t txPin, uint32_t baudRate, InstrumentData &instrumentData,
+                              StatsManager &statsManager, DataModel &dataModel);
 };
 
-#endif // NMEA_UART_INTERFACE_H
+#endif // STALK_RMT_UART_INTERFACE_H

@@ -21,13 +21,15 @@
 #include "InterfaceProtocol.h"
 #include "NMEAInterface.h"
 
+#include "driver/gpio.h"
 #include "driver/uart.h"
 
 #include <stdint.h>
 
 NMEAUARTInterface::NMEAUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
-                                     int rxPin, int txPin, int baudRate, StatsManager &statsManager,
-                                     AISContacts &aisContacts, DataModel &dataModel)
+                                     gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
+                                     StatsManager &statsManager, AISContacts &aisContacts,
+                                     DataModel &dataModel)
     : UARTInterface(name, label, INTERFACE_NMEA_O183, uartNumber, rxPin, txPin, baudRate,
                     rxBufferSize, txBufferSize, statsManager, dataModel, stackSize),
       NMEAInterface(interfaceNode(), aisContacts, statsManager) {

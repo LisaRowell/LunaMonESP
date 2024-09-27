@@ -277,6 +277,8 @@ menu "Luna Mon Configuration"
 
             config LUNAMON_RMT_UART_NMEA_0183
                 bool "NMEA 0183"
+            config LUNAMON_RMT_UART_STALK
+                bool "$STALK"
         endchoice
 
         config LUNAMON_RMT_UART_RX_GPIO
@@ -292,6 +294,28 @@ menu "Luna Mon Configuration"
             help
                 Pin number to use for the RMT UART's TX GPIO. Consult your board documentation for
                 information on which pin to use.
+
+        choice
+            prompt "RMT UART Baud Rate"
+            default LUNAMON_RMT_UART_BAUD_RATE_4800
+            help
+                There are two baud rates used by NMEA 0183 devices, 4800 and 38400. Most devices
+                use the former while AIS transceivers typically use the later. Since these are
+                incompatible to directly connect, vessels would usually either run one of each to
+                each MFD, or use a device (often the AIS) to bridge the slower feed onto the faster.
+                SeaTalk runs native 4800 while a $STALK translation device might be 4800 or 38400.
+                Select the speed of what's connected to UART2.
+
+            config LUNAMON_RMT_UART_BAUD_RATE_4800
+                bool "4800"
+            config LUNAMON_RMT_UART_BAUD_RATE_38400
+                bool "38400"
+        endchoice
+
+        config LUNAMON_RMT_UART_BAUD_RATE
+            int
+            default 4800 if LUNAMON_RMT_UART_BAUD_RATE_4800
+            default 38400 if LUNAMON_RMT_UART_BAUD_RATE_38400
 
     endif
 
@@ -609,6 +633,16 @@ menu "Luna Mon Configuration"
         int
         default 1 if LUNAMON_DEBUG_MODULE_STALK_UART
         default 0 if !LUNAMON_DEBUG_MODULE_STALK_UART
+
+    config LUNAMON_DEBUG_MODULE_STALK_RMT_UART
+        bool "Debug STALK RMT UART"
+        help
+            Whether or not to debug the STALK RMT UART module.
+
+    config LUNAMON_DEBUG_MODULE_STALK_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STALK_RMT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_STALK_RMT_UART
 
     config LUNAMON_DEBUG_MODULE_SEATALK
         bool "Debug SeaTalk"

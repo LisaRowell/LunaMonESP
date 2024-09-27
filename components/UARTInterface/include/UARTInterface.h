@@ -21,6 +21,7 @@
 
 #include "Interface.h"
 
+#include "driver/gpio.h"
 #include "driver/uart.h"
 
 #include <stddef.h>
@@ -41,7 +42,7 @@ class UARTInterface : public Interface {
 
     public:
         UARTInterface(const char *name, const char *label, enum InterfaceProtocol protocol,
-                      uart_port_t uartNumber, int rxPin, int txPin, int baudRate,
+                      uart_port_t uartNumber, gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
                       size_t rxBufferSize, size_t txBufferSize, StatsManager &statsManager,
                       DataModel &dataModel, size_t stackSize);
         void startUART();

@@ -26,6 +26,7 @@
 #include "NMEALine.h"
 #include "PassiveTimer.h"
 
+#include "driver/gpio.h"
 #include "driver/uart.h"
 
 #include <stddef.h>
@@ -57,9 +58,10 @@ class STALKUARTInterface : public UARTInterface, public STALKInterface {
         void commandTest();
 
     public:
-        STALKUARTInterface(const char *name, const char *label, uart_port_t uartNumber, int rxPin,
-                           int txPin, int baudRate, InstrumentData &instrumentData,
-                           StatsManager &statsManager, DataModel &dataModel);
+        STALKUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
+                           gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
+                           InstrumentData &instrumentData, StatsManager &statsManager,
+                           DataModel &dataModel);
 };
 
 #endif // STALK_UART_INTERFACE_H
