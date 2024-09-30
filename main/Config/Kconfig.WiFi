@@ -1,0 +1,19 @@
+menu "WiFi Configuration"
+    config LUNAMON_HOST_NAME
+        string "Host Name"
+        default "LunaMon"
+        help
+            Device host name visible on the network by the router and other devices.
+
+    config LUNAMON_WIFI_SSID
+        string "WiFi SSID"
+        default "myssid"
+        help
+            SSID (network name) for Luna Mon to connect to.
+
+    config LUNAMON_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WiFi password (WPA or WPA2) for Luna Mon to use.
+endmenu

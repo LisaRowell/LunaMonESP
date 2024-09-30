@@ -1,0 +1,272 @@
+menu "Debug config"
+    config LUNAMON_DEBUG_MODULE_MAIN
+        bool "Debug Main"
+        help
+            Whether or not to debug the main module.
+
+    config LUNAMON_DEBUG_MODULE_MAIN_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_MAIN
+        default 0 if !LUNAMON_DEBUG_MODULE_MAIN
+
+    config LUNAMON_DEBUG_MODULE_DATA_MODEL
+        bool "Debug DataModel"
+        help
+            Whether or not to debug the DataModel module.
+
+    config LUNAMON_DEBUG_MODULE_DATA_MODEL_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_DATA_MODEL
+        default 0 if !LUNAMON_DEBUG_MODULE_DATA_MODEL
+
+    config LUNAMON_DEBUG_MODULE_MQTT
+        bool "Debug MQTT"
+        help
+            Whether or not to debug the MQTT module.
+
+    config LUNAMON_DEBUG_MODULE_MQTT_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_MQTT
+        default 0 if !LUNAMON_DEBUG_MODULE_MQTT
+
+    config LUNAMON_DEBUG_MODULE_NMEA
+        bool "Debug NMEA"
+        help
+            Whether or not to debug the NMEA module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA
+
+    config LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE
+        bool "Debug DataModelBridge"
+        help
+            Whether or not to debug the DataModelBridge module.
+
+    config LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE
+        default 0 if !LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE
+
+    config LUNAMON_DEBUG_MODULE_NMEA_WIFI
+        bool "Debug NMEAWiFi"
+        help
+            Whether or not to debug the NMEAWiFi module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_WIFI_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_WIFI
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_WIFI
+
+    config LUNAMON_DEBUG_MODULE_NMEA_UART
+        bool "Debug NMEA UART"
+        help
+            Whether or not to debug the NMEA UART module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_UART
+
+    config LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
+        bool "Debug NMEA Software UART"
+        help
+            Whether or not to debug the NMEA Software UART module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_SOFT_UART
+
+    config LUNAMON_DEBUG_MODULE_NMEA_RMT_UART
+        bool "Debug NMEA RMT UART"
+        help
+            Whether or not to debug the NMEA RMT UART module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_RMT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_RMT_UART
+
+    config LUNAMON_DEBUG_MODULE_STALK
+        bool "Debug STALK"
+        help
+            Whether or not to debug the STALK module.
+
+    config LUNAMON_DEBUG_MODULE_STALK_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STALK
+        default 0 if !LUNAMON_DEBUG_MODULE_STALK
+
+    config LUNAMON_DEBUG_MODULE_STALK_UART
+        bool "Debug STALK UART"
+        help
+            Whether or not to debug the STALK UART module.
+
+    config LUNAMON_DEBUG_MODULE_STALK_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STALK_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_STALK_UART
+
+    config LUNAMON_DEBUG_MODULE_STALK_RMT_UART
+        bool "Debug STALK RMT UART"
+        help
+            Whether or not to debug the STALK RMT UART module.
+
+    config LUNAMON_DEBUG_MODULE_STALK_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STALK_RMT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_STALK_RMT_UART
+
+    config LUNAMON_DEBUG_MODULE_SEATALK
+        bool "Debug SeaTalk"
+        help
+            Whether or not to debug the SeaTalk module.
+
+    config LUNAMON_DEBUG_MODULE_SEATALK_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_SEATALK
+        default 0 if !LUNAMON_DEBUG_MODULE_SEATALK
+
+    config LUNAMON_DEBUG_MODULE_NMEA_BRIDGE
+        bool "Debug NMEA Bridge"
+        help
+            Whether or not to debug the NMEA Bridge module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_BRIDGE
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_BRIDGE
+
+    config LUNAMON_DEBUG_MODULE_NMEA_LINE
+        bool "Debug NMEA Line"
+        help
+            Whether or not to debug the NMEA Line module.
+
+    config LUNAMON_DEBUG_MODULE_NMEA_LINE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_NMEA_LINE
+        default 0 if !LUNAMON_DEBUG_MODULE_NMEA_LINE
+
+    config LUNAMON_DEBUG_MODULE_UART
+        bool "Debug UART"
+        help
+            Whether or not to debug the UART module.
+
+    config LUNAMON_DEBUG_MODULE_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_UART
+
+    config LUNAMON_DEBUG_MODULE_SOFT_UART
+        bool "Debug Software UART"
+        help
+            Whether or not to debug the Software UART module.
+
+    config LUNAMON_DEBUG_MODULE_SOFT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_SOFT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_SOFT_UART
+
+    config LUNAMON_DEBUG_MODULE_AIS
+        bool "Debug AIS"
+        help
+            Whether or not to debug the AIS module.
+
+    config LUNAMON_DEBUG_MODULE_AIS_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_AIS
+        default 0 if !LUNAMON_DEBUG_MODULE_AIS
+
+    config LUNAMON_DEBUG_MODULE_RMT_UART
+        bool "Debug RMT UART"
+        help
+            Whether or not to debug the RMT UART module.
+
+    config LUNAMON_DEBUG_MODULE_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_RMT_UART
+        default 0 if !LUNAMON_DEBUG_MODULE_RMT_UART
+
+    config LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
+        bool "Debug WiFiInterface"
+        help
+            Whether or not to debug the WiFiInterface module.
+
+    config LUNAMON_DEBUG_MODULE_WIFI_INTERFACE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
+        default 0 if !LUNAMON_DEBUG_MODULE_WIFI_INTERFACE
+
+    config LUNAMON_DEBUG_MODULE_WIFI_MANAGER
+        bool "Debug WiFiManager"
+        help
+            Whether or not to debug the WiFiManager module.
+
+    config LUNAMON_DEBUG_MODULE_WIFI_MANAGER_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_WIFI_MANAGER
+        default 0 if !LUNAMON_DEBUG_MODULE_WIFI_MANAGER
+
+    config LUNAMON_DEBUG_MODULE_STATS_MANAGER
+        bool "Debug StatsManager"
+        help
+            Whether or not to debug the StatsManager module.
+
+    config LUNAMON_DEBUG_MODULE_STATS_MANAGER_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_STATS_MANAGER
+        default 0 if !LUNAMON_DEBUG_MODULE_STATS_MANAGER
+
+    config LUNAMON_DEBUG_MODULE_I2C_MASTER
+        bool "Debug I2CMaster"
+        help
+            Whether or not to debug the I2CMaster module.
+
+    config LUNAMON_DEBUG_MODULE_I2C_MASTER_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_I2C_MASTER
+        default 0 if !LUNAMON_DEBUG_MODULE_I2C_MASTER
+
+    config LUNAMON_DEBUG_MODULE_BME280_DRIVER
+        bool "Debug BME280Driver"
+        help
+            Whether or not to debug the BME280Driver module.
+
+    config LUNAMON_DEBUG_MODULE_BME280_DRIVER_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_BME280_DRIVER
+        default 0 if !LUNAMON_DEBUG_MODULE_BME280_DRIVER
+
+    config LUNAMON_DEBUG_MODULE_ENS160_DRIVER
+        bool "Debug ENS160Driver"
+        help
+            Whether or not to debug the ENS169Driver module.
+
+    config LUNAMON_DEBUG_MODULE_ENS160_DRIVER_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_ENS160_DRIVER
+        default 0 if !LUNAMON_DEBUG_MODULE_ENS160_DRIVER
+
+    config LUNAMON_DEBUG_MODULE_ENVIRONMENTAL_MON
+        bool "Debug EnvironmentalMon"
+        help
+            Whether or not to debug the EnvironmentalMon module.
+
+    config LUNAMON_DEBUG_MODULE_ENVIRONMENTAL_MON_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_ENVIRONMENTAL_MON
+        default 0 if !LUNAMON_DEBUG_MODULE_ENVIRONMENTAL_MON
+
+    config LUNAMON_DEBUG_MODULE_TASK_OBJECT
+        bool "Debug TaskObject"
+        help
+            Whether or not to debug the TaskObject module.
+
+    config LUNAMON_DEBUG_MODULE_TASK_OBJECT_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_TASK_OBJECT
+        default 0 if !LUNAMON_DEBUG_MODULE_TASK_OBJECT
+
+endmenu

@@ -23,6 +23,7 @@
 #include "DataModelStringLeaf.h"
 #include "DataModelUInt32Leaf.h"
 #include "AISContacts.h"
+#include "InterfaceID.h"
 #include "InterfaceProtocol.h"
 #include "NMEAWiFiInterface.h"
 #include "UARTInterface.h"
@@ -57,109 +58,71 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 
-#if CONFIG_LUNAMON_STATUS_LED_ENABLED
 #define STATUS_LED_GPIO     ((gpio_num_t)CONFIG_LUNAMON_STATUS_LED_GPIO)
-#else
-#define STATUS_LED_GPIO     (GPIO_NUM_0)
-#endif
 
-#if CONFIG_LUNAMON_I2C_ENABLED
 #define I2C_MASTER_NUM      ((i2c_port_t)CONFIG_LUNAMON_I2C_MASTER_NUM)
 #define I2C_MASTER_SCL_IO   ((gpio_num_t)CONFIG_LUNAMON_I2C_MASTER_SCL_IO)
 #define I2C_MASTER_SDA_IO   ((gpio_num_t)CONFIG_LUNAMON_I2C_MASTER_SDA_IO)
-#else
-#define I2C_MASTER_NUM      (I2C_NUM_0)
-#define I2C_MASTER_SCL_IO   (GPIO_NUM_0)
-#define I2C_MASTER_SDA_IO   (GPIO_NUM_0)
-#endif
 
-#if CONFIG_LUNAMON_NMEA_WIFI_ENABLED
 #define NMEA_WIFI_SOURCE_LABEL      (CONFIG_LUNAMON_NMEA_WIFI_SOURCE_LABEL)
 #define NMEA_WIFI_SOURCE_IPV4_ADDR  (CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR)
 #define NMEA_WIFI_SOURCE_TCP_PORT   (CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT)
-#else
-#define NMEA_WIFI_SOURCE_LABEL      ("")
-#define NMEA_WIFI_SOURCE_IPV4_ADDR  ("")
-#define NMEA_WIFI_SOURCE_TCP_PORT    0
-#endif
 
-#if CONFIG_LUNAMON_UART1_ENABLED
-#define UART1_LABEL             (CONFIG_LUNAMON_UART1_LABEL)
-#define UART1_BAUD_RATE         (CONFIG_LUNAMON_UART1_BAUD_RATE)
-#define UART1_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_RX_PIN)
-#define UART1_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_TX_PIN)
 #ifdef CONFIG_LUNAMON_UART1_NMEA_0183
 #define UART1_PROTOCOL          (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_UART1_STALK
 #define UART1_PROTOCOL          (INTERFACE_STALK)
+#elif CONFIG_LUNAMON_UART1_OFFLINE
+#define UART1_PROTOCOL          (INTERFACE_OFFLINE)
 #else
 Make sure and run menuconfig!
 #endif
-#else
-#define UART1_LABEL             ("")
-#define UART1_BAUD_RATE         (0)
-#define UART1_RX_PIN            (GPIO_NUM_0)
-#define UART1_TX_PIN            (GPIO_NUM_0)
-#define UART1_PROTOCOL          (INTERFACE_OFFLINE)
-#endif
+#define UART1_LABEL             (CONFIG_LUNAMON_UART1_LABEL)
+#define UART1_BAUD_RATE         (CONFIG_LUNAMON_UART1_BAUD_RATE)
+#define UART1_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_RX_PIN)
+#define UART1_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_TX_PIN)
 
-#if CONFIG_LUNAMON_UART2_ENABLED
-#define UART2_LABEL             (CONFIG_LUNAMON_UART2_LABEL)
-#define UART2_BAUD_RATE         (CONFIG_LUNAMON_UART2_BAUD_RATE)
-#define UART2_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_RX_PIN)
-#define UART2_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_TX_PIN)
 #ifdef CONFIG_LUNAMON_UART2_NMEA_0183
 #define UART2_PROTOCOL          (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_UART2_STALK
 #define UART2_PROTOCOL          (INTERFACE_STALK)
-]#else
+#elif CONFIG_LUNAMON_UART2_OFFLINE
+#define UART2_PROTOCOL          (INTERFACE_OFFLINE)
+#else
 Make sure and run menuconfig!
 #endif
-#else
-#define UART2_LABEL             ("")
-#define UART2_BAUD_RATE         (0)
-#define UART2_RX_PIN            (GPIO_NUM_0)
-#define UART2_TX_PIN            (GPIO_NUM_0)
-#define UART2_PROTOCOL          (INTERFACE_OFFLINE)
-#endif
+#define UART2_LABEL             (CONFIG_LUNAMON_UART2_LABEL)
+#define UART2_BAUD_RATE         (CONFIG_LUNAMON_UART2_BAUD_RATE)
+#define UART2_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_RX_PIN)
+#define UART2_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_TX_PIN)
 
-#if CONFIG_LUNAMON_SOFTWARE_UART_ENABLED
+#ifdef CONFIG_LUNAMON_SOFTWARE_UART_NMEA_0183
+#define SOFTWARE_UART_PROTOCOL  (INTERFACE_NMEA_O183)
+#elif CONFIG_LUNAMON_SOFTWARE_UART_OFFLINE
+#define SOFTWARE_UART_PROTOCOL  (INTERFACE_OFFLINE)
+#else
+Make sure and run menuconfig!
+#endif
 #define SOFTWARE_UART_LABEL     (CONFIG_LUNAMON_SOFTWARE_UART_LABEL)
 #define SOFTWARE_UART_RX_PIN    ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_RX_PIN)
 #define SOFTWARE_UART_TX_PIN    ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_TX_PIN)
-#ifdef CONFIG_LUNAMON_SOFTWARE_UART_NMEA_0183
-#define SOFTWARE_UART_PROTOCOL  (INTERFACE_NMEA_O183)
-#else
-Make sure and run menuconfig!
-#endif
-#else
-#define SOFTWARE_UART_LABEL     ("")
-#define SOFTWARE_UART_RX_PIN    (GPIO_NUM_0)
-#define SOFTWARE_UART_TX_PIN    (GPIO_NUM_0)
-#define SOFTWARE_UART_PROTOCOL  (INTERFACE_OFFLINE)
-#endif
 
-#if CONFIG_LUNAMON_RMT_UART_ENABLED
-#define RMT_UART_LABEL          (CONFIG_LUNAMON_RMT_UART_LABEL)
-#define RMT_UART_BAUD_RATE      (CONFIG_LUNAMON_RMT_UART_BAUD_RATE)
-#define RMT_UART_RX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_RX_GPIO)
-#define RMT_UART_TX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_TX_GPIO)
-#ifdef CONFIG_LUNAMON_RMT_UART_NMEA_0183
+#if CONFIG_LUNAMON_RMT_UART_NMEA_0183
 #define RMT_UART_PROTOCOL       (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_RMT_UART_STALK
 #define RMT_UART_PROTOCOL       (INTERFACE_STALK)
+#elif CONFIG_LUNAMON_RMT_UART_SEA_TALK
+#define RMT_UART_PROTOCOL       (INTERFACE_SEA_TALK)
+#elif CONFIG_LUNAMON_RMT_UART_OFFLINE
+#define RMT_UART_PROTOCOL       (INTERFACE_OFFLINE)
 #else
 Make sure and run menuconfig!
 #endif
-#else
-#define RMT_UART_LABEL          ("")
-#define RMT_UART_BAUD_RATE      (0)
-#define RMT_UART_RX_GPIO        (GPIO_NUM_0)
-#define RMT_UART_TX_GPIO        (GPIO_NUM_0)
-#define RMT_UART_PROTOCOL       (INTERFACE_OFFLINE)
-#endif
+#define RMT_UART_LABEL          (CONFIG_LUNAMON_RMT_UART_LABEL)
+#define RMT_UART_RX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_RX_GPIO)
+#define RMT_UART_TX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_TX_GPIO)
+#define RMT_UART_BAUD_RATE      ((uint32_t)CONFIG_LUNAMON_RMT_UART_BAUD_RATE)
 
-#if CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED
 #define NMEA_BRIDGE_NAME            (CONFIG_LUNAMON_NMEA_BRIDGE_NAME)
 #if CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_WIFI
 #define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_WIFI)
@@ -167,8 +130,12 @@ Make sure and run menuconfig!
 #define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_UART1)
 #elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_UART2
 #define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_UART2)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_RMT_UART
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_RMT_UART)
 #elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_SOFT_UART
 #define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_SOFT_UART)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_NONE
+#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_NONE)
 #else
 Make sure and run menuconfig!
 #endif
@@ -178,18 +145,16 @@ Make sure and run menuconfig!
 #define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_UART1)
 #elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_UART2
 #define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_UART2)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_RMT_UART
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_RMT_UART)
 #elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_SOFT_UART
 #define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_SOFT_UART)
+#elif CONFIG_LUNAMON_NMEA_BRIDGE_DESTINATION_NONE
+#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_NONE)
 #else
 Make sure and run menuconfig!
 #endif
 #define NMEA_BRIDGE_MESSAGE_TYPES   (CONFIG_LUNAMON_NMEA_BRIDGE_MESSAGE_TYPES)
-#else
-#define NMEA_BRIDGE_NAME            ("")
-#define NMEA_BRIDGE_SOURCE          (InterfaceID::INTERFACE_NONE)
-#define NMEA_BRIDGE_DESTINATION     (InterfaceID::INTERFACE_NONE)
-#define NMEA_BRIDGE_MESSAGE_TYPES   ("")
-#endif
 
 LunaMon::LunaMon()
     : dataModel(statsManager),
@@ -433,8 +398,14 @@ NMEAInterface *LunaMon::nmeaInterfaceByID(InterfaceID id) {
             } else {
                 return nullptr;
             }
+        case InterfaceID::INTERFACE_RMT_UART:
+            if (RMT_UART_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)rmtUARTInterface;
+            } else {
+                return nullptr;
+            }
         case InterfaceID::INTERFACE_SOFT_UART:
-            if (UART2_PROTOCOL == INTERFACE_NMEA_O183) {
+            if (SOFTWARE_UART_PROTOCOL == INTERFACE_NMEA_O183) {
                 return (NMEAInterface *)softUARTInterface;
             } else {
                 return nullptr;

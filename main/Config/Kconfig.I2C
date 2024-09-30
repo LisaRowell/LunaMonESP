@@ -1,0 +1,107 @@
+menu "I2C Device Configuration"
+
+    config LUNAMON_HAS_I2C_DEVICES
+        bool "Has I2C Devices"
+        default n
+        help
+            Whether or not the unit has sensors such as a BME280 or an ENS160 attached via I2C.
+
+    config LUNAMON_I2C_ENABLED
+        int
+        default 1 if LUNAMON_HAS_I2C_DEVICES
+        default 0 if !LUNAMON_HAS_I2C_DEVICES
+
+    choice 
+        prompt "I2C Master ID" if LUNAMON_HAS_I2C_DEVICES
+        default LUNAMON_I2C_MASTER_NUM_0
+        help
+            Some ESP variants have two I2C interfaces. Select which interface to use for Luna Mon 
+            sensors.
+
+        config LUNAMON_I2C_MASTER_NUM_0
+            bool "0"
+        config LUNAMON_I2C_MASTER_NUM_1
+            bool "1"
+    endchoice
+
+    config LUNAMON_I2C_MASTER_NUM
+        int
+        default 0 if !LUNAMON_HAS_I2C_DEVICES
+        default 0 if LUNAMON_I2C_MASTER_NUM_0
+        default 1 if LUNAMON_I2C_MASTER_NUM_1
+        
+    config LUNAMON_I2C_MASTER_SCL_IO
+        int "I2C SCL IO Pin" if LUNAMON_HAS_I2C_DEVICES
+        default 22
+        help
+            Pin number to use for the I2C SCL. Consult your board documentation for information
+            on which pin to use.
+
+    config LUNAMON_I2C_MASTER_SDA_IO
+        int "I2C SDA IO Pin" if LUNAMON_HAS_I2C_DEVICES
+        default 23
+        help
+            Pin number to use for the I2C SDA. Consult your board documentation for information
+            on which pin to use.
+
+    config LUNAMON_HAS_BME280
+        bool "Has BME280" if LUNAMON_HAS_I2C_DEVICES
+        default n
+        help
+            Whether or not the unit has a BME280 sensor chip connected.
+
+    config LUNAMON_BME280_ENABLED
+        int
+        default 1 if LUNAMON_HAS_BME280
+        default 0 if !LUNAMON_HAS_BME280
+
+    choice
+        prompt "BME280 I2C Address" if LUNAMON_HAS_BME280
+        default LUNAMON_BME280_ADDRESS_77
+        help
+            The BME280 defaults to I2C address 0x77, but can be configured hardware to be 0x76.
+            Select the address used by your board.
+
+        config LUNAMON_BME280_ADDRESS_77
+            bool "0x77"
+        config LUNAMON_BME280_ADDRESS_76
+            bool "0x76"
+    endchoice
+
+    config LUNAMON_BME280_ADDRESS
+        hex
+        default 0x77 if !LUNAMON_HAS_BME280
+        default 0x77 if LUNAMON_BME280_ADDRESS_77
+        default 0x76 if LUNAMON_BME280_ADDRESS_76
+
+    config LUNAMON_HAS_ENS160
+        bool "Has ENS160" if LUNAMON_HAS_I2C_DEVICES
+        default n
+        help
+            Whether or not the unit has a ENS160 sensor chip connected.
+
+    config LUNAMON_ENS160_ENABLED
+        int
+        default 1 if LUNAMON_HAS_ENS160
+        default 0 if !LUNAMON_HAS_ENS160
+
+    choice
+        prompt "ENS160 I2C Address" if LUNAMON_HAS_ENS160
+        default LUNAMON_ENS160_ADDRESS_53
+        help
+            The ENS160 defaults to I2C address 0x53, but can be configured hardware to be 0x52.
+            Select the address used by your board.
+
+        config LUNAMON_ENS160_ADDRESS_53
+            bool "0x53"
+        config LUNAMON_ENS160_ADDRESS_52
+            bool "0x52"
+    endchoice
+
+    config LUNAMON_ENS160_ADDRESS
+        hex
+        default 0x53 if !LUNAMON_HAS_ENS160
+        default 0x53 if LUNAMON_ENS160_ADDRESS_53
+        default 0x52 if LUNAMON_ENS160_ADDRESS_52
+
+endmenu

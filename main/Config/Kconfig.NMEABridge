@@ -1,0 +1,80 @@
+menu "NMEA 0183 to NMEA 0183 Bridge Configuration"
+
+    config LUNAMON_ENABLE_NMEA_BRIDGE
+        bool "Enable a NMEA 0183 to NMEA 0183 message bridge"
+        default n
+        help
+            Whether or not enable a bridge of messages between two NMEA 0183 interfaces.
+
+    config LUNAMON_NMEA_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_ENABLE_NMEA_BRIDGE
+        default 0 if !LUNAMON_ENABLE_NMEA_BRIDGE
+
+    config LUNAMON_NMEA_BRIDGE_NAME
+        string "Bridge name" if LUNAMON_ENABLE_NMEA_BRIDGE
+        default "bridge"
+        help
+            The name of the bridge as shown in log messages and in MQTT $SYS topics.
+
+    choice
+        prompt "Bridge source interface" if LUNAMON_ENABLE_NMEA_BRIDGE
+        help
+            The interface on which bridged messages are expected. This should be configured as
+            a NMEA 0183 source.
+
+        config LUNAMON_NMEA_BRIDGE_SOURCE_WIFI
+            bool "WiFi" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        config LUNAMON_NMEA_BRIDGE_SOURCE_UART1
+            bool "UART1" if LUNAMON_UART1_NMEA_0183
+        config LUNAMON_NMEA_BRIDGE_SOURCE_UART2
+            bool "UART2" if LUNAMON_UART2_NMEA_0183
+        config LUNAMON_NMEA_BRIDGE_SOURCE_RMT_UART
+            bool "RMT UART" if LUNAMON_RMT_UART_NMEA_0183
+        config LUNAMON_NMEA_BRIDGE_SOURCE_SOFT_UART
+            bool "Software UART" if LUNAMON_SOFTWARE_UART_NMEA_0183
+    endchoice
+
+    config LUNAMON_NMEA_BRIDGE_SOURCE_NONE
+        bool
+        default y if !LUNAMON_ENABLE_NMEA_BRIDGE
+        default y if !LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE &&  \
+                     !LUNAMON_UART1_NMEA_0183 &&            \
+                     !LUNAMON_UART2_NMEA_0183 &&            \
+                     !LUNAMON_RMT_UART_NMEA_0183 &&         \
+                     !LUNAMON_SOFTWARE_UART_NMEA_0183
+
+    choice
+        prompt "Bridge destination interface" if LUNAMON_ENABLE_NMEA_BRIDGE
+        help
+            The interface on which bridged messages are sent out.
+
+        config LUNAMON_NMEA_BRIDGE_DESTINATION_WIFI
+            bool "WiFi" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        config LUNAMON_NMEA_BRIDGE_DESTINATION_UART1
+            bool "UART1" if LUNAMON_UART1_NMEA_0183
+        config LUNAMON_NMEA_BRIDGE_DESTINATION_UART2
+            bool "UART2" if LUNAMON_UART2_NMEA_0183
+        config LUNAMON_NMEA_BRIDGE_DESTINATION_RMT_UART
+            bool "RMT UART" if LUNAMON_RMT_UART_NMEA_0183
+        config LUNAMON_NMEA_BRIDGE_DESTINATION_SOFT_UART
+            bool "Software UART" if LUNAMON_SOFTWARE_UART_NMEA_0183
+    endchoice
+
+    config LUNAMON_NMEA_BRIDGE_DESTINATION_NONE
+        bool
+        default y if !LUNAMON_ENABLE_NMEA_BRIDGE
+        default y if !LUNAMON_NMEA_BRIDGE_DESTINATION_WIFI &&       \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_UART1 &&      \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_UART2 &&      \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_RMT_UART &&   \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_SOFT_UART
+
+    config LUNAMON_NMEA_BRIDGE_MESSAGE_TYPES
+        string "Bridged message types" if LUNAMON_ENABLE_NMEA_BRIDGE
+        default ""
+        help
+            A comma separated list of NMEA message types (typically three letters) to be
+            bridged.
+
+endmenu

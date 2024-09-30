@@ -1,0 +1,81 @@
+menu "RMT UART Source Configuration"
+
+    config LUNAMON_HAS_RMT_UART_SOURCE
+        bool "Has a serial source connected for a RMT based UART"
+        default n
+        help
+            Whether or not there's a serial source connected to be configured as a RMT UART.
+
+    config LUNAMON_RMT_UART_ENABLED
+        int
+        default 1 if LUNAMON_HAS_RMT_UART_SOURCE
+        default 0 if !LUNAMON_HAS_RMT_UART_SOURCE
+
+    config LUNAMON_RMT_UART_LABEL
+        string "RMT UART interface label" if LUNAMON_HAS_RMT_UART_SOURCE
+        default ""
+        help
+            The label of the RMT UART interface.
+
+    choice
+        prompt "RMT UART Protocol" if LUNAMON_HAS_RMT_UART_SOURCE
+        default LUNAMON_RMT_UART_NMEA_0183
+        help
+            Luna Mon supports interfaces with either NMEA 0183, SeaTalk or $STALK messages.
+            NMEA 0183 is what is typically put out by older, non-Raymarine devices. SeaTalk
+            is a proprietary protocol used by AutoHelm and Raymarine devices. $STALK is a
+            packaging of SeaTalk messages into a NMEA 0183 message structure typically
+            outputed by bridging devices such as the Digital Yachts ST-NMEA.
+
+        config LUNAMON_RMT_UART_NMEA_0183
+            bool "NMEA 0183"
+        config LUNAMON_RMT_UART_STALK
+            bool "$STALK"
+        config LUNAMON_RMT_UART_SEA_TALK
+            bool "SeaTalk"
+    endchoice
+
+    config LUNAMON_RMT_UART_OFFLINE
+        bool
+        default y if !LUNAMON_HAS_RMT_UART_SOURCE
+
+    config LUNAMON_RMT_UART_RX_GPIO
+        int "RMT UART RX GPIO" if LUNAMON_HAS_RMT_UART_SOURCE
+        default 5
+        help
+            Pin number to use for the RMT UART's RX GPIO. Consult your board documentation for
+            information on which pin to use.
+
+    config LUNAMON_RMT_UART_TX_GPIO
+        int "RMT UART TX GPIO"  if LUNAMON_HAS_RMT_UART_SOURCE
+        default 4
+        help
+            Pin number to use for the RMT UART's TX GPIO. Consult your board documentation for
+            information on which pin to use.
+
+    choice
+        prompt "RMT UART Baud Rate" if LUNAMON_RMT_UART_NMEA_0183 || LUNAMON_RMT_UART_STALK
+        default LUNAMON_RMT_UART_BAUD_RATE_4800
+        help
+            There are two baud rates used by NMEA 0183 devices, 4800 and 38400. Most devices
+            use the former while AIS transceivers typically use the later. Since these are
+            incompatible to directly connect, vessels would usually either run one of each to
+            each MFD, or use a device (often the AIS) to bridge the slower feed onto the faster.
+            SeaTalk runs native 4800 while a $STALK translation device might be 4800 or 38400.
+            Select the speed of what's connected to UART2.
+
+        config LUNAMON_RMT_UART_BAUD_RATE_4800
+            bool "4800"
+        config LUNAMON_RMT_UART_BAUD_RATE_38400
+            depends on LUNAMON_RMT_UART_NMEA_0183 || LUNAMON_RMT_UART_STALK
+            bool "38400"
+    endchoice
+
+    config LUNAMON_RMT_UART_BAUD_RATE
+        int
+        default 0 if !LUNAMON_HAS_RMT_UART_SOURCE
+        default 4800 if LUNAMON_RMT_UART_SEA_TALK
+        default 4800 if LUNAMON_RMT_UART_BAUD_RATE_4800
+        default 38400 if LUNAMON_RMT_UART_BAUD_RATE_38400
+
+endmenu

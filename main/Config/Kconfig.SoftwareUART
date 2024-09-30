@@ -1,0 +1,52 @@
+menu "Software UART Source Configuration (Not recommended)"
+
+    config LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        bool "Has a serial source connected for the Software UART"
+        default n
+        help
+            Whether or not there's a serial source connected to be configured as a software UART.
+
+    config LUNAMON_SOFTWARE_UART_ENABLED
+        int
+        default 1 if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        default 0 if !LUNAMON_HAS_SOFTWARE_UART_SOURCE
+
+    config LUNAMON_SOFTWARE_UART_LABEL
+        string "Software UART interface label" if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        default ""
+        help
+            The label of the software UART interface.
+
+    choice
+        prompt "Software UART Protocol" if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        default LUNAMON_SOFTWARE_UART_NMEA_0183
+        help
+            Luna Mon supports interfaces with either NMEA 0183, SeaTalk or $STALK messages.
+            NMEA 0183 is what is typically put out by older, non-Raymarine devices. SeaTalk
+            is a proprietary protocol used by AutoHelm and Raymarine devices. $STALK is a
+            packaging of SeaTalk messages into a NMEA 0183 message structure typically outputed
+            by bridging devices such as the Digital Yachts ST-NMEA.
+
+        config LUNAMON_SOFTWARE_UART_NMEA_0183
+            bool "NMEA 0183"
+        endchoice
+
+    config LUNAMON_SOFTWARE_UART_OFFLINE
+        bool
+        default y if !LUNAMON_HAS_SOFTWARE_UART_SOURCE
+
+    config LUNAMON_SOFTWARE_UART_RX_PIN
+        int "Software UART RX Pin" if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        default 5
+        help
+            Pin number to use for the software UART's RX pin. Consult your board documentation
+            for information on which pin to use.
+
+    config LUNAMON_SOFTWARE_UART_TX_PIN
+        int "Software UART TX Pin" if LUNAMON_HAS_SOFTWARE_UART_SOURCE
+        default 4
+        help
+            Pin number to use for the software UART's TX pin. Consult your board documentation
+            for information on which pin to use.
+
+endmenu

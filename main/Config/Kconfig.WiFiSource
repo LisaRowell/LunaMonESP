@@ -1,0 +1,32 @@
+menu "WiFi Source Configuration"
+
+    config LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        bool "Has NMEA over WiFi Source"
+        default n
+        help
+            Whether or not there's a WiFi source for NMEA messages.
+
+    config LUNAMON_NMEA_WIFI_ENABLED
+        int
+            default 1 if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+            default 0 if !LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+
+    config LUNAMON_NMEA_WIFI_SOURCE_LABEL
+        string "WiFi NMEA Source label" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        default ""
+        help
+            The label of the NMEA over WiFi interface.
+
+    config LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR
+        string "WiFi NMEA Source IPv4 Address" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        default "1.1.1.1"
+        help
+            The IPv4 address of the NMEA source.
+
+    config LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT
+        int "WiFi NMEA Source TCP Port" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        default 39150
+        help
+            The TCP port number for the NMEA source.
+
+endmenu

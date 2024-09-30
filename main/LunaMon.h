@@ -31,6 +31,7 @@
 #include "MQTTBroker.h"
 #include "InstrumentData.h"
 #include "DataModelBridge.h"
+#include "InterfaceID.h"
 #include "InterfaceProtocol.h"
 #include "LogManager.h"
 #include "Logger.h"
@@ -60,14 +61,6 @@ class NMEABridge;
 
 class LunaMon {
     private:
-        enum InterfaceID : uint8_t {
-            INTERFACE_WIFI,
-            INTERFACE_UART1,
-            INTERFACE_UART2,
-            INTERFACE_SOFT_UART,
-            INTERFACE_NONE
-        };
-
         StatsManager statsManager;
         DataModel dataModel;
         AISContacts aisContacts;

@@ -1,0 +1,21 @@
+menu "LED Configuration"
+
+    config LUNAMON_HAS_STATUS_LED
+        bool "Has Status LED"
+        default n
+        help
+            Whether or not the unit has a LED which can be used to flash status conditions.
+
+    config LUNAMON_STATUS_LED_GPIO
+        int "Status LED Pin" if LUNAMON_HAS_STATUS_LED
+        default 13
+        help
+            GPIO pin number where a status LED is connected. Consult your board documentation for
+            information on which pin to use.
+
+    config LUNAMON_STATUS_LED_ENABLED
+        int
+        default 1 if LUNAMON_HAS_STATUS_LED
+        default 0 if !LUNAMON_HAS_STATUS_LED
+
+endmenu

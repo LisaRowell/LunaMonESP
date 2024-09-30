@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERFACE_PROTOCOL_H
-#define INTERFACE_PROTOCOL_H
+#ifndef INTERFACE_ID_H
+#define INTERFACE_ID_H
 
-#include <stdint.h>
-
-enum InterfaceProtocol : uint8_t {
-    INTERFACE_OFFLINE,
-    INTERFACE_NMEA_O183,
-    INTERFACE_STALK,
-    INTERFACE_SEA_TALK
+enum InterfaceID : uint8_t {
+    INTERFACE_WIFI,
+    INTERFACE_UART1,
+    INTERFACE_UART2,
+    INTERFACE_RMT_UART,
+    INTERFACE_SOFT_UART,
+    INTERFACE_NONE
 };
 
-#endif // INTERFACE_PROTOCOL_H
+#endif // INTERFACE_ID_H

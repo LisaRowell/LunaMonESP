@@ -45,13 +45,6 @@
 
 #define STACK_SIZE  (8 * 1024)
 
-#if !CONFIG_LUNAMON_BME280_ENABLED
-#define CONFIG_LUNAMON_BME280_ADDRESS   0
-#endif
-#if !CONFIG_LUNAMON_ENS160_ENABLED
-#define CONFIG_LUNAMON_ENS160_ADDRESS   0
-#endif
-
 EnvironmentalMon::EnvironmentalMon(DataModel &dataModel, I2CMaster &ic2Master, StatusLED *statusLED)
     : TaskObject("EnvironmentalMon", LOGGER_LEVEL_DEBUG, STACK_SIZE),
       environmentDataModelNode("environment", &dataModel.rootNode()),
