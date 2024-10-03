@@ -16,17 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SeaTalkWriteTester.h"
+
 #include "SeaTalkMaster.h"
-#include "SeaTalkCommand.h"
-#include "SeaTalkLine.h"
 #include "SeaTalkLampIntensity.h"
 
-void SeaTalkMaster::setLampIntensity(const SeaTalkLampIntensity &lampIntensity) {
-    SeaTalkLine commandLine;
+#include "TaskObject.h"
+#include "Logger.h"
 
-    commandLine.append(SeaTalkCommand::SET_LAMP_INTENSITY);
-    commandLine.append(0);
-    commandLine.append(lampIntensity);
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-    sendCommand(commandLine);
+SeaTalkWriteTester::SeaTalkWriteTester(SeaTalkMaster &master)
+    : TaskObject("SeaTalk Write Tester", LOGGER_LEVEL_DEBUG, stackSize),
+      master(master),
+      testLampIntensity(SeaTalkLampIntensity::L0) {
+}
+
+void SeaTalkWriteTester::task() {
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(testIntervalms));
+
+        testLampIntensity.cycle();
+        logger << logDebugSeaTalk << "Sending SeaTalk command to change lamp intensity to "
+               << testLampIntensity << eol;
+        master.setLampIntensity(testLampIntensity);
+    }
 }

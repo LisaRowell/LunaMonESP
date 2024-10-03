@@ -23,6 +23,7 @@
 #include "etl/vector.h"
 #include "etl/string.h"
 #include "etl/to_string.h"
+#include "etl/u16string.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -35,6 +36,25 @@ void SeaTalkLine::append(uint8_t lineByte) {
         overrun = true;
     } else {
         line.push_back(lineByte);
+    }
+}
+
+void SeaTalkLine::clear() {
+    line.clear();
+}
+
+bool SeaTalkLine::isEmpty() const {
+    return line.empty();
+}
+
+bool SeaTalkLine::isComplete() const {
+    size_t currentLength = line.size();
+
+    if (currentLength >= 3) {
+        size_t expectedLength = (line[1] & 0x0f) + 3;
+        return currentLength == expectedLength;
+    } else {
+        return false;
     }
 }
 
@@ -56,6 +76,23 @@ uint8_t SeaTalkLine::command() const {
 
 uint8_t SeaTalkLine::attribute() const {
     return line[1];
+}
+
+// Buffer must be at least maxLineLength words
+size_t SeaTalkLine::buildNineBitString(uint16_t *buffer) const {
+    size_t length;
+
+    for (length = 0; length < line.size(); length++) {
+        // The first character is the command byte which is encoded with its msb being set,
+        // indicating the start of a datagram. Subsequent byte have the msb of 0.
+        if (length == 0) {
+            buffer[length] = (uint16_t)line[length] | 0x100;
+        } else {
+            buffer[length] = (uint16_t)line[length];
+        }
+    }
+
+    return length;
 }
 
 Logger & operator << (Logger &logger, const SeaTalkLine &seaTalkLine) {

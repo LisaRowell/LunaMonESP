@@ -19,11 +19,9 @@
 #ifndef STALK_INTERFACE_H
 #define STALK_INTERFACE_H
 
-#include "SeaTalkParser.h"
-#include "SeaTalkMaster.h"
 #include "NMEALineSource.h"
 #include "NMEALineHandler.h"
-#include "StatsHolder.h"
+#include "SeaTalkInterface.h"
 #include "StatCounter.h"
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -36,10 +34,9 @@ class Interface;
 class InstrumentData;
 class StatsManager;
 
-class STALKInterface : public NMEALineSource, NMEALineHandler, public SeaTalkMaster, StatsHolder {
+class STALKInterface : public NMEALineSource, NMEALineHandler, public SeaTalkInterface {
     private:
         Interface &interface;
-        SeaTalkParser seaTalkParser;
         StatCounter messagesCounter;
         uint32_t illformedMessages;
         bool _lastMessageIllformed;
@@ -48,13 +45,13 @@ class STALKInterface : public NMEALineSource, NMEALineHandler, public SeaTalkMas
         DataModelUInt32Leaf messageRateLeaf;
         DataModelUInt32Leaf illformedMessagesLeaf;
 
-        virtual void exportStats(uint32_t msElapsed) override;
         void handleLine(const NMEALine &inputLine);
         bool parseLine(const NMEALine &nmeaLine);
         void parseDatagramMessage(const NMEALine &nmeaLine, NMEALineWalker &walker);
         void parsePropritoryMessage(const NMEALine &nmeaLine);
 
         virtual void sendCommand(const SeaTalkLine &seaTalkLine) override;
+        virtual void exportStats(uint32_t msElapsed) override;
 
     public:
         STALKInterface(Interface &interface, InstrumentData &instrumentData,

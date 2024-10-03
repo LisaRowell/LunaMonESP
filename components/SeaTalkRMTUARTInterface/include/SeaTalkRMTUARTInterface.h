@@ -16,15 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STALK_RMT_UART_INTERFACE_H
-#define STALK_RMT_UART_INTERFACE_H
+#ifndef SEA_TALK_RMT_UART_INTERFACE_H
+#define SEA_TALK_RMT_UART_INTERFACE_H
 
 #include "RMTUARTInterface.h"
-#include "InterfaceProtocol.h"
-#include "STALKInterface.h"
-#include "SeaTalkLampIntensity.h"
-#include "NMEALine.h"
-#include "PassiveTimer.h"
+#include "SeaTalkInterface.h"
+#include "SeaTalk.h"
 
 #include "driver/gpio.h"
 
@@ -35,26 +32,18 @@ class InstrumentData;
 class StatsManager;
 class DataModel;
 
-class STALKRMTUARTInterface : public RMTUARTInterface, public STALKInterface {
+class SeaTalkRMTUARTInterface : public RMTUARTInterface, SeaTalkInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
-        static constexpr size_t rxBufferSize = maxNMEALineLength * 3;
         static constexpr uint32_t noDataDelayMs = 20;
-        static constexpr uint32_t digitalYachtsStartTimeSec = 5;
-        static constexpr uint32_t digitalYachtsResendTimeSec = 30;
-
-        char buffer[rxBufferSize];
-        PassiveTimer digitalYachtsWorkaroundTimer;
-        bool firstDigitalYachtsWorkaroundSent;
+        static constexpr uint16_t rxBufferSize = MAX_SEA_TALK_LINE_LENGTH;
 
         virtual void task() override;
-        void workAroundDigitalYachtsBugs();
-        void sendDigitalYachtsSTALKConfig();
 
     public:
-        STALKRMTUARTInterface(const char *name, const char *label, gpio_num_t rxPin,
-                              gpio_num_t txPin, uint32_t baudRate, InstrumentData &instrumentData,
-                              StatsManager &statsManager, DataModel &dataModel);
+        SeaTalkRMTUARTInterface(const char *name, const char *label, gpio_num_t rxGPIO,
+                                gpio_num_t txGPIO, InstrumentData &instrumentData,
+                                StatsManager &statsManager, DataModel &dataModel);
 };
 
-#endif // STALK_RMT_UART_INTERFACE_H
+#endif // SEA_TALK_RMT_UART_INTERFACE_H

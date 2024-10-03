@@ -16,17 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef SEA_TALK_WRITE_TESTER_H
+#define SEA_TALK_WRITE_TESTER_H
+
+#include "TaskObject.h"
+
 #include "SeaTalkMaster.h"
-#include "SeaTalkCommand.h"
-#include "SeaTalkLine.h"
 #include "SeaTalkLampIntensity.h"
 
-void SeaTalkMaster::setLampIntensity(const SeaTalkLampIntensity &lampIntensity) {
-    SeaTalkLine commandLine;
+#include <stddef.h>
+#include <stdint.h>
 
-    commandLine.append(SeaTalkCommand::SET_LAMP_INTENSITY);
-    commandLine.append(0);
-    commandLine.append(lampIntensity);
+class SeaTalkWriteTester : public TaskObject {
+    private:
+        static constexpr size_t stackSize = 4 * 1024;
+        static constexpr uint32_t testIntervalms = 10 * 1000;
 
-    sendCommand(commandLine);
-}
+        SeaTalkMaster &master;
+        SeaTalkLampIntensity testLampIntensity;
+
+        virtual void task() override;
+
+    public:
+        SeaTalkWriteTester(SeaTalkMaster &master);
+};
+
+#endif // SEA_TALK_WRITE_TESTER_H

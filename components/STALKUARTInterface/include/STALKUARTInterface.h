@@ -49,13 +49,9 @@ class STALKUARTInterface : public UARTInterface, public STALKInterface {
         PassiveTimer digitalYachtsWorkaroundTimer;
         bool firstDigitalYachtsWorkaroundSent;
 
-        SeaTalkLampIntensity testLampIntensity;
-        PassiveTimer testTimer;
-
         virtual void task() override;
         void workAroundDigitalYachtsBugs();
         void sendDigitalYachtsSTALKConfig();
-        void commandTest();
 
     public:
         STALKUARTInterface(const char *name, const char *label, uart_port_t uartNumber,

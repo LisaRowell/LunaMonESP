@@ -1,7 +1,10 @@
-idf_component_register(SRCS "SeaTalkParser.cpp"
+idf_component_register(SRCS "SeaTalkInterface.cpp"
+                            "SeaTalkParser.cpp"
                             "SeaTalkMaster.cpp"
                             "SeaTalkCommand.cpp"
                             "SeaTalkLine.cpp"
                             "SeaTalkLampIntensity.cpp"
+                            "SeaTalkWriteTester.cpp"
                        INCLUDE_DIRS "include" "../../etl/include"
-                       REQUIRES InstrumentData StatsManager StatCounter DataModel FixedPoint Logger)
+                       REQUIRES Interface InstrumentData StatsManager StatCounter DataModel
+                                TaskObject FixedPoint Logger)

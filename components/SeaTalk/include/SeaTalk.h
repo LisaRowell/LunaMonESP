@@ -16,17 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SeaTalkMaster.h"
-#include "SeaTalkCommand.h"
-#include "SeaTalkLine.h"
-#include "SeaTalkLampIntensity.h"
+#ifndef SEA_TALK_H
+#define SEA_TALK_H
 
-void SeaTalkMaster::setLampIntensity(const SeaTalkLampIntensity &lampIntensity) {
-    SeaTalkLine commandLine;
+#include <stddef.h>
+#include <stdint.h>
 
-    commandLine.append(SeaTalkCommand::SET_LAMP_INTENSITY);
-    commandLine.append(0);
-    commandLine.append(lampIntensity);
+#include "InterfaceParams.h"
 
-    sendCommand(commandLine);
-}
+static constexpr uint32_t SEA_TALK_BAUD_RATE = 4800;
+static constexpr InterfaceDataWidth SEA_TALK_DATA_WIDTH = DATA_WIDTH_9_BITS;
+static constexpr InterfaceParity SEA_TALK_PARITY = PARITY_NONE;
+static constexpr InterfaceStopBits SEA_TALK_STOP_BITS = STOP_BITS_1;
+
+static constexpr size_t MAX_SEA_TALK_LINE_LENGTH = 20; // Per Knauf: 18 is sufficient...
+
+#endif // SEA_TALK_H

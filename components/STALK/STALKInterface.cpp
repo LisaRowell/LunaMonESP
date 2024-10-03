@@ -17,9 +17,8 @@
  */
 
 #include "STALKInterface.h"
-
-#include "SeaTalkLine.h"
-#include "SeaTalkParser.h"
+#include "SeaTalk.h"
+#include "SeaTalkInterface.h"
 #include "Interface.h"
 #include "NMEALine.h"
 #include "NMEALineWalker.h"
@@ -40,8 +39,8 @@
 
 STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentData,
                                StatsManager &statsManager)
-    : interface(interface),
-      seaTalkParser(interface.interfaceNode(), instrumentData, statsManager),
+    : SeaTalkInterface(interface, instrumentData, statsManager),
+      interface(interface),
       messagesCounter(),
       illformedMessages(0),
       _lastMessageIllformed(false),
@@ -49,7 +48,10 @@ STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentD
       messagesLeaf("messages", &stalkNode),
       messageRateLeaf("messageRate", &stalkNode),
       illformedMessagesLeaf("illformedMessages", &stalkNode) {
-    statsManager.addStatsHolder(*this);
+    // Note that we don't add STALKInterfaces to the stats manager as a stats holder because they
+    // are derived from SeatalkInterfaces, which also are StatsHolders. Instead we override the
+    // exportStats method and call the parent classes version ourselves.
+
     addLineHandler(*this);
 }
 
@@ -106,7 +108,8 @@ bool STALKInterface::parseLine(const NMEALine &inputLine) {
 }
 
 void STALKInterface::parseDatagramMessage(const NMEALine &nmeaLine, NMEALineWalker &walker) {
-    SeaTalkLine seaTalkLine;
+    etl::vector<uint16_t, MAX_SEA_TALK_LINE_LENGTH> seaTalkDatagram;
+    bool onCommandCharacter = true;
     while (!walker.atEndOfLine()) {
         etl::string_view msgByteView;
         if (!walker.getWord(msgByteView)) {
@@ -123,17 +126,25 @@ void STALKInterface::parseDatagramMessage(const NMEALine &nmeaLine, NMEALineWalk
             illformedMessages++;
             return;
         }
-        seaTalkLine.append((uint8_t)result);
+
+        if (seaTalkDatagram.full()) {
+            logger() << logWarnSTALK << "$STALK message longer than max allowed SeaTalk message: "
+                    << nmeaLine << eol;
+            illformedMessages++;
+            return;
+        }
+
+        if (onCommandCharacter) {
+            // The start of a SeaTalk datagram is denoted by a command character with its MSB set
+            seaTalkDatagram.push_back(result | 0x100);
+            onCommandCharacter = false;
+        } else {
+            seaTalkDatagram.push_back(result);
+        }
     }
 
-    if (seaTalkLine.wasOverrun()) {
-        logger() << logWarnSTALK << "$STALK message longer than max allowed SeaTalk message: "
-                 << nmeaLine << eol;
-        illformedMessages++;
-    }
-
+    SeaTalkInterface::processBuffer(seaTalkDatagram.data(), seaTalkDatagram.size());
     messagesCounter++;
-    seaTalkParser.parseLine(seaTalkLine);
 }
 
 void STALKInterface::parsePropritoryMessage(const NMEALine &nmeaLine) {
@@ -171,6 +182,8 @@ void STALKInterface::sendCommand(const SeaTalkLine &seaTalkLine) {
 void STALKInterface::exportStats(uint32_t msElapsed) {
     messagesCounter.update(messagesLeaf, messageRateLeaf, msElapsed);
     illformedMessagesLeaf = illformedMessages;
+
+    SeaTalkInterface::exportStats(msElapsed);
 }
 
 bool STALKInterface::lastMessageIllformed() const {

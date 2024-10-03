@@ -36,6 +36,7 @@
 #include "RMTUARTInterface.h"
 #include "NMEARMTUARTInterface.h"
 #include "STALKRMTUARTInterface.h"
+#include "SeaTalkRMTUARTInterface.h"
 #include "NMEABridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
@@ -324,6 +325,10 @@ RMTUARTInterface *LunaMon::createRMTUARTInterface(const char *name, const char *
             rmtUARTInterface = createSTALKRMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate);
             break;
 
+        case INTERFACE_SEA_TALK:
+            rmtUARTInterface = createSeaTalkRMTUARTInterface(name, label, rxGPIO, txGPIO);
+            break;
+
         case INTERFACE_OFFLINE:
         default:
             rmtUARTInterface = nullptr;
@@ -361,6 +366,21 @@ STALKRMTUARTInterface *LunaMon::createSTALKRMTUARTInterface(const char *name, co
     }
 
     return stalkRMTUARTInterface;
+}
+
+SeaTalkRMTUARTInterface *LunaMon::createSeaTalkRMTUARTInterface(const char *name, const char *label,
+                                                                gpio_num_t rxPin,
+                                                                gpio_num_t txPin) {
+    SeaTalkRMTUARTInterface *seaTalkRMTUARTInterface;
+
+    seaTalkRMTUARTInterface = new SeaTalkRMTUARTInterface(name, label, rxPin, txPin, instrumentData,
+                                                          statsManager, dataModel);
+    if (!seaTalkRMTUARTInterface) {
+        logger << logErrorMain << "Failed to allocate " << name << " SeaTalk interface for RMT UART"
+               << eol;
+    }
+
+    return seaTalkRMTUARTInterface;
 }
 
 NMEABridge *LunaMon::createNMEABridge(const char *name, const char *msgTypeList,

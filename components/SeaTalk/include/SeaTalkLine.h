@@ -20,6 +20,7 @@
 #define SEATALK_LINE_H
 
 #include "etl/vector.h"
+#include "etl/u16string.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -27,20 +28,25 @@
 class Logger;
 
 class SeaTalkLine {
-    private:
-        static constexpr size_t maxSeaTalkLineLength = 20; // Just a guess
+    public:
+        static constexpr size_t maxLineLength = 20; // Just a guess
 
-        etl::vector<uint8_t, maxSeaTalkLineLength> line;
+    private:
+        etl::vector<uint8_t, maxLineLength> line;
         bool overrun;
 
     public:
         SeaTalkLine();
         void append(uint8_t messageByte);
+        void clear();
+        bool isEmpty() const;
+        bool isComplete() const;
         bool wasOverrun() const;
         size_t length() const;
         uint8_t operator [](size_t index) const;
         uint8_t command() const;
         uint8_t attribute() const;
+        size_t buildNineBitString(uint16_t *buffer) const;
 
     friend Logger & operator << (Logger &logger, const SeaTalkLine &seaTalkLine);
 };

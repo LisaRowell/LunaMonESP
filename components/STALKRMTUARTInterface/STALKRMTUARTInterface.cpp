@@ -36,15 +36,14 @@ STALKRMTUARTInterface::STALKRMTUARTInterface(const char *name, const char *label
                        PARITY_NONE, STOP_BITS_1, rxPin, txPin, rxBufferSize, statsManager,
                        dataModel, stackSize),
       STALKInterface(*this, instrumentData, statsManager),
-      firstDigitalYachtsWorkaroundSent(false),
-      testLampIntensity(SeaTalkLampIntensity::L0) {
+      firstDigitalYachtsWorkaroundSent(false) {
     digitalYachtsWorkaroundTimer.setSeconds(digitalYachtsStartTimeSec);
-    testTimer.setSeconds(10);
 }
 
 void STALKRMTUARTInterface::task() {
     sourceReset();
     startUART();
+    SeaTalkInterface::start();
 
     logger << logDebugSTALKRMTUART << "Starting receive on RMT UART..." << eol;
 
@@ -54,7 +53,7 @@ void STALKRMTUARTInterface::task() {
         // to use an interrupt to wake the task...
         size_t bytesRead = readToBuffer(buffer, rxBufferSize);
         if (bytesRead) {
-            processBuffer(buffer, bytesRead);
+            NMEALineSource::processBuffer(buffer, bytesRead);
 
             // To get around bugs in Digitial Yachts' ST-NMEA (ISO) converters which prevented some
             // units from having configuration messages stored in NVRAM, we can reconfigure them on
@@ -64,10 +63,6 @@ void STALKRMTUARTInterface::task() {
             }
         } else {
             vTaskDelay(pdMS_TO_TICKS(noDataDelayMs));
-        }
-
-        if (CONFIG_LUNAMON_STALK_WRITE_TEST_ENABLED) {
-            commandTest();
         }
     }
 }
@@ -92,12 +87,4 @@ void STALKRMTUARTInterface::sendDigitalYachtsSTALKConfig() {
         firstDigitalYachtsWorkaroundSent = 1;
     }
     send("$PDGY,STalk,On\r\n");
-}
-
-void STALKRMTUARTInterface::commandTest() {
-    if (testTimer.expired()) {
-        testLampIntensity.cycle();
-        setLampIntensity(testLampIntensity);
-        testTimer.advanceSeconds(10);
-    }
 }

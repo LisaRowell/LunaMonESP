@@ -57,6 +57,7 @@ class NMEAInterface;
 class Interface;
 class STALKUARTInterface;
 class STALKRMTUARTInterface;
+class SeaTalkRMTUARTInterface;
 class NMEABridge;
 
 class LunaMon {
@@ -108,6 +109,8 @@ class LunaMon {
         STALKRMTUARTInterface *createSTALKRMTUARTInterface(const char *name, const char *label,
                                                            gpio_num_t rxGPIO, gpio_num_t txGPIO,
                                                            uint32_t baudRate);
+        SeaTalkRMTUARTInterface *createSeaTalkRMTUARTInterface(const char *name, const char *label,
+                                                               gpio_num_t rxPin, gpio_num_t txPin);
         NMEABridge *createNMEABridge(const char *name, const char *msgTypeList,
                                      InterfaceID srcInterfaceID, InterfaceID dstInterfaceID);
         NMEAInterface *nmeaInterfaceByID(InterfaceID id);
