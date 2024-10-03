@@ -40,6 +40,20 @@ size_t interfaceDataWidthBits(InterfaceDataWidth dataWidth) {
     }
 }
 
+size_t sizeofDataWidthCharacter(InterfaceDataWidth dataWidth) {
+    switch (dataWidth) {
+        case DATA_WIDTH_5_BITS:
+        case DATA_WIDTH_6_BITS:
+        case DATA_WIDTH_7_BITS:
+        case DATA_WIDTH_8_BITS:
+            return sizeof(char);
+        case DATA_WIDTH_9_BITS:
+            return sizeof(uint16_t);
+        default:
+            fatalError("Invalid interface data width bits");
+    }
+}
+
 Logger & operator << (Logger &logger, InterfaceDataWidth dataWidth) {
     logger << "Data width " << interfaceDataWidthBits(dataWidth);
 

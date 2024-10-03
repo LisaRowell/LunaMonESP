@@ -35,6 +35,7 @@ class RMTUARTTransmitter;
 
 class RMTUART {
     private:
+        size_t sizeofCharacter;
         QueueHandle_t rxQueue;
         RMTUARTReceiver *receiver;
         RMTUARTTransmitter *transmitter;

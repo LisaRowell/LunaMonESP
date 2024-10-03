@@ -33,6 +33,7 @@ enum InterfaceDataWidth : uint8_t {
 };
 
 extern size_t interfaceDataWidthBits(InterfaceDataWidth dataWidth);
+extern size_t sizeofDataWidthCharacter(InterfaceDataWidth dataWidth);
 
 extern Logger & operator << (Logger &logger, InterfaceDataWidth dataWidth);
 

@@ -40,9 +40,8 @@ RMTUART::RMTUART(InterfaceMode mode, uint32_t baudRate, InterfaceDataWidth dataW
                  InterfaceParity parity, InterfaceStopBits stopBits, gpio_num_t rxGPIO,
                  gpio_num_t txGPIO, size_t rxBufferSize)
     : receiver(nullptr) {
-    // For now we just make the queue be of 8-bit characters, later this will need to support 9-bit
-    // as well. We also need a read queue size...
-    if ((rxQueue = xQueueCreate(rxBufferSize, sizeof(char))) == nullptr) {
+    sizeofCharacter = sizeofDataWidthCharacter(dataWidth);
+    if ((rxQueue = xQueueCreate(rxBufferSize, sizeofCharacter)) == nullptr) {
         logger() << logErrorRMTUART << "Failed to allocate RX queue" << eol;
         errorExit();
     }
@@ -101,16 +100,24 @@ size_t RMTUART::receive(void *buffer, size_t bufferSize) {
         errorExit();
     }
 
-    // We need to do work here for 9 bit support...
-    uint8_t *bufferPos = (uint8_t *)buffer;
-    size_t bytesRead = 0;
-    while ((bytesRead < bufferSize) &&
-           (xQueueReceive(rxQueue, bufferPos, 0) == pdTRUE)) {
-        bufferPos++;
-        bytesRead++;
+    size_t charactersRead = 0;
+    if (sizeofCharacter == sizeof(char)) {
+        uint8_t *bufferPos = (uint8_t *)buffer;
+        while ((charactersRead < bufferSize) &&
+               (xQueueReceive(rxQueue, bufferPos, 0) == pdTRUE)) {
+            bufferPos++;
+            charactersRead++;
+        }
+    } else {
+        uint16_t *bufferPos = (uint16_t *)buffer;
+        while ((charactersRead < bufferSize) &&
+               (xQueueReceive(rxQueue, bufferPos, 0) == pdTRUE)) {
+            bufferPos++;
+            charactersRead++;
+        }
     }
 
-    return bytesRead;
+    return charactersRead;
 }
 
 size_t RMTUART::send(const void *characters, size_t length) {
