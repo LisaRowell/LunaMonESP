@@ -137,11 +137,11 @@ void RMTUARTTransmitter::createEncoder() {
 
 void RMTUARTTransmitter::send(const void *characters, size_t length) {
     if (length == 0) {
-        logger() << logDebugRMTUART << "Ignoring RMT UART send of zero bytes" << eol;
+        logger() << logDebugRMTUART << "Ignoring RMT UART send of zero characters" << eol;
         return;
     }
 
-    logger() << logDebugRMTUART << "Starting RMT UART transfer of " << length << " bytes from "
+    logger() << logDebugRMTUART << "Starting RMT UART transfer of " << length << " characters from "
              << (uint32_t)characters << eol;
 
     esp_err_t error;
