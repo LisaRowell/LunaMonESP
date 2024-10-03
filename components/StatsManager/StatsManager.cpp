@@ -23,7 +23,10 @@
 
 #include "Logger.h"
 
-#include <etl/vector.h>
+#include "etl/vector.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include <stdint.h>
 
