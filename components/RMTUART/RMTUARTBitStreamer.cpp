@@ -42,7 +42,7 @@ void RMTUARTBitStreamer::reset() {
 
 void RMTUARTBitStreamer::start(const void *data, size_t dataSize) {
     dataPos.byte = (const uint8_t *)data;
-    bytesRemaining = dataSize;
+    charactersRemaining = dataSize;
     state = IN_START_BIT;
 }
 
@@ -81,11 +81,10 @@ void RMTUARTBitStreamer::streamStartBit(uint16_t &level, uint16_t &duration) {
     state = IN_CHARACTER_BITS;
     if (dataBitsPerCharacter > 8) {
         characterBits = *(dataPos.word++);
-        bytesRemaining -= sizeof(uint16_t);
     } else {
         characterBits = *(dataPos.byte++);
-        bytesRemaining -= sizeof(uint8_t);
     }
+    charactersRemaining--;
     bitsRemainingInChar = dataBitsPerCharacter;
     parityValue = 0;
 }
@@ -134,7 +133,7 @@ void RMTUARTBitStreamer::streamParityBit(uint16_t &level, uint16_t &duration) {
 bool RMTUARTBitStreamer::streamStopBits(uint16_t &level, uint16_t &duration) {
     level = 1;
     duration = stopBitDuration;
-    if (bytesRemaining > 0) {
+    if (charactersRemaining > 0) {
         state = IN_START_BIT;
         return true;
     } else {

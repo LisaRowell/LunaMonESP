@@ -44,7 +44,7 @@ class RMTUARTBitStreamer {
             const uint16_t *word;
             const uint8_t *byte;
         } dataPos;
-        size_t bytesRemaining;
+        size_t charactersRemaining;
         uint16_t characterBits;
         size_t bitsRemainingInChar;
         uint16_t parityValue;
