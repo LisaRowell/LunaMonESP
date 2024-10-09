@@ -71,7 +71,8 @@ void SeaTalkInterface::processBuffer(uint16_t *buffer, size_t length) {
                 mergedDatagrams++;
                 // It might be better to make this a debug message if it occures a lot.
                 logger() << logWarnSeaTalk
-                         << "Merged SeaTalk datagram...ignoring truncated datagram" << eol;
+                         << "Merged SeaTalk datagram...ignoring truncated datagram: " << inputLine
+                         << eol;
                 inputLine.clear();
             }
             inputLine.append((uint8_t)(nextChar & 0x0ff));

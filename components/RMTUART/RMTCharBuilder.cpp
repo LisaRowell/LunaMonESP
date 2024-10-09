@@ -102,6 +102,7 @@ void RMTCharBuilder::streamComplete() {
             // This means that the last bits of the last character in the stream are 1, the same
             // level as the stop bit(s)
             addOneBits(dataBitsPerFrame - bitsAccumulated);
+            dataBitsCompleted();
             state = START_OF_FRAME;
             break;
 
@@ -171,7 +172,13 @@ void RMTCharBuilder::addStartOfFrameBits(uint16_t duration, uint16_t level) {
         return;
     }
     addZeroBits(fullBits - 1);
-    state = MID_FRAME_EXPECTING_1;
+    if (fullBits == dataBitsPerFrame + 1) {
+        // We've received a character that's all zeros, so the next thing we get should be a stop
+        // bit.
+        state = WAITING_FOR_STOP_BITS;
+    } else {
+        state = MID_FRAME_EXPECTING_1;
+    }
 }
 
 void RMTCharBuilder::addMidFrameBitsExpecting1(uint16_t duration, uint16_t level) {
