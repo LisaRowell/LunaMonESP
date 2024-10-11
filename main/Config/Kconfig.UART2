@@ -46,7 +46,7 @@ menu "UART2 Source Configuration"
 
     config LUNAMON_UART2_TX_PIN
         int "UART2 TX Pin" if LUNAMON_HAS_UART2_SOURCE
-        default 4
+        default 6
         help
             Pin number to use for the UART2's TX pin. Consult your board documentation for
             information on which pin to use.

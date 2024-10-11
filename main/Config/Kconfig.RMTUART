@@ -41,14 +41,14 @@ menu "RMT UART Source Configuration"
 
     config LUNAMON_RMT_UART_RX_GPIO
         int "RMT UART RX GPIO" if LUNAMON_HAS_RMT_UART_SOURCE
-        default 5
+        default 9
         help
             Pin number to use for the RMT UART's RX GPIO. Consult your board documentation for
             information on which pin to use.
 
     config LUNAMON_RMT_UART_TX_GPIO
         int "RMT UART TX GPIO"  if LUNAMON_HAS_RMT_UART_SOURCE
-        default 4
+        default 10
         help
             Pin number to use for the RMT UART's TX GPIO. Consult your board documentation for
             information on which pin to use.
