@@ -44,14 +44,23 @@ RMTUARTTransmitter::RMTUARTTransmitter(uint32_t baudRate, InterfaceDataWidth dat
 
     createChannel();
 
+    createEncoder();
+    buildTransmitConfig();
+
     esp_err_t error;
     if ((error = rmt_enable(channelHandle)) != ESP_OK) {
         logger() << logErrorRMTUART << "Failed to enable tranmit RMT: " << ESPError(error) << eol;
         errorExit();
     }
 
-    createEncoder();
-    buildTransmitConfig();
+    // Unfortunately the Espressif RMT driver doesn't provide a way to have an initial signal value
+    // of a high, which is the idle state for a UART. We attempt to get around this by sending a
+    // 0 character, which is going to be a mess as the bus has been held low for awhile the
+    // character works it's way down the the overly complex interrupts and encoders. Check back to
+    // see if the IDF RMT driver has been enhanced to include an initial state and remove the
+    // following send in favor of a more elegant solution...
+    uint16_t initialValue = 0;
+    send(&initialValue, 1);
 }
 
 void RMTUARTTransmitter::createChannel() {
