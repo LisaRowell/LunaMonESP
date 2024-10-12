@@ -42,14 +42,15 @@ class SeaTalkInterface : public SeaTalkMaster, StatsHolder {
         SeaTalkParser parser;
         SeaTalkWriteTester *writeTester;
         StatCounter inputDatagramCounter;
-        uint32_t mergedDatagrams;
+        StatCounter collisionCounter;
         StatCounter outputDatagramCounter;
         uint32_t outputErrors;
         DataModelNode seaTalkNode;
         DataModelNode inputNode;
         DataModelUInt32Leaf inputDatagramsLeaf;
         DataModelUInt32Leaf inputDatagramsRateLeaf;
-        DataModelUInt32Leaf mergedDatagramsLeaf;
+        DataModelUInt32Leaf collisionsLeaf;
+        DataModelUInt32Leaf collisionRateLeaf;
         DataModelNode outputNode;
         DataModelUInt32Leaf outputDatagramsLeaf;
         DataModelUInt32Leaf outputDatagramsRateLeaf;

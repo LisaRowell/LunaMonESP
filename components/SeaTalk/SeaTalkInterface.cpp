@@ -34,14 +34,15 @@ SeaTalkInterface::SeaTalkInterface(Interface &interface, InstrumentData &instrum
       parser(interface.interfaceNode(), instrumentData, statsManager),
       writeTester(nullptr),
       inputDatagramCounter(),
-      mergedDatagrams(0),
+      collisionCounter(),
       outputDatagramCounter(),
       outputErrors(0),
       seaTalkNode("seaTalk", &interface.interfaceNode()),
       inputNode("input", &seaTalkNode),
       inputDatagramsLeaf("datagrams", &inputNode),
       inputDatagramsRateLeaf("datagramRate", &inputNode),
-      mergedDatagramsLeaf("mergedDatagrams", &inputNode),
+      collisionsLeaf("collisions", &inputNode),
+      collisionRateLeaf("collisionRate", &inputNode),
       outputNode("output", &seaTalkNode),
       outputDatagramsLeaf("datagrams", &outputNode),
       outputDatagramsRateLeaf("datagramRate", &outputNode),
@@ -68,11 +69,9 @@ void SeaTalkInterface::processBuffer(uint16_t *buffer, size_t length) {
         uint16_t nextChar = buffer[pos];
         if (nextChar & 0x100) {
             if (!inputLine.isEmpty()) {
-                mergedDatagrams++;
-                // It might be better to make this a debug message if it occures a lot.
-                logger() << logWarnSeaTalk
-                         << "Merged SeaTalk datagram...ignoring truncated datagram: " << inputLine
-                         << eol;
+                collisionCounter++;
+                logger() << logDebugSeaTalk << "SeaTalk collision...ignoring truncated datagram: "
+                         << inputLine << eol;
                 inputLine.clear();
             }
             inputLine.append((uint8_t)(nextChar & 0x0ff));
@@ -108,7 +107,7 @@ void SeaTalkInterface::sendCommand(const SeaTalkLine &seaTalkLine) {
 // For STALK interfaces this is called by STALKInterface::exportStats()
 void SeaTalkInterface::exportStats(uint32_t msElapsed) {
     inputDatagramCounter.update(inputDatagramsLeaf, inputDatagramsRateLeaf, msElapsed);
-    mergedDatagramsLeaf = mergedDatagrams;
+    collisionCounter.update(collisionsLeaf, collisionRateLeaf, msElapsed);
 
     outputDatagramCounter.update(outputDatagramsLeaf, outputDatagramsRateLeaf, msElapsed);
     outputErrorsLeaf = outputErrors;
