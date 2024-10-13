@@ -44,7 +44,10 @@ void RMTUARTInterface::startUART() {
 }
 
 size_t RMTUARTInterface::readToBuffer(void *buffer, size_t bufferSize) {
-    return rmtUART.receive(buffer, bufferSize);
+    size_t received = rmtUART.receive(buffer, bufferSize);
+    countReceived(received);
+
+    return received;
 }
 
 size_t RMTUARTInterface::sendBytes(const void *bytes, size_t length) {

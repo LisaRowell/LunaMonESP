@@ -99,7 +99,7 @@ size_t WiFiInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
                << errno << ")" << eol;
         return 0;
     } else {
-        receivedBytes.incrementBy((size_t)bytesRead);
+        countReceived((size_t)bytesRead);
         return (size_t)bytesRead;
     }
 }

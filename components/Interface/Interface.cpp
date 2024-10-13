@@ -43,10 +43,11 @@ Interface::Interface(const char *name, const char *label, enum InterfaceProtocol
       _name(name),
       protocol(protocol),
       _interfaceNode(name, &dataModel.sysNode()),
+      inputBytes(),
       labelLeaf("label", &_interfaceNode, labelBuffer),
-      receivedBytesLeaf("receivedBytes", &_interfaceNode),
-      receivedByteRateLeaf("receivedByteRate", &_interfaceNode),
-      receivedBytes() {
+      inputNode("input", &_interfaceNode),
+      inputBytesLeaf("bytes", &inputNode),
+      inputByteRateLeaf("byteRate", &inputNode) {
     statsManager.addStatsHolder(*this);
 
     if ((writeLock = xSemaphoreCreateMutex()) == nullptr) {
@@ -63,6 +64,11 @@ DataModelNode &Interface::interfaceNode() {
 const char *Interface::name() const {
     return _name;
 }
+
+void Interface::countReceived(size_t bytes) {
+    inputBytes.incrementBy(bytes);
+}
+
 
 size_t Interface::send(const char *string) {
     size_t length = strlen(string);
@@ -85,5 +91,5 @@ void Interface::releaseWriteLock() {
 }
 
 void Interface::exportStats(uint32_t msElapsed) {
-    receivedBytes.update(receivedBytesLeaf, receivedByteRateLeaf, msElapsed);
+    inputBytes.update(inputBytesLeaf, inputByteRateLeaf, msElapsed);
 }

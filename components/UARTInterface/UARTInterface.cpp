@@ -122,7 +122,7 @@ size_t UARTInterface::readToBuffer(void *buffer, size_t rxBufferSize) {
         size_t bytesToRead = etl::min(bytesInRxBuffer, rxBufferSize);
         size_t bytesRead = uart_read_bytes(_uartNumber, buffer, bytesToRead, 0);
 
-        receivedBytes.incrementBy(bytesRead);
+        countReceived(bytesRead);
 
         logger << logDebugUART << "Reading from UART " << _uartNumber << ", expected "
                 << bytesInRxBuffer << " received " << bytesRead << eol;

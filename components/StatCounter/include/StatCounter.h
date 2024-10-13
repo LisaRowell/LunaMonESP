@@ -33,6 +33,7 @@ class StatCounter {
         void increment();
         void incrementBy(uint32_t addition);
         StatCounter operator ++ (int);
+
         void update(DataModelUInt32Leaf &countLeaf, DataModelUInt32Leaf &rateLeaf,
                     uint32_t msElapsed);
 };

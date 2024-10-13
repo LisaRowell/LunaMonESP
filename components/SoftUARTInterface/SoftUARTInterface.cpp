@@ -48,14 +48,14 @@ void SoftUARTInterface::startInterface() {
 size_t SoftUARTInterface::readToByteBuffer(uint8_t *buffer, size_t rxBufferSize) {
     size_t bytesRead = uart.readToByteBuffer(buffer, rxBufferSize);
 
-    receivedBytes.incrementBy(bytesRead);
+    countReceived(bytesRead);
     return bytesRead;
 }
 
 size_t SoftUARTInterface::readToShortBuffer(uint16_t *buffer, size_t rxBufferSize) {
     size_t wordsRead = uart.readToShortBuffer(buffer, rxBufferSize);
 
-    receivedBytes.incrementBy(wordsRead);
+    countReceived(wordsRead);
     return wordsRead;
 }
 
