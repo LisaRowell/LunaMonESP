@@ -32,7 +32,6 @@
 #include "SeaTalkLine.h"
 #include "SeaTalkLampIntensity.h"
 
-#include "StatCounter.h"
 #include "StatsHolder.h"
 #include "StatsManager.h"
 
@@ -60,22 +59,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-SeaTalkParser::SeaTalkParser(DataModelNode &interfaceNode, InstrumentData &instrumentData,
+SeaTalkParser::SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumentData,
                              StatsManager &statsManager)
     : instrumentData(instrumentData),
-      commandsReceivedCounter(),
       ignoredCommands(0),
       unknownCommands(0),
       commandLengthErrors(0),
       commandFormatErrors(0),
-      seaTalkNode("seatalk", &interfaceNode),
-      receivedNode("received", &seaTalkNode),
-      commandsReceivedLeaf("commands", &receivedNode),
-      commandseceiveRateLeaf("commandRate", &receivedNode),
-      ignoredCommandsLeaf("ignoredCommands", &receivedNode),
-      unknownCommandsLeaf("unknownCommands", &receivedNode),
-      commandLengthErrorsLeaf("commandLengthErrors", &receivedNode),
-      commandFormatErrorsLeaf("commandFormatErrors", &receivedNode) {
+      ignoredCommandsLeaf("ignoredCommands", &inputNode),
+      unknownCommandsLeaf("unknownCommands", &inputNode),
+      commandLengthErrorsLeaf("commandLengthErrors", &inputNode),
+      commandFormatErrorsLeaf("commandFormatErrors", &inputNode) {
     statsManager.addStatsHolder(*this);
 }
 
@@ -164,8 +158,6 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
         default:
             unknownCommand(command, seaTalkLine);
     }
-
-    commandsReceivedCounter++;
 }
 
 void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
@@ -981,7 +973,6 @@ bool SeaTalkParser::checkAttribute(const SeaTalkLine &seaTalkLine, uint8_t expec
 }
 
 void SeaTalkParser::exportStats(uint32_t msElapsed) {
-    commandsReceivedCounter.update(commandsReceivedLeaf, commandseceiveRateLeaf, msElapsed);
     ignoredCommandsLeaf = ignoredCommands;
     unknownCommandsLeaf = unknownCommands;
     commandLengthErrorsLeaf = commandLengthErrors;

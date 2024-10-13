@@ -20,8 +20,9 @@
 #define SEA_TALK_INTERFACE_H
 
 #include "SeaTalkMaster.h"
+#include "StatsHolder.h"
+
 #include "SeaTalkLine.h"
-#include "SeaTalkParser.h"
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+class SeaTalkParser;
 class SeaTalkWriteTester;
 class Interface;
 class InstrumentData;
@@ -39,7 +41,7 @@ class SeaTalkInterface : public SeaTalkMaster, StatsHolder {
     private:
         Interface &interface;
         SeaTalkLine inputLine;
-        SeaTalkParser parser;
+        SeaTalkParser *parser;
         SeaTalkWriteTester *writeTester;
         StatCounter inputDatagramCounter;
         StatCounter collisionCounter;

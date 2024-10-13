@@ -17,6 +17,7 @@
  */
 
 #include "SeaTalkInterface.h"
+#include "SeaTalkParser.h"
 #include "SeaTalkWriteTester.h"
 #include "Interface.h"
 
@@ -31,7 +32,6 @@
 SeaTalkInterface::SeaTalkInterface(Interface &interface, InstrumentData &instrumentData,
                                    StatsManager &statsManager)
     : interface(interface),
-      parser(interface.interfaceNode(), instrumentData, statsManager),
       writeTester(nullptr),
       inputDatagramCounter(),
       collisionCounter(),
@@ -48,6 +48,11 @@ SeaTalkInterface::SeaTalkInterface(Interface &interface, InstrumentData &instrum
       outputDatagramsRateLeaf("datagramRate", &outputNode),
       outputErrorsLeaf("errors", &outputNode) {
     statsManager.addStatsHolder(*this);
+
+    if ((parser = new SeaTalkParser(inputNode, instrumentData, statsManager)) == nullptr) {
+        logger() << logErrorSeaTalk << "Failed to allocate SeaTalk parser" << eol;
+        errorExit();
+    }
 
     if (CONFIG_LUNAMON_SEA_TALK_WRITE_TEST_ENABLED) {
         writeTester = new SeaTalkWriteTester(*this);
@@ -80,7 +85,7 @@ void SeaTalkInterface::processBuffer(uint16_t *buffer, size_t length) {
             if (inputLine.isComplete()) {
                 logger() << logDebugSeaTalk << "Received datagram from SeaTalk interface "
                          << interface.name() << ": " << inputLine << eol;
-                parser.parseLine(inputLine);
+                parser->parseLine(inputLine);
                 inputDatagramCounter++;
                 inputLine.clear();
             }

@@ -20,11 +20,9 @@
 #define SEATALK_PARSER_H
 
 #include "StatsHolder.h"
-#include "StatCounter.h"
 
 #include "InstrumentData.h"
 
-#include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
 #include "etl/set.h"
@@ -33,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+class DataModelNode;
 class SeaTalkLine;
 class SeaTalkCommand;
 class StatsManager;
@@ -47,15 +46,10 @@ class SeaTalkParser : StatsHolder {
 
         InstrumentData &instrumentData;
         etl::set<uint8_t, maxKnownDevices> devicesSeen;
-        StatCounter commandsReceivedCounter;
         uint32_t ignoredCommands;
         uint32_t unknownCommands;
         uint32_t commandLengthErrors;
         uint32_t commandFormatErrors;
-        DataModelNode seaTalkNode;
-        DataModelNode receivedNode;
-        DataModelUInt32Leaf commandsReceivedLeaf;
-        DataModelUInt32Leaf commandseceiveRateLeaf;
         DataModelUInt32Leaf ignoredCommandsLeaf;
         DataModelUInt32Leaf unknownCommandsLeaf;
         DataModelUInt32Leaf commandLengthErrorsLeaf;
@@ -99,7 +93,7 @@ class SeaTalkParser : StatsHolder {
                                    etl::istring &string) const;
 
     public:
-        SeaTalkParser(DataModelNode &interfaceNode, InstrumentData &instrumentData,
+        SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumentData,
                       StatsManager &statsManager);
         void parseLine(const SeaTalkLine &seaTalkLine);
 };
