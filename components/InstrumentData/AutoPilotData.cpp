@@ -46,6 +46,5 @@ AutoPilotData::AutoPilotData(DataModel &dataModel, DataModelNode &instrumentData
       rudderCenterLeaf("center", &rudderNode),
       rudderPortLeaf("port", &rudderNode),
       offCourseAlarmLeaf("offCourse", &alarmNode),
-      windShiftAlarmLeaf("windShift", &alarmNode),
-      knownDevicesLeaf("knownDevices", &dataModel.rootNode(), knownDevicesBuffer) {
+      windShiftAlarmLeaf("windShift", &alarmNode) {
 }

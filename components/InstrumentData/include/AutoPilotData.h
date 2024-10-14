@@ -37,7 +37,6 @@ class AutoPilotData : public InstrumentGroup {
     private:
         static constexpr size_t statusLength = 20;
         static constexpr size_t modeLength = 8;
-        static constexpr size_t knownDevicesLength = 10 * 3 + 1;
 
         DataModelNode autoPilotNode;
         etl::string<statusLength> statusBuffer;
@@ -45,7 +44,6 @@ class AutoPilotData : public InstrumentGroup {
         DataModelNode headingNode;
         DataModelNode rudderNode;
         DataModelNode alarmNode;
-        etl::string<knownDevicesLength> knownDevicesBuffer;
 
     public:
         DataModelStringLeaf statusLeaf;
@@ -59,9 +57,6 @@ class AutoPilotData : public InstrumentGroup {
         DataModelTenthsInt16Leaf rudderPortLeaf;
         DataModelBoolLeaf offCourseAlarmLeaf;
         DataModelBoolLeaf windShiftAlarmLeaf;
-        // Not really Auto Pilot, but system in general. Easier to put it here than make a new
-        // group.
-        DataModelStringLeaf knownDevicesLeaf;
 
         AutoPilotData(DataModel &dataModel, DataModelNode &instrumentDataNode,
                       StatsManager &statsManager);

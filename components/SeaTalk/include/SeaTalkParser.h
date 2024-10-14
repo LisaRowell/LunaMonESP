@@ -24,6 +24,7 @@
 #include "InstrumentData.h"
 
 #include "DataModelUInt32Leaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "etl/set.h"
 #include "etl/string.h"
@@ -43,6 +44,7 @@ class SeaTalkParser : StatsHolder {
         static constexpr size_t dateLength = 11;
         static constexpr size_t timeLength = 10;
         static constexpr size_t activeSatellitesLength = 72;
+        static constexpr size_t knownDevicesLength = 10 * 3 + 1;
 
         InstrumentData &instrumentData;
         etl::set<uint8_t, maxKnownDevices> devicesSeen;
@@ -50,10 +52,12 @@ class SeaTalkParser : StatsHolder {
         uint32_t unknownCommands;
         uint32_t commandLengthErrors;
         uint32_t commandFormatErrors;
+        etl::string<knownDevicesLength> knownDevicesBuffer;
         DataModelUInt32Leaf ignoredCommandsLeaf;
         DataModelUInt32Leaf unknownCommandsLeaf;
         DataModelUInt32Leaf commandLengthErrorsLeaf;
         DataModelUInt32Leaf commandFormatErrorsLeaf;
+        DataModelStringLeaf knownDevicesLeaf;
 
         void parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine);
         void parseApparentWindAngle(const SeaTalkLine &seaTalkLine);

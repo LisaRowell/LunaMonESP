@@ -69,7 +69,8 @@ SeaTalkParser::SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumen
       ignoredCommandsLeaf("ignoredCommands", &inputNode),
       unknownCommandsLeaf("unknownCommands", &inputNode),
       commandLengthErrorsLeaf("lengthErrors", &inputNode),
-      commandFormatErrorsLeaf("formatErrors", &inputNode) {
+      commandFormatErrorsLeaf("formatErrors", &inputNode),
+      knownDevicesLeaf("knownDevices", &inputNode, knownDevicesBuffer) {
     statsManager.addStatsHolder(*this);
 }
 
@@ -728,11 +729,7 @@ void SeaTalkParser::parseDeviceIdentification(const SeaTalkLine &seaTalkLine) {
                                << etl::setw(1);
         }
 
-        AutoPilotData &autoPilotData = instrumentData.autoPilotData();
-        autoPilotData.beginUpdates();
-        autoPilotData.knownDevicesLeaf = knownDevicesString;
-        autoPilotData.endUpdates();
-
+        knownDevicesLeaf = knownDevicesString;
         logger() << logDebugSeaTalk << "Known Devices: " << knownDevicesString << eol;
     }
 }
