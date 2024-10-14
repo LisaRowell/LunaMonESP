@@ -47,7 +47,10 @@ Interface::Interface(const char *name, const char *label, enum InterfaceProtocol
       labelLeaf("label", &_interfaceNode, labelBuffer),
       inputNode("input", &_interfaceNode),
       inputBytesLeaf("bytes", &inputNode),
-      inputByteRateLeaf("byteRate", &inputNode) {
+      inputByteRateLeaf("byteRate", &inputNode),
+      outputNode("output", &_interfaceNode),
+      outputBytesLeaf("bytes", &outputNode),
+      outputByteRateLeaf("byteRate", &outputNode) {
     statsManager.addStatsHolder(*this);
 
     if ((writeLock = xSemaphoreCreateMutex()) == nullptr) {
@@ -80,6 +83,10 @@ size_t Interface::send(const etl::istring &string) {
     return sendBytes(string.data(), length);
 }
 
+void Interface::countSent(size_t bytes) {
+    outputBytes.incrementBy(bytes);
+}
+
 void Interface::takeWriteLock() {
     if (xSemaphoreTake(writeLock, pdMS_TO_TICKS(lockTimeoutMs)) != pdTRUE) {
         fatalError("Failed to get contacts lock mutex");
@@ -92,4 +99,5 @@ void Interface::releaseWriteLock() {
 
 void Interface::exportStats(uint32_t msElapsed) {
     inputBytes.update(inputBytesLeaf, inputByteRateLeaf, msElapsed);
+    outputBytes.update(outputBytesLeaf, outputByteRateLeaf, msElapsed);
 }

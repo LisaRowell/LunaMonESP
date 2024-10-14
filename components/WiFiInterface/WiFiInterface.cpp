@@ -114,7 +114,9 @@ size_t WiFiInterface::sendBytes(const void *bytes, size_t length) {
                      << strerror(errno) << "(" << errno << ")" << eol;
         return 0;
     } else {
-        return (size_t)result;
+        size_t bytesSent = (size_t)result;
+        countSent(bytesSent);
+        return bytesSent;
     }
 }
 

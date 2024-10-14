@@ -51,5 +51,7 @@ size_t RMTUARTInterface::readToBuffer(void *buffer, size_t bufferSize) {
 }
 
 size_t RMTUARTInterface::sendBytes(const void *bytes, size_t length) {
-    return rmtUART.send(bytes, length);
+    size_t sentBytes = rmtUART.send(bytes, length);
+    countSent(sentBytes);
+    return sentBytes;
 }

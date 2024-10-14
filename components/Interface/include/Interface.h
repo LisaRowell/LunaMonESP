@@ -49,10 +49,14 @@ class Interface : public TaskObject, StatsHolder {
         DataModelNode _interfaceNode;
         etl::string<maxLabelLength> labelBuffer;
         StatCounter inputBytes;
+        StatCounter outputBytes;
         DataModelStringLeaf labelLeaf;
         DataModelNode inputNode;
         DataModelUInt32Leaf inputBytesLeaf;
         DataModelUInt32Leaf inputByteRateLeaf;
+        DataModelNode outputNode;
+        DataModelUInt32Leaf outputBytesLeaf;
+        DataModelUInt32Leaf outputByteRateLeaf;
         SemaphoreHandle_t writeLock;
 
         virtual void exportStats(uint32_t msElapsed) override;
@@ -67,6 +71,7 @@ class Interface : public TaskObject, StatsHolder {
         DataModelNode &interfaceNode();
         const char *name() const;
         void countReceived(size_t bytes);
+        void countSent(size_t bytes);
         size_t send(const char *string);
         size_t send(const etl::istring &string);
         virtual size_t sendBytes(const void *bytes, size_t length) = 0;

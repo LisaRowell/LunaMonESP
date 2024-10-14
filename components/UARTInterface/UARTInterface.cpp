@@ -144,6 +144,8 @@ size_t UARTInterface::sendBytes(const void *bytes, size_t length) {
                      << " failed";
         return 0;
     } else {
-        return (size_t)result;
+        size_t bytesSent = (size_t)result;
+        countSent(bytesSent);
+        return bytesSent;
     }
 }
