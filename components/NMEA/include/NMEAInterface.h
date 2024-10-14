@@ -47,6 +47,7 @@ class NMEAInterface : public NMEALineSource, NMEALineHandler, StatsHolder {
         etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
         StatCounter messagesCounter;
         DataModelNode nmeaNode;
+        DataModelNode nmeaInputNode;
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
 
