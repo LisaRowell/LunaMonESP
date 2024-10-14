@@ -68,8 +68,8 @@ SeaTalkParser::SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumen
       commandFormatErrors(0),
       ignoredCommandsLeaf("ignoredCommands", &inputNode),
       unknownCommandsLeaf("unknownCommands", &inputNode),
-      commandLengthErrorsLeaf("commandLengthErrors", &inputNode),
-      commandFormatErrorsLeaf("commandFormatErrors", &inputNode) {
+      commandLengthErrorsLeaf("lengthErrors", &inputNode),
+      commandFormatErrorsLeaf("formatErrors", &inputNode) {
     statsManager.addStatsHolder(*this);
 }
 
