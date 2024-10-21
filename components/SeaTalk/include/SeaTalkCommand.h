@@ -44,6 +44,7 @@ class SeaTalkCommand {
             SATELLITE_INFO                      = 0x57,
             RAW_LATITUDE_AND_LONGITUDE          = 0x58,
             COUNT_DOWN_TIMER                    = 0x59,
+            UNKNOWN_COMMAND_60                  = 0x60,
             E80_START_UP                        = 0x61,
             AUTO_PILOT_STATUS                   = 0x83,
             AUTO_PILOT_HEADING_COURSE_RUDDER    = 0x84,

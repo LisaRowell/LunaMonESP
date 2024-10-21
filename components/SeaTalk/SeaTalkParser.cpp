@@ -152,6 +152,7 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
             break;
         case SeaTalkCommand::DISPLAY_UNITS_MILEAGE_AND_SPEED:
         case SeaTalkCommand::COUNT_DOWN_TIMER:
+        case SeaTalkCommand::UNKNOWN_COMMAND_60:
         case SeaTalkCommand::E80_START_UP:
         case SeaTalkCommand::UNKNOWN_GPS_COMMAND_A7:
             ignoredCommand(command, seaTalkLine);
@@ -676,7 +677,7 @@ void SeaTalkParser::parseAutoPilotHeadingCourseAndRudder(const SeaTalkLine &seaT
     course.setFromTenths(courseX2 * 5);
     const char *mode = modeBitsToName(seaTalkLine[4] & 0x0f);
     uint8_t alarms = seaTalkLine[5] & 0x0f;
-    bool offCourseAlarm = (alarms &  0x4) != 0;
+    bool offCourseAlarm = (alarms & 0x4) != 0;
     bool windShiftAlarm = (alarms & 0x8) != 0;
     int8_t rudderPosition = (int8_t)seaTalkLine[6];
 
