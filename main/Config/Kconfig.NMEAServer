@@ -1,0 +1,27 @@
+menu "NMEA 0183 Server Configuration"
+
+    config LUNAMON_ENABLE_NMEA_SERVER
+        bool "Enable NMEA 0183 over TCP/IP Server"
+        default n
+        help
+            Whether or not enable a server providing NMEA 0183 messages over TCP/IP.
+
+    config LUNAMON_NMEA_SERVER_ENABLED
+        int
+        default 1 if LUNAMON_ENABLE_NMEA_SERVER
+        default 0 if !LUNAMON_ENABLE_NMEA_SERVER
+
+    config LUNAMON_NMEA_SERVER_KNOWN_PORT
+        int "NMEA 0183 TCP Known Port Number" if LUNAMON_ENABLE_NMEA_SERVER
+        default 10110
+        help
+            Known TCP port number for the NMEA 0183 over TCP/IP server to listen on for new
+            connections.
+
+    config LUNAMON_NMEA_SERVER_MAX_CLIENTS
+        int "Max NMEA Server Clients" if LUNAMON_ENABLE_NMEA_SERVER
+        default 5
+        help
+            Maximum number of allowed NMEA 0183 Server clients active at one time.
+
+endmenu

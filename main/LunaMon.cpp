@@ -37,6 +37,7 @@
 #include "NMEARMTUARTInterface.h"
 #include "STALKRMTUARTInterface.h"
 #include "SeaTalkRMTUARTInterface.h"
+#include "NMEAServer.h"
 #include "NMEABridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
@@ -181,6 +182,10 @@ LunaMon::LunaMon()
         statusLED = nullptr;
     }
 
+    if (CONFIG_LUNAMON_NMEA_SERVER_ENABLED) {
+        nmeaServer = createNMEAServer(CONFIG_LUNAMON_NMEA_SERVER_KNOWN_PORT);
+    }
+
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
         nmeaWiFiInterface = new NMEAWiFiInterface("wifi", NMEA_WIFI_SOURCE_LABEL,
                                                   NMEA_WIFI_SOURCE_IPV4_ADDR,
@@ -188,6 +193,9 @@ LunaMon::LunaMon()
                                                   statsManager, aisContacts, dataModel);
         if (nmeaWiFiInterface) {
             nmeaWiFiInterface->addMessageHandler(dataModelBridge);
+            if (nmeaServer) {
+                nmeaWiFiInterface->addLineHandler(*nmeaServer);
+            }
         } else {
             logger << logErrorMain << "Failed to allocate WiFi NMEA interface." << eol;
         }
@@ -219,6 +227,16 @@ LunaMon::LunaMon()
         (CONFIG_LUNAMON_BME280_ENABLED || CONFIG_LUNAMON_ENS160_ENABLED)) {
         environmentalMon = new EnvironmentalMon(dataModel, *ic2Master, statusLED);
     }
+}
+
+NMEAServer *LunaMon::createNMEAServer(uint16_t knownPort) {
+    NMEAServer *nmeaServer;
+
+    if ((nmeaServer = new NMEAServer(knownPort, wifiManager, statsManager, dataModel)) == nullptr) {
+        fatalError("Failed to allocate NMEA 0183 Server");
+    }
+
+    return nmeaServer;
 }
 
 UARTInterface *LunaMon::createUARTInterface(const char *name, const char *label,
@@ -254,6 +272,9 @@ NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, const char
                                               statsManager, aisContacts, dataModel);
     if (nmeaUARTInterface) {
         nmeaUARTInterface->addMessageHandler(dataModelBridge);
+        if (nmeaServer) {
+            nmeaUARTInterface->addLineHandler(*nmeaServer);
+        }
     } else {
         logger << logErrorMain << "Failed to allocate " << name << " NMEA interface for UART "
                 << uartNumber << "." << eol;
@@ -303,6 +324,9 @@ NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, co
                                                       aisContacts, dataModel);
     if (nmeaSoftUARTInterface) {
         nmeaSoftUARTInterface->addMessageHandler(dataModelBridge);
+        if (nmeaServer) {
+            nmeaSoftUARTInterface->addLineHandler(*nmeaServer);
+        }
     } else {
         logger << logErrorMain << "Failed to allocate " << name
                << " NMEA interface for Software UART" << "." << eol;
@@ -346,6 +370,9 @@ NMEARMTUARTInterface *LunaMon::createNMEARMTUARTInterface(const char *name, cons
                                                     statsManager, aisContacts, dataModel);
     if (nmeaRMTUARTInterface) {
         nmeaRMTUARTInterface->addMessageHandler(dataModelBridge);
+        if (nmeaServer) {
+            nmeaRMTUARTInterface->addLineHandler(*nmeaServer);
+        }
     } else {
         logger << logErrorMain << "Failed to allocate NMEA RMT UART interface " << name << eol;
     }
@@ -458,6 +485,10 @@ void LunaMon::run() {
     aisContacts.start();
     wifiManager.start();
     mqttBroker.start();
+
+    if (nmeaServer) {
+        nmeaServer->start();
+    }
 
     if (nmeaWiFiInterface) {
         nmeaWiFiInterface->start();

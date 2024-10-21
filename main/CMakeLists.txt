@@ -4,6 +4,6 @@ idf_component_register(SRCS "main.cpp" "LunaMon.cpp"
                                 NMEAUARTInterface STALKUARTInterface UARTInterface
                                 NMEASoftUARTInterface SoftUARTInterface NMEARMTUARTInterface
                                 STALKRMTUARTInterface SeaTalkRMTUARTInterface RMTUARTInterface
-                                NMEABridge DataModel AIS MQTT I2CMaster WiFiManager EnvironmentalMon
-                                StatusLED LogManager StatsManager Logger Error driver nvs_flash
-                                esp_timer)
+                                NMEAServer NMEABridge DataModel AIS MQTT I2CMaster WiFiManager
+                                EnvironmentalMon StatusLED LogManager StatsManager Logger Error
+                                driver nvs_flash esp_timer)

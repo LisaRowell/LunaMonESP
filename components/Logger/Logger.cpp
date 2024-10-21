@@ -59,6 +59,7 @@ Logger::Logger(LoggerLevel level)
     moduleDebugFlags[LOGGER_MODULE_SEA_TALK] = CONFIG_LUNAMON_DEBUG_MODULE_SEA_TALK_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_SEA_TALK_RMT_UART]
         = CONFIG_LUNAMON_DEBUG_MODULE_SEA_TALK_RMT_UART_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_NMEA_SERVER] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_SERVER_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_BRIDGE] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_BRIDGE_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_NMEA_LINE] = CONFIG_LUNAMON_DEBUG_MODULE_NMEA_LINE_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_UART] = CONFIG_LUNAMON_DEBUG_MODULE_UART_ENABLED;
@@ -433,6 +434,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "SeaTalk";
         case LOGGER_MODULE_SEA_TALK_RMT_UART:
             return "SeaTalk RMT UART";
+        case LOGGER_MODULE_NMEA_SERVER:
+            return "NMEA Server";
         case LOGGER_MODULE_NMEA_BRIDGE:
             return "NMEA Bridge";
         case LOGGER_MODULE_NMEA_LINE:

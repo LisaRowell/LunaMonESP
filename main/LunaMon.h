@@ -58,6 +58,7 @@ class Interface;
 class STALKUARTInterface;
 class STALKRMTUARTInterface;
 class SeaTalkRMTUARTInterface;
+class NMEAServer;
 class NMEABridge;
 
 class LunaMon {
@@ -71,6 +72,7 @@ class LunaMon {
         DataModelBridge dataModelBridge;
         LogManager logManager;
         Logger logger;
+        NMEAServer *nmeaServer;
         NMEAWiFiInterface *nmeaWiFiInterface;
         UARTInterface *uart1Interface;
         UARTInterface *uart2Interface;
@@ -86,6 +88,7 @@ class LunaMon {
         DataModelUInt32Leaf uptimeLeaf;
 
         void initNVS();
+        NMEAServer *createNMEAServer(uint16_t knownPort);
         UARTInterface *createUARTInterface(const char *name, const char *label,
                                            enum InterfaceProtocol protocol, uart_port_t uartNumber,
                                            gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate);
