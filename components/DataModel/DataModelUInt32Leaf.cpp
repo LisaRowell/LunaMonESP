@@ -28,7 +28,8 @@
 #include <stdint.h>
 
 DataModelUInt32Leaf::DataModelUInt32Leaf(const char *name, DataModelNode *parent)
-    : DataModelRetainedValueLeaf(name, parent) {
+    : DataModelRetainedValueLeaf(name, parent),
+      value(0) {
 }
 
 DataModelUInt32Leaf & DataModelUInt32Leaf::operator = (const uint32_t value) {

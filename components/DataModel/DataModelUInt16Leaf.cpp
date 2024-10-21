@@ -30,7 +30,8 @@
 constexpr size_t maxStringLength = 5;
 
 DataModelUInt16Leaf::DataModelUInt16Leaf(const char *name, DataModelNode *parent)
-    : DataModelRetainedValueLeaf(name, parent) {
+    : DataModelRetainedValueLeaf(name, parent),
+      value(0) {
 }
 
 DataModelUInt16Leaf & DataModelUInt16Leaf::operator = (const uint16_t value) {

@@ -30,7 +30,8 @@
 constexpr size_t maxStringLength = 4;
 
 DataModelInt8Leaf::DataModelInt8Leaf(const char *name, DataModelNode *parent)
-    : DataModelRetainedValueLeaf(name, parent) {
+    : DataModelRetainedValueLeaf(name, parent),
+      value(0) {
 }
 
 DataModelInt8Leaf & DataModelInt8Leaf::operator = (const int8_t value) {

@@ -28,7 +28,8 @@
 #include <stdint.h>
 
 DataModelBoolLeaf::DataModelBoolLeaf(const char *name, DataModelNode *parent)
-    : DataModelRetainedValueLeaf(name, parent) {
+    : DataModelRetainedValueLeaf(name, parent),
+      value(0) {
 }
 
 DataModelBoolLeaf & DataModelBoolLeaf::operator = (const bool value) {
