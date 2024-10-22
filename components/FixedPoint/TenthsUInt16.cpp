@@ -70,7 +70,7 @@ void TenthsUInt16::roundFrom(const HundredthsUInt16 &other) {
     }
 }
 
-TenthsUInt16 TenthsUInt16::operator+(uint32_t adder) {
+TenthsUInt16 TenthsUInt16::operator+(uint16_t adder) {
     return TenthsUInt16(_wholeNumber + adder, _tenths);
 }
 

@@ -43,7 +43,7 @@ class TenthsUInt16 : public LoggableItem {
         TenthsUInt16 operator = (uint16_t right);
         void setFromTenths(uint32_t tenths);
         void roundFrom(const HundredthsUInt16 &other);
-        TenthsUInt16 operator+(uint32_t adder);
+        TenthsUInt16 operator+(uint16_t adder);
         TenthsUInt16 operator+(const TenthsUInt16 &other) const;
         TenthsInt16 operator-(const TenthsUInt16 &other) const;
         TenthsUInt16 operator*(uint32_t multiplier);
