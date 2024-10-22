@@ -25,6 +25,8 @@
 #include "DataModelBoolLeaf.h"
 #include "DataModelTenthsInt16Leaf.h"
 #include "DataModelTenthsUInt16Leaf.h"
+#include "DataModelTenthsUInt32Leaf.h"
+#include "DataModelHundredthsUInt16Leaf.h"
 
 class DataModel;
 class StatsManager;
@@ -42,6 +44,7 @@ class WaterData : public InstrumentGroup {
         DataModelNode waterAverageSpeedNode;
         DataModelNode waterSpeedSecondSensorNode;
         DataModelNode waterTemperatureNode;
+        DataModelNode logNode;
 
     public:
         DataModelTenthsUInt16Leaf depthBelowSurfaceFeetLeaf;
@@ -70,6 +73,8 @@ class WaterData : public InstrumentGroup {
         DataModelBoolLeaf shallowDepthAlarmLeaf;
         DataModelBoolLeaf deepDepthAlarmLeaf;
         DataModelBoolLeaf depthTransducerDefectiveLeaf;
+        DataModelTenthsUInt32Leaf logTotalNMLeaf;
+        DataModelHundredthsUInt16Leaf logTripNMLeaf;
 
         WaterData(DataModel &dataModel, DataModelNode &instrumentDataNode,
                   StatsManager &statsManager);

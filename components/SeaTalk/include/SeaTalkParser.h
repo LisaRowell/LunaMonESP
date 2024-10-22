@@ -64,6 +64,7 @@ class SeaTalkParser : StatsHolder {
         void parseApparentWindSpeed(const SeaTalkLine &seaTalkLine);
         void parseSpeedThroughWaterV1(const SeaTalkLine &seaTalkLine);
         void parseWaterTemperatureV1(const SeaTalkLine &seaTalkLine);
+        void parseTotalAndTripLog(const SeaTalkLine &seaTalkLine);
         void parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine);
         void parseWaterTemperatureV2(const SeaTalkLine &seaTalkLine);
         void parseSetLampIntensity(const SeaTalkLine &seaTalkLine);

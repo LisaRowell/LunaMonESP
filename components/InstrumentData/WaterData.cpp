@@ -39,6 +39,7 @@ WaterData::WaterData(DataModel &dataModel, DataModelNode &instrumentDataNode,
       waterAverageSpeedNode("average", &waterSpeedNode),
       waterSpeedSecondSensorNode("secondSensor", &waterSpeedNode),
       waterTemperatureNode("temperature", &waterNode),
+      logNode("log", &dataModel.rootNode()),
       depthBelowSurfaceFeetLeaf("feet", &depthBelowSurfaceNode),
       depthBelowSurfaceMetersLeaf("meters", &depthBelowSurfaceNode),
       depthBelowSurfaceFathomsLeaf("fathoms", &depthBelowSurfaceNode),
@@ -64,5 +65,7 @@ WaterData::WaterData(DataModel &dataModel, DataModelNode &instrumentDataNode,
       anchorDepthAlarmLeaf("anchor", &depthAlarmsNode),
       shallowDepthAlarmLeaf("shallow", &depthAlarmsNode),
       deepDepthAlarmLeaf("deep", &depthAlarmsNode),
-      depthTransducerDefectiveLeaf("transducerDefective", &waterDepthNode) {
+      depthTransducerDefectiveLeaf("transducerDefective", &waterDepthNode),
+      logTotalNMLeaf("totalNM", &logNode),
+      logTripNMLeaf("tripNM", &logNode) {
 }

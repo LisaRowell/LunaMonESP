@@ -32,6 +32,7 @@ class SeaTalkCommand {
             SPEED_THROUGH_WATER_V1              = 0x20,
             WATER_TEMPERATURE_V1                = 0x23,
             DISPLAY_UNITS_MILEAGE_AND_SPEED     = 0x24,
+            TOTAL_AND_TRIP_LOG                  = 0x25,
             SPEED_THROUGH_WATER_V2              = 0x26,
             WATER_TEMPERATURE_V2                = 0x27,
             SET_LAMP_INTENSITY                  = 0x30,

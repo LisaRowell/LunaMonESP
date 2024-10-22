@@ -43,9 +43,12 @@
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
+#include "DataModelTenthsUInt32Leaf.h"
+#include "DataModelHundredthsUInt16Leaf.h"
 
 #include "TenthsInt16.h"
 #include "TenthsUInt16.h"
+#include "TenthsUInt32.h"
 #include "HundredthsUInt16.h"
 #include "HundredthsUInt8.h"
 
@@ -98,6 +101,9 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
             break;
         case SeaTalkCommand::WATER_TEMPERATURE_V1:
             parseWaterTemperatureV1(seaTalkLine);
+            break;
+        case SeaTalkCommand::TOTAL_AND_TRIP_LOG:
+            parseTotalAndTripLog(seaTalkLine);
             break;
         case SeaTalkCommand::SPEED_THROUGH_WATER_V2:
             parseSpeedThroughWaterV2(seaTalkLine);
@@ -324,6 +330,32 @@ void SeaTalkParser::parseWaterTemperatureV1(const SeaTalkLine &seaTalkLine) {
         logger() << " Defective";
     }
     logger() << eol;
+}
+
+void SeaTalkParser::parseTotalAndTripLog(const SeaTalkLine &seaTalkLine) {
+    if (!checkLength(7, seaTalkLine)) {
+        return;
+    }
+    if (!checkAttribute(seaTalkLine, 0x04, 0x0f)) {
+        return;
+    }
+
+    TenthsUInt32 totalNM;
+    totalNM.setFromTenths((seaTalkLine.attribute() >> 4) << 16 | seaTalkLine[3] << 8 |
+                           seaTalkLine[2]);
+
+    HundredthsUInt16 tripNM;
+    // The below is a variation from Knauf which assumes his "A" is four additional high order bits
+    tripNM.setFromHundredths(seaTalkLine[6] << 16 | seaTalkLine[5] << 8 | seaTalkLine[4]);
+
+    WaterData &waterData = instrumentData.waterData();
+    waterData.beginUpdates();
+    waterData.logTotalNMLeaf = totalNM;
+    waterData.logTripNMLeaf = tripNM;
+    waterData.endUpdates();
+
+    logger() << logDebugSeaTalk << "Log total " << totalNM << " nm trip " << tripNM << " nm"
+             << eol;
 }
 
 void SeaTalkParser::parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine) {
