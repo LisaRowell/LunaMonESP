@@ -65,6 +65,10 @@ bool DataModelElement::topicFilterMatch(const char *topicFilter, unsigned &offse
             }
         }
 
+        if (name[pos] != 0) {
+            return false;
+        }
+
         offsetToNextLevel = pos + 1;
         lastLevel = topicFilter[pos] == 0;
 
