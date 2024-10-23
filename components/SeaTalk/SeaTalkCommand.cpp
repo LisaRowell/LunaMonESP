@@ -28,8 +28,8 @@ SeaTalkCommand::SeaTalkCommand(uint8_t value) {
 
 const char *SeaTalkCommand::name() const {
     switch (value) {
-        case DEPTHS_BELOW_TRANSDUCER:
-            return "Depths Below Transducer";
+        case DEPTH_BELOW_TRANSDUCER:
+            return "Depth Below Transducer";
         case APPARENT_WIND_ANGLE:
             return "Apparent Wind Angle";
         case APPARENT_WIND_SPEED:

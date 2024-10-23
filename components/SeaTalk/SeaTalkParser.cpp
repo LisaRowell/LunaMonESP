@@ -93,7 +93,7 @@ void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
 
     SeaTalkCommand command = seaTalkLine.command();
     switch (command) {
-        case SeaTalkCommand::DEPTHS_BELOW_TRANSDUCER:
+        case SeaTalkCommand::DEPTH_BELOW_TRANSDUCER:
             parseDepthBelowTransducer(seaTalkLine);
             break;
         case SeaTalkCommand::APPARENT_WIND_ANGLE:
@@ -189,7 +189,7 @@ void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
     // This is not completely correct as the depth might be fathoms when the Meters bit is set. The
     // only way to know would be to look at what the next message is and if it's a 0x65, then it's
     // fathoms. Maybe we could add some state here and postpone setting the depth node?
-    bool depthIsMeters = ((byte2 & 0x40) != 0);
+    bool depthDisplayIsMeters = ((byte2 & 0x40) != 0);
     bool transducerDefective = (byte2 & 0x04) != 0;
     bool deepAlarmActive = (byte2 & 0x02) != 0;
     bool shallowAlarmActive = (byte2 & 0x01) != 0;
@@ -199,22 +199,18 @@ void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
 
     WaterData &waterData = instrumentData.waterData();
     waterData.beginUpdates();
-    if (depthIsMeters) {
-        waterData.depthBelowTransducerMetersLeaf = depth;
-    } else {
-        waterData.depthBelowTransducerFeetLeaf = depth;
-    }
+    waterData.depthBelowTransducerFeetLeaf = depth;
     waterData.anchorDepthAlarmLeaf = anchorAlarmActive;
     waterData.shallowDepthAlarmLeaf = shallowAlarmActive;
     waterData.deepDepthAlarmLeaf = deepAlarmActive;
     waterData.depthTransducerDefectiveLeaf = transducerDefective;
     waterData.endUpdates();
 
-    logger() << logDebugSeaTalk << "Depth " << depth;
-    if (depthIsMeters) {
-        logger() << " m";
+    logger() << logDebugSeaTalk << "Depth " << depth << "', Display ";
+    if (depthDisplayIsMeters) {
+        logger() << "meters";
     } else {
-        logger() << "'";
+        logger() << "feet";
     }
     if (anchorAlarmActive) {
         logger() << ", Anchor alarm active";

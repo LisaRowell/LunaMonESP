@@ -26,7 +26,7 @@ class Logger;
 class SeaTalkCommand {
     public:
         enum Value : uint8_t {
-            DEPTHS_BELOW_TRANSDUCER             = 0x00,
+            DEPTH_BELOW_TRANSDUCER              = 0x00,
             APPARENT_WIND_ANGLE                 = 0x10,
             APPARENT_WIND_SPEED                 = 0x11,
             SPEED_THROUGH_WATER_V1              = 0x20,
