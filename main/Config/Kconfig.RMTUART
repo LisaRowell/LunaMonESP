@@ -47,7 +47,7 @@ menu "RMT UART Source Configuration"
             information on which pin to use.
 
     config LUNAMON_RMT_UART_TX_GPIO
-        int "RMT UART TX GPIO"  if LUNAMON_HAS_RMT_UART_SOURCE
+        int "RMT UART TX GPIO" if LUNAMON_HAS_RMT_UART_SOURCE
         default 10
         help
             Pin number to use for the RMT UART's TX GPIO. Consult your board documentation for

@@ -63,6 +63,10 @@ SeaTalkInterface::SeaTalkInterface(Interface &interface, InstrumentData &instrum
     }
 }
 
+void SeaTalkInterface::addBridge(SeaTalkNMEABridge *bridge) {
+    parser->addBridge(bridge);
+}
+
 void SeaTalkInterface::start() {
     if (writeTester) {
         writeTester->start();

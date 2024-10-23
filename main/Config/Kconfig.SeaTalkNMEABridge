@@ -1,0 +1,80 @@
+menu "SeaTalk to NMEA 0183 Bridge Configuration"
+
+    config LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        bool "Enable a SeaTalk to NMEA 0183 message bridge"
+        default n
+        help
+            Whether or not enable a bridge of messages between a SeaTalk interface and a NMEA 0183
+            interface.
+
+    config LUNAMON_SEA_TALK_NMEA_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        default 0 if !LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+
+    config LUNAMON_SEA_TALK_NMEA_BRIDGE_LABEL
+        string "Bridge Label" if LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        default ""
+        help
+            The label to assign to the bridge as shown in an MQTT $SYS topic.
+
+    choice
+        prompt "Bridge source interface" if LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        help
+            The interface on which bridged messages are expected. This must be configured as a
+            SeaTalk source.
+
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_UART1
+            bool "UART1" if LUNAMON_UART1_STALK
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_UART2
+            bool "UART2" if LUNAMON_UART2_STALK
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_RMT_UART
+            bool "RMT UART" if LUNAMON_RMT_UART_SEA_TALK || LUNAMON_RMT_UART_STALK
+    endchoice
+
+    config LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_NONE
+        bool
+        default y if !LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        default y if !LUNAMON_UART1_STALK &&        \
+                     !LUNAMON_UART2_STALK &&        \
+                     !LUNAMON_RMT_UART_SEA_TALK &&  \
+                     !LUNAMON_RMT_UART_STALK
+
+    choice
+        prompt "Bridge destination" if LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        help
+            The interface or NMEA Server on which bridged messages are sent out.
+
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_WIFI
+            bool "WiFi" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_UART1
+            bool "UART1" if LUNAMON_UART1_NMEA_0183
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_UART2
+            bool "UART2" if LUNAMON_UART2_NMEA_0183
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_RMT_UART
+            bool "RMT UART" if LUNAMON_RMT_UART_NMEA_0183
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_SOFT_UART
+            bool "Software UART" if LUNAMON_SOFTWARE_UART_NMEA_0183
+        config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_NMEA_SERVER
+            bool "NMEA Server" if LUNAMON_ENABLE_NMEA_SERVER
+    endchoice
+
+    config LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_NONE
+        bool
+        default y if !LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        default y if !LUNAMON_NMEA_BRIDGE_DESTINATION_WIFI &&       \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_UART1 &&      \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_UART2 &&      \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_RMT_UART &&   \
+                     !LUNAMON_NMEA_BRIDGE_DESTINATION_SOFT_UART &&  \
+                     !LUNAMON_ENABLE_NMEA_SERVER
+
+    config LUNAMON_SEA_TALK_NMEA_BRIDGE_TALKER_CODE
+        string "SeaTalk NMEA Bridge Talker Code" if LUNAMON_ENABLE_SEA_TALK_NMEA_BRIDGE
+        default "II"
+        help
+            The NMEA 0183 Talker Code to use for messages bridged from SeaTalk to NMEA. This must
+            be two characters and should be chosen from the list of defined codes. See
+            https://gpsd.gitlab.io/gpsd/NMEA.html#_talker_ids for details.
+
+endmenu

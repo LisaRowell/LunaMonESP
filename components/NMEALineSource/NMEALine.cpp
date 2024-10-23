@@ -30,6 +30,9 @@
 NMEALine::NMEALine() : line() {
 }
 
+NMEALine::NMEALine(const etl::istring &string) : line(string) {
+}
+
 void NMEALine::reset() {
     line.clear();
 }

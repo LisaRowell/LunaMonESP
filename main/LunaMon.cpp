@@ -37,8 +37,10 @@
 #include "NMEARMTUARTInterface.h"
 #include "STALKRMTUARTInterface.h"
 #include "SeaTalkRMTUARTInterface.h"
+#include "NMEALineHandler.h"
 #include "NMEAServer.h"
 #include "NMEABridge.h"
+#include "SeaTalkNMEABridge.h"
 #include "LogManager.h"
 #include "StatusLED.h"
 #include "I2CMaster.h"
@@ -158,6 +160,39 @@ Make sure and run menuconfig!
 #endif
 #define NMEA_BRIDGE_MESSAGE_TYPES   (CONFIG_LUNAMON_NMEA_BRIDGE_MESSAGE_TYPES)
 
+#define SEA_TALK_NMEA_BRIDGE_LABEL          (CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_LABEL)
+#if CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_UART1
+#define SEA_TALK_NMEA_BRIDGE_SOURCE         (InterfaceID::INTERFACE_UART1)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_UART2
+#define SEA_TALK_NMEA_BRIDGE_SOURCE         (InterfaceID::INTERFACE_UART2)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_RMT_UART
+#define SEA_TALK_NMEA_BRIDGE_SOURCE         (InterfaceID::INTERFACE_RMT_UART)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_SOFT_UART
+#define SEA_TALK_NMEA_BRIDGE_SOURCE         (InterfaceID::INTERFACE_SOFT_UART)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_SOURCE_NONE
+#define SEA_TALK_NMEA_BRIDGE_SOURCE         (InterfaceID::INTERFACE_NONE)
+#else
+Make sure and run menuconfig!
+#endif
+#if CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_WIFI
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_WIFI)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_UART1
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_UART1)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_UART2
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_UART2)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_RMT_UART
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_RMT_UART)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_SOFT_UART
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_SOFT_UART)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_NMEA_SERVER
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_NMEA_SERVER)
+#elif CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_DESTINATION_NONE
+#define SEA_TALK_NMEA_BRIDGE_DESTINATION    (InterfaceID::INTERFACE_NONE)
+#else
+Make sure and run menuconfig!
+#endif
+#define SEA_TALK_NMEA_BRIDGE_TALKER_CODE    (CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_TALKER_CODE)
+
 LunaMon::LunaMon()
     : dataModel(statsManager),
       mqttBroker(wifiManager, dataModel, statsManager),
@@ -219,6 +254,13 @@ LunaMon::LunaMon()
                                       NMEA_BRIDGE_SOURCE, NMEA_BRIDGE_DESTINATION);
     }
 
+    if (CONFIG_LUNAMON_SEA_TALK_NMEA_BRIDGE_ENABLED) {
+        seaTalkNMEABridge = createSeaTalkNMEABridge("SeaTalkNMEABridge", SEA_TALK_NMEA_BRIDGE_LABEL,
+                                                    SEA_TALK_NMEA_BRIDGE_SOURCE,
+                                                    SEA_TALK_NMEA_BRIDGE_DESTINATION,
+                                                    SEA_TALK_NMEA_BRIDGE_TALKER_CODE);
+    }
+
     if (CONFIG_LUNAMON_I2C_ENABLED) {
         ic2Master = new I2CMaster(I2C_MASTER_NUM, I2C_MASTER_SCL_IO, I2C_MASTER_SDA_IO);
     }
@@ -270,14 +312,15 @@ NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, const char
 
     nmeaUARTInterface = new NMEAUARTInterface(name, label, uartNumber, rxPin, txPin, baudRate,
                                               statsManager, aisContacts, dataModel);
-    if (nmeaUARTInterface) {
-        nmeaUARTInterface->addMessageHandler(dataModelBridge);
-        if (nmeaServer) {
-            nmeaUARTInterface->addLineHandler(*nmeaServer);
-        }
-    } else {
+    if (!nmeaUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name << " NMEA interface for UART "
                 << uartNumber << "." << eol;
+        errorExit();
+    }
+
+    nmeaUARTInterface->addMessageHandler(dataModelBridge);
+    if (nmeaServer) {
+        nmeaUARTInterface->addLineHandler(*nmeaServer);
     }
 
     return nmeaUARTInterface;
@@ -293,6 +336,7 @@ STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, const ch
     if (!stalkUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name << " STALK interface for UART "
                 << uartNumber << "." << eol;
+        errorExit();
     }
 
     return stalkUARTInterface;
@@ -322,14 +366,15 @@ NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, co
 
     nmeaSoftUARTInterface = new NMEASoftUARTInterface(name, label, rxPin, txPin, 4800, statsManager,
                                                       aisContacts, dataModel);
-    if (nmeaSoftUARTInterface) {
-        nmeaSoftUARTInterface->addMessageHandler(dataModelBridge);
-        if (nmeaServer) {
-            nmeaSoftUARTInterface->addLineHandler(*nmeaServer);
-        }
-    } else {
+    if (!nmeaSoftUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name
                << " NMEA interface for Software UART" << "." << eol;
+        errorExit();
+    }
+
+    nmeaSoftUARTInterface->addMessageHandler(dataModelBridge);
+    if (nmeaServer) {
+        nmeaSoftUARTInterface->addLineHandler(*nmeaServer);
     }
 
     return nmeaSoftUARTInterface;
@@ -368,13 +413,14 @@ NMEARMTUARTInterface *LunaMon::createNMEARMTUARTInterface(const char *name, cons
 
     nmeaRMTUARTInterface = new NMEARMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate,
                                                     statsManager, aisContacts, dataModel);
-    if (nmeaRMTUARTInterface) {
-        nmeaRMTUARTInterface->addMessageHandler(dataModelBridge);
-        if (nmeaServer) {
-            nmeaRMTUARTInterface->addLineHandler(*nmeaServer);
-        }
-    } else {
+    if (!nmeaRMTUARTInterface) {
         logger << logErrorMain << "Failed to allocate NMEA RMT UART interface " << name << eol;
+        errorExit();
+    }
+
+    nmeaRMTUARTInterface->addMessageHandler(dataModelBridge);
+    if (nmeaServer) {
+        nmeaRMTUARTInterface->addLineHandler(*nmeaServer);
     }
 
     return nmeaRMTUARTInterface;
@@ -390,24 +436,25 @@ STALKRMTUARTInterface *LunaMon::createSTALKRMTUARTInterface(const char *name, co
     if (!stalkRMTUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name << " STALK interface for RMT UART"
                << eol;
+        errorExit();
     }
 
     return stalkRMTUARTInterface;
 }
 
 SeaTalkRMTUARTInterface *LunaMon::createSeaTalkRMTUARTInterface(const char *name, const char *label,
-                                                                gpio_num_t rxPin,
-                                                                gpio_num_t txPin) {
-    SeaTalkRMTUARTInterface *seaTalkRMTUARTInterface;
+                                                                gpio_num_t rxPin, gpio_num_t txPin) {
+    SeaTalkRMTUARTInterface *interface;
 
-    seaTalkRMTUARTInterface = new SeaTalkRMTUARTInterface(name, label, rxPin, txPin, instrumentData,
-                                                          statsManager, dataModel);
-    if (!seaTalkRMTUARTInterface) {
+    interface = new SeaTalkRMTUARTInterface(name, label, rxPin, txPin, instrumentData, statsManager,
+                                            dataModel);
+    if (!interface) {
         logger << logErrorMain << "Failed to allocate " << name << " SeaTalk interface for RMT UART"
                << eol;
+        errorExit();
     }
 
-    return seaTalkRMTUARTInterface;
+    return interface;
 }
 
 NMEABridge *LunaMon::createNMEABridge(const char *name, const char *msgTypeList,
@@ -426,7 +473,43 @@ NMEABridge *LunaMon::createNMEABridge(const char *name, const char *msgTypeList,
         return nullptr;
     }
 
-    return new NMEABridge(name, msgTypeList, *srcInterface, *dstInterface, statsManager, dataModel);
+    NMEABridge *bridge = new NMEABridge(name, msgTypeList, *srcInterface, *dstInterface,
+                                        statsManager, dataModel);
+    if (bridge == nullptr) {
+        logger << logErrorMain << "Failed to allocate NMEA Bridge " << name << eol;
+        errorExit();
+    }
+
+    return bridge;
+}
+
+SeaTalkNMEABridge *LunaMon::createSeaTalkNMEABridge(const char *name, const char *label,
+                                                    InterfaceID srcInterfaceID,
+                                                    InterfaceID dstInterfaceID,
+                                                    const char *talkerCode) {
+    SeaTalkInterface *srcInterface = seaTalkInterfaceByID(srcInterfaceID);
+    if (srcInterface == nullptr) {
+        logger << logErrorMain << "SeaTalk to NMEA Bridge '" << name
+               << "' must have a SeaTalk configured source interface" << eol;
+        return nullptr;
+    }
+
+    NMEALineHandler *destination = nmeaDestinationByID(dstInterfaceID);
+    if (destination == nullptr) {
+        logger << logErrorMain << "SeaTalk to NMEA Bridge '" << name
+               << "' must have a destination interface or NMEA Server" << eol;
+        return nullptr;
+    }
+
+    SeaTalkNMEABridge *bridge = new SeaTalkNMEABridge(name, label, talkerCode, *destination,
+                                                      statsManager, dataModel);
+    if (bridge == nullptr) {
+        logger << logErrorMain << "Failed to allocate SeaTalk NMEA Bridge " << name << eol;
+        errorExit();
+    }
+    srcInterface->addBridge(bridge);
+
+    return bridge;
 }
 
 NMEAInterface *LunaMon::nmeaInterfaceByID(InterfaceID id) {
@@ -454,6 +537,69 @@ NMEAInterface *LunaMon::nmeaInterfaceByID(InterfaceID id) {
         case InterfaceID::INTERFACE_SOFT_UART:
             if (SOFTWARE_UART_PROTOCOL == INTERFACE_NMEA_O183) {
                 return (NMEAInterface *)softUARTInterface;
+            } else {
+                return nullptr;
+            }
+        default:
+            return nullptr;
+    }
+}
+
+NMEALineHandler *LunaMon::nmeaDestinationByID(InterfaceID id) {
+    switch (id) {
+        case InterfaceID::INTERFACE_WIFI:
+            return nmeaWiFiInterface;
+        case InterfaceID::INTERFACE_UART1:
+            if (UART1_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)uart1Interface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_UART2:
+            if (UART2_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)uart2Interface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_RMT_UART:
+            if (RMT_UART_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)rmtUARTInterface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_SOFT_UART:
+            if (SOFTWARE_UART_PROTOCOL == INTERFACE_NMEA_O183) {
+                return (NMEAInterface *)softUARTInterface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_NMEA_SERVER:
+            return nmeaServer;
+        default:
+            return nullptr;
+    }
+}
+
+
+SeaTalkInterface *LunaMon::seaTalkInterfaceByID(InterfaceID id) {
+    switch (id) {
+        case InterfaceID::INTERFACE_UART1:
+            if (UART1_PROTOCOL == INTERFACE_STALK) {
+                return (STALKUARTInterface *)uart1Interface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_UART2:
+            if (UART2_PROTOCOL == INTERFACE_STALK) {
+                return (STALKUARTInterface *)uart2Interface;
+            } else {
+                return nullptr;
+            }
+        case InterfaceID::INTERFACE_RMT_UART:
+            if (RMT_UART_PROTOCOL == INTERFACE_SEA_TALK) {
+                return (SeaTalkRMTUARTInterface *)rmtUARTInterface;
+            } else if (RMT_UART_PROTOCOL == INTERFACE_STALK) {
+                return (STALKRMTUARTInterface *)rmtUARTInterface;
             } else {
                 return nullptr;
             }

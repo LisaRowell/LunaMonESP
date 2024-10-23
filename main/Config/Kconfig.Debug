@@ -169,6 +169,16 @@ menu "Debug config"
         default 1 if LUNAMON_DEBUG_MODULE_NMEA_LINE
         default 0 if !LUNAMON_DEBUG_MODULE_NMEA_LINE
 
+    config LUNAMON_DEBUG_MODULE_SEA_TALK_NMEA_BRIDGE
+        bool "Debug SeaTalk NMEA Bridge"
+        help
+            Whether or not to debug the SeaTalk NMEA Bridge module.
+
+    config LUNAMON_DEBUG_MODULE_SEA_TALK_NMEA_BRIDGE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MODULE_SEA_TALK_NMEA_BRIDGE
+        default 0 if !LUNAMON_DEBUG_MODULE_SEA_TALK_NMEA_BRIDGE
+
     config LUNAMON_DEBUG_MODULE_UART
         bool "Debug UART"
         help

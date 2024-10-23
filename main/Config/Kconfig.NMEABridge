@@ -13,7 +13,7 @@ menu "NMEA 0183 to NMEA 0183 Bridge Configuration"
 
     config LUNAMON_NMEA_BRIDGE_NAME
         string "Bridge name" if LUNAMON_ENABLE_NMEA_BRIDGE
-        default "bridge"
+        default "NMEABridge"
         help
             The name of the bridge as shown in log messages and in MQTT $SYS topics.
 

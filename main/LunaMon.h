@@ -54,12 +54,15 @@ class NMEARMTUARTInterface;
 class NMEAWiFiInterface;
 class NMEAUARTInterface;
 class NMEAInterface;
+class NMEALineHandler;
+class SeaTalkInterface;
 class Interface;
 class STALKUARTInterface;
 class STALKRMTUARTInterface;
 class SeaTalkRMTUARTInterface;
 class NMEAServer;
 class NMEABridge;
+class SeaTalkNMEABridge;
 
 class LunaMon {
     private:
@@ -79,6 +82,7 @@ class LunaMon {
         SoftUARTInterface *softUARTInterface;
         RMTUARTInterface *rmtUARTInterface;
         NMEABridge *nmeaBridge;
+        SeaTalkNMEABridge *seaTalkNMEABridge;
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
@@ -116,7 +120,13 @@ class LunaMon {
                                                                gpio_num_t rxPin, gpio_num_t txPin);
         NMEABridge *createNMEABridge(const char *name, const char *msgTypeList,
                                      InterfaceID srcInterfaceID, InterfaceID dstInterfaceID);
+        SeaTalkNMEABridge *createSeaTalkNMEABridge(const char *name, const char *label,
+                                                   InterfaceID srcInterfaceID,
+                                                   InterfaceID dstInterfaceID,
+                                                   const char *talkerCode);
         NMEAInterface *nmeaInterfaceByID(InterfaceID id);
+        NMEALineHandler *nmeaDestinationByID(InterfaceID id);
+        SeaTalkInterface *seaTalkInterfaceByID(InterfaceID id);
         Interface *interfaceByID(InterfaceID id);
 
     public:

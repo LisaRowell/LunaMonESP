@@ -36,6 +36,7 @@ class NMEALine {
 
     public:
         NMEALine();
+        NMEALine(const etl::istring &string);
         void reset();
         void append(const char *srcBuffer, size_t start, size_t end);
         void append(const etl::istring &string);

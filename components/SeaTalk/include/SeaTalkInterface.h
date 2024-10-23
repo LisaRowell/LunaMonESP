@@ -36,6 +36,7 @@ class SeaTalkWriteTester;
 class Interface;
 class InstrumentData;
 class StatsManager;
+class SeaTalkNMEABridge;
 
 class SeaTalkInterface : public SeaTalkMaster, StatsHolder {
     private:
@@ -66,6 +67,7 @@ class SeaTalkInterface : public SeaTalkMaster, StatsHolder {
     public:
         SeaTalkInterface(Interface &interface, InstrumentData &instrumentData,
                          StatsManager &statsManager);
+        void addBridge(SeaTalkNMEABridge *bridge);
         void start();
         void processBuffer(uint16_t *buffer, size_t length);
 };

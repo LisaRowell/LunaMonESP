@@ -32,7 +32,7 @@ class InstrumentData;
 class StatsManager;
 class DataModel;
 
-class SeaTalkRMTUARTInterface : public RMTUARTInterface, SeaTalkInterface {
+class SeaTalkRMTUARTInterface : public RMTUARTInterface, public SeaTalkInterface {
     private:
         static constexpr size_t stackSize = (1024 * 8);
         static constexpr uint32_t noDataDelayMs = 20;

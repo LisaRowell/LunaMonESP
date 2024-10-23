@@ -39,7 +39,7 @@ class AISContacts;
 class NMEAMessageHandler;
 class StatsManager;
 
-class NMEAInterface : public NMEALineSource, NMEALineHandler, StatsHolder {
+class NMEAInterface : public NMEALineSource, public NMEALineHandler, StatsHolder {
     private:
         static const size_t maxMessageHandlers = 5;
 

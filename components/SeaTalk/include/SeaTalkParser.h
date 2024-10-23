@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+class SeaTalkNMEABridge;
 class DataModelNode;
 class SeaTalkLine;
 class SeaTalkCommand;
@@ -47,6 +48,7 @@ class SeaTalkParser : StatsHolder {
         static constexpr size_t knownDevicesLength = 10 * 3 + 1;
 
         InstrumentData &instrumentData;
+        SeaTalkNMEABridge *bridge;
         etl::set<uint8_t, maxKnownDevices> devicesSeen;
         uint32_t ignoredCommands;
         uint32_t unknownCommands;
@@ -100,6 +102,7 @@ class SeaTalkParser : StatsHolder {
     public:
         SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumentData,
                       StatsManager &statsManager);
+        void addBridge(SeaTalkNMEABridge *bridge);
         void parseLine(const SeaTalkLine &seaTalkLine);
 };
 

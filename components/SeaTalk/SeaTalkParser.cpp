@@ -36,6 +36,7 @@
 #include "StatsManager.h"
 
 #include "InstrumentData.h"
+#include "SeaTalkNMEABridge.h"
 #include "AutoPilotData.h"
 #include "GPSData.h"
 #include "WindData.h"
@@ -65,6 +66,7 @@
 SeaTalkParser::SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumentData,
                              StatsManager &statsManager)
     : instrumentData(instrumentData),
+      bridge(nullptr),
       ignoredCommands(0),
       unknownCommands(0),
       commandLengthErrors(0),
@@ -75,6 +77,10 @@ SeaTalkParser::SeaTalkParser(DataModelNode &inputNode, InstrumentData &instrumen
       commandFormatErrorsLeaf("formatErrors", &inputNode),
       knownDevicesLeaf("knownDevices", &inputNode, knownDevicesBuffer) {
     statsManager.addStatsHolder(*this);
+}
+
+void SeaTalkParser::addBridge(SeaTalkNMEABridge *bridge) {
+    this->bridge = bridge;
 }
 
 void SeaTalkParser::parseLine(const SeaTalkLine &seaTalkLine) {
@@ -810,6 +816,10 @@ void SeaTalkParser::parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLin
     autoPilotData.headingSensorLeaf = heading;
     autoPilotData.rudderCenterLeaf = rudderPosition;
     autoPilotData.endUpdates();
+
+    if (bridge) {
+        bridge->bridgeHDMMessage(heading);
+    }
 
     logger() << logDebugSeaTalk << "Heading " << heading << " Rudder " << rudderPosition << eol;
 }
