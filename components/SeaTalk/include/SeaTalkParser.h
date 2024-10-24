@@ -26,6 +26,8 @@
 #include "DataModelUInt32Leaf.h"
 #include "DataModelStringLeaf.h"
 
+#include "TenthsUInt16.h"
+
 #include "etl/set.h"
 #include "etl/string.h"
 
@@ -60,6 +62,9 @@ class SeaTalkParser : StatsHolder {
         DataModelUInt32Leaf commandLengthErrorsLeaf;
         DataModelUInt32Leaf commandFormatErrorsLeaf;
         DataModelStringLeaf knownDevicesLeaf;
+        // For bridging to NMEA 0183 MWV messages
+        TenthsUInt16 lastWindAngle;
+        bool lastWindAngleValid;
 
         void parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine);
         void parseApparentWindAngle(const SeaTalkLine &seaTalkLine);

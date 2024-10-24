@@ -250,6 +250,17 @@ void SeaTalkParser::parseApparentWindAngle(const SeaTalkLine &seaTalkLine) {
     windData.apparentWindAngleLeaf = angle;
     windData.endUpdates();
 
+    if (bridge) {
+        // In NMEA 0183 land the wind angle is reported in the same message as the wind speed.
+        // Since angles seem to always get transmitted before speeds, we stash the angle here
+        // and make it into a MWV later when we get the speed. If we for some reason didn't get a
+        // wind speed last time, we send out the last angle now without the speed.
+        if (lastWindAngleValid) {
+            bridge->bridgeMWVMessage(lastWindAngle, true, TenthsUInt16(0, 0), false);
+        }
+        lastWindAngleValid = true;
+        lastWindAngle = angle;
+    }
     logger() << logDebugSeaTalk << "Apparent wind angle " << angle << eol;
 }
 
@@ -277,6 +288,15 @@ void SeaTalkParser::parseApparentWindSpeed(const SeaTalkLine &seaTalkLine) {
     windData.beginUpdates();
     windData.apparentWindSpeedKnotsLeaf = speed;
     windData.endUpdates();
+
+    if (bridge) {
+        if (lastWindAngleValid) {
+            bridge->bridgeMWVMessage(lastWindAngle, true, speed, true);
+            lastWindAngleValid = false;
+        } else {
+            bridge->bridgeMWVMessage(TenthsUInt16(0, 0), false, speed, true);
+        }
+    }
 
     logger() << logDebugSeaTalk << "Apparent wind speed " << speed << " kn, Display in "
              << (speedDisplayIsMetersPerSec ? "m/s" : "kn") << eol;

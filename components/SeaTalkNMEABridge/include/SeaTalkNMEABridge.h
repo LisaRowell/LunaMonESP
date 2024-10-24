@@ -58,6 +58,8 @@ class SeaTalkNMEABridge : StatsHolder {
                           DataModel &dataModel);
         void bridgeDBTMessage(const TenthsUInt16 &depthFeet);
         void bridgeHDMMessage(uint16_t heading);
+        void bridgeMWVMessage(const TenthsUInt16 &windAngle, bool windAngleValid,
+                              const TenthsUInt16 &windSpeedKN, bool windSpeedValid);
         void bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPosValid, int8_t portRudderPos,
                               bool portRudderPosValid);
 };

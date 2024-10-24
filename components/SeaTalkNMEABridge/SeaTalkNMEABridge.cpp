@@ -76,6 +76,28 @@ void SeaTalkNMEABridge::bridgeHDMMessage(uint16_t heading) {
     bridgeMessage("HDM", message);
 }
 
+void SeaTalkNMEABridge::bridgeMWVMessage(const TenthsUInt16 &windAngle, bool windAngleValid,
+                                         const TenthsUInt16 &windSpeedKN, bool windSpeedValid) {
+    etl::string<10> windAngleStr;
+    windAngle.toString(windAngleStr);
+    etl::string<10> windSpeedKNStr;
+    windSpeedKN.toString(windSpeedKNStr);
+
+    etl::string<maxNMEALineLength> message;
+    etl::string_stream messageStream(message);
+    messageStream << "$" << talkerCode << "MWV" << ",";
+    if (windAngleValid) {
+        messageStream << windAngleStr;
+    }
+    messageStream << ",R,";
+    if (windSpeedValid) {
+        messageStream << windSpeedKNStr;
+    }
+    messageStream << ",K," << validityCode(windAngleValid | windSpeedValid);
+
+    bridgeMessage("MWV", message);
+}
+
 void SeaTalkNMEABridge::bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPosValid,
                                          int8_t portRudderPos, bool portRudderPosValid) {
     etl::string<maxNMEALineLength> message;
