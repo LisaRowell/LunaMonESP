@@ -27,6 +27,8 @@
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
 
+#include "TenthsUInt16.h"
+
 #include "Logger.h"
 
 #include "etl/string.h"
@@ -55,12 +57,34 @@ SeaTalkNMEABridge::SeaTalkNMEABridge(const char *name, const char *label, const 
     labelLeaf = label;
 }
 
+void SeaTalkNMEABridge::bridgeDBTMessage(const TenthsUInt16 &depthFeet) {
+    etl::string<10> depthFeetStr;
+    depthFeet.toString(depthFeetStr);
+
+    etl::string<maxNMEALineLength> message;
+    etl::string_stream messageStream(message);
+    messageStream << "$" << talkerCode << "DBT" << "," << depthFeetStr << ",f,,M,,F";
+
+    bridgeMessage("DBT", message);
+}
+
 void SeaTalkNMEABridge::bridgeHDMMessage(uint16_t heading) {
     etl::string<maxNMEALineLength> message;
     etl::string_stream messageStream(message);
     messageStream << "$" << talkerCode << "HDM" << "," << etl::setprecision(1) << heading << ",M";
 
     bridgeMessage("HDM", message);
+}
+
+void SeaTalkNMEABridge::bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPosValid,
+                                         int8_t portRudderPos, bool portRudderPosValid) {
+    etl::string<maxNMEALineLength> message;
+    etl::string_stream messageStream(message);
+    messageStream << "$" << talkerCode << "RSA" << "," << etl::setprecision(1)
+                  << stbdRudderPos << "," << validityCode(stbdRudderPosValid) << ","
+                  << portRudderPos << "," << validityCode(portRudderPosValid);
+
+    bridgeMessage("RSA", message);
 }
 
 void SeaTalkNMEABridge::bridgeMessage(const char *typeCode, const etl::istring &message) {
@@ -71,6 +95,14 @@ void SeaTalkNMEABridge::bridgeMessage(const char *typeCode, const etl::istring &
 
     destination.handleLine(nmeaLine);
     bridgedMessages++;
+}
+
+const char *SeaTalkNMEABridge::validityCode(bool valid) {
+    if (valid) {
+        return "A";
+    } else {
+        return "V";  // How V became meaning invalid I'll never know...
+    }
 }
 
 void SeaTalkNMEABridge::exportStats(uint32_t msElapsed) {

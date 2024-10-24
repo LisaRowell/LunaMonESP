@@ -33,6 +33,7 @@
 class NMEALineHandler;
 class StatsManager;
 class DataModel;
+class TenthsUInt16;
 
 class SeaTalkNMEABridge : StatsHolder {
     private:
@@ -49,12 +50,16 @@ class SeaTalkNMEABridge : StatsHolder {
 
         void bridgeMessage(const char *typeCode, const etl::istring &message);
         virtual void exportStats(uint32_t msElapsed) override;
+        const char *validityCode(bool valid);
 
     public:
         SeaTalkNMEABridge(const char *name, const char *label, const char *talkerCode,
                           NMEALineHandler &destination, StatsManager &statsManager,
                           DataModel &dataModel);
+        void bridgeDBTMessage(const TenthsUInt16 &depthFeet);
         void bridgeHDMMessage(uint16_t heading);
+        void bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPosValid, int8_t portRudderPos,
+                              bool portRudderPosValid);
 };
 
 #endif // SEA_TALK_NMEA_BRIDGE_H

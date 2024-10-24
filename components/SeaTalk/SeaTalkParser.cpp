@@ -194,19 +194,23 @@ void SeaTalkParser::parseDepthBelowTransducer(const SeaTalkLine &seaTalkLine) {
     bool deepAlarmActive = (byte2 & 0x02) != 0;
     bool shallowAlarmActive = (byte2 & 0x01) != 0;
 
-    TenthsUInt16 depth;
-    depth.setFromTenths((seaTalkLine[4] << 8) | byte3);
+    TenthsUInt16 depthFeet;
+    depthFeet.setFromTenths((seaTalkLine[4] << 8) | byte3);
 
     WaterData &waterData = instrumentData.waterData();
     waterData.beginUpdates();
-    waterData.depthBelowTransducerFeetLeaf = depth;
+    waterData.depthBelowTransducerFeetLeaf = depthFeet;
     waterData.anchorDepthAlarmLeaf = anchorAlarmActive;
     waterData.shallowDepthAlarmLeaf = shallowAlarmActive;
     waterData.deepDepthAlarmLeaf = deepAlarmActive;
     waterData.depthTransducerDefectiveLeaf = transducerDefective;
     waterData.endUpdates();
 
-    logger() << logDebugSeaTalk << "Depth " << depth << "', Display ";
+    if (bridge) {
+        bridge->bridgeDBTMessage(depthFeet);
+    }
+
+    logger() << logDebugSeaTalk << "Depth " << depthFeet << "', Display ";
     if (depthDisplayIsMeters) {
         logger() << "meters";
     } else {
@@ -725,6 +729,11 @@ void SeaTalkParser::parseAutoPilotHeadingCourseAndRudder(const SeaTalkLine &seaT
     autoPilotData.rudderCenterLeaf = rudderPosition;
     autoPilotData.endUpdates();
 
+    if (bridge) {
+        bridge->bridgeHDMMessage(heading);
+        bridge->bridgeRSAMessage(rudderPosition, true, 0, false);
+    }
+
     logger() << logDebugSeaTalk << "Heading " << heading << " Course " << course << " Mode " << mode
              << " Rudder " << rudderPosition;
     if (offCourseAlarm) {
@@ -815,6 +824,7 @@ void SeaTalkParser::parseAutoPilotHeadingAndRudder(const SeaTalkLine &seaTalkLin
 
     if (bridge) {
         bridge->bridgeHDMMessage(heading);
+        bridge->bridgeRSAMessage(rudderPosition, true, 0, false);
     }
 
     logger() << logDebugSeaTalk << "Heading " << heading << " Rudder " << rudderPosition << eol;
