@@ -310,15 +310,19 @@ void SeaTalkParser::parseSpeedThroughWaterV1(const SeaTalkLine &seaTalkLine) {
         return;
     }
 
-    TenthsUInt16 speed;
-    speed.setFromTenths((seaTalkLine[3] << 8) | seaTalkLine[2]);
+    TenthsUInt16 speedKN;
+    speedKN.setFromTenths((seaTalkLine[3] << 8) | seaTalkLine[2]);
 
     WaterData &waterData = instrumentData.waterData();
     waterData.beginUpdates();
-    waterData.waterSpeedKnotsLeaf = speed;
+    waterData.waterSpeedKnotsLeaf = speedKN;
     waterData.endUpdates();
 
-    logger() << logDebugSeaTalk << "Speed through water " << speed << " kn" << eol;
+    if (bridge) {
+        bridge->bridgeVHWMessage(0, false, 0, false, speedKN, true, TenthsUInt16(0,0), false);
+    }
+
+    logger() << logDebugSeaTalk << "Speed through water " << speedKN << " kn" << eol;
 }
 
 void SeaTalkParser::parseWaterTemperatureV1(const SeaTalkLine &seaTalkLine) {
@@ -391,21 +395,21 @@ void SeaTalkParser::parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine) {
     uint8_t flags = seaTalkLine[6];
 
     bool firstSensorValid = (flags & 0x40) == 0x40;
-    HundredthsUInt16 firstSensorSpeed;
-    firstSensorSpeed.setFromHundredths((seaTalkLine[3] << 8) | seaTalkLine[2]);
+    HundredthsUInt16 firstSensorSpeedKN;
+    firstSensorSpeedKN.setFromHundredths((seaTalkLine[3] << 8) | seaTalkLine[2]);
 
     bool hasAverageSpeed = (flags & 0x80) == 0x00;
-    HundredthsUInt16 averageSpeed;
+    HundredthsUInt16 averageSpeedKN;
     bool hasSecondSensor;
-    HundredthsUInt16 secondSensorSpeed;
+    HundredthsUInt16 secondSensorSpeedKN;
     if (hasAverageSpeed) {
         hasSecondSensor = false;
-        averageSpeed.setFromHundredths((seaTalkLine[5] << 8) | seaTalkLine[4]);
-        secondSensorSpeed = 0;
+        averageSpeedKN.setFromHundredths((seaTalkLine[5] << 8) | seaTalkLine[4]);
+        secondSensorSpeedKN = 0;
     } else {
         hasSecondSensor = true;
-        secondSensorSpeed.setFromHundredths((seaTalkLine[5] << 8) | seaTalkLine[4]);
-        averageSpeed = 0;
+        secondSensorSpeedKN.setFromHundredths((seaTalkLine[5] << 8) | seaTalkLine[4]);
+        averageSpeedKN = 0;
     }
 
     bool averageSpeedCalculationStopped = (flags & 0x01) == 0x01;
@@ -413,41 +417,48 @@ void SeaTalkParser::parseSpeedThroughWaterV2(const SeaTalkLine &seaTalkLine) {
 
     WaterData &waterData = instrumentData.waterData();
     waterData.beginUpdates();
-    if (displaySpeedInMilesPerHour) {
-        waterData.waterSpeedMPHLeaf = firstSensorSpeed;
-        if (hasAverageSpeed) {
-            waterData.waterAverageSpeedMPHLeaf = averageSpeed;
-            waterData.waterAverageSpeedStoppedLeaf = averageSpeedCalculationStopped;
-        } else {
-            waterData.waterSpeedSecondSensorMPHLeaf = secondSensorSpeed;
-        }
+    if (firstSensorValid) {
+        waterData.waterSpeedKnotsLeaf = firstSensorSpeedKN;
     } else {
-        waterData.waterSpeedKnotsLeaf = firstSensorSpeed;
-        if (hasAverageSpeed) {
-            waterData.waterAverageSpeedKnotsLeaf = averageSpeed;
-            waterData.waterAverageSpeedStoppedLeaf = averageSpeedCalculationStopped;
-        } else {
-            waterData.waterSpeedSecondSensorKnotsLeaf = secondSensorSpeed;
-        }
+        waterData.waterSpeedKnotsLeaf.removeValue();
+    }
+    if (hasSecondSensor) {
+        waterData.waterSpeedSecondSensorKnotsLeaf = secondSensorSpeedKN;
+    } else {
+        waterData.waterSpeedSecondSensorKnotsLeaf.removeValue();
+    }
+    if (hasAverageSpeed) {
+        waterData.waterAverageSpeedKnotsLeaf = averageSpeedKN;
+        waterData.waterAverageSpeedStoppedLeaf = averageSpeedCalculationStopped;
+    } else {
+        waterData.waterAverageSpeedKnotsLeaf.removeValue();
+        waterData.waterAverageSpeedStoppedLeaf.removeValue();
     }
     waterData.endUpdates();
 
+    if (bridge && firstSensorValid) {
+        TenthsUInt16 roundedSpeedKN;
+        roundedSpeedKN.roundFrom(firstSensorSpeedKN);
+        bridge->bridgeVHWMessage(0, false, 0, false, roundedSpeedKN, true, TenthsUInt16(0,0),
+                                 false);
+    }
+
     logger() << logDebugSeaTalk << "Speed through water ";
     if (firstSensorValid) {
-        logger() << firstSensorSpeed << (displaySpeedInMilesPerHour ? " mi/h" : " kn");
+        logger() << firstSensorSpeedKN << " kn";
     } else {
         logger() << "Invalid";
     }
     if (hasAverageSpeed) {
-        logger() << " average " << averageSpeed << (displaySpeedInMilesPerHour ? " mi/h" : " kn");
+        logger() << " average " << averageSpeedKN << " kn";
         if (averageSpeedCalculationStopped) {
             logger() << " stopped";
         }
     }
     if (hasSecondSensor) {
-        logger() << " 2nd sensor " << secondSensorSpeed << (displaySpeedInMilesPerHour ? " mi/h" : " kn");
+        logger() << " 2nd sensor " << secondSensorSpeedKN << " kn";
     }
-    logger() << eol;
+    logger() << " display in " << (displaySpeedInMilesPerHour ? " mi/h" : " kn") << eol;
 }
 
 void SeaTalkParser::parseWaterTemperatureV2(const SeaTalkLine &seaTalkLine) {

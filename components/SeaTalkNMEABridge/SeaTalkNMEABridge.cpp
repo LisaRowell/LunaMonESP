@@ -109,6 +109,41 @@ void SeaTalkNMEABridge::bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPo
     bridgeMessage("RSA", message);
 }
 
+void SeaTalkNMEABridge::bridgeVHWMessage(uint16_t headingTrue, bool headingTrueValid,
+                                         uint16_t headingMagnetic, bool headingMagneticValid,
+                                         const TenthsUInt16 &waterSpeedKN, bool waterSpeedKNValid,
+                                         const TenthsUInt16 &waterSpeedKMPH,
+                                         bool waterSpeedKMPHValid) {
+    etl::string<maxNMEALineLength> message;
+    etl::string_stream messageStream(message);
+    messageStream << "$" << talkerCode << "VHW" << ",";
+    if (headingTrueValid) {
+        messageStream << etl::setprecision(1) << headingTrue << ",T,";
+    } else {
+        messageStream << ",,";
+    }
+    if (headingMagneticValid) {
+        messageStream << etl::setprecision(1) << headingMagnetic << ",M,";
+    } else {
+        messageStream << ",,";
+    }
+    if (waterSpeedKNValid) {
+        etl::string<10> waterSpeedKNStr;
+        waterSpeedKN.toString(waterSpeedKNStr);
+        messageStream << waterSpeedKNStr << ",N,";
+    } else {
+        messageStream << ",,";
+    }
+    if (waterSpeedKMPHValid) {
+        etl::string<10> waterSpeedKMPHStr;
+        waterSpeedKMPH.toString(waterSpeedKMPHStr);
+        messageStream << waterSpeedKMPHStr << ",K";
+    } else {
+        messageStream << ",";
+    }
+    bridgeMessage("VHW", message);
+}
+
 void SeaTalkNMEABridge::bridgeMessage(const char *typeCode, const etl::istring &message) {
     NMEALine nmeaLine(message);
     nmeaLine.appendChecksum();

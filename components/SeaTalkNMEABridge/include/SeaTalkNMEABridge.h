@@ -60,6 +60,10 @@ class SeaTalkNMEABridge : StatsHolder {
         void bridgeHDMMessage(uint16_t heading);
         void bridgeMWVMessage(const TenthsUInt16 &windAngle, bool windAngleValid,
                               const TenthsUInt16 &windSpeedKN, bool windSpeedValid);
+        void bridgeVHWMessage(uint16_t headingTrue, bool headingTrueValid, uint16_t headingMagnetic,
+                              bool headingMagneticValid, const TenthsUInt16 &waterSpeedKN,
+                              bool waterSpeedKNValid, const TenthsUInt16 &waterSpeedKMPH,
+                              bool waterSpeedKMPHValid);
         void bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPosValid, int8_t portRudderPos,
                               bool portRudderPosValid);
 };
