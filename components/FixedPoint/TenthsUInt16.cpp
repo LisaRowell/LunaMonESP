@@ -18,6 +18,7 @@
 
 #include "TenthsUInt16.h"
 #include "TenthsInt16.h"
+#include "TenthsUInt32.h"
 #include "HundredthsUInt16.h"
 
 #include "Logger.h"
@@ -32,6 +33,11 @@ TenthsUInt16::TenthsUInt16() : _wholeNumber(0), _tenths(0) {
 
 TenthsUInt16::TenthsUInt16(uint16_t wholeNumber, uint8_t tenths)
     : _wholeNumber(wholeNumber), _tenths(tenths) {
+}
+
+TenthsUInt16::TenthsUInt16(const TenthsUInt32 &other)
+    : _wholeNumber(other.wholeNumber()),
+      _tenths(other.tenths()) {
 }
 
 uint16_t TenthsUInt16::wholeNumber() const {
@@ -101,16 +107,16 @@ TenthsInt16 TenthsUInt16::operator-(const TenthsUInt16 &other) const {
     return TenthsInt16(integer, tenths);
 }
 
-TenthsUInt16 TenthsUInt16::operator*(uint32_t multiplier) {
+TenthsUInt16 TenthsUInt16::operator*(uint32_t multiplier) const {
     uint32_t tenthsMultiplied = _tenths * multiplier;
     uint32_t carry = tenthsMultiplied / 10;
     uint8_t tenths = tenthsMultiplied % 10;
-    int16_t wholeNumber = _wholeNumber * multiplier + carry;
+    uint32_t wholeNumber = _wholeNumber * multiplier + carry;
     return TenthsUInt16(wholeNumber, tenths);
 }
 
-TenthsUInt16 TenthsUInt16::operator/(uint32_t divider) {
-    int32_t wholeNumber = _wholeNumber / divider;
+TenthsUInt16 TenthsUInt16::operator/(uint32_t divider) const {
+    uint32_t wholeNumber = _wholeNumber / divider;
     uint32_t remainder = _wholeNumber % divider;
     uint32_t tenths = (remainder * 10 + _tenths) / divider;
     return TenthsUInt16(wholeNumber, tenths);

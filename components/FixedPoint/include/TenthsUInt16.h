@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 class TenthsInt16;
+class TenthsUInt32;
 class HundredthsUInt16;
 
 class TenthsUInt16 : public LoggableItem {
@@ -36,6 +37,7 @@ class TenthsUInt16 : public LoggableItem {
     public:
         TenthsUInt16();
         TenthsUInt16(uint16_t wholeNumber, uint8_t tenths);
+        TenthsUInt16(const TenthsUInt32 &other);
         uint16_t wholeNumber() const;
         uint8_t tenths() const;
         bool operator == (const TenthsUInt16 &right) const;
@@ -46,8 +48,8 @@ class TenthsUInt16 : public LoggableItem {
         TenthsUInt16 operator+(uint16_t adder);
         TenthsUInt16 operator+(const TenthsUInt16 &other) const;
         TenthsInt16 operator-(const TenthsUInt16 &other) const;
-        TenthsUInt16 operator*(uint32_t multiplier);
-        TenthsUInt16 operator/(uint32_t divider);
+        TenthsUInt16 operator*(uint32_t multiplier) const;
+        TenthsUInt16 operator/(uint32_t divider) const;
         void toString(etl::istring &string) const;
         virtual void log(Logger &logger) const override;
 };
