@@ -270,20 +270,16 @@ void SeaTalkParser::parseApparentWindSpeed(const SeaTalkLine &seaTalkLine) {
         return;
     }
 
-    bool speedIsMetersPerSec = (byte2 & 0x80) != 0;
+    bool speedDisplayIsMetersPerSec = (byte2 & 0x80) != 0;
     TenthsUInt16 speed(byte2 & 0x7f, byte3);
 
     WindData &windData = instrumentData.windData();
     windData.beginUpdates();
-    if (speedIsMetersPerSec) {
-        windData.apparentWindSpeedMPSLeaf = speed;
-    } else {
-        windData.apparentWindSpeedKnotsLeaf = speed;
-    }
+    windData.apparentWindSpeedKnotsLeaf = speed;
     windData.endUpdates();
 
-    logger() << logDebugSeaTalk << "Apparent wind speed " << speed
-             << (speedIsMetersPerSec ? " m/s" : " kn") << eol;
+    logger() << logDebugSeaTalk << "Apparent wind speed " << speed << " kn, Display in "
+             << (speedDisplayIsMetersPerSec ? "m/s" : "kn") << eol;
 }
 
 void SeaTalkParser::parseSpeedThroughWaterV1(const SeaTalkLine &seaTalkLine) {
