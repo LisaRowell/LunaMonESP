@@ -93,7 +93,7 @@ void SeaTalkNMEABridge::bridgeMWVMessage(const TenthsUInt16 &windAngle, bool win
     if (windSpeedValid) {
         messageStream << windSpeedKNStr;
     }
-    messageStream << ",K," << validityCode(windAngleValid | windSpeedValid);
+    messageStream << ",N," << validityCode(windAngleValid | windSpeedValid);
 
     bridgeMessage("MWV", message);
 }
