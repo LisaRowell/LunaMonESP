@@ -39,6 +39,7 @@ class DataModelStringLeaf : public DataModelRetainedValueLeaf {
         DataModelStringLeaf & operator = (const etl::istring &newString);
         DataModelStringLeaf & operator = (const char *newString);
         DataModelStringLeaf & operator = (const DataModelStringLeaf &otherLeaf);
+        void append(const etl::istring &string);
         operator const char * () const;
         int compare(const etl::istring &otherString) const;
         virtual void sendRetainedValue(DataModelSubscriber &subscriber) override;

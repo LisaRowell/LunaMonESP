@@ -24,7 +24,10 @@
 #include "NMEAMessageBuffer.h"
 #include "NMEADecapsulator.h"
 
+#include "DataModelStringLeaf.h"
+
 #include "etl/bit_stream.h"
+#include "etl/set.h"
 
 #include <stddef.h>
 
@@ -32,12 +35,18 @@ class AISContacts;
 class NMEAMessage;
 class NMEALine;
 class NMEALineWalker;
+class DataModelNode;
 
 class NMEAParser {
     private:
+        static const size_t maxTalkers = 10;
+
         uint8_t nmeaMessageBuffer[NMEA_MESSAGE_BUFFER_SIZE];
         NMEADecapsulator decapsulator;
         AISContacts &aisContacts;
+        etl::set<NMEATalker, maxTalkers> talkers;
+        etl::string<maxTalkers * 3> talkersBuffer;
+        DataModelStringLeaf talkersLeaf;
 
         NMEAMessage *parseUnencapsulatedLine(const NMEATalker &talker, const NMEAMsgType &msgType,
                                              NMEALineWalker &walker);
@@ -47,7 +56,7 @@ class NMEAParser {
                                               const NMEAMsgType &msgType);
 
     public:
-        NMEAParser(AISContacts &aisContacts);
+        NMEAParser(DataModelNode &nmeaInputNode, AISContacts &aisContacts);
         NMEAMessage *parseLine(const NMEALine &nmeaLine);
 };
 

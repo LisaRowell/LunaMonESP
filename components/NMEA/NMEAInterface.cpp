@@ -28,12 +28,12 @@
 
 NMEAInterface::NMEAInterface(DataModelNode &interfaceNode, AISContacts &aisContacts,
                              StatsManager &statsManager)
-    : parser(aisContacts),
-      messageHandlers(),
-      nmeaNode("nmea", &interfaceNode),
+    : nmeaNode("nmea", &interfaceNode),
       nmeaInputNode("input", &nmeaNode),
       messagesLeaf("messages", &nmeaInputNode),
-      messageRateLeaf("messageRate", &nmeaInputNode) {
+      messageRateLeaf("messageRate", &nmeaInputNode),
+      parser(nmeaInputNode, aisContacts),
+      messageHandlers() {
     statsManager.addStatsHolder(*this);
     addLineHandler(*this);
 }

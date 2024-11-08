@@ -49,14 +49,21 @@
 
 #include "AISContacts.h"
 
+#include "DataModelNode.h"
+#include "DataModelStringLeaf.h"
+
 #include "Logger.h"
 
 #include "etl/string.h"
 #include "etl/string_view.h"
 #include "etl/bit_stream.h"
 #include "etl/endianness.h"
+#include "etl/set.h"
 
-NMEAParser::NMEAParser(AISContacts &aisContacts) : aisContacts(aisContacts) {
+NMEAParser::NMEAParser(DataModelNode &nmeaInputNode, AISContacts &aisContacts)
+    : aisContacts(aisContacts),
+      talkersLeaf("talkers", &nmeaInputNode, talkersBuffer) {
+    talkersLeaf = "";
 }
 
 NMEAMessage *NMEAParser::parseLine(const NMEALine &nmeaLine) {
@@ -79,6 +86,19 @@ NMEAMessage *NMEAParser::parseLine(const NMEALine &nmeaLine) {
 
     etl::string<2> talkerCode(tagView.begin(), 2);
     NMEATalker talker(talkerCode);
+    if (!talkers.contains(talker)) {
+        logger() << logNotifyNMEA << "New NMEA talker '" << talkerCode << "'" << eol;
+        if (!talkers.full()) {
+            talkers.insert(talker);
+
+            etl::string<4> newText;
+            if (!talkersLeaf.isEmptyStr()) {
+                newText = ",";
+            }
+            newText.append(talker.name());
+            talkersLeaf.append(newText);
+        }
+    }
 
     etl::string<3> msgTypeStr(tagView.begin() + 2, 3);
     NMEAMsgType msgType(msgTypeStr);

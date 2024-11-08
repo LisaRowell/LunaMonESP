@@ -43,13 +43,14 @@ class NMEAInterface : public NMEALineSource, public NMEALineHandler, StatsHolder
     private:
         static const size_t maxMessageHandlers = 5;
 
-        NMEAParser parser;
-        etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
-        StatCounter messagesCounter;
         DataModelNode nmeaNode;
         DataModelNode nmeaInputNode;
         DataModelUInt32Leaf messagesLeaf;
         DataModelUInt32Leaf messageRateLeaf;
+
+        NMEAParser parser;
+        etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
+        StatCounter messagesCounter;
 
         void handleLine(const NMEALine &inputLine);
         virtual void exportStats(uint32_t msElapsed) override;

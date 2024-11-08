@@ -23,8 +23,9 @@
 #include "Logger.h"
 
 #include "etl/string.h"
+#include "etl/compare.h"
 
-class NMEATalker : public LoggableItem {
+class NMEATalker : public etl::compare<NMEATalker>, public LoggableItem {
     private:
         etl::string<2> talkerCode;
 
@@ -34,6 +35,27 @@ class NMEATalker : public LoggableItem {
         const char *name() const;
         bool operator == (const NMEATalker &other) const;
         virtual void log(Logger &logger) const override;
+
+    friend bool operator <(const NMEATalker &lhs, const NMEATalker &rhs);
+    friend bool operator <=(const NMEATalker &lhs, const NMEATalker &rhs);
+    friend bool operator >(const NMEATalker &lhs, const NMEATalker &rhs);
+    friend bool operator >=(const NMEATalker &lhs, const NMEATalker &rhs);
 };
+
+inline bool operator <(const NMEATalker &lhs, const NMEATalker &rhs) {
+    return lhs.talkerCode < rhs.talkerCode;
+}
+
+inline bool operator <=(const NMEATalker &lhs, const NMEATalker &rhs) {
+    return lhs.talkerCode <= rhs.talkerCode;
+}
+
+inline bool operator >(const NMEATalker &lhs, const NMEATalker &rhs) {
+    return lhs.talkerCode > rhs.talkerCode;
+}
+
+inline bool operator >=(const NMEATalker &lhs, const NMEATalker &rhs) {
+    return lhs.talkerCode >= rhs.talkerCode;
+}
 
 #endif

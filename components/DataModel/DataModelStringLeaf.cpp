@@ -60,6 +60,12 @@ DataModelStringLeaf & DataModelStringLeaf::operator = (const DataModelStringLeaf
     return *this;
 }
 
+void DataModelStringLeaf::append(const etl::istring &string) {
+    value.append(string);
+    updated();
+    *this << value;
+}
+
 DataModelStringLeaf::operator const char * () const {
     return value.c_str();
 }
