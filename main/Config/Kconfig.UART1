@@ -74,4 +74,10 @@ menu "UART1 Source Configuration"
         default 4800 if LUNAMON_UART1_BAUD_RATE_4800
         default 38400 if LUNAMON_UART1_BAUD_RATE_38400
 
+    config LUNAMON_UART1_NMEA_0183_FILTERED_TALKERS
+        string "Filtered NEMA 0183 Talkers" if LUNAMON_UART1_NMEA_0183
+        default ""
+        help
+            A comma separated list of NMEA talker codes from whom messages are to be filtered.
+
 endmenu

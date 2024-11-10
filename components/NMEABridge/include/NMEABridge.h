@@ -83,8 +83,8 @@ class NMEABridge : public TaskObject, NMEALineHandler, StatsHolder {
         DataModelUInt32Leaf outputErrorsLeaf;
 
         void buildBridgedMessageSet(const char *msgTypeList);
-        virtual void handleLine(const NMEALine &inputLine) override;
-        void parseMsgType(NMEAMsgType &msgType, const NMEALine &inputLine);
+        virtual void handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                                const NMEAMsgType &msgType) override;
         virtual void task() override;
         virtual void exportStats(uint32_t msElapsed) override;
 

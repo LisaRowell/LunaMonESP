@@ -99,10 +99,8 @@ void NMEABridge::buildBridgedMessageSet(const char *msgTypeList) {
 }
 
 // Called from the input interface's task.
-void NMEABridge::handleLine(const NMEALine &inputLine) {
-    NMEAMsgType msgType;
-    parseMsgType(msgType, inputLine);
-
+void NMEABridge::handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                            const NMEAMsgType &msgType) {
     if (bridgedMsgTypes.contains(msgType)) {
         // Attempt to queue the message, but don't block. If the Message Buffer is full then we're
         // overrunning the output interface. Blocking here is just going to lead to input overruns.
@@ -118,29 +116,6 @@ void NMEABridge::handleLine(const NMEALine &inputLine) {
                          << " message due to full bridge queue on bridge " << name << eol;
         }
     }
-}
-
-// Called from the input interface's task.
-void NMEABridge::parseMsgType(NMEAMsgType &msgType, const NMEALine &inputLine) {
-    NMEALineWalker lineWalker(inputLine);
-
-    // At this point we can assume the line has either a leading '$' or '!' and has a valid
-    // checksum.
-    lineWalker.skipChar();
-
-    etl::string_view tagView;
-    if (!lineWalker.getWord(tagView)) {
-        taskLogger() << logWarnNMEABridge << "NMEA message missing tag: " << inputLine << eol;
-        return;
-    }
-
-    if (tagView.length() < 2) {
-        taskLogger() << logWarnNMEABridge << "NMEA message missing talker: " << inputLine << eol;
-        return;
-    }
-    tagView.remove_prefix(2);
-
-    msgType.parse(tagView);
 }
 
 void NMEABridge::task() {

@@ -78,4 +78,10 @@ menu "RMT UART Source Configuration"
         default 4800 if LUNAMON_RMT_UART_BAUD_RATE_4800
         default 38400 if LUNAMON_RMT_UART_BAUD_RATE_38400
 
+    config LUNAMON_RMT_UART_NMEA_0183_FILTERED_TALKERS
+        string "Filtered NEMA 0183 Talkers" if LUNAMON_RMT_UART_NMEA_0183
+        default ""
+        help
+            A comma separated list of NMEA talker codes from whom messages are to be filtered.
+
 endmenu

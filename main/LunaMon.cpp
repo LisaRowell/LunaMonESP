@@ -71,61 +71,68 @@
 #define NMEA_WIFI_SOURCE_LABEL      (CONFIG_LUNAMON_NMEA_WIFI_SOURCE_LABEL)
 #define NMEA_WIFI_SOURCE_IPV4_ADDR  (CONFIG_LUNAMON_NMEA_WIFI_SOURCE_IPV4_ADDR)
 #define NMEA_WIFI_SOURCE_TCP_PORT   (CONFIG_LUNAMON_NMEA_WIFI_SOURCE_TCP_PORT)
+#define NMEA_WIFI_SOURCE_FILTERED_TALKERS \
+                                    (CONFIG_LUNAMON_NMEA_WIFI_SOUTCE_NMEA_0183_FILTERED_TALKERS)
 
 #ifdef CONFIG_LUNAMON_UART1_NMEA_0183
-#define UART1_PROTOCOL          (INTERFACE_NMEA_O183)
+#define UART1_PROTOCOL              (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_UART1_STALK
-#define UART1_PROTOCOL          (INTERFACE_STALK)
+#define UART1_PROTOCOL              (INTERFACE_STALK)
 #elif CONFIG_LUNAMON_UART1_OFFLINE
-#define UART1_PROTOCOL          (INTERFACE_OFFLINE)
+#define UART1_PROTOCOL              (INTERFACE_OFFLINE)
 #else
 Make sure and run menuconfig!
 #endif
-#define UART1_LABEL             (CONFIG_LUNAMON_UART1_LABEL)
-#define UART1_BAUD_RATE         (CONFIG_LUNAMON_UART1_BAUD_RATE)
-#define UART1_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_RX_PIN)
-#define UART1_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART1_TX_PIN)
+#define UART1_LABEL                 (CONFIG_LUNAMON_UART1_LABEL)
+#define UART1_BAUD_RATE             (CONFIG_LUNAMON_UART1_BAUD_RATE)
+#define UART1_RX_PIN                ((gpio_num_t)CONFIG_LUNAMON_UART1_RX_PIN)
+#define UART1_TX_PIN                ((gpio_num_t)CONFIG_LUNAMON_UART1_TX_PIN)
+#define UART1_FILTERED_NMEA_TALKERS (CONFIG_LUNAMON_UART1_NMEA_0183_FILTERED_TALKERS)
 
 #ifdef CONFIG_LUNAMON_UART2_NMEA_0183
-#define UART2_PROTOCOL          (INTERFACE_NMEA_O183)
+#define UART2_PROTOCOL              (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_UART2_STALK
-#define UART2_PROTOCOL          (INTERFACE_STALK)
+#define UART2_PROTOCOL              (INTERFACE_STALK)
 #elif CONFIG_LUNAMON_UART2_OFFLINE
-#define UART2_PROTOCOL          (INTERFACE_OFFLINE)
+#define UART2_PROTOCOL              (INTERFACE_OFFLINE)
 #else
 Make sure and run menuconfig!
 #endif
-#define UART2_LABEL             (CONFIG_LUNAMON_UART2_LABEL)
-#define UART2_BAUD_RATE         (CONFIG_LUNAMON_UART2_BAUD_RATE)
-#define UART2_RX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_RX_PIN)
-#define UART2_TX_PIN            ((gpio_num_t)CONFIG_LUNAMON_UART2_TX_PIN)
+#define UART2_LABEL                 (CONFIG_LUNAMON_UART2_LABEL)
+#define UART2_BAUD_RATE             (CONFIG_LUNAMON_UART2_BAUD_RATE)
+#define UART2_RX_PIN                ((gpio_num_t)CONFIG_LUNAMON_UART2_RX_PIN)
+#define UART2_TX_PIN                ((gpio_num_t)CONFIG_LUNAMON_UART2_TX_PIN)
+#define UART2_FILTERED_NMEA_TALKERS (CONFIG_LUNAMON_UART2_NMEA_0183_FILTERED_TALKERS)
 
 #ifdef CONFIG_LUNAMON_SOFTWARE_UART_NMEA_0183
-#define SOFTWARE_UART_PROTOCOL  (INTERFACE_NMEA_O183)
+#define SOFTWARE_UART_PROTOCOL      (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_SOFTWARE_UART_OFFLINE
-#define SOFTWARE_UART_PROTOCOL  (INTERFACE_OFFLINE)
+#define SOFTWARE_UART_PROTOCOL      (INTERFACE_OFFLINE)
 #else
 Make sure and run menuconfig!
 #endif
-#define SOFTWARE_UART_LABEL     (CONFIG_LUNAMON_SOFTWARE_UART_LABEL)
-#define SOFTWARE_UART_RX_PIN    ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_RX_PIN)
-#define SOFTWARE_UART_TX_PIN    ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_TX_PIN)
+#define SOFTWARE_UART_LABEL         (CONFIG_LUNAMON_SOFTWARE_UART_LABEL)
+#define SOFTWARE_UART_RX_PIN        ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_RX_PIN)
+#define SOFTWARE_UART_TX_PIN        ((gpio_num_t)CONFIG_LUNAMON_SOFTWARE_UART_TX_PIN)
+#define SOFTWARE_UART_FILTERED_NMEA_TALKERS \
+                                    (CONFIG_LUNAMON_SOFTWARE_UART_NMEA_0183_FILTERED_TALKERS)
 
 #if CONFIG_LUNAMON_RMT_UART_NMEA_0183
-#define RMT_UART_PROTOCOL       (INTERFACE_NMEA_O183)
+#define RMT_UART_PROTOCOL           (INTERFACE_NMEA_O183)
 #elif CONFIG_LUNAMON_RMT_UART_STALK
-#define RMT_UART_PROTOCOL       (INTERFACE_STALK)
+#define RMT_UART_PROTOCOL           (INTERFACE_STALK)
 #elif CONFIG_LUNAMON_RMT_UART_SEA_TALK
-#define RMT_UART_PROTOCOL       (INTERFACE_SEA_TALK)
+#define RMT_UART_PROTOCOL           (INTERFACE_SEA_TALK)
 #elif CONFIG_LUNAMON_RMT_UART_OFFLINE
-#define RMT_UART_PROTOCOL       (INTERFACE_OFFLINE)
+#define RMT_UART_PROTOCOL           (INTERFACE_OFFLINE)
 #else
 Make sure and run menuconfig!
 #endif
-#define RMT_UART_LABEL          (CONFIG_LUNAMON_RMT_UART_LABEL)
-#define RMT_UART_RX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_RX_GPIO)
-#define RMT_UART_TX_GPIO        ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_TX_GPIO)
-#define RMT_UART_BAUD_RATE      ((uint32_t)CONFIG_LUNAMON_RMT_UART_BAUD_RATE)
+#define RMT_UART_LABEL              (CONFIG_LUNAMON_RMT_UART_LABEL)
+#define RMT_UART_RX_GPIO            ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_RX_GPIO)
+#define RMT_UART_TX_GPIO            ((gpio_num_t)CONFIG_LUNAMON_RMT_UART_TX_GPIO)
+#define RMT_UART_BAUD_RATE          ((uint32_t)CONFIG_LUNAMON_RMT_UART_BAUD_RATE)
+#define RMT_UART_FILTERED_NMEA_TALKERS (CONFIG_LUNAMON_RMT_UART_NMEA_0183_FILTERED_TALKERS)
 
 #define NMEA_BRIDGE_NAME            (CONFIG_LUNAMON_NMEA_BRIDGE_NAME)
 #if CONFIG_LUNAMON_NMEA_BRIDGE_SOURCE_WIFI
@@ -224,7 +231,8 @@ LunaMon::LunaMon()
     if (CONFIG_LUNAMON_NMEA_WIFI_ENABLED) {
         nmeaWiFiInterface = new NMEAWiFiInterface("wifi", NMEA_WIFI_SOURCE_LABEL,
                                                   NMEA_WIFI_SOURCE_IPV4_ADDR,
-                                                  NMEA_WIFI_SOURCE_TCP_PORT, wifiManager,
+                                                  NMEA_WIFI_SOURCE_TCP_PORT,
+                                                  NMEA_WIFI_SOURCE_FILTERED_TALKERS, wifiManager,
                                                   statsManager, aisContacts, dataModel);
         if (nmeaWiFiInterface) {
             nmeaWiFiInterface->addMessageHandler(dataModelBridge);
@@ -239,15 +247,18 @@ LunaMon::LunaMon()
     }
 
     uart1Interface = createUARTInterface("uart1", UART1_LABEL, UART1_PROTOCOL, UART_NUM_1,
-                                         UART1_RX_PIN, UART1_TX_PIN, UART1_BAUD_RATE);
+                                         UART1_RX_PIN, UART1_TX_PIN, UART1_BAUD_RATE,
+                                         UART1_FILTERED_NMEA_TALKERS);
     uart2Interface = createUARTInterface("uart2", UART2_LABEL, UART2_PROTOCOL, UART_NUM_2,
-                                         UART2_RX_PIN, UART2_TX_PIN, UART2_BAUD_RATE);
+                                         UART2_RX_PIN, UART2_TX_PIN, UART2_BAUD_RATE,
+                                         UART2_FILTERED_NMEA_TALKERS);
     softUARTInterface = createSoftUARTInterface("softUART", SOFTWARE_UART_LABEL,
                                                 SOFTWARE_UART_PROTOCOL, SOFTWARE_UART_RX_PIN,
-                                                SOFTWARE_UART_TX_PIN);
+                                                SOFTWARE_UART_TX_PIN,
+                                                SOFTWARE_UART_FILTERED_NMEA_TALKERS);
     rmtUARTInterface = createRMTUARTInterface("rmtUART", RMT_UART_LABEL, RMT_UART_PROTOCOL,
                                               RMT_UART_RX_GPIO, RMT_UART_TX_GPIO,
-                                              RMT_UART_BAUD_RATE);
+                                              RMT_UART_BAUD_RATE, RMT_UART_FILTERED_NMEA_TALKERS);
 
     if (CONFIG_LUNAMON_NMEA_BRIDGE_ENABLED) {
         nmeaBridge = createNMEABridge(NMEA_BRIDGE_NAME, NMEA_BRIDGE_MESSAGE_TYPES,
@@ -283,13 +294,14 @@ NMEAServer *LunaMon::createNMEAServer(uint16_t knownPort) {
 
 UARTInterface *LunaMon::createUARTInterface(const char *name, const char *label,
                                             enum InterfaceProtocol protocol, uart_port_t uartNumber,
-                                            gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate) {
+                                            gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
+                                            const char *filteredNMEATalkersList) {
     UARTInterface *uartInterface;
 
     switch (protocol) {
         case INTERFACE_NMEA_O183:
             uartInterface = createNMEAUARTInterface(name, label, uartNumber, rxPin, txPin,
-                                                    baudRate);
+                                                    baudRate, filteredNMEATalkersList);
             break;
 
         case INTERFACE_STALK:
@@ -307,11 +319,13 @@ UARTInterface *LunaMon::createUARTInterface(const char *name, const char *label,
 
 NMEAUARTInterface *LunaMon::createNMEAUARTInterface(const char *name, const char *label,
                                                     uart_port_t uartNumber, gpio_num_t rxPin,
-                                                    gpio_num_t txPin, uint32_t baudRate) {
+                                                    gpio_num_t txPin, uint32_t baudRate,
+                                                    const char *filteredTalkersList) {
     NMEAUARTInterface *nmeaUARTInterface;
 
     nmeaUARTInterface = new NMEAUARTInterface(name, label, uartNumber, rxPin, txPin, baudRate,
-                                              statsManager, aisContacts, dataModel);
+                                              filteredTalkersList, statsManager, aisContacts,
+                                              dataModel);
     if (!nmeaUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name << " NMEA interface for UART "
                 << uartNumber << "." << eol;
@@ -344,12 +358,14 @@ STALKUARTInterface *LunaMon::createSTALKUARTInterface(const char *name, const ch
 
 SoftUARTInterface *LunaMon::createSoftUARTInterface(const char *name, const char *label,
                                                     enum InterfaceProtocol protocol,
-                                                    gpio_num_t rxPin, gpio_num_t txPin) {
+                                                    gpio_num_t rxPin, gpio_num_t txPin,
+                                                    const char *filteredNMEATalkersList) {
     SoftUARTInterface *softUARTInterface;
 
     switch (protocol) {
         case INTERFACE_NMEA_O183:
-            softUARTInterface = createNMEASoftUARTInterface(name, label, rxPin, txPin);
+            softUARTInterface = createNMEASoftUARTInterface(name, label, rxPin, txPin,
+                                                            filteredNMEATalkersList);
             break;
 
         case INTERFACE_OFFLINE:
@@ -361,10 +377,12 @@ SoftUARTInterface *LunaMon::createSoftUARTInterface(const char *name, const char
 }
 
 NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, const char *label,
-                                                            gpio_num_t rxPin, gpio_num_t txPin) {
+                                                            gpio_num_t rxPin, gpio_num_t txPin,
+                                                            const char *filteredTalkersList) {
     NMEASoftUARTInterface *nmeaSoftUARTInterface;
 
-    nmeaSoftUARTInterface = new NMEASoftUARTInterface(name, label, rxPin, txPin, 4800, statsManager,
+    nmeaSoftUARTInterface = new NMEASoftUARTInterface(name, label, rxPin, txPin, 4800,
+                                                      filteredTalkersList, statsManager,
                                                       aisContacts, dataModel);
     if (!nmeaSoftUARTInterface) {
         logger << logErrorMain << "Failed to allocate " << name
@@ -382,12 +400,14 @@ NMEASoftUARTInterface *LunaMon::createNMEASoftUARTInterface(const char *name, co
 
 RMTUARTInterface *LunaMon::createRMTUARTInterface(const char *name, const char *label,
                                                   InterfaceProtocol protocol, gpio_num_t rxGPIO,
-                                                  gpio_num_t txGPIO, uint32_t baudRate) {
+                                                  gpio_num_t txGPIO, uint32_t baudRate,
+                                                  const char *filteredNMEATalkersList) {
     RMTUARTInterface *rmtUARTInterface;
 
     switch (protocol) {
         case INTERFACE_NMEA_O183:
-            rmtUARTInterface = createNMEARMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate);
+            rmtUARTInterface = createNMEARMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate,
+                                                          filteredNMEATalkersList);
             break;
 
         case INTERFACE_STALK:
@@ -408,11 +428,13 @@ RMTUARTInterface *LunaMon::createRMTUARTInterface(const char *name, const char *
 
 NMEARMTUARTInterface *LunaMon::createNMEARMTUARTInterface(const char *name, const char *label,
                                                           gpio_num_t rxGPIO, gpio_num_t txGPIO,
-                                                          uint32_t baudRate) {
+                                                          uint32_t baudRate,
+                                                          const char *filteredTalkersList) {
     NMEARMTUARTInterface *nmeaRMTUARTInterface;
 
     nmeaRMTUARTInterface = new NMEARMTUARTInterface(name, label, rxGPIO, txGPIO, baudRate,
-                                                    statsManager, aisContacts, dataModel);
+                                                    filteredTalkersList, statsManager, aisContacts,
+                                                    dataModel);
     if (!nmeaRMTUARTInterface) {
         logger << logErrorMain << "Failed to allocate NMEA RMT UART interface " << name << eol;
         errorExit();

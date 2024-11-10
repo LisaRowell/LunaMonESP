@@ -18,6 +18,7 @@
 
 #include "NMEAInterface.h"
 #include "NMEAMessageHandler.h"
+#include "NMEALineSource.h"
 
 #include "DataModelNode.h"
 #include "DataModelUInt32Leaf.h"
@@ -26,15 +27,11 @@
 
 #include "Error.h"
 
-NMEAInterface::NMEAInterface(DataModelNode &interfaceNode, AISContacts &aisContacts,
-                             StatsManager &statsManager)
-    : nmeaNode("nmea", &interfaceNode),
-      nmeaInputNode("input", &nmeaNode),
-      messagesLeaf("messages", &nmeaInputNode),
-      messageRateLeaf("messageRate", &nmeaInputNode),
-      parser(nmeaInputNode, aisContacts),
+NMEAInterface::NMEAInterface(DataModelNode &interfaceNode, const char *filteredTalkersList,
+                             AISContacts &aisContacts, StatsManager &statsManager)
+    : NMEALineSource(interfaceNode, filteredTalkersList, statsManager),
+      parser(aisContacts),
       messageHandlers() {
-    statsManager.addStatsHolder(*this);
     addLineHandler(*this);
 }
 
@@ -46,8 +43,9 @@ void NMEAInterface::addMessageHandler(NMEAMessageHandler &messageHandler) {
     messageHandlers.push_back(&messageHandler);
 }
 
-void NMEAInterface::handleLine(const NMEALine &inputLine) {
-    NMEAMessage *nmeaMessage = parser.parseLine(inputLine);
+void NMEAInterface::handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                               const NMEAMsgType &msgType) {
+    NMEAMessage *nmeaMessage = parser.parseLine(inputLine, talker, msgType);
     if (nmeaMessage != nullptr) {
         nmeaMessage->log();
 
@@ -60,8 +58,4 @@ void NMEAInterface::handleLine(const NMEALine &inputLine) {
         // While we're done with the nmeaMessage, we don't do a free here
         // since it was allocated with a static buffer and placement new.
     }
-}
-
-void NMEAInterface::exportStats(uint32_t msElapsed) {
-    messagesCounter.update(messagesLeaf, messageRateLeaf, msElapsed);
 }

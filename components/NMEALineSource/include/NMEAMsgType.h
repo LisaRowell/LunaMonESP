@@ -30,6 +30,7 @@ class NMEAMsgType {
     public:
         enum Value : uint8_t {
             UNKNOWN,
+            ALK,
             DBK,
             DBS,
             DBT,
@@ -41,6 +42,7 @@ class NMEAMsgType {
             GST,
             GSV,
             HDG,
+            HDM,
             MTW,
             MWV,
             RMC,
@@ -49,7 +51,8 @@ class NMEAMsgType {
             VDM,
             VDO,
             VHW,
-            VTG
+            VTG,
+            PROPRIETARY
         };
 
     private:

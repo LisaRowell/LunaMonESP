@@ -29,7 +29,7 @@ class NMEALineWalker {
         etl::string_view remaining;
 
     public:
-        NMEALineWalker(const NMEALine &nmeaLine);
+        NMEALineWalker(const NMEALine &nmeaLine, bool stripStartAndEnd = false);
         void reset();
         // Returns true if the line is in the encapsulated encoding scheme AIS messages (and
         // possibly others), versus the normal style NMEA 0183 CSV data.
@@ -38,6 +38,7 @@ class NMEALineWalker {
         bool getChar(char &character);
         bool getWord(etl::string_view &word);
         void skipChar();
+        void skipWord();
         bool atEndOfLine() const;
 };
 

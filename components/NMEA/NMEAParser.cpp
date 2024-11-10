@@ -60,53 +60,14 @@
 #include "etl/endianness.h"
 #include "etl/set.h"
 
-NMEAParser::NMEAParser(DataModelNode &nmeaInputNode, AISContacts &aisContacts)
-    : aisContacts(aisContacts),
-      talkersLeaf("talkers", &nmeaInputNode, talkersBuffer) {
-    talkersLeaf = "";
+NMEAParser::NMEAParser(AISContacts &aisContacts)
+    : aisContacts(aisContacts) {
 }
 
-NMEAMessage *NMEAParser::parseLine(const NMEALine &nmeaLine) {
-    NMEALineWalker walker(nmeaLine);
-
-    // At this point we can assume the line has either a leading '$' or '!' and has a valid
-    // checksum.
-    walker.skipChar();
-    walker.stripChecksum();
-
-    etl::string_view tagView;
-    if (!walker.getWord(tagView)) {
-        logger() << logWarnNMEA << "NMEA message missing tag" << eol;
-        return nullptr;
-    }
-    if (tagView.size() != 5) {
-        logger() << logWarnNMEA << "Bad NMEA tag '" << tagView << "'" << eol;
-        return nullptr;
-    }
-
-    etl::string<2> talkerCode(tagView.begin(), 2);
-    NMEATalker talker(talkerCode);
-    if (!talkers.contains(talker)) {
-        logger() << logNotifyNMEA << "New NMEA talker '" << talkerCode << "'" << eol;
-        if (!talkers.full()) {
-            talkers.insert(talker);
-
-            etl::string<4> newText;
-            if (!talkersLeaf.isEmptyStr()) {
-                newText = ",";
-            }
-            newText.append(talker.name());
-            talkersLeaf.append(newText);
-        }
-    }
-
-    etl::string<3> msgTypeStr(tagView.begin() + 2, 3);
-    NMEAMsgType msgType(msgTypeStr);
-    if (msgType == NMEAMsgType::UNKNOWN) {
-        logger() << logWarnNMEA << "NMEA message with unknown type (" << msgTypeStr << ")"
-                 << " from " << talker << ". Ignored." << eol;
-        return nullptr;
-    }
+NMEAMessage *NMEAParser::parseLine(const NMEALine &nmeaLine, const NMEATalker &talker,
+                                   const NMEAMsgType &msgType) {
+    NMEALineWalker walker(nmeaLine, true);
+    walker.skipWord();
 
     if (!walker.isEncapsulatedData()) {
         return parseUnencapsulatedLine(talker, msgType, walker);

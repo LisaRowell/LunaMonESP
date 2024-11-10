@@ -105,7 +105,8 @@ class NMEAServer : public NMEALineHandler, public TaskObject, WiFiManagerClient,
     public:
         NMEAServer(uint16_t knownPort, WiFiManager &wifiManager, StatsManager &statsManager,
                    DataModel &dataModel);
-        virtual void handleLine(const NMEALine &inputLine) override;
+        virtual void handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                                const NMEAMsgType &msgType) override;
 };
 
 #endif // NMEA_SERVER_H

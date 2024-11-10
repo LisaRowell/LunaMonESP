@@ -45,7 +45,8 @@ class STALKInterface : public NMEALineSource, NMEALineHandler, public SeaTalkInt
         DataModelUInt32Leaf messageRateLeaf;
         DataModelUInt32Leaf illformedMessagesLeaf;
 
-        void handleLine(const NMEALine &inputLine);
+        void handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                        const NMEAMsgType &msgType);
         bool parseLine(const NMEALine &nmeaLine);
         void parseDatagramMessage(const NMEALine &nmeaLine, NMEALineWalker &walker);
         void parsePropritoryMessage(const NMEALine &nmeaLine);

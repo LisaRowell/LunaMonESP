@@ -29,4 +29,10 @@ menu "WiFi Source Configuration"
         help
             The TCP port number for the NMEA source.
 
+    config LUNAMON_NMEA_WIFI_SOUTCE_NMEA_0183_FILTERED_TALKERS
+        string "Filtered NEMA 0183 Talkers" if LUNAMON_HAS_NMEA_OVER_WIFI_SOURCE
+        default ""
+        help
+            A comma separated list of NMEA talker codes from whom messages are to be filtered.
+
 endmenu

@@ -20,6 +20,9 @@
 
 #include "NMEALine.h"
 #include "NMEALineHandler.h"
+#include "NMEATalker.h"
+#include "NMEAMsgType.h"
+
 #include "StatCounter.h"
 #include "StatsManager.h"
 
@@ -30,6 +33,7 @@
 #include "TenthsUInt16.h"
 
 #include "Logger.h"
+#include "Error.h"
 
 #include "etl/string.h"
 #include "etl/string_stream.h"
@@ -52,6 +56,7 @@ SeaTalkNMEABridge::SeaTalkNMEABridge(const char *name, const char *label, const 
     if (strlen(talkerCode) != 2) {
         logger() << logWarnSeaTalkNMEABridge << "Bad SeaTalk NMEA Bridge Talker Code '"
                  << talkerCode << "'" << eol;
+        errorExit();
     }
 
     labelLeaf = label;
@@ -65,7 +70,7 @@ void SeaTalkNMEABridge::bridgeDBTMessage(const TenthsUInt16 &depthFeet) {
     etl::string_stream messageStream(message);
     messageStream << "$" << talkerCode << "DBT" << "," << depthFeetStr << ",f,,M,,F";
 
-    bridgeMessage("DBT", message);
+    bridgeMessage(NMEAMsgType(NMEAMsgType::DBT), message);
 }
 
 void SeaTalkNMEABridge::bridgeHDMMessage(uint16_t heading) {
@@ -73,7 +78,7 @@ void SeaTalkNMEABridge::bridgeHDMMessage(uint16_t heading) {
     etl::string_stream messageStream(message);
     messageStream << "$" << talkerCode << "HDM" << "," << etl::setprecision(1) << heading << ",M";
 
-    bridgeMessage("HDM", message);
+    bridgeMessage(NMEAMsgType(NMEAMsgType::HDM), message);
 }
 
 void SeaTalkNMEABridge::bridgeMWVMessage(const TenthsUInt16 &windAngle, bool windAngleValid,
@@ -95,7 +100,7 @@ void SeaTalkNMEABridge::bridgeMWVMessage(const TenthsUInt16 &windAngle, bool win
     }
     messageStream << ",N," << validityCode(windAngleValid | windSpeedValid);
 
-    bridgeMessage("MWV", message);
+    bridgeMessage(NMEAMsgType(NMEAMsgType::MWV), message);
 }
 
 void SeaTalkNMEABridge::bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPosValid,
@@ -106,7 +111,7 @@ void SeaTalkNMEABridge::bridgeRSAMessage(int8_t stbdRudderPos, bool stbdRudderPo
                   << stbdRudderPos << "," << validityCode(stbdRudderPosValid) << ","
                   << portRudderPos << "," << validityCode(portRudderPosValid);
 
-    bridgeMessage("RSA", message);
+    bridgeMessage(NMEAMsgType(NMEAMsgType::RSA), message);
 }
 
 void SeaTalkNMEABridge::bridgeVHWMessage(uint16_t headingTrue, bool headingTrueValid,
@@ -141,16 +146,17 @@ void SeaTalkNMEABridge::bridgeVHWMessage(uint16_t headingTrue, bool headingTrueV
     } else {
         messageStream << ",";
     }
-    bridgeMessage("VHW", message);
+    bridgeMessage(NMEAMsgType(NMEAMsgType::VHW), message);
 }
 
-void SeaTalkNMEABridge::bridgeMessage(const char *typeCode, const etl::istring &message) {
+void SeaTalkNMEABridge::bridgeMessage(const NMEAMsgType &msgType, const etl::istring &message) {
     NMEALine nmeaLine(message);
     nmeaLine.appendChecksum();
 
     logger() << logWarnSeaTalkNMEABridge << "Bridging from SeaTalk: " << nmeaLine << eol;
 
-    destination.handleLine(nmeaLine);
+    NMEATalker talker(talkerCode);
+    destination.handleLine(nmeaLine, talker, msgType);
     bridgedMessages++;
 }
 

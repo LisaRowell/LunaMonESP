@@ -48,8 +48,8 @@ class NMEAUARTInterface : public UARTInterface, public NMEAInterface {
     public:
         NMEAUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
                           gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
-                          StatsManager &statsManager, AISContacts &aisContacts,
-                          DataModel &dataModel);
+                          const char *filteredTalkersList, StatsManager &statsManager,
+                          AISContacts &aisContacts, DataModel &dataModel);
 };
 
 #endif // NMEA_UART_INTERFACE_H

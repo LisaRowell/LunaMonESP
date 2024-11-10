@@ -35,29 +35,26 @@
 
 #include <stddef.h>
 
+class NMEATalker;
+class NMEAMsgType;
 class AISContacts;
 class NMEAMessageHandler;
 class StatsManager;
 
-class NMEAInterface : public NMEALineSource, public NMEALineHandler, StatsHolder {
+class NMEAInterface : public NMEALineSource, public NMEALineHandler {
     private:
         static const size_t maxMessageHandlers = 5;
-
-        DataModelNode nmeaNode;
-        DataModelNode nmeaInputNode;
-        DataModelUInt32Leaf messagesLeaf;
-        DataModelUInt32Leaf messageRateLeaf;
 
         NMEAParser parser;
         etl::vector<NMEAMessageHandler *, maxMessageHandlers> messageHandlers;
         StatCounter messagesCounter;
 
-        void handleLine(const NMEALine &inputLine);
-        virtual void exportStats(uint32_t msElapsed) override;
+        void handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                        const NMEAMsgType &msgType);
 
     public:
-        NMEAInterface(DataModelNode &interfaceNode, AISContacts &aisContacts,
-                      StatsManager &statsManager);
+        NMEAInterface(DataModelNode &interfaceNode, const char *filteredTalkersList,
+                      AISContacts &aisContacts, StatsManager &statsManager);
         void addMessageHandler(NMEAMessageHandler &messageHandler);
 };
 

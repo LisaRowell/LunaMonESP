@@ -22,6 +22,7 @@
 #include "Error.h"
 
 #include "etl/string.h"
+#include "etl/string_view.h"
 
 typedef struct {
     const char code[3];
@@ -105,7 +106,7 @@ static const TalkerTableEntry talkerTable[] = {
     { "SG", "Steering Gear" },
     { "SN", "Electronic Positioning System, other/general" },
     { "SS", "Scanning Sounder" },
-    { "ST", "Skytraq debug output" },
+    { "ST", "STALK or Skytraq debug output" },
     { "TC", "Track Control" },
     { "TI", "Turn Rate Indicator" },
     { "TR", "TRANSIT Navigation System" },
@@ -155,6 +156,14 @@ NMEATalker::NMEATalker(const etl::istring &talkerCode) {
     }
 
     this->talkerCode = talkerCode;
+}
+
+NMEATalker::NMEATalker(const etl::string_view &talkerCodeStrView) {
+    if (talkerCodeStrView.length() != 2) {
+        fatalError("Bad parsing of the NMEA Talker Code");
+    }
+
+    this->talkerCode.assign(talkerCodeStrView.begin(), talkerCodeStrView.end());
 }
 
 const char *NMEATalker::name() const {

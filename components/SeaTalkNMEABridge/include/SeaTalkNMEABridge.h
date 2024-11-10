@@ -31,6 +31,7 @@
 #include <stdint.h>
 
 class NMEALineHandler;
+class NMEAMsgType;
 class StatsManager;
 class DataModel;
 class TenthsUInt16;
@@ -48,7 +49,7 @@ class SeaTalkNMEABridge : StatsHolder {
         DataModelUInt32Leaf bridgedMessagesLeaf;
         DataModelUInt32Leaf bridgedMessageRateLeaf;
 
-        void bridgeMessage(const char *typeCode, const etl::istring &message);
+        void bridgeMessage(const NMEAMsgType &msgType, const etl::istring &message);
         virtual void exportStats(uint32_t msElapsed) override;
         const char *validityCode(bool valid);
 

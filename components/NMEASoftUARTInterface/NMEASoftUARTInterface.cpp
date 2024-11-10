@@ -31,11 +31,12 @@
 
 NMEASoftUARTInterface::NMEASoftUARTInterface(const char *name, const char *label, gpio_num_t rxPin,
                                              gpio_num_t txPin, uint32_t baudRate,
+                                             const char *filteredTalkersList,
                                              StatsManager &statsManager, AISContacts &aisContacts,
                                              DataModel &dataModel)
     : SoftUARTInterface(name, label, INTERFACE_NMEA_O183, rxPin, txPin, baudRate, UART_DATA_8_BITS,
                         UART_STOP_BITS_1, UART_PARITY_DISABLE, statsManager, dataModel, stackSize),
-      NMEAInterface(interfaceNode(), aisContacts, statsManager) {
+      NMEAInterface(interfaceNode(), filteredTalkersList, aisContacts, statsManager) {
 }
 
 void NMEASoftUARTInterface::task() {

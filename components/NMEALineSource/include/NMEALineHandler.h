@@ -20,10 +20,13 @@
 #define NMEA_LINE_HANDLER_H
 
 class NMEALine;
+class NMEATalker;
+class NMEAMsgType;
 
 class NMEALineHandler {
     public:
-        virtual void handleLine(const NMEALine &inputLine) = 0;
+        virtual void handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                                const NMEAMsgType &msgType) = 0;
 };
 
 

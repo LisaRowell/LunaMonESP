@@ -39,7 +39,8 @@ class NMEAWiFiInterface : public WiFiInterface, public NMEAInterface {
 
     public:
         NMEAWiFiInterface(const char *name, const char *label, const char *ipv4Addr,
-                          uint16_t tcpPort, WiFiManager &wifiManager, StatsManager &statsManager,
+                          uint16_t tcpPort, const char *filteredTalkersList,
+                          WiFiManager &wifiManager, StatsManager &statsManager,
                           AISContacts &aisContacts, DataModel &dataModel);
 };
 

@@ -176,7 +176,8 @@ void NMEAServer::newClient(int clientSocket, struct sockaddr_in &sourceAddr,
 }
 
 // Called on the thread for the particular interface...
-void NMEAServer::handleLine(const NMEALine &inputLine) {
+void NMEAServer::handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                            const NMEAMsgType &msgType) {
     takeClientLock();
 
     etl::ivector<NMEAClient *>::iterator clientInterator;

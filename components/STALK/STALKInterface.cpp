@@ -39,7 +39,8 @@
 
 STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentData,
                                StatsManager &statsManager)
-    : SeaTalkInterface(interface, instrumentData, statsManager),
+    : NMEALineSource(interface.interfaceNode(), "", statsManager),
+      SeaTalkInterface(interface, instrumentData, statsManager),
       interface(interface),
       messagesCounter(),
       illformedMessages(0),
@@ -55,7 +56,8 @@ STALKInterface::STALKInterface(Interface &interface, InstrumentData &instrumentD
     addLineHandler(*this);
 }
 
-void STALKInterface::handleLine(const NMEALine &inputLine) {
+void STALKInterface::handleLine(const NMEALine &inputLine, const NMEATalker &talker,
+                                const NMEAMsgType &msgType) {
     logger() << logDebugSTALK << inputLine << eol;
 
     if (!parseLine(inputLine)) {
@@ -73,17 +75,15 @@ void STALKInterface::handleLine(const NMEALine &inputLine) {
 // message with the ninth bit discarded.
 // Returns false iff the NMEA message wasn't a $STALK message at all.
 bool STALKInterface::parseLine(const NMEALine &inputLine) {
-    NMEALineWalker walker(inputLine);
+    NMEALineWalker walker(inputLine, true);
 
     // At this point we can assume the line has either a leading '$' or '!' and has a valid
     // checksum.
-    walker.skipChar();
     if (walker.isEncapsulatedData()) {
         logger() << logWarnSTALK << "Encapsulated NMEA message on $STALK interface:" << inputLine
                  << eol;
         return false;
     }
-    walker.stripChecksum();
 
     etl::string_view tagView;
     if (!walker.getWord(tagView)) {

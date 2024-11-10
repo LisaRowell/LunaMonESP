@@ -95,24 +95,30 @@ class LunaMon {
         NMEAServer *createNMEAServer(uint16_t knownPort);
         UARTInterface *createUARTInterface(const char *name, const char *label,
                                            enum InterfaceProtocol protocol, uart_port_t uartNumber,
-                                           gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate);
+                                           gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
+                                           const char *filteredNMEATalkersList);
         NMEAUARTInterface *createNMEAUARTInterface(const char *name, const char *label,
                                                    uart_port_t uartNumber, gpio_num_t rxPin,
-                                                   gpio_num_t txPin, uint32_t baudRate);
+                                                   gpio_num_t txPin, uint32_t baudRate,
+                                                   const char *filteredTalkersList);
         STALKUARTInterface *createSTALKUARTInterface(const char *name, const char *label,
                                                      uart_port_t uartNumber, gpio_num_t rxPin,
                                                      gpio_num_t txPin, uint32_t baudRate);
         SoftUARTInterface *createSoftUARTInterface(const char *name, const char *label,
                                                    enum InterfaceProtocol protocol,
-                                                   gpio_num_t rxPin, gpio_num_t txPin);
+                                                   gpio_num_t rxPin, gpio_num_t txPin,
+                                                   const char *filteredNMEATalkersList);
         NMEASoftUARTInterface *createNMEASoftUARTInterface(const char *name, const char *label,
-                                                           gpio_num_t rxPin, gpio_num_t txPin);
+                                                           gpio_num_t rxPin, gpio_num_t txPin,
+                                                           const char *filteredTalkersList);
         RMTUARTInterface *createRMTUARTInterface(const char *name, const char *label,
                                                  InterfaceProtocol protocol, gpio_num_t rxGPIO,
-                                                 gpio_num_t txGPIO, uint32_t baudRate);
+                                                 gpio_num_t txGPIO, uint32_t baudRate,
+                                                 const char *filteredNMEATalkersList);
         NMEARMTUARTInterface *createNMEARMTUARTInterface(const char *name, const char *label,
                                                          gpio_num_t rxGPIO, gpio_num_t txGPIO,
-                                                         uint32_t baudRate);
+                                                         uint32_t baudRate,
+                                                         const char *filteredTallkersList);
         STALKRMTUARTInterface *createSTALKRMTUARTInterface(const char *name, const char *label,
                                                            gpio_num_t rxGPIO, gpio_num_t txGPIO,
                                                            uint32_t baudRate);

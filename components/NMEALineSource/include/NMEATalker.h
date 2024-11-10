@@ -23,6 +23,7 @@
 #include "Logger.h"
 
 #include "etl/string.h"
+#include "etl/string_view.h"
 #include "etl/compare.h"
 
 class NMEATalker : public etl::compare<NMEATalker>, public LoggableItem {
@@ -32,6 +33,7 @@ class NMEATalker : public etl::compare<NMEATalker>, public LoggableItem {
     public:
         NMEATalker();
         NMEATalker(const etl::istring &talkerCode);
+        NMEATalker(const etl::string_view &talkerCodeStrView);
         const char *name() const;
         bool operator == (const NMEATalker &other) const;
         virtual void log(Logger &logger) const override;

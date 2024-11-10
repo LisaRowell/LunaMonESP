@@ -28,11 +28,11 @@
 
 NMEAUARTInterface::NMEAUARTInterface(const char *name, const char *label, uart_port_t uartNumber,
                                      gpio_num_t rxPin, gpio_num_t txPin, uint32_t baudRate,
-                                     StatsManager &statsManager, AISContacts &aisContacts,
-                                     DataModel &dataModel)
+                                     const char *filteredTalkersList, StatsManager &statsManager,
+                                     AISContacts &aisContacts, DataModel &dataModel)
     : UARTInterface(name, label, INTERFACE_NMEA_O183, uartNumber, rxPin, txPin, baudRate,
                     rxBufferSize, txBufferSize, statsManager, dataModel, stackSize),
-      NMEAInterface(interfaceNode(), aisContacts, statsManager) {
+      NMEAInterface(interfaceNode(), filteredTalkersList, aisContacts, statsManager) {
 }
 
 void NMEAUARTInterface::task() {

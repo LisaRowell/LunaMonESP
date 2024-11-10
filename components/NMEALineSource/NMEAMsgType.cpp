@@ -66,6 +66,8 @@ void NMEAMsgType::parse(const etl::string_view &msgTypeStrView) {
         value = GSV;
     } else if (msgTypeStrView == "HDG") {
         value = HDG;
+    } else if (msgTypeStrView == "HDM") {
+        value = HDM;
     } else if (msgTypeStrView == "MTW") {
         value = MTW;
     } else if (msgTypeStrView == "MWV") {
@@ -93,6 +95,8 @@ const char *NMEAMsgType::name() const {
     switch (value) {
         case UNKNOWN:
             return "Unknown";
+        case ALK:
+            return "ALK";
         case DBK:
             return "DBK";
         case DBS:
@@ -115,6 +119,8 @@ const char *NMEAMsgType::name() const {
             return "GSV";
         case HDG:
             return "HDG";
+        case HDM:
+            return "HDM";
         case MTW:
             return "MTW";
         case MWV:
@@ -133,6 +139,8 @@ const char *NMEAMsgType::name() const {
             return "VHW";
         case VTG:
             return "VTG";
+        case PROPRIETARY:
+            return "Proprietary";
     }
     fatalError("Missing NMEAMsgType in name function");
 }

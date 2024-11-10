@@ -22,9 +22,13 @@
 #include "etl/string.h"
 #include "etl/string_view.h"
 
-NMEALineWalker::NMEALineWalker(const NMEALine &nmeaLine)
+NMEALineWalker::NMEALineWalker(const NMEALine &nmeaLine, bool stripStartAndEnd)
     : nmeaLine(nmeaLine) {
     reset();
+    if (stripStartAndEnd) {
+        skipChar();
+        stripChecksum();
+    }
 }
 
 void NMEALineWalker::reset() {
@@ -69,6 +73,15 @@ bool NMEALineWalker::getWord(etl::string_view &word) {
 
 void NMEALineWalker::skipChar() {
     remaining.remove_prefix(1);
+}
+
+void NMEALineWalker::skipWord() {
+    size_t commaPos = remaining.find(',');
+    if (commaPos == remaining.npos) {
+        remaining.remove_prefix(remaining.size());
+    } else {
+        remaining.remove_prefix(commaPos + 1);
+    }
 }
 
 bool NMEALineWalker::atEndOfLine() const {

@@ -45,8 +45,9 @@ class NMEARMTUARTInterface : public RMTUARTInterface, public NMEAInterface {
 
     public:
         NMEARMTUARTInterface(const char *name, const char *label, gpio_num_t rxGPIO,
-                             gpio_num_t txGPIO, uint32_t baudRate, StatsManager &statsManager,
-                             AISContacts &aisContacts, DataModel &dataModel);
+                             gpio_num_t txGPIO, uint32_t baudRate, const char *filteredTalkersList,
+                             StatsManager &statsManager, AISContacts &aisContacts,
+                             DataModel &dataModel);
 };
 
 #endif // NMEA_RMT_UART_INTERFACE_H
