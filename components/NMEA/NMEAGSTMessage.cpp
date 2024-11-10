@@ -31,7 +31,7 @@ NMEAGSTMessage::NMEAGSTMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGSTMessage::parse(NMEALineWalker &lineWalker) {
-    if (!time.extract(lineWalker, talker, "GST")) {
+    if (!time.extract(lineWalker, talker, "GST", true)) {
         return false;
     }
 

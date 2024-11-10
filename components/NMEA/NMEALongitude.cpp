@@ -20,7 +20,7 @@
 #include "NMEALineWalker.h"
 #include "NMEATalker.h"
 
-// #include "DataModel/DataModelStringLeaf.h"
+#include "DataModelStringLeaf.h"
 
 #include "Logger.h"
 
@@ -57,48 +57,69 @@ bool NMEALongitude::set(const etl::string_view &longitudeView,
     }
 }
 
-bool NMEALongitude::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
+bool NMEALongitude::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
+                            bool optional) {
     etl::string_view longitudeView;
-    if (!lineWalker.getWord(longitudeView)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message missing longitude" << eol;
-        return false;
+    if (!lineWalker.getWord(longitudeView) || longitudeView.length() == 0) {
+        if (!optional) {
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing longitude" << eol;
+            return false;
+        }
+
+        hasValue = false;
+        lineWalker.skipWord();
+        return true;
     }
 
     etl::string_view eastOrWestView;
-    if (!lineWalker.getWord(eastOrWestView)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message missing E/W" << eol;
-        return false;
+    if (!lineWalker.getWord(eastOrWestView) || eastOrWestView.length() == 0) {
+        if (!optional) {
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing E/W" << eol;
+            return false;
+        }
+
+        hasValue = false;
+        return true;
     }
 
     if (!set(longitudeView, eastOrWestView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message with bad longitude '"
                  << longitudeView << "' '" << eastOrWestView << "'" << eol;
+        hasValue = false;
         return false;
+    } else {
+        hasValue = true;
     }
 
     return true;
 }
 
 void NMEALongitude::publish(DataModelStringLeaf &leaf) const {
-    switch (eastOrWest) {
-        case EAST:
-            NMEACoordinate::publish(leaf, "E");
-            break;
+    if (hasValue) {
+        switch (eastOrWest) {
+            case EAST:
+                NMEACoordinate::publish(leaf, "E");
+                break;
 
-        case WEST:
-            NMEACoordinate::publish(leaf, "W");
+            case WEST:
+                NMEACoordinate::publish(leaf, "W");
+        }
+    } else {
+        leaf.removeValue();
     }
 }
 
 void NMEALongitude::log(Logger &logger) const {
-    NMEACoordinate::log(logger);
+    if (hasValue) {
+        switch (eastOrWest) {
+            case EAST:
+                NMEACoordinate::log(logger, "E");
+                break;
 
-    switch (eastOrWest) {
-        case EAST:
-            logger << "E";
-            break;
-
-        case WEST:
-            logger << "W";
+            case WEST:
+                NMEACoordinate::log(logger, "W");
+        }
+    } else {
+        logger << "NA";
     }
 }

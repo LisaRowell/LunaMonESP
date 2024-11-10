@@ -90,7 +90,8 @@ bool NMEAFAAModeIndicator::set(etl::string_view &faaModeView) {
     }
 }
 
-bool NMEAFAAModeIndicator::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
+bool NMEAFAAModeIndicator::extract(NMEALineWalker &lineWalker, NMEATalker &talker,
+                                   const char *msgType) {
     etl::string_view faaModeIndicatorView;
     if (lineWalker.getWord(faaModeIndicatorView)) {
         if (!set(faaModeIndicatorView)) {

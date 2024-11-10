@@ -35,7 +35,7 @@ NMEARMCMessage::NMEARMCMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEARMCMessage::parse(NMEALineWalker &lineWalker) {
-    if (!time.extract(lineWalker, talker, "RMC")) {
+    if (!time.extract(lineWalker, talker, "RMC", true)) {
         return false;
     }
 
@@ -43,15 +43,15 @@ bool NMEARMCMessage::parse(NMEALineWalker &lineWalker) {
         return false;
     }
 
-    if (!latitude.extract(lineWalker, talker, "RMC")) {
+    if (!latitude.extract(lineWalker, talker, "RMC", true)) {
         return false;
     }
 
-    if (!longitude.extract(lineWalker, talker, "RMC")) {
+    if (!longitude.extract(lineWalker, talker, "RMC", true)) {
         return false;
     }
 
-    if (!speedOverGround.extract(lineWalker, talker, "RMC", "Speed Over Ground")) {
+    if (!speedOverGround.extract(lineWalker, talker, "RMC", "Speed Over Ground", true)) {
         return false;
     }
 

@@ -59,48 +59,70 @@ bool NMEALatitude::set(const etl::string_view &latitudeView,
     return true;
 }
 
-bool NMEALatitude::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
+bool NMEALatitude::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
+                           bool optional) {
     etl::string_view latitudeView;
-    if (!lineWalker.getWord(latitudeView)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message missing latitude" << eol;
-        return false;
+    if (!lineWalker.getWord(latitudeView) || latitudeView.length() == 0) {
+        if (!optional) {
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing latitude"
+                     << eol;
+            return false;
+        }
+
+        hasValue = false;
+        lineWalker.skipWord();
+        return true;
     }
 
     etl::string_view northOrSouthView;
-    if (!lineWalker.getWord(northOrSouthView)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message missing N/S" << eol;
-        return false;
+    if (!lineWalker.getWord(northOrSouthView) || northOrSouthView.length() == 0) {
+        if (!optional) {
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing N/S" << eol;
+            return false;
+        }
+
+        hasValue = false;
+        return true;
     }
 
     if (!set(latitudeView, northOrSouthView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message with bad latitude '"
                  << latitudeView << "' '" << northOrSouthView << "'" << eol;
+        hasValue = false;
         return false;
+    } else {
+        hasValue = true;
     }
 
     return true;
 }
 
 void NMEALatitude::publish(DataModelStringLeaf &leaf) const {
-    switch (northOrSouth) {
-        case NORTH:
-            NMEACoordinate::publish(leaf, "N");
-            break;
+    if (hasValue) {
+        switch (northOrSouth) {
+            case NORTH:
+                NMEACoordinate::publish(leaf, "N");
+                break;
 
-        case SOUTH:
-            NMEACoordinate::publish(leaf, "S");
+            case SOUTH:
+                NMEACoordinate::publish(leaf, "S");
+        }
+    } else {
+        leaf.removeValue();
     }
 }
 
 void NMEALatitude::log(Logger &logger) const {
-    NMEACoordinate::log(logger);
+    if (hasValue) {
+        switch (northOrSouth) {
+            case NORTH:
+                NMEACoordinate::log(logger, "N");
+                break;
 
-    switch (northOrSouth) {
-        case NORTH:
-            logger << "N";
-            break;
-
-        case SOUTH:
-            logger << "S";
+            case SOUTH:
+                NMEACoordinate::log(logger, "S");
+        }
+    } else {
+        logger << "NA";
     }
 }

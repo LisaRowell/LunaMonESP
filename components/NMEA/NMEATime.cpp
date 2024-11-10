@@ -29,6 +29,10 @@
 #include "etl/string_stream.h"
 #include "etl/string_view.h"
 
+NMEATime::NMEATime()
+    : hasValue(false) {
+}
+
 bool NMEATime::set(const etl::string_view &timeView) {
     if (timeView.size() < 6) {
         return false;
@@ -64,33 +68,46 @@ bool NMEATime::set(const etl::string_view &timeView) {
     return true;
 }
 
-bool NMEATime::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType) {
+bool NMEATime::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
+                       bool optional) {
     etl::string_view timeView;
-    if (!lineWalker.getWord(timeView)) {
-        logger() << logWarnNMEA << talker << " " << msgType << " message missing Time field" << eol;
-        return false;
+    if (!lineWalker.getWord(timeView) || timeView.length() == 0) {
+        if (!optional) {
+            logger() << logWarnNMEA << talker << " " << msgType << " message missing Time field" << eol;
+            return false;
+        }
+
+        hasValue = false;
+        return true;
     }
 
     if (!set(timeView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message with bad Time field '"
                  << timeView << "'" << eol;
+        hasValue = false;
         return false;
+    } else {
+        hasValue = true;
     }
 
     return true;
 }
 
 void NMEATime::publish(DataModelStringLeaf &leaf) const {
-    char secondFractionStr[12];
-    buildSecondsFactionString(secondFractionStr);
+    if (hasValue) {
+        char secondFractionStr[12];
+        buildSecondsFactionString(secondFractionStr);
 
-    etl::string<22> timeStr;
-    etl::string_stream timeStrStream(timeStr);
-    timeStrStream << etl::setfill('0') << etl::setw(2) << hours << etl::setw(1) << ":"
-                  << etl::setw(2) << minutes << etl::setw(1) << ":" << etl::setw(2) << seconds
-                  << etl::setw(0) << secondFractionStr;
+        etl::string<22> timeStr;
+        etl::string_stream timeStrStream(timeStr);
+        timeStrStream << etl::setfill('0') << etl::setw(2) << hours << etl::setw(1) << ":"
+                    << etl::setw(2) << minutes << etl::setw(1) << ":" << etl::setw(2) << seconds
+                    << etl::setw(0) << secondFractionStr;
 
-    leaf = timeStr;
+        leaf = timeStr;
+    } else {
+        leaf.removeValue();
+    }
 }
 
 void NMEATime::buildSecondsFactionString(char *string) const {
@@ -114,14 +131,18 @@ void NMEATime::buildSecondsFactionString(char *string) const {
 }
 
 void NMEATime::log(Logger &logger) const {
-    char secondFractionStr[12];
-    buildSecondsFactionString(secondFractionStr);
+    if (hasValue) {
+        char secondFractionStr[12];
+        buildSecondsFactionString(secondFractionStr);
 
-    etl::string<22> timeStr;
-    etl::string_stream timeStrStream(timeStr);
-    timeStrStream << etl::setfill('0') << etl::setw(2) << hours << etl::setw(1) << ":"
-                  << etl::setw(2) << minutes << etl::setw(1) << ":" << etl::setw(2) << seconds
-                  << etl::setw(0) << secondFractionStr;
+        etl::string<22> timeStr;
+        etl::string_stream timeStrStream(timeStr);
+        timeStrStream << etl::setfill('0') << etl::setw(2) << hours << etl::setw(1) << ":"
+                    << etl::setw(2) << minutes << etl::setw(1) << ":" << etl::setw(2) << seconds
+                    << etl::setw(0) << secondFractionStr;
 
-    logger << timeStr;
+        logger << timeStr;
+    } else {
+        logger << "NA";
+    }
 }

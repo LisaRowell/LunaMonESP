@@ -59,7 +59,7 @@ bool NMEAUInt32::extract(NMEALineWalker &lineWalker, const NMEATalker &talker,
                          const char *msgTypeName, const char *fieldName, bool optional,
                          uint32_t maxValue) {
     etl::string_view valueView;
-    if (!lineWalker.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView) || valueView.length() == 0) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgTypeName << " message missing " << fieldName
                      << " field" << eol;

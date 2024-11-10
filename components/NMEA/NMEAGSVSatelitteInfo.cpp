@@ -37,11 +37,11 @@ bool NMEAGSVSatelitteInfo::extract(NMEALineWalker &lineWalker, NMEATalker &talke
         return false;
     }
 
-    if (!elevation.extract(lineWalker, talker, "GSV", "Elevation", false, -90, 90)) {
+    if (!elevation.extract(lineWalker, talker, "GSV", "Elevation", true, -90, 90)) {
         return false;
     }
 
-    if (!azimuth.extract(lineWalker, talker, "GSV", "Azimuth")) {
+    if (!azimuth.extract(lineWalker, talker, "GSV", "Azimuth", true)) {
         return false;
     }
 

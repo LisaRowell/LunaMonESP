@@ -42,7 +42,8 @@ class NMEALatitude : public NMEACoordinate, public LoggableItem {
         bool set(const etl::string_view &latitudeView, const etl::string_view &northOrSouthView);
 
     public:
-        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType);
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
+                     bool optional = false);
         void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };

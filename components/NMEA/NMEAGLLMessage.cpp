@@ -34,15 +34,15 @@ NMEAGLLMessage::NMEAGLLMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGLLMessage::parse(NMEALineWalker &lineWalker) {
-    if (!latitude.extract(lineWalker, talker, "GLL")) {
+    if (!latitude.extract(lineWalker, talker, "GLL", true)) {
         return false;
     }
 
-    if (!longitude.extract(lineWalker, talker, "GLL")) {
+    if (!longitude.extract(lineWalker, talker, "GLL", true)) {
         return false;
     }
 
-    if (!time.extract(lineWalker, talker, "GLL")) {
+    if (!time.extract(lineWalker, talker, "GLL", true)) {
         return false;
     }
 

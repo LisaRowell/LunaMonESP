@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NMEA_LONGITUDE_H
-#define NMEA_LONGITUDE_H
+#ifndef NMEA_TENTHS_UINT32_H
+#define NMEA_TENTHS_UINT32_H
 
-#include "NMEACoordinate.h"
+#include "TenthsUInt32.h"
 
 #include "LoggableItem.h"
 
@@ -27,25 +27,23 @@
 
 class NMEALineWalker;
 class NMEATalker;
-class DataModelStringLeaf;
+class DataModelTenthsUInt32Leaf;
 class Logger;
 
-enum EastOrWest {
-    EAST,
-    WEST
-};
-
-class NMEALongitude : public NMEACoordinate, public LoggableItem {
+class NMEATenthsUInt32 : public LoggableItem {
     private:
-        enum EastOrWest eastOrWest;
-
-        bool set(const etl::string_view &longitudeView, const etl::string_view &eastOrWestView);
+        TenthsUInt32 value;
+        bool valuePresent;
 
     public:
+        NMEATenthsUInt32();
+        bool set(const etl::string_view &valueView, bool optional);
         bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
-                     bool optional = false);
-        void publish(DataModelStringLeaf &leaf) const;
+                     const char *fieldName, bool optional = false);
+        bool hasValue() const;
+        constexpr operator TenthsUInt32() const { return value; }
+        void publish(DataModelTenthsUInt32Leaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };
 
-#endif
+#endif // NMEA_TENTHS_UINT32_H

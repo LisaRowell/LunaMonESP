@@ -62,7 +62,7 @@ bool NMEAInt8::set(const etl::string_view &valueView, bool optional, int8_t minV
 bool NMEAInt8::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                        const char *fieldName, bool optional, int8_t minValue, int8_t maxValue) {
     etl::string_view valueView;
-    if (!lineWalker.getWord(valueView)) {
+    if (!lineWalker.getWord(valueView) || valueView.length() == 0) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
                      << " field" << eol;

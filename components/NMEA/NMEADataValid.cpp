@@ -55,7 +55,7 @@ bool NMEADataValid::set(etl::string_view &dataValidView, bool optional) {
 bool NMEADataValid::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
                             bool optional) {
     etl::string_view dataValidView;
-    if (!lineWalker.getWord(dataValidView)) {
+    if (!lineWalker.getWord(dataValidView) || dataValidView.length() == 0) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgType << " message missing Data Valid field"
                      << eol;

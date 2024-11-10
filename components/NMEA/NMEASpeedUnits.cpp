@@ -50,7 +50,8 @@ bool NMEASpeedUnits::set(etl::string_view &speedUnitsView) {
     }
 }
 
-bool NMEASpeedUnits::extract(NMEALineWalker &lineWalker, const NMEATalker &talker, const char *msgType) {
+bool NMEASpeedUnits::extract(NMEALineWalker &lineWalker, const NMEATalker &talker,
+                             const char *msgType) {
     etl::string_view speedUnitsView;
     if (!lineWalker.getWord(speedUnitsView)) {
         logger() << logWarnNMEA << talker << " " << msgType << " message missing Speed Units field"

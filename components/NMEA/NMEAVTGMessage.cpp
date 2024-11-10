@@ -64,7 +64,7 @@ bool NMEAVTGMessage::parse(NMEALineWalker &lineWalker) {
         }
     }
 
-    if (!speedOverGround.extract(lineWalker, talker, "VTG", "Speed Over Ground")) {
+    if (!speedOverGround.extract(lineWalker, talker, "VTG", "Speed Over Ground", true)) {
         return false;
     }
 
@@ -74,7 +74,7 @@ bool NMEAVTGMessage::parse(NMEALineWalker &lineWalker) {
         }
     }
 
-    if (!speedOverGroundKmPerH.extract(lineWalker, talker, "VTG", "Speed Over Ground km/h")) {
+    if (!speedOverGroundKmPerH.extract(lineWalker, talker, "VTG", "Speed Over Ground km/h", true)) {
         return false;
     }
 

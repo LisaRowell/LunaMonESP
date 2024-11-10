@@ -23,6 +23,7 @@
 #include "NMEAMsgType.h"
 #include "NMEATime.h"
 #include "NMEATenthsUInt16.h"
+#include "NMEATenthsUInt32.h"
 
 class NMEATalker;
 class NMEALineWalker;
@@ -34,9 +35,9 @@ class NMEAGSTMessage : public NMEAMessage {
         NMEATenthsUInt16 standardDeviationOfSemiMajorAxis;
         NMEATenthsUInt16 standardDeviationOfSemiMinorAxis;
         NMEATenthsUInt16 orientationOfSemiMajorAxis;
-        NMEATenthsUInt16 standardDeviationOfLatitudeError;
-        NMEATenthsUInt16 standardDeviationOfLongitudeError;
-        NMEATenthsUInt16 standardDeviationOfAltitudeError;
+        NMEATenthsUInt32 standardDeviationOfLatitudeError;
+        NMEATenthsUInt32 standardDeviationOfLongitudeError;
+        NMEATenthsUInt32 standardDeviationOfAltitudeError;
 
     public:
         NMEAGSTMessage(const NMEATalker &talker);

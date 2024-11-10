@@ -34,15 +34,15 @@ NMEAGGAMessage::NMEAGGAMessage(const NMEATalker &talker) : NMEAMessage(talker) {
 }
 
 bool NMEAGGAMessage::parse(NMEALineWalker &lineWalker) {
-    if (!time.extract(lineWalker, talker, "GGA")) {
+    if (!time.extract(lineWalker, talker, "GGA", true)) {
         return false;
     }
 
-    if (!latitude.extract(lineWalker, talker, "GGA")) {
+    if (!latitude.extract(lineWalker, talker, "GGA", true)) {
         return false;
     }
 
-    if (!longitude.extract(lineWalker, talker, "GGA")) {
+    if (!longitude.extract(lineWalker, talker, "GGA", true)) {
         return false;
     }
 
@@ -59,19 +59,19 @@ bool NMEAGGAMessage::parse(NMEALineWalker &lineWalker) {
         return false;
     }
 
-    if (!antennaAltitude.extract(lineWalker, talker, "GGA", "Antenna Altitude")) {
+    if (!antennaAltitude.extract(lineWalker, talker, "GGA", "Antenna Altitude", true)) {
         return false;
     }
 
-    if (!extractConstantWord(lineWalker, "GGA", "M")) {
+    if (!extractConstantWord(lineWalker, "GGA", "M", !antennaAltitude.hasValue())) {
         return false;
     }
 
-    if (!geoidalSeparation.extract(lineWalker, talker, "GGA", "Geoidal Separation")) {
+    if (!geoidalSeparation.extract(lineWalker, talker, "GGA", "Geoidal Separation", true)) {
         return false;
     }
 
-    if (!extractConstantWord(lineWalker, "GGA", "M")) {
+    if (!extractConstantWord(lineWalker, "GGA", "M", !geoidalSeparation.hasValue())) {
         return false;
     }
 

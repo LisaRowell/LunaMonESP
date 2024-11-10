@@ -31,6 +31,10 @@
 
 #include <stdint.h>
 
+NMEACoordinate::NMEACoordinate()
+    : hasValue(false) {
+}
+
 bool NMEACoordinate::setDegrees(const etl::string_view &degreesView, uint8_t maxDegrees) {
     etl::to_arithmetic_result<uint8_t> conversionResult = etl::to_arithmetic<uint8_t>(degreesView);
     if (!conversionResult.has_value()) {
@@ -79,11 +83,11 @@ bool NMEACoordinate::setMinutes(const etl::string_view &minutesView) {
 }
 
 // This prints the coordinate as unsigned and the caller is responsible for appending N/S or E/W.
-void NMEACoordinate::log(Logger &logger) const {
+void NMEACoordinate::log(Logger &logger, const char *suffix) const {
     etl::string<20> coordinateStr;
     etl::string_stream coordinateStream(coordinateStr);
 
-    coordinateStream << degrees << "\xC2\xB0" << etl::setprecision(5) << minutes << "'";
+    coordinateStream << degrees << "\xC2\xB0" << etl::setprecision(5) << minutes << "'" << suffix;
 
     logger << coordinateStr;
 }

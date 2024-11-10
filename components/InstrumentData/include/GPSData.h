@@ -26,6 +26,7 @@
 #include "DataModelUInt16Leaf.h"
 #include "DataModelTenthsInt16Leaf.h"
 #include "DataModelTenthsUInt16Leaf.h"
+#include "DataModelTenthsUInt32Leaf.h"
 #include "DataModelHundredthsUInt8Leaf.h"
 #include "DataModelHundredthsUInt16Leaf.h"
 #include "DataModelStringLeaf.h"
@@ -82,9 +83,9 @@ class GPSData : public InstrumentGroup {
         DataModelTenthsUInt16Leaf standardDeviationOfSemiMajorAxisLeaf;
         DataModelTenthsUInt16Leaf standardDeviationOfSemiMinorAxisLeaf;
         DataModelTenthsUInt16Leaf orientationOfSemiMajorAxisLeaf;
-        DataModelTenthsUInt16Leaf standardDeviationOfLatitudeErrorLeaf;
-        DataModelTenthsUInt16Leaf standardDeviationOfLongitudeErrorLeaf;
-        DataModelTenthsUInt16Leaf standardDeviationOfAltitudeErrorLeaf;
+        DataModelTenthsUInt32Leaf standardDeviationOfLatitudeErrorLeaf;
+        DataModelTenthsUInt32Leaf standardDeviationOfLongitudeErrorLeaf;
+        DataModelTenthsUInt32Leaf standardDeviationOfAltitudeErrorLeaf;
 
         GPSData(DataModel &dataModel, DataModelNode &instrumentDataNode,
                 StatsManager &statsManager);

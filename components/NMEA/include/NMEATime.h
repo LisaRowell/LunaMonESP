@@ -37,13 +37,16 @@ class NMEATime : public LoggableItem {
         uint8_t seconds;
         uint8_t secondPrecision;
         uint32_t secondFraction;
+        bool hasValue;
 
         void buildSecondsFactionString(char *string) const;
 
         bool set(const etl::string_view &timeView);
 
     public:
-        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType);
+        NMEATime();
+        bool extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
+                     bool optional = false);
         void publish(DataModelStringLeaf &leaf) const;
         virtual void log(Logger &logger) const override;
 };

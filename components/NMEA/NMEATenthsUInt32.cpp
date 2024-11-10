@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2021-2024 Lisa Rowell
+ * Copyright (C) 2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,23 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NMEATenthsInt16.h"
 #include "NMEALineWalker.h"
 #include "NMEATalker.h"
+#include "NMEATenthsUInt32.h"
 
-#include "DataModelTenthsInt16Leaf.h"
+#include "DataModelTenthsUInt32Leaf.h"
+
+#include "TenthsUInt32.h"
 
 #include "Logger.h"
 #include "Error.h"
 
 #include "etl/string_view.h"
 #include "etl/to_arithmetic.h"
+#include "etl/string.h"
+#include "etl/string_stream.h"
 
-NMEATenthsInt16::NMEATenthsInt16() : valuePresent(false) {
+#include <stdint.h>
+
+NMEATenthsUInt32::NMEATenthsUInt32() : valuePresent(false) {
 }
 
-bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
-    int16_t integer;
+bool NMEATenthsUInt32::set(const etl::string_view &valueView, bool optional) {
+    uint32_t wholeNumber;
     uint8_t tenths;
 
     if (valueView.size() == 0) {
@@ -44,19 +50,20 @@ bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
         return true;
     }
 
-    etl::string_view integerView;
+    etl::string_view wholeNumberView;
     size_t periodPos = valueView.find('.');
     if (periodPos == valueView.npos) {
-        integerView = etl::string_view(valueView);
+        wholeNumberView = etl::string_view(valueView);
     } else {
-        integerView = etl::string_view(valueView.begin(), periodPos);
+        wholeNumberView = etl::string_view(valueView.begin(), periodPos);
     }
-    etl::to_arithmetic_result<int16_t> integerResult = etl::to_arithmetic<int16_t>(integerView);
-    if (!integerResult.has_value()) {
+    etl::to_arithmetic_result<uint32_t> wholeNumberResult
+        = etl::to_arithmetic<uint32_t>(wholeNumberView);
+    if (!wholeNumberResult.has_value()) {
         valuePresent = false;
         return false;
     }
-    integer = integerResult.value();
+    wholeNumber = wholeNumberResult.value();
 
     if (periodPos != valueView.npos && valueView.length() > periodPos + 1) {
         etl::string_view decimalView(valueView.begin() + periodPos, valueView.end());
@@ -77,25 +84,24 @@ bool NMEATenthsInt16::set(const etl::string_view &valueView, bool optional) {
                 tenths = (decimalResult.value() + 5) / 10;
                 break;
             default:
-                fatalError("Bad parsing of TenthsInt16");
+                fatalError("Bad parsing of TenthsUInt32");
         }
     } else {
         tenths = 0;
     }
 
-    value = TenthsInt16(integer, tenths);
+    value = TenthsUInt32(wholeNumber, tenths);
     valuePresent = true;
     return true;
 }
 
-bool NMEATenthsInt16::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
-                              const char *fieldName, bool optional) {
+bool NMEATenthsUInt32::extract(NMEALineWalker &lineWalker, NMEATalker &talker, const char *msgType,
+                               const char *fieldName, bool optional) {
     etl::string_view valueView;
     if (!lineWalker.getWord(valueView) || valueView.length() == 0) {
         if (!optional) {
             logger() << logWarnNMEA << talker << " " << msgType << " message missing " << fieldName
                      << " field" << eol;
-            valuePresent = false;
             return false;
         }
 
@@ -112,11 +118,11 @@ bool NMEATenthsInt16::extract(NMEALineWalker &lineWalker, NMEATalker &talker, co
     return true;
 }
 
-bool NMEATenthsInt16::hasValue() const {
+bool NMEATenthsUInt32::hasValue() const {
     return valuePresent;
 }
 
-void NMEATenthsInt16::publish(DataModelTenthsInt16Leaf &leaf) const {
+void NMEATenthsUInt32::publish(DataModelTenthsUInt32Leaf &leaf) const {
     if (valuePresent) {
         leaf = value;
     } else {
@@ -124,7 +130,7 @@ void NMEATenthsInt16::publish(DataModelTenthsInt16Leaf &leaf) const {
     }
 }
 
-void NMEATenthsInt16::log(Logger &logger) const {
+void NMEATenthsUInt32::log(Logger &logger) const {
     if (valuePresent) {
         value.log(logger);
     } else {
