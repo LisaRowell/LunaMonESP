@@ -50,9 +50,9 @@ menu "Debug config"
         default 0 if !LUNAMON_DEBUG_MODULE_DATA_MODEL_BRIDGE
 
     config LUNAMON_DEBUG_MODULE_NMEA_WIFI
-        bool "Debug NMEAWiFi"
+        bool "Debug NMEA WiFi"
         help
-            Whether or not to debug the NMEAWiFi module.
+            Whether or not to debug the NMEA WiFi module.
 
     config LUNAMON_DEBUG_MODULE_NMEA_WIFI_ENABLED
         int
