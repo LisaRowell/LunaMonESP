@@ -35,6 +35,8 @@ class AISMessage {
         bool parseCommonNavigationBlock(etl::bit_stream_reader &streamReader,
                                         size_t messageSizeInBits, bool ownShip,
                                         AISContacts &aisContacts);
+        bool parseBaseStationReport(etl::bit_stream_reader &streamReader, size_t messageSizeInBits,
+                                    bool ownShip, AISContacts &aisContacts);
         bool parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamReader,
                                              size_t messageSizeInBits, bool ownShip,
                                              AISContacts &aisContacts);

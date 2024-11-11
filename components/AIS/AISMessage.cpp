@@ -33,6 +33,8 @@
 #include "Logger.h"
 
 #include "etl/bit_stream.h"
+#include "etl/string.h"
+#include "etl/string_stream.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -53,6 +55,9 @@ bool AISMessage::parse(etl::bit_stream_reader &streamReader, size_t messageSizeI
         case AISMsgType::POS_REPORT_CLASS_A_RESPONSE:
             return parseCommonNavigationBlock(streamReader, messageSizeInBits, ownShip,
                                               aisContacts);
+
+        case AISMsgType::BASE_STATION_REPORT:
+            return parseBaseStationReport(streamReader, messageSizeInBits, ownShip, aisContacts);
 
         case AISMsgType::STATIC_AND_VOYAGE_DATA:
             return parseStaticAndVoyageRelatedData(streamReader, messageSizeInBits, ownShip,
@@ -122,6 +127,64 @@ bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader
             createContactError(mmsi);
         } else {
             contact->setNavigationStatus(navigationStatus);
+            contact->setCourseVector(position, courseOverGround, speedOverGround);
+            aisContacts.contactCourseVectorChanged(*contact);
+        }
+        aisContacts.releaseContactsLock();
+    }
+
+    return true;
+}
+
+bool AISMessage::parseBaseStationReport(etl::bit_stream_reader &streamReader,
+                                        size_t messageSizeInBits, bool ownShip,
+                                        AISContacts &aisContacts) {
+    if (messageSizeInBits != 168) {
+        logger() << logWarnAIS << "Base Station Report with bad length ("
+                 << messageSizeInBits << ")" << eol;
+        return false;
+    }
+
+    [[maybe_unused]] uint8_t repeatIndicator = etl::read_unchecked<uint8_t>(streamReader, 2);
+    AISMMSI mmsi(streamReader);
+    uint16_t year = etl::read_unchecked<uint16_t>(streamReader, 14);
+    uint8_t month = etl::read_unchecked<uint8_t>(streamReader, 4);
+    uint8_t day = etl::read_unchecked<uint8_t>(streamReader, 5);
+    uint8_t hour = etl::read_unchecked<uint8_t>(streamReader, 5);
+    uint8_t minute = etl::read_unchecked<uint8_t>(streamReader, 6);
+    uint8_t second = etl::read_unchecked<uint8_t>(streamReader, 6);
+    [[maybe_unused]] bool positionAccuracy = etl::read_unchecked<bool>(streamReader);
+    AISPosition position(streamReader);
+    AISEPFDFixType epfdFixType(streamReader);
+    streamReader.skip(10);
+    [[maybe_unused]] bool raimFlag = etl::read_unchecked<bool>(streamReader);
+
+    etl::string<9> timeStr;
+    etl::string_stream timeStrStream(timeStr);
+    timeStrStream << etl::setfill('0')<< etl::setw(2) << hour << etl::setw(0) << ":" << etl::setw(2)
+                  << minute << etl::setw(0) << ":" << etl::setw(2) << second;
+
+    Logger &currentLogger = logger();
+    currentLogger << logDebugAIS <<  msgType << " MMSI: " << mmsi << " " << month << "/" << day
+                  << "/" << year << " " << timeStr << " " << position << " " << " Fix: "
+                  << epfdFixType;
+    if (ownShip) {
+        currentLogger << " own ship";
+    }
+    currentLogger << eol;
+
+    // Since it's a base station, it's position course is undefined and it's speed better be zero.
+    AISCourseOverGround courseOverGround;
+    AISSpeedOverGround speedOverGround(0);
+
+    if (ownShip) {
+        aisContacts.setOwnCourseVector(position, courseOverGround, speedOverGround);
+    } else {
+        aisContacts.takeContactsLock();
+        AISContact *contact = aisContacts.findOrCreateContact(mmsi);
+        if (contact == nullptr) {
+            createContactError(mmsi);
+        } else {
             contact->setCourseVector(position, courseOverGround, speedOverGround);
             aisContacts.contactCourseVectorChanged(*contact);
         }
