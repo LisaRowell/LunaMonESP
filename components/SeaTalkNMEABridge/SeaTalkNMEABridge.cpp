@@ -153,7 +153,7 @@ void SeaTalkNMEABridge::bridgeMessage(const NMEAMsgType &msgType, const etl::ist
     NMEALine nmeaLine(message);
     nmeaLine.appendChecksum();
 
-    logger() << logWarnSeaTalkNMEABridge << "Bridging from SeaTalk: " << nmeaLine << eol;
+    logger() << logDebugSeaTalkNMEABridge << "Bridging from SeaTalk: " << nmeaLine << eol;
 
     NMEATalker talker(talkerCode);
     destination.handleLine(nmeaLine, talker, msgType);
