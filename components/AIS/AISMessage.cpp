@@ -123,9 +123,7 @@ bool AISMessage::parseCommonNavigationBlock(etl::bit_stream_reader &streamReader
     } else {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setNavigationStatus(navigationStatus);
             contact->setCourseVector(position, courseOverGround, speedOverGround);
             aisContacts.contactCourseVectorChanged(*contact);
@@ -182,9 +180,7 @@ bool AISMessage::parseBaseStationReport(etl::bit_stream_reader &streamReader,
     } else {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setCourseVector(position, courseOverGround, speedOverGround);
             aisContacts.contactCourseVectorChanged(*contact);
         }
@@ -247,9 +243,7 @@ bool AISMessage::parseStaticAndVoyageRelatedData(etl::bit_stream_reader &streamR
     if (!ownShip) {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setName(vesselName);
             contact->setShipType(shipType);
             if (dimensions.isSet()) {
@@ -303,9 +297,7 @@ bool AISMessage::parseStandardClassBPositionReport(etl::bit_stream_reader &strea
     } else {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setCourseVector(position, courseOverGround, speedOverGround);
             aisContacts.contactCourseVectorChanged(*contact);
         }
@@ -364,9 +356,7 @@ bool AISMessage::parseAidToNavigationReport(etl::bit_stream_reader &streamReader
     } else {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setName(name);
             contact->setNavigationAidType(navigationAidType);
             contact->setDimensions(dimensions);
@@ -439,9 +429,7 @@ void AISMessage::parseStaticDataReportPartA(etl::bit_stream_reader &streamReader
     if (!ownShip) {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setName(vesselName);
         }
         aisContacts.releaseContactsLock();
@@ -492,9 +480,7 @@ void AISMessage::parseStaticDataReportPartB(etl::bit_stream_reader &streamReader
     if (!ownShip) {
         aisContacts.takeContactsLock();
         AISContact *contact = aisContacts.findOrCreateContact(mmsi);
-        if (contact == nullptr) {
-            createContactError(mmsi);
-        } else {
+        if (contact != nullptr) {
             contact->setShipType(shipType);
             if (dimensions.isSet()) {
                 contact->setDimensions(dimensions);
@@ -502,9 +488,4 @@ void AISMessage::parseStaticDataReportPartB(etl::bit_stream_reader &streamReader
         }
         aisContacts.releaseContactsLock();
     }
-}
-
-void AISMessage::createContactError(AISMMSI &mmsi) {
-    logger() << logWarnAIS << "Failed to create contact from " << msgType << " message from mmsi "
-             << mmsi << ". Table contact full." << eol;
 }
