@@ -45,6 +45,7 @@
 #include "StatusLED.h"
 #include "I2CMaster.h"
 #include "EnvironmentalMon.h"
+#include "Buzzer.h"
 #include "Logger.h"
 #include "ESPError.h"
 #include "Error.h"
@@ -279,6 +280,11 @@ LunaMon::LunaMon()
     if (CONFIG_LUNAMON_I2C_ENABLED &&
         (CONFIG_LUNAMON_BME280_ENABLED || CONFIG_LUNAMON_ENS160_ENABLED)) {
         environmentalMon = new EnvironmentalMon(dataModel, *ic2Master, statusLED);
+    }
+
+    if (CONFIG_LUNAMON_BUZZER_ENABLED) {
+        buzzer = new Buzzer((gpio_num_t)CONFIG_LUNAMON_BUZZER_GPIO,
+                            CONFIG_LUNAMON_BUZZER_CHIRP_AT_STARTUP_ENABLED);
     }
 }
 
@@ -680,6 +686,10 @@ void LunaMon::run() {
 
     if (environmentalMon) {
         environmentalMon->start();
+    }
+
+    if (buzzer) {
+        buzzer->start();
     }
 
     gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);

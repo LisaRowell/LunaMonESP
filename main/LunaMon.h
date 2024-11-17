@@ -63,6 +63,7 @@ class SeaTalkRMTUARTInterface;
 class NMEAServer;
 class NMEABridge;
 class SeaTalkNMEABridge;
+class Buzzer;
 
 class LunaMon {
     private:
@@ -86,6 +87,7 @@ class LunaMon {
         I2CMaster *ic2Master;
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
+        Buzzer *buzzer;
 
         etl::string<10> versionBuffer;
         DataModelStringLeaf versionLeaf;

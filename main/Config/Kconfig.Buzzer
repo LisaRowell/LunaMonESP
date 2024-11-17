@@ -1,0 +1,31 @@
+menu "Buzzer Configuration"
+
+    config LUNAMON_HAS_BUZZER
+        bool "Has Alarm Buzzer"
+        default n
+        help
+            Whether or not the unit has a buzzer which can be used to signal alarm conditions.
+
+    config LUNAMON_BUZZER_GPIO
+        int "Buzzer Pin" if LUNAMON_HAS_BUZZER
+        default 5
+        help
+            GPIO pin number where a buzzer circuit connected. Consult your board documentation for
+            information on which pin to use.
+
+    config LUNAMON_BUZZER_ENABLED
+        int
+        default 1 if LUNAMON_HAS_BUZZER
+        default 0 if !LUNAMON_HAS_BUZZER
+
+    config LUNAMON_BUZZER_CHIRP_AT_STARTUP
+        bool "Enable a buzzer chirp at startup" if LUNAMON_HAS_BUZZER
+        help
+            Perform a short buzzer chirp at startup.
+
+    config LUNAMON_BUZZER_CHIRP_AT_STARTUP_ENABLED
+        int
+        default 1 if LUNAMON_BUZZER_CHIRP_AT_STARTUP
+        default 0 if !LUNAMON_BUZZER_CHIRP_AT_STARTUP
+
+endmenu

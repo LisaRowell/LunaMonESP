@@ -81,6 +81,7 @@ Logger::Logger(LoggerLevel level)
     moduleDebugFlags[LOGGER_MODULE_ENVIRONMENTAL_MON]
         = CONFIG_LUNAMON_DEBUG_MODULE_ENVIRONMENTAL_MON_ENABLED;
     moduleDebugFlags[LOGGER_MODULE_TASK_OBJECT] = CONFIG_LUNAMON_DEBUG_MODULE_TASK_OBJECT_ENABLED;
+    moduleDebugFlags[LOGGER_MODULE_BUZZER] = CONFIG_LUNAMON_DEBUG_MODULE_BUZZER_ENABLED;
 }
 
 void Logger::setLevel(LoggerLevel level) {
@@ -468,6 +469,8 @@ const char *Logger::moduleName(LoggerModule module) {
             return "Environmental Mon";
         case LOGGER_MODULE_TASK_OBJECT:
             return "Task Object";
+        case LOGGER_MODULE_BUZZER:
+            return "Buzzer";
         default:
             fatalError("Unhandled LoggerModule in Logger::moduleName");
     }
