@@ -39,20 +39,25 @@ NMEAClient::NMEAClient(int socket, struct sockaddr_in &sourceAddr)
     // slow client or one that is going away.
     int nonblocking = 1;
     lwip_ioctl(socket, FIONBIO, &nonblocking);
+    setSocketKeepalive();
 }
 
 bool NMEAClient::sendLine(const NMEALine &inputLine, bool &dropped) {
     ssize_t result = send(socket, inputLine.data(), inputLine.length(), 0);
-    if (result == EAGAIN || result == EWOULDBLOCK) {
-        // The socket buffer is full so the client isn't going to get this message. It's still open
-        // though so we don't disconnect.
-        dropped = true;
-        return true;
-    } else if (result < 0) {
-        logger() << logDebugNMEAServer << "Send to NMEA Server client " << sourceAddr << " failed: "
-                 << strerror(result) << eol;
-        dropped = true;
-        return false;
+    if (result < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // The socket buffer is full so the client isn't going to get this message. It's still
+            // open though so we don't disconnect.
+            logger() << logDebugNMEAServer << "Send to NMEA Server client " << *this
+                     << " failed due to full buffer (" << strerror(errno) << ")" << eol;
+            dropped = true;
+            return true;
+        } else {
+            logger() << logWarnNMEAServer << "Send to NMEA Server client " << sourceAddr
+                     << " failed: " << strerror(errno) << "(" << errno << ")" << eol;
+            dropped = true;
+            return false;
+        }
     } else if ((size_t)result != inputLine.length()) {
         // Is this a thing?
         logger() << logWarnNMEAServer << "Partial NMEA message sent to client " << sourceAddr
@@ -63,6 +68,18 @@ bool NMEAClient::sendLine(const NMEALine &inputLine, bool &dropped) {
         dropped = false;
         return true;
     }
+}
+
+void NMEAClient::setSocketKeepalive() {
+    int keepAlive = 1;
+    int keepIdle = CONFIG_LUNAMON_TCP_KEEPALIVE_IDLE;
+    int keepInterval = CONFIG_LUNAMON_TCP_KEEPALIVE_INTERVAL;
+    int keepCount = CONFIG_LUNAMON_TCP_KEEPALIVE_COUNT;
+
+    setsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
+    setsockopt(socket, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
+    setsockopt(socket, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(int));
+    setsockopt(socket, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
 }
 
 void NMEAClient::setNameLeaf(DataModelStringLeaf *nameLeaf) {
@@ -76,13 +93,16 @@ void NMEAClient::setNameLeaf(DataModelStringLeaf *nameLeaf) {
     *nameLeaf = nameStr;
 }
 
-
 NMEAClient::~NMEAClient() {
     shutdown(socket, SHUT_RDWR);
     close(socket);
 }
 
 Logger & operator << (Logger &logger, const NMEAClient &client) {
-    logger << client.sourceAddr;
+    char addrStr[16];
+    inet_ntoa_r(client.sourceAddr.sin_addr.s_addr, addrStr, sizeof(addrStr) - 1);
+
+    logger << addrStr << ":" << ntohs(client.sourceAddr.sin_port);
+
     return logger;
 }

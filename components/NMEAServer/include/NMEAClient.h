@@ -30,6 +30,8 @@ class NMEAClient {
         int socket;
         struct sockaddr_in sourceAddr;
 
+        void setSocketKeepalive();
+
     public:
         NMEAClient(int socket, struct sockaddr_in &sourceAddr);
         bool sendLine(const NMEALine &inputLine, bool &dropped);

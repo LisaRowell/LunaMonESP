@@ -180,16 +180,16 @@ void NMEAServer::handleLine(const NMEALine &inputLine, const NMEATalker &talker,
                             const NMEAMsgType &msgType) {
     takeClientLock();
 
-    etl::ivector<NMEAClient *>::iterator clientInterator;
-    for (clientInterator = clients.begin(); clientInterator != clients.end(); ) {
-        NMEAClient *client = *clientInterator;
+    etl::ivector<NMEAClient *>::iterator clientIterator;
+    for (clientIterator = clients.begin(); clientIterator != clients.end(); ) {
+        NMEAClient *client = *clientIterator;
         bool dropped;
         if (!client->sendLine(inputLine, dropped)) {
             // Send failed, shut it down...
             // Consider the implications to logging while holding this lock. It's not great, but
             // the information is pretty useful.
-            logger << logNotifyNMEAServer << "NMEA Server client " << client << " closed." << eol;
-            clientInterator = clients.erase(clientInterator);
+            logger << logNotifyNMEAServer << "NMEA Server client " << *client << " closed." << eol;
+            clientIterator = clients.erase(clientIterator);
             client->~NMEAClient();
             clientPool.release(client);
             disconnects++;
@@ -199,7 +199,7 @@ void NMEAServer::handleLine(const NMEALine &inputLine, const NMEATalker &talker,
             } else {
                 sentMessages++;
             }
-            clientInterator++;
+            clientIterator++;
         }
     }
 
