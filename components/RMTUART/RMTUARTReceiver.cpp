@@ -106,6 +106,8 @@ void RMTUARTReceiver::task() {
                 charBuilder.addBits(duration, level);
             }
             charBuilder.streamComplete();
+        } else {
+            logger << logWarnRMTUART << "xMessageBufferReceive returned with no message" << eol;
         }
     }
 }
