@@ -199,7 +199,7 @@ void MQTTBroker::newConnection(int connectionSocket, struct sockaddr_in &sourceA
 
     releaseConnectionLock();
 
-    logger << logNotifyMQTT << "Accepted connection from " << sourceAddr << eol;
+    logger << logNotifyMQTT << "Accepted MQTT connection from " << sourceAddr << eol;
     connection.assignSocket(connectionSocket, sourceAddr);
 }
 

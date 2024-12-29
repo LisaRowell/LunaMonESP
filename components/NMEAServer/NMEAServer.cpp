@@ -171,7 +171,7 @@ void NMEAServer::newClient(int clientSocket, struct sockaddr_in &sourceAddr,
 
     releaseClientLock();
 
-    logger << logNotifyNMEAServer << "Accepted connection from " << sourceAddr << eol;
+    logger << logNotifyNMEAServer << "Accepted NMEA connection from " << sourceAddr << eol;
     connects++;
 }
 
