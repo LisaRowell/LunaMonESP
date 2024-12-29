@@ -46,7 +46,7 @@ DataModel::DataModel(StatsManager &statsManager)
       updatesLeaf("updates", &dataModelNode),
       updateRateLeaf("updateRate", &dataModelNode) {
     if ((subscriptionLock = xSemaphoreCreateMutex()) == nullptr) {
-        logger << logErrorMQTT << "Failed to create subscriptionLock mutex" << eol;
+        logger << logErrorDataModel << "Failed to create subscriptionLock mutex" << eol;
         errorExit();
     }
 
