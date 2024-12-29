@@ -39,7 +39,7 @@
 #include <stdint.h>
 
 MQTTBroker::MQTTBroker(WiFiManager &wifiManager, DataModel &dataModel, StatsManager &statsManager)
-    : TaskObject("NMEAWiFiSource", LOGGER_LEVEL_DEBUG, stackSize),
+    : TaskObject("MQTTBroker", LOGGER_LEVEL_DEBUG, stackSize),
       WiFiManagerClient(wifiManager),
       clientsNode("clients", &dataModel.brokerNode()),
       connectedClientsLeaf("connected", &clientsNode),
