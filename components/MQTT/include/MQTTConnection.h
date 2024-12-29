@@ -42,7 +42,7 @@ typedef etl::bidirectional_link<connectionLinkId> ConnectionLink;
 
 class MQTTConnection : public TaskObject, public ConnectionLink {
     private:
-        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr size_t stackSize = 4 * 1024;
 
         static constexpr size_t minMQTTFixedHeaderSize = 2;
         static constexpr size_t maxMQTTFixedHeaderSize = (minMQTTFixedHeaderSize + 3);

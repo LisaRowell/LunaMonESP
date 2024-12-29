@@ -46,6 +46,7 @@ class StatsManager;
 
 class DataModel : public TaskObject, public StatsHolder {
     private:
+        static constexpr size_t stackSize = 3 * 1024;
         static constexpr uint32_t lockTimeoutMs = 60 * 1000;
 
         DataModelRoot _rootNode;

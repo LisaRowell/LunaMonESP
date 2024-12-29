@@ -29,10 +29,8 @@
 
 #include <freertos/semphr.h>
 
-#define STACK_SIZE  (8 * 1024)
-
 DataModel::DataModel(StatsManager &statsManager)
-    : TaskObject("DataModel", LOGGER_LEVEL_DEBUG, STACK_SIZE),
+    : TaskObject("DataModel", LOGGER_LEVEL_DEBUG, stackSize),
       _rootNode(this),
       subscriptionCount(0), retainedValues(0),
       _sysNode("$SYS", &_rootNode),

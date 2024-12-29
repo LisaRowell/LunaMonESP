@@ -34,7 +34,7 @@ class StatsHolder;
 
 class StatsManager : public TaskObject {
     private:
-        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr size_t stackSize = 3 * 1024;
         static constexpr uint32_t statsUpdateTimeIntervalMs = 10 * 1000;
 
         PassiveTimer lastHarvestTime;

@@ -50,7 +50,7 @@ static constexpr size_t maxMQTTSessions = CONFIG_LUNAMON_MAX_MQTT_CLIENTS;
 
 class MQTTBroker : public TaskObject, WiFiManagerClient, StatsHolder {
     private:
-        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr size_t stackSize = 6 * 1024;
         static constexpr uint16_t serverPort = 1883;
         static constexpr uint32_t lockTimeoutMs = 60 * 1000;
 

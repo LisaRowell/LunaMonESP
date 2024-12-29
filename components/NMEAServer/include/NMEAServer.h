@@ -51,7 +51,7 @@ class DataModel;
 
 class NMEAServer : public NMEALineHandler, public TaskObject, WiFiManagerClient, StatsHolder {
     private:
-        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr size_t stackSize = 4 * 1024;
         static constexpr uint32_t lockTimeoutMs = 60 * 1000;
         static constexpr size_t maxClientNameLength = 22;
 

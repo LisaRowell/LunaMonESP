@@ -27,7 +27,7 @@
 
 class Buzzer : public TaskObject {
     private:
-        static constexpr size_t stackSize = 4 * 1024;
+        static constexpr size_t stackSize = 3 * 1024;
         static constexpr uint32_t startupChirpDelayMS = 2 * 1000;
         static constexpr uint32_t startupChirpDurationMS = 500;
 

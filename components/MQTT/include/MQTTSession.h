@@ -43,7 +43,7 @@ typedef etl::bidirectional_link<sessionLinkId> SessionLink;
 
 class MQTTSession : public DataModelSubscriber, public TaskObject, public SessionLink {
     private:
-        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr size_t stackSize = 4 * 1024;
 
         // Since we use freeRtos message buffers, we can't safely use the OG notification index of
         // 0. Use our own index instead.

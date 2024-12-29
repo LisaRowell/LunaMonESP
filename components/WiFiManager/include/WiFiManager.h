@@ -36,7 +36,7 @@
 
 class WiFiManager : TaskObject {
     private:
-        static constexpr size_t stackSize = 8 * 1024;
+        static constexpr size_t stackSize = 3 * 1024;
         static constexpr uint32_t connectionRetryTimeMs = 1000;
         bool connected;
         esp_netif_t *wifiInterface;

@@ -36,7 +36,7 @@
 
 class RMTUARTReceiver : public TaskObject {
     private:
-        static constexpr size_t stackSize = 16 * 1024;
+        static constexpr size_t stackSize = 3 * 1024;
         static constexpr int interruptPriority = 1;
         static constexpr uint32_t nanoSecondsPerSecond = 1000000000;
         static constexpr uint32_t resolutionHz = 1000000;

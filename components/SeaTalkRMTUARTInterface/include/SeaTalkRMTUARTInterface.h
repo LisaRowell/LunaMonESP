@@ -34,7 +34,7 @@ class DataModel;
 
 class SeaTalkRMTUARTInterface : public RMTUARTInterface, public SeaTalkInterface {
     private:
-        static constexpr size_t stackSize = (1024 * 8);
+        static constexpr size_t stackSize = 3 *1024;
         static constexpr uint32_t noDataDelayMs = 20;
         static constexpr uint16_t rxBufferSize = MAX_SEA_TALK_LINE_LENGTH;
 
