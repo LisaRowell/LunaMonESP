@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,17 @@
 
 #include "Logger.h"
 
+#include "etl/intrusive_links.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 #include <stddef.h>
 
-class TaskObject {
+constexpr size_t tasksLinkId = 0;
+typedef etl::forward_link<tasksLinkId> tasksLink;
+
+class TaskObject : public tasksLink {
     public:
         enum TaskPriority {
             LOW_PRIORITY = tskIDLE_PRIORITY,
@@ -53,6 +58,7 @@ class TaskObject {
                    TaskPriority priority = MEDIUM_PRIORITY);
         void start();
         TaskHandle_t taskHandle();
+        void logStackSize();
 
         // Copy of a task object is a bad idea as theres a task running that would not be
         // duplicated. Prevent the automatic constructors that involve copies and moves.
@@ -60,6 +66,9 @@ class TaskObject {
         TaskObject(TaskObject &&) = delete;
         TaskObject& operator=(const TaskObject &) = delete;
         TaskObject& operator=(TaskObject &&) = delete;
+
+        // Needed for TaskObjects' list maintenance
+        bool operator ==(const TaskObject &otherTaskObject) const;
 };
 
 #endif // TASK_OBJECT_H

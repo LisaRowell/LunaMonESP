@@ -1,3 +1,4 @@
 idf_component_register(SRCS "TaskObject.cpp"
-                       INCLUDE_DIRS "include"
+                            "TaskObjects.cpp"
+                       INCLUDE_DIRS "include" "../../etl/include"
                        REQUIRES Logger Error)

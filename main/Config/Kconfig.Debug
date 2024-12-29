@@ -1,4 +1,14 @@
 menu "Debug config"
+    config LUNAMON_DEBUG_MEMORY_USAGE
+        bool "Debug Memory Usage"
+        help
+            Whether or not to debug the memory usage.
+
+    config LUNAMON_DEBUG_MEMORY_USAGE_ENABLED
+        int
+        default 1 if LUNAMON_DEBUG_MEMORY_USAGE
+        default 0 if !LUNAMON_DEBUG_MEMORY_USAGE
+
     config LUNAMON_DEBUG_MODULE_MAIN
         bool "Debug Main"
         help

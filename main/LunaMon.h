@@ -67,6 +67,8 @@ class Buzzer;
 
 class LunaMon {
     private:
+        static constexpr uint32_t memoryCheckIntervalSec = 60;
+
         StatsManager statsManager;
         DataModel dataModel;
         AISContacts aisContacts;
@@ -88,6 +90,7 @@ class LunaMon {
         EnvironmentalMon *environmentalMon;
         StatusLED *statusLED;
         Buzzer *buzzer;
+        PassiveTimer memoryCheckTimer;
 
         etl::string<10> versionBuffer;
         DataModelStringLeaf versionLeaf;
@@ -136,6 +139,8 @@ class LunaMon {
         NMEALineHandler *nmeaDestinationByID(InterfaceID id);
         SeaTalkInterface *seaTalkInterfaceByID(InterfaceID id);
         Interface *interfaceByID(InterfaceID id);
+        void checkMemoryUsage();
+        void logMainStackSize();
 
     public:
         LunaMon();

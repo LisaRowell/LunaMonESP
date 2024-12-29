@@ -46,6 +46,7 @@
 #include "I2CMaster.h"
 #include "EnvironmentalMon.h"
 #include "Buzzer.h"
+#include "TaskObjects.h"
 #include "Logger.h"
 #include "ESPError.h"
 #include "Error.h"
@@ -54,6 +55,7 @@
 #include "driver/i2c.h"
 #include "driver/uart.h"
 #include "nvs_flash.h"
+#include "esp_heap_caps.h"
 #include "esp_timer.h"
 #include "esp_err.h"
 
@@ -696,9 +698,16 @@ void LunaMon::run() {
 
     versionLeaf = "0.1.1";
 
+    memoryCheckTimer.setSeconds(memoryCheckIntervalSec);
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10000));
         uptimeLeaf = (uint32_t)(esp_timer_get_time() / 1000000);
+
+        if (memoryCheckTimer.expired()) {
+            memoryCheckTimer.advanceSeconds(memoryCheckIntervalSec);
+
+            checkMemoryUsage();
+        }
     }
 }
 
@@ -722,4 +731,31 @@ void LunaMon::initNVS() {
             errorExit();
         }
     }
+}
+
+void LunaMon::checkMemoryUsage() {
+    size_t totalSRAMK = heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024;
+    size_t freeSRAMK = heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024;
+    size_t minFreeSRAMK = heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL) / 1024;
+    size_t largestFreeSRAMBlockK = heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024;
+
+    logger << logDebugMemory << "SRAM: " << freeSRAMK << "/" << totalSRAMK << "k  min free "
+           << minFreeSRAMK << "k  largest free " << largestFreeSRAMBlockK << "k" << eol;
+
+    // TODO: add setting of DataModule nodes for the above information...
+
+    if (logger.debugEnabled(LOGGER_MODULE_MEMORY)) {
+        logger << logDebugMemory << "Stack Usage:" << eol;
+
+        logMainStackSize();
+        taskObjects.logStackSizes();
+    }
+}
+
+void LunaMon::logMainStackSize() {
+        size_t smallestFreeStack = uxTaskGetStackHighWaterMark2(nullptr);
+        size_t mostUsedStackSpace = CONFIG_ESP_MAIN_TASK_STACK_SIZE - smallestFreeStack;
+
+        logger << logDebugMemory << "    main: " << mostUsedStackSpace << "/"
+                 << CONFIG_ESP_MAIN_TASK_STACK_SIZE << eol;
 }

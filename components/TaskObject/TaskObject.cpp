@@ -1,6 +1,6 @@
 /*
  * This file is part of LunaMon (https://github.com/LisaRowell/LunaMonESP)
- * Copyright (C) 2023 Lisa Rowell
+ * Copyright (C) 2023-2024 Lisa Rowell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  */
 
 #include "TaskObject.h"
+#include "TaskObjects.h"
 
 #include "Logger.h"
 #include "Error.h"
@@ -41,6 +42,8 @@ void TaskObject::start() {
         logger << logErrorTaskObject << "Failed to create " << name << " task" << eol;
         errorExit();
     }
+
+    taskObjects.addTaskObject(*this);
 }
 
 TaskHandle_t TaskObject::taskHandle() {
@@ -58,5 +61,20 @@ void TaskObject::startTask(void *taskPtr) {
     task->task();
 
     logger << logErrorTaskObject << "Task " << task->name << " returned. Deleting task..." << eol;
+
+    taskObjects.removeTaskObject(*task);
     vTaskDelete(nullptr);
+}
+
+// Note: runs on main task and not on the TaskObject's own thread
+void TaskObject::logStackSize() {
+    size_t smallestFreeStack = uxTaskGetStackHighWaterMark2(_task);
+    size_t mostUsedStackSpace = stackSize - smallestFreeStack;
+
+    taskLogger() << logDebugMemory << "    " << name << ": " << mostUsedStackSpace << "/"
+                 << stackSize << eol;
+}
+
+bool TaskObject::operator ==(const TaskObject &otherTaskObject) const {
+    return this == &otherTaskObject;
 }
