@@ -23,12 +23,13 @@
 
 class PassiveTimer {
     private:
-        const uint32_t halfMilliTimerRange = 0x80000000;
+        static constexpr uint32_t halfMilliTimerRange = 0x80000000;
         uint32_t endTime;
 
         uint32_t millis() const;
 
     public:
+        PassiveTimer();
         void setMilliSeconds(uint32_t milliSeconds);
         void setSeconds(uint32_t seconds);
         void setNow();

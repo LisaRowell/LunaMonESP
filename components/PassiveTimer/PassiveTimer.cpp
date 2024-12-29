@@ -25,6 +25,10 @@
 
 #include <stdint.h>
 
+PassiveTimer::PassiveTimer()
+    : endTime(0) {
+}
+
 void PassiveTimer::setMilliSeconds(uint32_t milliSeconds) {
     // The algorithm we use for detection of a timer end is designed for system uptimes greater than
     // the 50 days that it takes to wrap around a 32 bit millisecond counter and is based on seeing
