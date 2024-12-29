@@ -6,23 +6,29 @@ menu "MQTT Configuration"
         help
             The maximum allowed simultaneous MQTT client connections.
 
-    config LUNAMON_TCP_KEEPALIVE_IDLE
+    config LUNAMON_MQTT_TCP_KEEPALIVE_IDLE
         int "TCP keep-alive idle time(s)"
         default 5
         help
             Keep-alive idle time. In idle time without receiving any data from peer, will send
             keep-alive probe packet.
 
-    config LUNAMON_TCP_KEEPALIVE_INTERVAL
+    config LUNAMON_MQTT_TCP_KEEPALIVE_INTERVAL
         int "TCP keep-alive interval time(s)"
         default 5
         help
             Keep-alive probe packet interval time.
 
-    config LUNAMON_TCP_KEEPALIVE_COUNT
+    config LUNAMON_MQTT_TCP_KEEPALIVE_COUNT
         int "TCP keep-alive packet retry send counts"
         default 3
         help
             Keep-alive probe packet retry count.
+
+    config LUNAMON_MQTT_RECEIVE_BUFFER_SIZE
+        int "TCP receive buffer size"
+        default 8192
+        help
+            TCP receive buffer size in bytes.
 
 endmenu

@@ -81,7 +81,7 @@ class MQTTConnection : public TaskObject, public ConnectionLink {
 
         virtual void task() override;
         void waitForSocketAssignment();
-        void setSocketKeepalive();
+        void setSocketOptions();
         bool readMessage(MQTTMessage &message);
         bool processMessage(const MQTTMessage &message);
         bool processConnectMessage(const MQTTMessage &message);

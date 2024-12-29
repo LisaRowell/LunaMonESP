@@ -125,7 +125,7 @@ MessageBufferHandle_t MQTTConnection::sessionMessageBuffer() {
 void MQTTConnection::task() {
     while (true != false) {
         waitForSocketAssignment();
-        setSocketKeepalive();
+        setSocketOptions();
 
         // The connection may be for an existing session, but we won't know that until we get a
         // CONNECT message. For now, mark as not having a session.
@@ -384,16 +384,19 @@ bool MQTTConnection::determineRemainingLength(size_t &remainingLength, MQTTFixed
     }
 }
 
-void MQTTConnection::setSocketKeepalive() {
+void MQTTConnection::setSocketOptions() {
     int keepAlive = 1;
-    int keepIdle = CONFIG_LUNAMON_TCP_KEEPALIVE_IDLE;
-    int keepInterval = CONFIG_LUNAMON_TCP_KEEPALIVE_INTERVAL;
-    int keepCount = CONFIG_LUNAMON_TCP_KEEPALIVE_COUNT;
+    int keepIdle = CONFIG_LUNAMON_MQTT_TCP_KEEPALIVE_IDLE;
+    int keepInterval = CONFIG_LUNAMON_MQTT_TCP_KEEPALIVE_INTERVAL;
+    int keepCount = CONFIG_LUNAMON_MQTT_TCP_KEEPALIVE_COUNT;
 
     setsockopt(connectionSocket, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
     setsockopt(connectionSocket, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
     setsockopt(connectionSocket, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(int));
     setsockopt(connectionSocket, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
+
+    int receiveBufferSize = CONFIG_LUNAMON_MQTT_RECEIVE_BUFFER_SIZE;
+    setsockopt(connectionSocket, SOL_SOCKET, SO_RCVBUF, &receiveBufferSize, sizeof(int));
 }
 
 bool MQTTConnection::readToBuffer(size_t readAmount) {

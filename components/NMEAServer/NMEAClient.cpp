@@ -72,9 +72,9 @@ bool NMEAClient::sendLine(const NMEALine &inputLine, bool &dropped) {
 
 void NMEAClient::setSocketKeepalive() {
     int keepAlive = 1;
-    int keepIdle = CONFIG_LUNAMON_TCP_KEEPALIVE_IDLE;
-    int keepInterval = CONFIG_LUNAMON_TCP_KEEPALIVE_INTERVAL;
-    int keepCount = CONFIG_LUNAMON_TCP_KEEPALIVE_COUNT;
+    int keepIdle = CONFIG_LUNAMON_NMEA_SERVER_TCP_KEEPALIVE_IDLE;
+    int keepInterval = CONFIG_LUNAMON_NMEA_SERVER_TCP_KEEPALIVE_INTERVAL;
+    int keepCount = CONFIG_LUNAMON_NMEA_SERVER_TCP_KEEPALIVE_COUNT;
 
     setsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
     setsockopt(socket, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
