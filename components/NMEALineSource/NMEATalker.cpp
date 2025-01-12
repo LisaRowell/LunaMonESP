@@ -39,7 +39,6 @@ static const TalkerTableEntry talkerTable[] = {
     { "AB", "Independent AIS Base Station" },
     { "AD", "Dependent AIS Base Station" },
     { "AG", "Autopilot - General" },
-    { "AI", "Mobile AIS Station" },
     { "AN", "AIS Aid to Navigation" },
     { "AP", "Autopilot - Magnetic" },
     { "AR", "AIS Receiving Station" },
