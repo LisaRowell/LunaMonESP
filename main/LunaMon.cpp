@@ -545,28 +545,28 @@ SeaTalkNMEABridge *LunaMon::createSeaTalkNMEABridge(const char *name, const char
 NMEAInterface *LunaMon::nmeaInterfaceByID(InterfaceID id) {
     switch (id) {
         case InterfaceID::INTERFACE_WIFI:
-            return nmeaWiFiInterface;
+            return dynamic_cast<NMEAInterface *>(nmeaWiFiInterface);
         case InterfaceID::INTERFACE_UART1:
             if (UART1_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)uart1Interface;
+                return dynamic_cast<NMEAInterface *>(uart1Interface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_UART2:
             if (UART2_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)uart2Interface;
+                return dynamic_cast<NMEAInterface *>(uart2Interface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_RMT_UART:
             if (RMT_UART_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)rmtUARTInterface;
+                return dynamic_cast<NMEAInterface *>(rmtUARTInterface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_SOFT_UART:
             if (SOFTWARE_UART_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)softUARTInterface;
+                return dynamic_cast<NMEAInterface *>(softUARTInterface);
             } else {
                 return nullptr;
             }
@@ -578,28 +578,28 @@ NMEAInterface *LunaMon::nmeaInterfaceByID(InterfaceID id) {
 NMEALineHandler *LunaMon::nmeaDestinationByID(InterfaceID id) {
     switch (id) {
         case InterfaceID::INTERFACE_WIFI:
-            return nmeaWiFiInterface;
+            return dynamic_cast<NMEAInterface *>(nmeaWiFiInterface);
         case InterfaceID::INTERFACE_UART1:
             if (UART1_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)uart1Interface;
+                return dynamic_cast<NMEAInterface *>(uart1Interface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_UART2:
             if (UART2_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)uart2Interface;
+                return dynamic_cast<NMEAInterface *>(uart2Interface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_RMT_UART:
             if (RMT_UART_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)rmtUARTInterface;
+                return dynamic_cast<NMEAInterface *>(rmtUARTInterface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_SOFT_UART:
             if (SOFTWARE_UART_PROTOCOL == INTERFACE_NMEA_O183) {
-                return (NMEAInterface *)softUARTInterface;
+                return dynamic_cast<NMEAInterface *>(softUARTInterface);
             } else {
                 return nullptr;
             }
@@ -610,26 +610,25 @@ NMEALineHandler *LunaMon::nmeaDestinationByID(InterfaceID id) {
     }
 }
 
-
 SeaTalkInterface *LunaMon::seaTalkInterfaceByID(InterfaceID id) {
     switch (id) {
         case InterfaceID::INTERFACE_UART1:
             if (UART1_PROTOCOL == INTERFACE_STALK) {
-                return (STALKUARTInterface *)uart1Interface;
+                return dynamic_cast<STALKUARTInterface *>(uart1Interface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_UART2:
             if (UART2_PROTOCOL == INTERFACE_STALK) {
-                return (STALKUARTInterface *)uart2Interface;
+                return dynamic_cast<STALKUARTInterface *>(uart2Interface);
             } else {
                 return nullptr;
             }
         case InterfaceID::INTERFACE_RMT_UART:
             if (RMT_UART_PROTOCOL == INTERFACE_SEA_TALK) {
-                return (SeaTalkRMTUARTInterface *)rmtUARTInterface;
+                return dynamic_cast<SeaTalkRMTUARTInterface *>(rmtUARTInterface);
             } else if (RMT_UART_PROTOCOL == INTERFACE_STALK) {
-                return (STALKRMTUARTInterface *)rmtUARTInterface;
+                return dynamic_cast<STALKRMTUARTInterface *>(rmtUARTInterface);
             } else {
                 return nullptr;
             }
