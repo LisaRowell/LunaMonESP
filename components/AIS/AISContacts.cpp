@@ -68,14 +68,19 @@ void AISContacts::releaseContactsLock() {
 AISContact *AISContacts::findOrCreateContact(const AISMMSI &mmsi) {
     auto contactIterator = contacts.find(mmsi);
     if (contactIterator == contacts.end()) {
+        if (freeContacts.full()) {
+            logger << logWarnAIS << "Failed to create contact for mmsi " << mmsi
+                   << ", maximum contacts reached" << eol;
+            return nullptr;
+        }
         AISContact *contact = new (freeContacts.allocate()) AISContact(mmsi);
         if (contact != nullptr) {
             logger << logDebugAIS << "Created new contact for mmsi " << mmsi << eol;
             contacts[mmsi] = contact;
             return contact;
         } else {
-            logger << logWarnAIS << "Failed to create contact for mmsi " << mmsi
-                   << ", maximum contacts reached" << eol;
+            logger << logErrorAIS << "Failed to create contact for mmsi " << mmsi
+                   << ", allocation failed with free entries remaining" << eol;
             return nullptr;
         }
     } else {
